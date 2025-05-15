@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 const _primaryBg = CustomColors.white;
@@ -126,8 +127,26 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
                                   ),
 
                                   Spacer(),
+                                  Button(
+                                    text: "Sair",
+                                    icon: Icon(
+                                      LucideIcons.logOut,
+                                      color: CustomColors.white,
+                                    ),
+                                    backgroundColor: CustomColors.error,
+                                    onPressed: () {
+                                      Navigator.of(
+                                        context,
+                                      ).pushNamedAndRemoveUntil(
+                                        '/',
+                                        (route) => false,
+                                      );
+                                    },
+                                  ),
+
                                   Padding(
                                     padding: const EdgeInsets.only(
+                                      top: 16.0,
                                       bottom: 16.0,
                                     ),
                                     child: Text(

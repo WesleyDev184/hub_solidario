@@ -1,81 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/categories/presentation/widgets/category_card.dart';
+import 'package:project_rotary/app/applicants/presentation/widgets/applicants_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/bottom_navigation.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
-class CategoriesPage extends StatefulWidget {
-  const CategoriesPage({super.key});
+class ApplicantsPage extends StatefulWidget {
+  const ApplicantsPage({super.key});
 
   @override
-  State<CategoriesPage> createState() => _CategoriesPageState();
+  State<ApplicantsPage> createState() => _ApplicantsPageState();
 }
 
-class _CategoriesPageState extends State<CategoriesPage> {
+class _ApplicantsPageState extends State<ApplicantsPage> {
   final TextEditingController searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> categoryData = [
+  final List<Map<String, dynamic>> applicantsData = [
     {
       "id": "1",
       "imageUrl": "assets/images/cr.jpg",
-      "title": "Cadeira de Rodas",
+      "title": "João Silva",
       "available": 10,
-      "inUse": 3,
-      "inMaintenance": 2,
+      "beneficiary": true,
     },
     {
       "id": "2",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Muletas",
+      "title": "Maria Oliveira",
       "available": 5,
-      "inUse": 7,
-      "inMaintenance": 1,
+      "beneficiary": false,
     },
     {
       "id": "3",
       "imageUrl": "assets/images/cr.jpg",
-      "title": "Andador",
+      "title": "Carlos Souza",
       "available": 8,
-      "inUse": 2,
-      "inMaintenance": 0,
+      "beneficiary": true,
     },
     {
       "id": "4",
       "imageUrl": "assets/images/cr.jpg",
-      "title": "Cadeira de banho",
+      "title": "Ana Paula",
       "available": 12,
-      "inUse": 4,
-      "inMaintenance": 3,
+      "beneficiary": false,
     },
     {
       "id": "5",
       "imageUrl": "assets/images/cr.jpg",
-      "title": "Botas ortopédicas",
+      "title": "Roberto Lima",
       "available": 7,
-      "inUse": 5,
-      "inMaintenance": 2,
+      "beneficiary": true,
+    },
+    {
+      "id": "6",
+      "imageUrl": "assets/images/cr.jpg",
+      "title": "Fernanda Costa",
+      "available": 9,
+      "beneficiary": false,
+    },
+    {"id": "7", "title": "Lucas Pereira", "available": 6, "beneficiary": true},
+    {
+      "id": "8",
+      "imageUrl": "assets/images/cr.jpg",
+      "title": "Camila Santos",
+      "available": 11,
+      "beneficiary": false,
+    },
+    {
+      "id": "9",
+      "imageUrl": "assets/images/cr.jpg",
+      "title": "Bruno Carvalho",
+      "available": 4,
+      "beneficiary": true,
+    },
+    {
+      "id": "10",
+      "imageUrl": "assets/images/cr.jpg",
+      "title": "Patrícia Almeida",
+      "available": 15,
+      "beneficiary": false,
     },
   ];
 
-  List<Map<String, dynamic>> filteredCategories = [];
+  List<Map<String, dynamic>> filteredApplicants = [];
 
   @override
   void initState() {
     super.initState();
-    filteredCategories = List.from(categoryData);
-    searchController.addListener(filterCategories);
+    filteredApplicants = List.from(applicantsData);
+    searchController.addListener(filterApplicants);
   }
 
-  void filterCategories() {
+  void filterApplicants() {
     final query = searchController.text.toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        filteredCategories = List.from(categoryData);
+        filteredApplicants = List.from(applicantsData);
       } else {
-        filteredCategories =
-            categoryData.where((category) {
+        filteredApplicants =
+            applicantsData.where((category) {
               final title = category["title"].toString().toLowerCase();
               return title.contains(query);
             }).toList();
@@ -85,7 +108,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
   @override
   void dispose() {
-    searchController.removeListener(filterCategories);
+    searchController.removeListener(filterApplicants);
     searchController.dispose();
     super.dispose();
   }
@@ -106,7 +129,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBarCustom(title: 'Categorias', saveAction: () {}),
+        appBar: AppBarCustom(title: 'Solicitantes', saveAction: () {}),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -120,24 +143,21 @@ class _CategoriesPageState extends State<CategoriesPage> {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: GridView.builder(
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical, // define a direção vertical
                   physics: const BouncingScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.7,
-                  ),
-                  itemCount: filteredCategories.length,
+                  itemCount: filteredApplicants.length,
                   itemBuilder: (context, index) {
-                    final category = filteredCategories[index];
-                    return CategoryCard(
-                      id: category["id"],
-                      imageUrl: category["imageUrl"],
-                      title: category["title"],
-                      available: category["available"],
-                      inUse: category["inUse"],
-                      inMaintenance: category["inMaintenance"],
+                    final applicant = filteredApplicants[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 5.0),
+                      child: ApplicantsCard(
+                        id: applicant["id"] as String,
+                        imageUrl: applicant["imageUrl"] as String?,
+                        name: applicant["title"] as String,
+                        qtd: applicant["available"] as int,
+                        beneficiary: applicant["beneficiary"] ?? false,
+                      ),
                     );
                   },
                 ),
