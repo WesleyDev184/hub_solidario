@@ -24,9 +24,6 @@ class CategoriesPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         appBar: AppBarCustom(
           title: 'Categories',
-          closeAction: () {
-            Navigator.pushReplacementNamed(context, '/');
-          },
           saveAction: () {},
         ),
         body: Stack(

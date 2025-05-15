@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 const _primaryBg = CustomColors.white;
@@ -9,12 +10,10 @@ const _primaryColor = CustomColors.textPrimary;
 class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
   const AppBarCustom({
     super.key,
-    required this.closeAction,
     required this.saveAction,
     required this.title,
   });
 
-  final void Function() closeAction;
   final void Function() saveAction;
   final String title;
 
@@ -36,11 +35,20 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               spacing: 12,
               children: [
-                IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: closeAction,
-                  color: _primaryColor,
-                ),
+                Navigator.canPop(context)
+                    ? IconButton(
+                      icon: Icon(LucideIcons.arrowLeft, color: _primaryColor),
+                      onPressed: () {
+                        Navigator.of(context).maybePop();
+                      },
+                    )
+                    : IconButton(
+                      icon: Icon(LucideIcons.info),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/info');
+                      },
+                      color: _primaryColor,
+                    ),
 
                 Text(
                   title,
@@ -52,7 +60,7 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
                 ),
 
                 IconButton(
-                  icon: Icon(Icons.menu),
+                  icon: Icon(LucideIcons.menu),
                   onPressed: () {
                     showGeneralDialog(
                       context: context,
@@ -93,19 +101,28 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
 
                                   ListTile(
                                     leading: Icon(
-                                      Icons.home,
-                                      color: CustomColors.primary,
+                                      LucideIcons.idCard,
+                                      color: CustomColors.textPrimary,
                                     ),
-                                    title: Text('Home'),
+                                    title: Text('Nome'),
                                   ),
 
                                   Divider(),
                                   ListTile(
                                     leading: Icon(
-                                      Icons.perm_identity,
-                                      color: CustomColors.primary,
+                                      LucideIcons.mail,
+                                      color: CustomColors.textPrimary,
                                     ),
-                                    title: Text('Settings'),
+                                    title: Text('Email'),
+                                  ),
+
+                                  Divider(),
+                                  ListTile(
+                                    leading: Icon(
+                                      LucideIcons.phone,
+                                      color: CustomColors.textPrimary,
+                                    ),
+                                    title: Text('Phone'),
                                   ),
 
                                   Spacer(),

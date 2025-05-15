@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
@@ -25,7 +26,7 @@ class _PasswordFieldState extends State<PasswordField> {
       decoration: InputDecoration(
         labelText: widget.hint,
         suffixIcon: IconButton(
-          icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+          icon: Icon(_obscure ? LucideIcons.eye : LucideIcons.eyeOff),
           onPressed: () {
             setState(() => _obscure = !_obscure);
           },

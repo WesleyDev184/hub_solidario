@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/auth/data/impl_auth_repository.dart';
 import 'package:project_rotary/app/auth/domain/dto/signin_dto.dart';
 import 'package:project_rotary/app/auth/presentation/controller/auth_controller.dart';
@@ -65,7 +66,7 @@ class _SingInFormState extends State<SingInForm> {
             InputField(
               controller: emailController,
               hint: "Email",
-              icon: Icons.email,
+              icon: LucideIcons.mail,
             ),
             const SizedBox(height: 10),
             PasswordField(controller: passwordController, hint: "Senha"),
@@ -83,7 +84,7 @@ class _SingInFormState extends State<SingInForm> {
             const SizedBox(height: 10),
             Button(
               onPressed: () async {
-                bool success = await authController.signin(
+                final result = await authController.signin(
                   signInDTO: SignInDTO(
                     email: emailController.text,
                     password: passwordController.text,
@@ -91,21 +92,24 @@ class _SingInFormState extends State<SingInForm> {
                 );
 
                 if (context.mounted) {
-                  if (success) {
-                    Navigator.pushReplacementNamed(context, '/categories');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          authController.error ?? 'Erro ao fazer login',
+                  result.fold(
+                    (success) {
+                      Navigator.pushReplacementNamed(context, '/categories');
+                    },
+                    (error) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            authController.error ?? 'Erro ao fazer login',
+                          ),
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    },
+                  );
                 }
               },
               text: "Entrar",
-              icon: Icon(Icons.login, color: CustomColors.white),
+              icon: Icon(LucideIcons.logIn, color: CustomColors.white),
               backgroundColor: CustomColors.success,
               isFullWidth: true,
             ),

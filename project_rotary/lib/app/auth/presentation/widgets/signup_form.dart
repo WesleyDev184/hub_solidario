@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/auth/data/impl_auth_repository.dart';
 import 'package:project_rotary/app/auth/domain/dto/signup_dto.dart';
 import 'package:project_rotary/app/auth/presentation/controller/auth_controller.dart';
@@ -69,19 +70,19 @@ class _SignUpFormState extends State<SignUpForm> {
             InputField(
               controller: nameController,
               hint: "Nome",
-              icon: Icons.person,
+              icon: LucideIcons.user,
             ),
             const SizedBox(height: 8),
             InputField(
               controller: emailController,
               hint: "Email",
-              icon: Icons.email,
+              icon: LucideIcons.mail,
             ),
             const SizedBox(height: 8),
             InputField(
               controller: phoneController,
               hint: "Telefone",
-              icon: Icons.phone,
+              icon: LucideIcons.phone,
             ),
             const SizedBox(height: 8),
             PasswordField(controller: passwordController, hint: "Senha"),
@@ -93,7 +94,7 @@ class _SignUpFormState extends State<SignUpForm> {
             const SizedBox(height: 16),
             Button(
               onPressed: () async {
-                bool success = await authController.signup(
+                final result = await authController.signup(
                   signUpDTO: SignUpDTO(
                     email: emailController.text,
                     password: passwordController.text,
@@ -104,17 +105,20 @@ class _SignUpFormState extends State<SignUpForm> {
                 );
 
                 if (context.mounted) {
-                  if (success) {
-                    Navigator.pushReplacementNamed(context, '/categories');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          authController.error ?? 'Erro ao fazer login',
+                  result.fold(
+                    (success) {
+                      Navigator.pushReplacementNamed(context, '/categories');
+                    },
+                    (error) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            authController.error ?? 'Erro ao fazer login',
+                          ),
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    },
+                  );
                 }
               },
               text: "Criar conta",
