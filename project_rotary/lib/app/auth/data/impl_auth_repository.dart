@@ -9,10 +9,6 @@ class ImplAuthRepository implements AuthRepository {
   @override
   AsyncResult<String> signin({required SignInDTO signInDTO}) async {
     await Future.delayed(const Duration(seconds: 1));
-    if (signInDTO.email != 'admin@email.com' ||
-        signInDTO.password != '123456') {
-      return Failure(Exception('Credenciais inválidas'));
-    }
 
     debugPrint('Login realizado com sucesso');
     return Success('Login realizado com sucesso');

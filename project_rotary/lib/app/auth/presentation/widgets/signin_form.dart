@@ -94,7 +94,11 @@ class _SingInFormState extends State<SingInForm> {
                 if (context.mounted) {
                   result.fold(
                     (success) {
-                      Navigator.pushReplacementNamed(context, '/categories');
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/drawer',
+                        (route) => false,
+                      );
                     },
                     (error) {
                       ScaffoldMessenger.of(context).showSnackBar(

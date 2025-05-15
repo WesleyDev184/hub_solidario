@@ -25,7 +25,7 @@ class InfoPage extends StatelessWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBarCustom(title: 'Agradecimento', saveAction: () {}),
+        appBar: AppBarCustom(title: 'Agradecimento'),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),

@@ -9,13 +9,8 @@ const _primaryBg = CustomColors.white;
 const _primaryColor = CustomColors.textPrimary;
 
 class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
-  const AppBarCustom({
-    super.key,
-    required this.saveAction,
-    required this.title,
-  });
+  const AppBarCustom({super.key, required this.title});
 
-  final void Function() saveAction;
   final String title;
 
   @override

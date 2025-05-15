@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/applicants/presentation/widgets/applicants_card.dart';
-import 'package:project_rotary/core/components/appbar_custom.dart';
-import 'package:project_rotary/core/components/bottom_navigation.dart';
+import 'package:project_rotary/app/drawer/applicants/presentation/widgets/applicants_card.dart';
 import 'package:project_rotary/core/components/input_field.dart';
-import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class ApplicantsPage extends StatefulWidget {
   const ApplicantsPage({super.key});
@@ -94,15 +92,13 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
   void filterApplicants() {
     final query = searchController.text.toLowerCase();
     setState(() {
-      if (query.isEmpty) {
-        filteredApplicants = List.from(applicantsData);
-      } else {
-        filteredApplicants =
-            applicantsData.where((category) {
-              final title = category["title"].toString().toLowerCase();
-              return title.contains(query);
-            }).toList();
-      }
+      filteredApplicants =
+          query.isEmpty
+              ? List.from(applicantsData)
+              : applicantsData.where((applicant) {
+                final title = applicant["title"].toString().toLowerCase();
+                return title.contains(query);
+              }).toList();
     });
   }
 
@@ -115,57 +111,51 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: CustomColors.white,
-        image: DecorationImage(
-          image: const AssetImage("assets/images/bg.jpg"),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            CustomColors.primarySwatch.shade100,
-            BlendMode.dstATop,
+    // Removemos BackgroundWrapper e Scaffold para ser utilizado via IndexedStack
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          InputField(
+            controller: searchController,
+            hint: "Buscar",
+            icon: LucideIcons.search,
           ),
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBarCustom(title: 'Solicitantes', saveAction: () {}),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              InputField(
-                controller: searchController,
-                hint: "Buscar",
-                icon: LucideIcons.search,
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical, // define a direção vertical
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: filteredApplicants.length,
-                  itemBuilder: (context, index) {
-                    final applicant = filteredApplicants[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 5.0),
-                      child: ApplicantsCard(
-                        id: applicant["id"] as String,
-                        imageUrl: applicant["imageUrl"] as String?,
-                        name: applicant["title"] as String,
-                        qtd: applicant["available"] as int,
-                        beneficiary: applicant["beneficiary"] ?? false,
+          const SizedBox(height: 16),
+          Expanded(
+            child: AnimationLimiter(
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                physics: const BouncingScrollPhysics(),
+                itemCount: filteredApplicants.length,
+                itemBuilder: (context, index) {
+                  final applicant = filteredApplicants[index];
+                  return AnimationConfiguration.staggeredList(
+                    position: index,
+                    duration: const Duration(milliseconds: 500),
+                    child: SlideAnimation(
+                      verticalOffset: 50.0,
+                      child: FadeInAnimation(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 5.0),
+                          child: ApplicantsCard(
+                            id: applicant["id"] as String,
+                            imageUrl: applicant["imageUrl"] as String?,
+                            name: applicant["title"] as String,
+                            qtd: applicant["available"] as int,
+                            beneficiary: applicant["beneficiary"] ?? false,
+                          ),
+                        ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
-            ],
+            ),
           ),
-        ),
-        bottomNavigationBar: BottomNavigation(),
+        ],
       ),
     );
   }

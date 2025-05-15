@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class LoanCard extends StatelessWidget {
@@ -24,7 +25,7 @@ class LoanCard extends StatelessWidget {
       color: CustomColors.background,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,8 +37,8 @@ class LoanCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
                     imageUrl,
-                    width: 100,
-                    height: 100,
+                    width: 120,
+                    height: 130,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -71,25 +72,31 @@ class LoanCard extends StatelessWidget {
                           color: CustomColors.textSecondary,
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Button(
+                            onPressed: () {},
+                            icon: Icon(
+                              LucideIcons.info,
+                              color: CustomColors.white,
+                            ),
+                            backgroundColor: CustomColors.border,
+                          ),
+                          const SizedBox(width: 8),
+                          Button(
+                            onPressed: () {},
+                            icon: Icon(
+                              LucideIcons.arrowLeft,
+                              color: Colors.white,
+                            ),
+                            backgroundColor: CustomColors.success,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    LucideIcons.info,
-                    color: CustomColors.textSecondary,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(LucideIcons.arrowLeft, color: Colors.green),
                 ),
               ],
             ),
