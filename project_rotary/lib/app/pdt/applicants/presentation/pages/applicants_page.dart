@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/drawer/applicants/presentation/widgets/applicants_card.dart';
+import 'package:project_rotary/app/pdt/applicant/presentation/pages/applicant_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/widgets/applicants_card.dart';
+import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 
 class ApplicantsPage extends StatefulWidget {
@@ -111,51 +113,67 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Removemos BackgroundWrapper e Scaffold para ser utilizado via IndexedStack
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          InputField(
-            controller: searchController,
-            hint: "Buscar",
-            icon: LucideIcons.search,
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: AnimationLimiter(
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                physics: const BouncingScrollPhysics(),
-                itemCount: filteredApplicants.length,
-                itemBuilder: (context, index) {
-                  final applicant = filteredApplicants[index];
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 500),
-                    child: SlideAnimation(
-                      verticalOffset: 50.0,
-                      child: FadeInAnimation(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 5.0),
-                          child: ApplicantsCard(
-                            id: applicant["id"] as String,
-                            imageUrl: applicant["imageUrl"] as String?,
-                            name: applicant["title"] as String,
-                            qtd: applicant["available"] as int,
-                            beneficiary: applicant["beneficiary"] ?? false,
+    return Scaffold(
+      appBar: AppBarCustom(title: "Solicitantes"),
+      backgroundColor: Colors.transparent,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            InputField(
+              controller: searchController,
+              hint: "Buscar",
+              icon: LucideIcons.search,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: AnimationLimiter(
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: filteredApplicants.length,
+                  itemBuilder: (context, index) {
+                    final applicant = filteredApplicants[index];
+                    return AnimationConfiguration.staggeredList(
+                      position: index,
+                      duration: const Duration(milliseconds: 500),
+                      child: SlideAnimation(
+                        verticalOffset: 50.0,
+                        child: FadeInAnimation(
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => ApplicantPage(
+                                        applicantId: applicant["id"],
+                                        applicantTitle: applicant["title"],
+                                      ),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 5.0),
+                              child: ApplicantsCard(
+                                id: applicant["id"] as String,
+                                imageUrl: applicant["imageUrl"] as String?,
+                                name: applicant["title"] as String,
+                                qtd: applicant["available"] as int,
+                                beneficiary: applicant["beneficiary"] ?? false,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

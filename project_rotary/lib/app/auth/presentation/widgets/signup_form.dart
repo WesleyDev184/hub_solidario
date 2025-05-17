@@ -109,7 +109,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     (success) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
-                        '/drawer',
+                        '/layout',
                         (route) => false,
                       );
                     },

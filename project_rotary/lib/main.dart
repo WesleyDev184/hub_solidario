@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_rotary/app/auth/presentation/pages/signup_page.dart';
 import 'package:project_rotary/app/auth/presentation/pages/singin_page.dart';
-import 'package:project_rotary/app/drawer/presentation/pages/drawer_page.dart';
-import 'package:project_rotary/app/info/presentation/pages/info_page.dart';
+import 'package:project_rotary/app/pdt/layout.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,8 +18,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => SingInPage(),
         '/signup': (context) => SignUpPage(),
-        '/drawer': (context) => DrawerPage(),
-        '/info': (context) => const InfoPage(),
+        '/layout': (context) => Layout(),
       },
     );
   }

@@ -96,7 +96,7 @@ class _SingInFormState extends State<SingInForm> {
                     (success) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
-                        '/drawer',
+                        '/layout',
                         (route) => false,
                       );
                     },
