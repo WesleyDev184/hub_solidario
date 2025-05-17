@@ -1,0 +1,14 @@
+@startuml
+
+state Disponível
+state Emprestado
+state "Em Manutenção" as EmManutencao
+
+[*] --> Disponível
+Disponível --> Emprestado: Empréstimo realizado
+Emprestado --> Disponível: Item devolvido
+Disponível --> EmManutencao: Item precisa de reparo
+Emprestado --> EmManutencao: Item precisa de reparo
+EmManutencao --> Disponível: Reparo concluído
+
+@enduml

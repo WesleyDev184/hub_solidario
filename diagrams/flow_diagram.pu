@@ -1,0 +1,20 @@
+@startuml
+start
+
+:Usuário acessa o sistema;
+:Seleciona item disponível;
+:Verifica dados do solicitante;
+
+if (Item disponível?) then (Sim)
+  :Registra empréstimo;
+  :Atualiza estoque;
+  :Item emprestado;
+  :Empréstimo ativo;
+  :Solicitante retorna o item;
+  :Atualiza estoque;
+else (Não)
+  stop
+endif
+
+stop
+@enduml

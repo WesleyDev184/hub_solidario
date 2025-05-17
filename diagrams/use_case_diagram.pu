@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+
+rectangle "Sistema de Empréstimo" {
+(Realizar Empréstimo)
+(Devolver Item)
+(Consultar Disponibilidade)
+(Cadastrar Solicitante)
+(Cadastra Beneficiario)
+(Gerenciar Estoque)
+(Notificação de Fim de Empréstimo)
+(Envio de Email Automático)
+}
+
+usuario --> (Realizar Empréstimo)
+usuario --> (Devolver Item)
+usuario --> (Consultar Disponibilidade)
+usuario --> (Cadastrar Solicitante)
+usuario --> (Cadastra Beneficiario)
+usuario --> (Gerenciar Estoque)
+
+usuario <-- (Notificação de Fim de Empréstimo)
+
+sistema --> (Notificação de Fim de Empréstimo)
+sistema --> (Envio de Email Automático)
+@enduml
