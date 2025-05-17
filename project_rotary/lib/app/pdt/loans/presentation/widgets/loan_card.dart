@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/loan/presentation/pages/loan_page.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
@@ -77,7 +78,17 @@ class LoanCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Button(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => LoanPage(
+                                        loanId: id,
+                                        loanTitle: title,
+                                      ),
+                                ),
+                              );
+                            },
                             icon: Icon(
                               LucideIcons.info,
                               color: CustomColors.white,

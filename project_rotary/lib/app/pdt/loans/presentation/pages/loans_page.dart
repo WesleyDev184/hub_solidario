@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/loan/presentation/pages/loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/presentation/widgets/loan_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
@@ -144,27 +143,14 @@ class _LoansPageState extends State<LoansPage> {
                       child: SlideAnimation(
                         verticalOffset: 50.0,
                         child: FadeInAnimation(
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => LoanPage(
-                                        loanId: loan["id"],
-                                        loanTitle: loan["title"],
-                                      ),
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
-                              child: LoanCard(
-                                id: loan["id"] as String,
-                                imageUrl: loan["imageUrl"] as String,
-                                name: loan["name"] as String,
-                                title: loan["title"] as String,
-                                date: loan["date"] as String,
-                              ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 5.0),
+                            child: LoanCard(
+                              id: loan["id"] as String,
+                              imageUrl: loan["imageUrl"] as String,
+                              name: loan["name"] as String,
+                              title: loan["title"] as String,
+                              date: loan["date"] as String,
                             ),
                           ),
                         ),

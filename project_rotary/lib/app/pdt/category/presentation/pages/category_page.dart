@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/category/presentation/widgets/category_items_card.dart';
+import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
@@ -81,14 +82,16 @@ class CategoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
+      appBar: AppBarCustom(title: categoryTitle),
       body: Stack(
         children: [
           CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 270.0,
+                expandedHeight: 260.0,
                 floating: false,
                 pinned: true,
+                automaticallyImplyLeading: false,
                 backgroundColor: CustomColors.white,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Image.asset(
@@ -100,9 +103,9 @@ class CategoryPage extends StatelessWidget {
             ],
           ),
           DraggableScrollableSheet(
-            initialChildSize: 0.72,
-            minChildSize: 0.7,
-            maxChildSize: 0.94,
+            initialChildSize: 0.69,
+            minChildSize: 0.68,
+            maxChildSize: 1.0,
             builder: (context, scrollController) {
               return Container(
                 padding: const EdgeInsets.all(16.0),
@@ -153,7 +156,7 @@ class CategoryPage extends StatelessWidget {
                                 style: const TextStyle(
                                   color: CustomColors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                 ),
                               ),
                             ),
