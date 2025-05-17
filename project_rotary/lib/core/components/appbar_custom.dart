@@ -103,7 +103,7 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
                                       LucideIcons.idCard,
                                       color: CustomColors.textPrimary,
                                     ),
-                                    title: Text('Nome'),
+                                    title: Text('John Doe'),
                                   ),
 
                                   Divider(),
@@ -112,7 +112,7 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
                                       LucideIcons.mail,
                                       color: CustomColors.textPrimary,
                                     ),
-                                    title: Text('Email'),
+                                    title: Text('exemple@gmail.com'),
                                   ),
 
                                   Divider(),
@@ -121,10 +121,39 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
                                       LucideIcons.phone,
                                       color: CustomColors.textPrimary,
                                     ),
-                                    title: Text('Phone'),
+                                    title: Text('(11) 99999-9999'),
                                   ),
 
                                   Spacer(),
+
+                                  Card(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ListTile(
+                                      leading: Icon(
+                                        LucideIcons.building2,
+                                        color: CustomColors.primary,
+                                      ),
+                                      title: Text(
+                                        'Banco Ortopédico Exemplo', // Substitua pelo nome real do banco
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        'Cidade Exemplo',
+                                      ), // Substitua pela cidade real
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 16),
+
                                   Button(
                                     text: "Sair",
                                     icon: Icon(
