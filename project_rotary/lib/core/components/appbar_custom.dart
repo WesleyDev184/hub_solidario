@@ -26,7 +26,7 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.only(bottom: 8, top: 4, left: 8, right: 8),
+            padding: EdgeInsets.only(bottom: 8, top: 8, left: 8, right: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
