@@ -5,6 +5,20 @@ import 'package:project_rotary/app/pdt/loans/presentation/widgets/loan_card.dart
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 
+final List<Map<String, dynamic>> loansData = List.generate(10, (index) {
+  return {
+    "id": "${index + 1}",
+    "imageUrl": "assets/images/cr.jpg",
+    "name": "Pessoa ${index + 1}",
+    "title": index % 2 == 0 ? "Empréstimo Aprovado" : "Empréstimo Pendente",
+    "date": "15/05/2025",
+    "responsible": "Responsável ${index + 1}",
+    "beneficiary": "Beneficiário ${index + 1}",
+    "returnDate": "15/06/2025",
+    "status": index % 2 == 0 ? "Aprovado" : "Pendente",
+  };
+});
+
 class LoansPage extends StatefulWidget {
   const LoansPage({super.key});
 
@@ -14,72 +28,6 @@ class LoansPage extends StatefulWidget {
 
 class _LoansPageState extends State<LoansPage> {
   final TextEditingController searchController = TextEditingController();
-
-  final List<Map<String, dynamic>> loansData = [
-    {
-      "id": "1",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "João Silva",
-      "title": "Empréstimo Aprovado",
-      "date": "15/05/2025",
-    },
-    {
-      "id": "3",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "Carlos Souza",
-      "title": "Empréstimo Aprovado",
-      "date": "15/05/2025",
-    },
-    {
-      "id": "4",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "Ana Paula",
-      "title": "Empréstimo Pendente",
-      "date": "15/05/2025",
-    },
-    {
-      "id": "5",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "Roberto Lima",
-      "title": "Empréstimo Aprovado",
-      "date": "15/05/2025",
-    },
-    {
-      "id": "6",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "Fernanda Costa",
-      "title": "Empréstimo Pendente",
-      "date": "15/05/2025",
-    },
-    {
-      "id": "7",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "Lucas Pereira",
-      "title": "Empréstimo Aprovado",
-      "date": "15/05/2025",
-    },
-    {
-      "id": "8",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "Camila Santos",
-      "title": "Empréstimo Pendente",
-      "date": "15/05/2025",
-    },
-    {
-      "id": "9",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "Bruno Carvalho",
-      "title": "Empréstimo Aprovado",
-      "date": "15/05/2025",
-    },
-    {
-      "id": "10",
-      "imageUrl": "assets/images/cr.jpg",
-      "name": "Patrícia Almeida",
-      "title": "Empréstimo Pendente",
-      "date": "15/05/2025",
-    },
-  ];
 
   List<Map<String, dynamic>> filteredLoans = [];
 
@@ -151,6 +99,10 @@ class _LoansPageState extends State<LoansPage> {
                               name: loan["name"] as String,
                               title: loan["title"] as String,
                               date: loan["date"] as String,
+                              beneficiary: loan["beneficiary"] as String,
+                              responsible: loan["responsible"] as String,
+                              returnDate: loan["returnDate"] as String,
+                              status: loan["status"] as String,
                             ),
                           ),
                         ),

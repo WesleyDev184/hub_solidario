@@ -7,8 +7,24 @@ import 'package:project_rotary/core/theme/custom_colors.dart';
 class LoanPage extends StatelessWidget {
   final String loanId;
   final String loanTitle;
+  final String loanResponsible;
+  final String loanApplicant;
+  final String loanBeneficiary;
+  final String loanDate;
+  final String loanReturnDate;
+  final String loanStatus;
 
-  const LoanPage({super.key, required this.loanId, required this.loanTitle});
+  const LoanPage({
+    super.key,
+    required this.loanId,
+    required this.loanTitle,
+    required this.loanResponsible,
+    required this.loanApplicant,
+    required this.loanBeneficiary,
+    required this.loanDate,
+    required this.loanReturnDate,
+    required this.loanStatus,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +92,7 @@ class LoanPage extends StatelessWidget {
                         _buildInfoRow(
                           LucideIcons.idCard,
                           'Responsável:',
-                          'Jhon Doe',
+                          loanResponsible,
                         ),
                         const Divider(),
                         const SizedBox(height: 8),
@@ -85,7 +101,7 @@ class LoanPage extends StatelessWidget {
                         _buildInfoRow(
                           LucideIcons.idCard,
                           'Solicitante:',
-                          'Jhon Doe',
+                          loanApplicant,
                         ),
                         const Divider(),
                         const SizedBox(height: 8),
@@ -94,7 +110,7 @@ class LoanPage extends StatelessWidget {
                         _buildInfoRow(
                           LucideIcons.idCard,
                           'Beneficiado:',
-                          'Jhon Doe',
+                          loanBeneficiary,
                         ),
                         const Divider(),
                         const SizedBox(height: 8),
@@ -103,7 +119,7 @@ class LoanPage extends StatelessWidget {
                         _buildInfoRow(
                           LucideIcons.calendar,
                           'Empréstimo:',
-                          '00/00/0000',
+                          loanDate,
                         ),
                         const Divider(),
                         const SizedBox(height: 8),
@@ -112,7 +128,7 @@ class LoanPage extends StatelessWidget {
                         _buildInfoRow(
                           LucideIcons.calendar,
                           'Devolução:',
-                          '00/00/0000',
+                          loanReturnDate,
                         ),
                       ],
                     ),

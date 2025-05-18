@@ -6,6 +6,17 @@ import 'package:project_rotary/app/pdt/category/presentation/pages/category_page
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 
+final List<Map<String, dynamic>> categoryData = List.generate(10, (index) {
+  return {
+    "id": "${index + 1}",
+    "imageUrl": "assets/images/cr.jpg",
+    "title": "Categoria ${index + 1}",
+    "available": (index + 1) * 2,
+    "inUse": index + 1,
+    "inMaintenance": index % 3,
+  };
+});
+
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
 
@@ -15,49 +26,6 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   final TextEditingController searchController = TextEditingController();
-
-  final List<Map<String, dynamic>> categoryData = [
-    {
-      "id": "1",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Cadeira de Rodas",
-      "available": 10,
-      "inUse": 3,
-      "inMaintenance": 2,
-    },
-    {
-      "id": "2",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Muletas",
-      "available": 5,
-      "inUse": 7,
-      "inMaintenance": 1,
-    },
-    {
-      "id": "3",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Andador",
-      "available": 8,
-      "inUse": 2,
-      "inMaintenance": 0,
-    },
-    {
-      "id": "4",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Cadeira de banho",
-      "available": 12,
-      "inUse": 4,
-      "inMaintenance": 3,
-    },
-    {
-      "id": "5",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Botas ortopédicas",
-      "available": 7,
-      "inUse": 5,
-      "inMaintenance": 2,
-    },
-  ];
 
   List<Map<String, dynamic>> filteredCategories = [];
 

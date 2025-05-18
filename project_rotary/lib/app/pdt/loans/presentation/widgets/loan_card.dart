@@ -10,6 +10,10 @@ class LoanCard extends StatelessWidget {
   final String name;
   final String date;
   final String title;
+  final String responsible;
+  final String beneficiary;
+  final String returnDate;
+  final String status;
 
   const LoanCard({
     super.key,
@@ -18,6 +22,10 @@ class LoanCard extends StatelessWidget {
     required this.name,
     required this.date,
     required this.title,
+    required this.responsible,
+    required this.beneficiary,
+    required this.returnDate,
+    required this.status,
   });
 
   @override
@@ -85,6 +93,12 @@ class LoanCard extends StatelessWidget {
                                       (_) => LoanPage(
                                         loanId: id,
                                         loanTitle: title,
+                                        loanApplicant: name,
+                                        loanBeneficiary: beneficiary,
+                                        loanResponsible: responsible,
+                                        loanReturnDate: returnDate,
+                                        loanStatus: status,
+                                        loanDate: date,
                                       ),
                                 ),
                               );

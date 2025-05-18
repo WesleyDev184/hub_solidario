@@ -6,6 +6,20 @@ import 'package:project_rotary/app/pdt/applicants/presentation/widgets/applicant
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 
+final List<Map<String, dynamic>> applicantsData = List.generate(10, (index) {
+  return {
+    'id': 'applicant_$index',
+    'imageUrl': null,
+    'title': 'Solicitante ${index + 1}',
+    'cpf': '000.000.00${index + 1}-00',
+    'phone': '(00) 00000-000${index + 1}',
+    'email': 'solicitante${index + 1}@email.com',
+    'address': 'Rua Exemplo, ${index + 1}, Bairro, Cidade, Estado',
+    'beneficiaryStatus': index % 2 == 0 ? true : false,
+    'qtd': index + 1, // add an integer value here
+  };
+});
+
 class ApplicantsPage extends StatefulWidget {
   const ApplicantsPage({super.key});
 
@@ -15,72 +29,6 @@ class ApplicantsPage extends StatefulWidget {
 
 class _ApplicantsPageState extends State<ApplicantsPage> {
   final TextEditingController searchController = TextEditingController();
-
-  final List<Map<String, dynamic>> applicantsData = [
-    {
-      "id": "1",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "João Silva",
-      "available": 10,
-      "beneficiary": true,
-    },
-    {
-      "id": "2",
-      "title": "Maria Oliveira",
-      "available": 5,
-      "beneficiary": false,
-    },
-    {
-      "id": "3",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Carlos Souza",
-      "available": 8,
-      "beneficiary": true,
-    },
-    {
-      "id": "4",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Ana Paula",
-      "available": 12,
-      "beneficiary": false,
-    },
-    {
-      "id": "5",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Roberto Lima",
-      "available": 7,
-      "beneficiary": true,
-    },
-    {
-      "id": "6",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Fernanda Costa",
-      "available": 9,
-      "beneficiary": false,
-    },
-    {"id": "7", "title": "Lucas Pereira", "available": 6, "beneficiary": true},
-    {
-      "id": "8",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Camila Santos",
-      "available": 11,
-      "beneficiary": false,
-    },
-    {
-      "id": "9",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Bruno Carvalho",
-      "available": 4,
-      "beneficiary": true,
-    },
-    {
-      "id": "10",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Patrícia Almeida",
-      "available": 15,
-      "beneficiary": false,
-    },
-  ];
 
   List<Map<String, dynamic>> filteredApplicants = [];
 
@@ -149,7 +97,13 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                                   builder:
                                       (_) => ApplicantPage(
                                         applicantId: applicant["id"],
-                                        applicantTitle: applicant["title"],
+                                        name: applicant["title"],
+                                        cpf: applicant["cpf"],
+                                        phone: applicant["phone"],
+                                        email: applicant["email"],
+                                        address: applicant["address"],
+                                        beneficiaryStatus:
+                                            applicant["beneficiaryStatus"],
                                       ),
                                 ),
                               );
@@ -160,8 +114,9 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                                 id: applicant["id"] as String,
                                 imageUrl: applicant["imageUrl"] as String?,
                                 name: applicant["title"] as String,
-                                qtd: applicant["available"] as int,
-                                beneficiary: applicant["beneficiary"] ?? false,
+                                qtd: applicant["qtd"] as int,
+                                beneficiary:
+                                    applicant["beneficiaryStatus"] ?? false,
                               ),
                             ),
                           ),
