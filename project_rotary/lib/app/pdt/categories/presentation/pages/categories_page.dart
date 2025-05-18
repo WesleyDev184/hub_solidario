@@ -100,6 +100,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                       (_) => CategoryPage(
                                         categoryId: category["id"],
                                         categoryTitle: category["title"],
+                                        available: category['available'],
+                                        inMaintenance:
+                                            category['inMaintenance'],
+                                        inUse: category['inUse'],
                                       ),
                                 ),
                               );

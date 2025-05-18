@@ -5,77 +5,30 @@ import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
-final List<Map<String, dynamic>> mockApiResponse = [
-  {
-    'id': '1',
-    'serialCode': 'SC-0001',
-    'status': 'Emprestado',
-    'createdAt': '2025-05-17',
-  },
-  {
-    'id': '2',
-    'serialCode': 'SC-0002',
-    'status': 'Em manutenção',
-    'createdAt': '2025-05-16',
-  },
-  {
-    'id': '3',
-    'serialCode': 'SC-0003',
-    'status': 'Disponível',
-    'createdAt': '2025-05-15',
-  },
-  {
-    'id': '4',
-    'serialCode': 'SC-0004',
-    'status': 'Emprestado',
-    'createdAt': '2025-05-14',
-  },
-  {
-    'id': '5',
-    'serialCode': 'SC-0005',
-    'status': 'Em manutenção',
-    'createdAt': '2025-05-13',
-  },
-  {
-    'id': '6',
-    'serialCode': 'SC-0006',
-    'status': 'Disponível',
-    'createdAt': '2025-05-12',
-  },
-  {
-    'id': '7',
-    'serialCode': 'SC-0007',
-    'status': 'Emprestado',
-    'createdAt': '2025-05-11',
-  },
-  {
-    'id': '8',
-    'serialCode': 'SC-0008',
-    'status': 'Em manutenção',
-    'createdAt': '2025-05-10',
-  },
-  {
-    'id': '9',
-    'serialCode': 'SC-0009',
-    'status': 'Disponível',
-    'createdAt': '2025-05-09',
-  },
-  {
-    'id': '10',
-    'serialCode': 'SC-0010',
-    'status': 'Emprestado',
-    'createdAt': '2025-05-08',
-  },
-];
+final List<Map<String, dynamic>> mockApiResponse = List.generate(10, (index) {
+  final statuses = ['Emprestado', 'Em manutenção', 'Disponível'];
+  return {
+    'id': '${index + 1}',
+    'serialCode': 'SC-${(index + 1).toString().padLeft(4, '0')}',
+    'status': statuses[index % statuses.length],
+    'createdAt': '2025-05-${(17 - index).toString().padLeft(2, '0')}',
+  };
+});
 
 class CategoryPage extends StatelessWidget {
   final String categoryId;
   final String categoryTitle;
+  final int available;
+  final int inMaintenance;
+  final int inUse;
 
   const CategoryPage({
     super.key,
     required this.categoryId,
     required this.categoryTitle,
+    required this.available,
+    required this.inMaintenance,
+    required this.inUse,
   });
 
   @override
@@ -152,7 +105,7 @@ class CategoryPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                '5',
+                                inUse.toString(),
                                 style: const TextStyle(
                                   color: CustomColors.white,
                                   fontWeight: FontWeight.bold,
@@ -184,9 +137,9 @@ class CategoryPage extends StatelessWidget {
                                   ),
 
                                   const SizedBox(width: 4),
-                                  const Text(
-                                    '3',
-                                    style: TextStyle(
+                                  Text(
+                                    available.toString(),
+                                    style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color: CustomColors.textPrimary,
@@ -224,9 +177,9 @@ class CategoryPage extends StatelessWidget {
                                   ),
 
                                   const SizedBox(width: 4),
-                                  const Text(
-                                    '3',
-                                    style: TextStyle(
+                                  Text(
+                                    inMaintenance.toString(),
+                                    style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color: CustomColors.textPrimary,
