@@ -9,13 +9,13 @@ final List<Map<String, dynamic>> loansData = List.generate(10, (index) {
   return {
     "id": "${index + 1}",
     "imageUrl": "assets/images/cr.jpg",
-    "name": "Pessoa ${index + 1}",
-    "title": index % 2 == 0 ? "Empréstimo Aprovado" : "Empréstimo Pendente",
+    "applicant": "Pessoa ${index + 1}",
+    "serialCode": 1000 + (index * 137) % 9000,
     "date": "15/05/2025",
     "responsible": "Responsável ${index + 1}",
     "beneficiary": "Beneficiário ${index + 1}",
     "returnDate": "15/06/2025",
-    "status": index % 2 == 0 ? "Aprovado" : "Pendente",
+    "status": index % 2 == 0 ? "Ativo" : "devolvido",
   };
 });
 
@@ -96,8 +96,8 @@ class _LoansPageState extends State<LoansPage> {
                             child: LoanCard(
                               id: loan["id"] as String,
                               imageUrl: loan["imageUrl"] as String,
-                              name: loan["name"] as String,
-                              title: loan["title"] as String,
+                              name: loan["applicant"] as String,
+                              serialCode: loan["serialCode"] as int,
                               date: loan["date"] as String,
                               beneficiary: loan["beneficiary"] as String,
                               responsible: loan["responsible"] as String,

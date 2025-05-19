@@ -9,7 +9,7 @@ class LoanCard extends StatelessWidget {
   final String imageUrl;
   final String name;
   final String date;
-  final String title;
+  final int serialCode;
   final String responsible;
   final String beneficiary;
   final String returnDate;
@@ -21,7 +21,7 @@ class LoanCard extends StatelessWidget {
     required this.imageUrl,
     required this.name,
     required this.date,
-    required this.title,
+    required this.serialCode,
     required this.responsible,
     required this.beneficiary,
     required this.returnDate,
@@ -30,6 +30,8 @@ class LoanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final serialCodeText = "Empréstimo do item: $serialCode"; // Variável criada
+
     return Card(
       color: CustomColors.background,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -58,7 +60,7 @@ class LoanCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        title,
+                        serialCodeText,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -92,7 +94,7 @@ class LoanCard extends StatelessWidget {
                                   builder:
                                       (_) => LoanPage(
                                         loanId: id,
-                                        loanTitle: title,
+                                        loanSerialCode: serialCodeText,
                                         loanApplicant: name,
                                         loanBeneficiary: beneficiary,
                                         loanResponsible: responsible,

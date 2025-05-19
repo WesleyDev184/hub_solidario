@@ -9,14 +9,14 @@ import 'package:project_rotary/core/components/input_field.dart';
 final List<Map<String, dynamic>> applicantsData = List.generate(10, (index) {
   return {
     'id': 'applicant_$index',
-    'imageUrl': null,
-    'title': 'Solicitante ${index + 1}',
+    'imageUrl': 'assets/images/dog.jpg',
+    'name': 'Solicitante ${index + 1}',
     'cpf': '000.000.00${index + 1}-00',
     'phone': '(00) 00000-000${index + 1}',
     'email': 'solicitante${index + 1}@email.com',
     'address': 'Rua Exemplo, ${index + 1}, Bairro, Cidade, Estado',
-    'beneficiaryStatus': index % 2 == 0 ? true : false,
-    'qtd': index + 1, // add an integer value here
+    'isBeneficiary': index % 2 == 0 ? true : false,
+    'qtdBeneficiaries': index + 1, // add an integer value here
   };
 });
 
@@ -97,13 +97,14 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                                   builder:
                                       (_) => ApplicantPage(
                                         applicantId: applicant["id"],
-                                        name: applicant["title"],
+                                        name: applicant["name"],
+                                        imageUrl: applicant["imageUrl"],
                                         cpf: applicant["cpf"],
                                         phone: applicant["phone"],
                                         email: applicant["email"],
                                         address: applicant["address"],
                                         beneficiaryStatus:
-                                            applicant["beneficiaryStatus"],
+                                            applicant["isBeneficiary"],
                                       ),
                                 ),
                               );
@@ -113,10 +114,10 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                               child: ApplicantsCard(
                                 id: applicant["id"] as String,
                                 imageUrl: applicant["imageUrl"] as String?,
-                                name: applicant["title"] as String,
-                                qtd: applicant["qtd"] as int,
+                                name: applicant["name"] as String,
+                                qtd: applicant["qtdBeneficiaries"] as int,
                                 beneficiary:
-                                    applicant["beneficiaryStatus"] ?? false,
+                                    applicant["isBeneficiary"] ?? false,
                               ),
                             ),
                           ),

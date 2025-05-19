@@ -11,9 +11,9 @@ final List<Map<String, dynamic>> categoryData = List.generate(10, (index) {
     "id": "${index + 1}",
     "imageUrl": "assets/images/cr.jpg",
     "title": "Categoria ${index + 1}",
-    "available": (index + 1) * 2,
-    "inUse": index + 1,
-    "inMaintenance": index % 3,
+    "availableQtd": (index + 1) * 2,
+    "borrowedQtd": index + 1,
+    "maintenanceQtd": index % 3,
   };
 });
 
@@ -100,10 +100,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                       (_) => CategoryPage(
                                         categoryId: category["id"],
                                         categoryTitle: category["title"],
-                                        available: category['available'],
+                                        available: category['availableQtd'],
                                         inMaintenance:
-                                            category['inMaintenance'],
-                                        inUse: category['inUse'],
+                                            category['maintenanceQtd'],
+                                        inUse: category['borrowedQtd'],
                                       ),
                                 ),
                               );
@@ -112,9 +112,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                               id: category["id"],
                               imageUrl: category["imageUrl"],
                               title: category["title"],
-                              available: category["available"],
-                              inUse: category["inUse"],
-                              inMaintenance: category["inMaintenance"],
+                              available: category["availableQtd"],
+                              inUse: category["borrowedQtd"],
+                              inMaintenance: category["maintenanceQtd"],
                             ),
                           ),
                         ),

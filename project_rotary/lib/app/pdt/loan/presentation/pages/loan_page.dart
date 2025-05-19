@@ -6,7 +6,7 @@ import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class LoanPage extends StatelessWidget {
   final String loanId;
-  final String loanTitle;
+  final String loanSerialCode;
   final String loanResponsible;
   final String loanApplicant;
   final String loanBeneficiary;
@@ -17,7 +17,7 @@ class LoanPage extends StatelessWidget {
   const LoanPage({
     super.key,
     required this.loanId,
-    required this.loanTitle,
+    required this.loanSerialCode,
     required this.loanResponsible,
     required this.loanApplicant,
     required this.loanBeneficiary,
@@ -29,7 +29,7 @@ class LoanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarCustom(title: loanTitle),
+      appBar: AppBarCustom(title: loanSerialCode),
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
@@ -79,7 +79,7 @@ class LoanPage extends StatelessWidget {
                       children: [
                         const SizedBox(height: 16),
                         Text(
-                          loanTitle,
+                          loanSerialCode,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
