@@ -1,0 +1,50 @@
+.env*
+.terraform
+
+# Diretórios do Visual Studio
+.vs/
+.vscode/
+
+# Binários e builds
+bin/
+obj/
+
+# Configurações do usuário do Visual Studio
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs, caches e temporários
+*.log
+*.cache
+*.pdb
+*.ilk
+*.swp
+*.tmp
+
+# Dependências do NuGet
+**/packages/
+# Se estiver usando lock do NuGet, mantenha o arquivo abaixo
+!**/packages/*.dll
+!**/packages/*.pdb
+!**/packages/*.xml
+project.lock.json
+global.json
+
+# Configuração do Rider/JetBrains
+.idea/
+*.sln.iml
+
+# Publicações e artefatos de deploy
+publish/
+wwwroot/
+
+# Certificados e configurações sensíveis
+appsettings.json
+appsettings.Development.json
+secrets.json
+
+# Arquivos do Docker (caso esteja usando)
+docker-compose.override.yml
+docker-compose.debug.yml
