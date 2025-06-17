@@ -5,6 +5,7 @@ namespace api.Auth.Entity;
 
 public class User : IdentityUser
 {
-  public string Note { get; set; } = string.Empty;
+  public string? Name { get; set; }
+  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
 }
