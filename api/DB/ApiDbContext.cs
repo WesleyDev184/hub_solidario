@@ -1,4 +1,6 @@
+using api.Modules.Items.Entity;
 using api.Modules.OrthopedicBanks.Entity;
+using api.Modules.Stocks.Entity;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +10,8 @@ public class ApiDbContext : DbContext
 {
 
   public DbSet<OrthopedicBank> OrthopedicBanks { get; set; }
+  public DbSet<Stock> Stocks { get; set; }
+  public DbSet<Item> Items { get; set; }
 
   override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
@@ -16,6 +20,8 @@ public class ApiDbContext : DbContext
       Env.Load();
       var connectionString = Env.GetString("DB_URL");
       optionsBuilder.UseNpgsql(connectionString);
+
+      optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
     }
   }
 

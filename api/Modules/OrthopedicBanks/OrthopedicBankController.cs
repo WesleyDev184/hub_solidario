@@ -112,7 +112,7 @@ public static class OrthopedicBankController
 
       return Results.Ok(new ResponseControllerOrthopedicBankDTO(
         res.Status == HttpStatusCode.OK,
-        res.Data,
+        null,
         res.Message));
     })
     .RequireAuthorization()

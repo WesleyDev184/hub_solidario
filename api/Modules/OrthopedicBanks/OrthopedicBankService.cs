@@ -25,7 +25,7 @@ public static class OrthopedicBankService
     }
 
     // Verifica se já existe um banco ortopédico com este nome, ativo ou inativo
-    var existingBank = await context.OrthopedicBanks
+    var existingBank = await context.OrthopedicBanks.AsNoTracking()
         .AnyAsync(b => b.Name == request.Name, ct);
 
     if (existingBank)
@@ -59,7 +59,7 @@ public static class OrthopedicBankService
         ApiDbContext context,
         CancellationToken ct)
   {
-    var orthopedicBank = await context.OrthopedicBanks
+    var orthopedicBank = await context.OrthopedicBanks.AsNoTracking()
         .SingleOrDefaultAsync(b => b.Id == id, ct);
 
     if (orthopedicBank == null)
@@ -83,7 +83,7 @@ public static class OrthopedicBankService
         ApiDbContext context,
         CancellationToken ct)
   {
-    var orthopedicBanks = await context.OrthopedicBanks.Select(b => new ResponseEntityOrthopedicBankDTO(
+    var orthopedicBanks = await context.OrthopedicBanks.AsNoTracking().Select(b => new ResponseEntityOrthopedicBankDTO(
         b.Id,
         b.Name,
         b.City,
