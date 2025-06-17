@@ -1,11 +1,12 @@
 using api.Auth.Entity;
 using DotNetEnv;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.DB;
 
-public class AuthDbContext : IdentityDbContext<User>
+public class AuthDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
   override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {

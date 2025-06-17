@@ -9,7 +9,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     env_file:
       - .env
-  db:
+  database:
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
@@ -17,8 +17,4 @@ services:
       POSTGRES_DB: rotarydb
     ports:
       - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
 
-volumes:
-  db_data:

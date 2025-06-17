@@ -1,9 +1,8 @@
-using System.Security.Claims;
 using api.Auth;
 using api.Auth.Entity;
 using api.DB;
+using api.Modules.OrthopedicBanks;
 using DotNetEnv;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +22,7 @@ builder.Services
     .AddEntityFrameworkStores<AuthDbContext>();
 
 // api
-// builder.Services.AddScoped<ApiDbContext>();
+builder.Services.AddScoped<ApiDbContext>();
 
 var app = builder.Build();
 
@@ -37,9 +36,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.AuthRoutes();
-
-app.MapGroup("api")
-    .WithTags("API")
-    .MapGet("/", (ClaimsPrincipal user) => Results.Ok(user.Identity?.Name ?? "Anonymous")).RequireAuthorization();
+app.OrthopedicBankRoutes();
 
 app.Run();

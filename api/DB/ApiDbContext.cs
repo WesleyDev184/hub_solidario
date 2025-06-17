@@ -1,4 +1,4 @@
-using api.Modules.Users.Entity;
+using api.Modules.OrthopedicBanks.Entity;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +7,7 @@ namespace api.DB;
 public class ApiDbContext : DbContext
 {
 
-  public DbSet<User> Users { get; set; }
+  public DbSet<OrthopedicBank> OrthopedicBanks { get; set; }
 
   override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
