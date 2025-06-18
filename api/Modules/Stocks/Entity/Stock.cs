@@ -12,7 +12,7 @@ public class Stock
   public int AvailableQtd { get; private set; } = 0;
   public int BorrowedQtd { get; private set; } = 0;
   public int TotalQtd { get; private set; } = 0;
-  public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+  public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
 
   // Propriedade de navegação

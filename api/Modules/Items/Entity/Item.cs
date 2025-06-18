@@ -11,7 +11,7 @@ public class Item
   public string ImageUrl { get; private set; } = string.Empty;
   public ItemStatus Status { get; private set; }
   public Guid StockId { get; init; }
-  public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+  public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
 
   // Propriedade de navegação

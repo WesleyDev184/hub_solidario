@@ -62,7 +62,7 @@ namespace api.Migrations.ApiDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("Applicants");
+                    b.ToTable("Applicants", (string)null);
                 });
 
             modelBuilder.Entity("api.Modules.Dependents.Entity.Dependent", b =>
@@ -104,7 +104,7 @@ namespace api.Migrations.ApiDb
 
                     b.HasIndex("ApplicantId");
 
-                    b.ToTable("Dependents");
+                    b.ToTable("Dependents", (string)null);
                 });
 
             modelBuilder.Entity("api.Modules.Items.Entity.Item", b =>
@@ -136,7 +136,7 @@ namespace api.Migrations.ApiDb
 
                     b.HasIndex("StockId");
 
-                    b.ToTable("Items");
+                    b.ToTable("Items", (string)null);
                 });
 
             modelBuilder.Entity("api.Modules.OrthopedicBanks.Entity.OrthopedicBank", b =>
@@ -161,7 +161,7 @@ namespace api.Migrations.ApiDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrthopedicBanks");
+                    b.ToTable("OrthopedicBanks", (string)null);
                 });
 
             modelBuilder.Entity("api.Modules.Stocks.Entity.Stock", b =>
@@ -194,7 +194,7 @@ namespace api.Migrations.ApiDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("Stocks");
+                    b.ToTable("Stocks", (string)null);
                 });
 
             modelBuilder.Entity("api.Modules.Dependents.Entity.Dependent", b =>

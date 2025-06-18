@@ -10,8 +10,8 @@ public class Dependent
   public string Email { get; private set; }
   public string PhoneNumber { get; private set; }
   public string Address { get; private set; }
-  public Guid ApplicantId { get; private set; }
-  public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+  public Guid ApplicantId { get; init; }
+  public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
 
   // Propriedade de navegação
