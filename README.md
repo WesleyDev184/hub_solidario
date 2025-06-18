@@ -1,9 +1,5 @@
 # ROTARY
 
-Empowering Healthcare Innovation Through Seamless Resource Management
-
-![Built with](https://img.shields.io/badge/last%20commit-today-blue)
-
 Built with the tools and technologies:
 
 ![JSON](https://img.shields.io/badge/json-%23000000.svg?style=for-the-badge&logo=json&logoColor=white)
@@ -22,7 +18,7 @@ Built with the tools and technologies:
 
 ## Overview
 
-Rotary is an all-in-one developer tool that bridges a powerful backend API with a responsive Flutter mobile application, designed to optimize orthopedic inventory and loan management. It offers a scalable, modular architecture that simplifies resource tracking, user roles, and transaction workflows.
+Rotary is a solution that integrates a powerful backend API with a responsive Flutter mobile app designed to streamline orthopedic inventory and loan management. It offers a modular and scalable architecture that simplifies asset tracking, user roles, and transaction workflows.
 
 ### Why Rotary?
 
