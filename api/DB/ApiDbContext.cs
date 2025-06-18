@@ -1,3 +1,5 @@
+using api.Modules.Applicants.Entity;
+using api.Modules.Dependents.Entity;
 using api.Modules.Items.Entity;
 using api.Modules.OrthopedicBanks.Entity;
 using api.Modules.Stocks.Entity;
@@ -12,6 +14,8 @@ public class ApiDbContext : DbContext
   public DbSet<OrthopedicBank> OrthopedicBanks { get; set; }
   public DbSet<Stock> Stocks { get; set; }
   public DbSet<Item> Items { get; set; }
+  public DbSet<Applicant> Applicants { get; set; }
+  public DbSet<Dependent> Dependents { get; set; }
 
   override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {

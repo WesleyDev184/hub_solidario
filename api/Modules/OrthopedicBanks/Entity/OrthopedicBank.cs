@@ -7,7 +7,7 @@ public class OrthopedicBank
   public Guid Id { get; init; }
   public string Name { get; private set; }
   public string City { get; private set; }
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+  public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
   public OrthopedicBank(string name, string city)
