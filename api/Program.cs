@@ -1,9 +1,12 @@
 using api.Auth;
 using api.Auth.Entity;
 using api.DB;
+using api.Modules.Applicants;
+using api.Modules.Dependents;
 using api.Modules.Items;
 using api.Modules.OrthopedicBanks;
 using api.Modules.Stocks;
+
 using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,5 +44,7 @@ app.AuthRoutes();
 app.OrthopedicBankRoutes();
 app.StockRoutes();
 app.ItemRoutes();
+app.ApplicantRoutes();
+app.DependentRoutes();
 
 app.Run();

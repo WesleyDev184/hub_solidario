@@ -10,21 +10,22 @@ public class Dependent
   public string Email { get; private set; }
   public string PhoneNumber { get; private set; }
   public string Address { get; private set; }
-  public Guid ApplicantId { get; set; }
+  public Guid ApplicantId { get; private set; }
   public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
 
   // Propriedade de navegação
   public Applicant? Applicant { get; init; }
 
-  public Dependent(Guid id, string name, string cpf, string email, string phoneNumber, string address)
+  public Dependent(string name, string cpf, string email, string phoneNumber, string address, Guid applicantId)
   {
-    Id = id;
+    Id = Guid.NewGuid();
     Name = name;
     CPF = cpf;
     Email = email;
     PhoneNumber = phoneNumber;
     Address = address;
+    ApplicantId = applicantId;
   }
 
   private Dependent()

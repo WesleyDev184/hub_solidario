@@ -17,4 +17,3 @@ services:
       POSTGRES_DB: rotarydb
     ports:
       - "5432:5432"
-

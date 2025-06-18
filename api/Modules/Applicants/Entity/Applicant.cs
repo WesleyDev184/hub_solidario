@@ -11,23 +11,22 @@ public class Applicant
   public string PhoneNumber { get; private set; }
   public string Address { get; private set; }
   public bool IsBeneficiary { get; private set; }
-  public int BeneficiaryQtd { get; private set; }
+  public int BeneficiaryQtd { get; private set; } = 0;
   public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
 
   // Propriedade de navegação
   public ICollection<Dependent>? Dependents { get; init; } = [];
 
-  public Applicant(Guid id, string name, string cpf, string email, string phoneNumber, string address, bool isBeneficiary, int beneficiaryQtd)
+  public Applicant(string name, string cpf, string email, string phoneNumber, string address, bool isBeneficiary)
   {
-    Id = id;
+    Id = Guid.NewGuid();
     Name = name;
     CPF = cpf;
     Email = email;
     PhoneNumber = phoneNumber;
     Address = address;
     IsBeneficiary = isBeneficiary;
-    BeneficiaryQtd = beneficiaryQtd;
   }
 
   private Applicant()
@@ -39,7 +38,6 @@ public class Applicant
     PhoneNumber = string.Empty;
     Address = string.Empty;
     IsBeneficiary = false;
-    BeneficiaryQtd = 0;
   }
 
   public void SetName(string name)
