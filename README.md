@@ -3,9 +3,6 @@
 Empowering Healthcare Innovation Through Seamless Resource Management
 
 ![Built with](https://img.shields.io/badge/last%20commit-today-blue)
-![Languages](https://img.shields.io/github/languages/count/google/go)
-![Top Language](https://img.shields.io/github/languages/top/google/go)
-![Code Size](https://img.shields.io/github/languages/code-size/google/go)
 
 Built with the tools and technologies:
 
