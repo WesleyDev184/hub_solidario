@@ -26,8 +26,44 @@ public class ApiDbContext : DbContext
       Env.Load();
       var connectionString = Env.GetString("DB_URL");
       optionsBuilder.UseNpgsql(connectionString);
-
       optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
     }
+  }
+
+  override protected void OnModelCreating(ModelBuilder modelBuilder)
+  {
+    base.OnModelCreating(modelBuilder);
+
+    modelBuilder.Entity<Stock>()
+      .HasMany(s => s.Items)
+      .WithOne(i => i.Stock)
+      .HasForeignKey(i => i.StockId)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<Applicant>()
+      .HasMany(a => a.Dependents)
+      .WithOne(d => d.Applicant)
+      .HasForeignKey(d => d.ApplicantId)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<Loan>()
+      .HasOne(l => l.Applicant)
+      .WithMany()
+      .HasForeignKey(l => l.ApplicantId)
+      .OnDelete(DeleteBehavior.Restrict);
+
+    modelBuilder.Entity<Loan>()
+      .HasOne(l => l.Item)
+      .WithMany()
+      .HasForeignKey(l => l.ItemId)
+      .OnDelete(DeleteBehavior.Restrict);
+
+    modelBuilder.Entity<Applicant>()
+      .HasIndex(a => a.CPF)
+      .IsUnique();
+
+    modelBuilder.Entity<Stock>()
+      .HasIndex(s => s.Title);
+
   }
 }

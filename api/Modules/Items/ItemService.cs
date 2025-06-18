@@ -13,6 +13,17 @@ public static class ItemService
       ApiDbContext context,
       CancellationToken ct)
   {
+    var stock = await context.Stocks
+        .AsNoTracking()
+        .SingleOrDefaultAsync(s => s.Id == request.StockId, ct);
+
+    if (stock == null)
+    {
+      return new ResponseItemDTO(
+          System.Net.HttpStatusCode.NotFound,
+          null,
+          "Stock not found");
+    }
 
     if (request.SeriaCode <= 0)
     {

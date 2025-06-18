@@ -12,6 +12,18 @@ public static class DependentService
          ApiDbContext context,
          CancellationToken ct)
   {
+    var applicantExists = await context.Applicants
+        .AsNoTracking()
+        .AnyAsync(a => a.Id == request.ApplicantId, ct);
+
+    if (!applicantExists)
+    {
+      return new ResponseDependentDTO(
+          System.Net.HttpStatusCode.NotFound,
+          null,
+          "Applicant not found");
+    }
+
     if (string.IsNullOrWhiteSpace(request.Name))
     {
       return new ResponseDependentDTO(
