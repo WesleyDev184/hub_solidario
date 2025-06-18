@@ -30,5 +30,4 @@ public class ApiDbContext : DbContext
       optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
     }
   }
-
 }

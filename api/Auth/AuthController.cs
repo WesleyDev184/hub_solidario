@@ -1,5 +1,7 @@
 using api.Auth.Dto;
 using api.Auth.Entity;
+using api.DB;
+using api.Modules.OrthopedicBanks.Dto;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -69,7 +71,8 @@ public static class AuthController
         UserName = newUser.Email,
         Email = newUser.Email,
         Name = newUser.Name,
-        PhoneNumber = newUser.PhoneNumber
+        PhoneNumber = newUser.PhoneNumber,
+        OrthopedicBankId = newUser.OrthopedicBankId,
       };
 
       var result = await userManager.CreateAsync(user, newUser.Password);
@@ -90,7 +93,7 @@ public static class AuthController
       ));
     });
 
-    authRoutes.MapGet("/user", async (UserManager<User> userManager, HttpContext context) =>
+    authRoutes.MapGet("/user", async (UserManager<User> userManager, ApiDbContext api, HttpContext context) =>
     {
       var user = await userManager.GetUserAsync(context.User);
       if (user == null)
@@ -101,6 +104,18 @@ public static class AuthController
         Message: "User not found"
       ));
       }
+
+      var orthopedicBank = await api.OrthopedicBanks
+        .Where(o => o.Id == user.OrthopedicBankId)
+        .AsNoTracking()
+        .Select(o => new ResponseEntityOrthopedicBankDTO(
+          o.Id,
+          o.Name ?? "",
+          o.City ?? "",
+          o.CreatedAt
+        ))
+        .FirstOrDefaultAsync();
+
       return Results.Ok(new ResponseControllerUserDTO(
         Success: true,
         Data: new ResponseEntityUserDTO(
@@ -108,6 +123,7 @@ public static class AuthController
           Name: user.Name ?? "",
           Email: user.Email ?? "",
           PhoneNumber: user.PhoneNumber ?? "",
+          OrthopedicBank: orthopedicBank,
           CreatedAt: user.CreatedAt
         ),
         Message: "User retrieved successfully"
@@ -117,6 +133,16 @@ public static class AuthController
     authRoutes.MapGet("/users", async (UserManager<User> userManager) =>
     {
       var users = await userManager.Users.ToListAsync();
+      if (users == null || !users.Any())
+      {
+        return Results.Ok(new ResponseControllerUserListDTO(
+          Success: true,
+          Count: 0,
+          Data: [],
+          Message: "No users found"
+        ));
+      }
+
       return Results.Ok(new ResponseControllerUserListDTO(
         Success: true,
         Count: users.Count,
@@ -125,13 +151,14 @@ public static class AuthController
           Name: u.Name ?? "",
           Email: u.Email ?? "",
           PhoneNumber: u.PhoneNumber ?? "",
+          OrthopedicBank:null,
           CreatedAt: u.CreatedAt
         ))],
         Message: "Users retrieved successfully"
       ));
     }).RequireAuthorization();
 
-    authRoutes.MapGet("/user/{id}", async (UserManager<User> userManager, string id) =>
+    authRoutes.MapGet("/user/{id}", async (UserManager<User> userManager, ApiDbContext api, string id) =>
     {
       var user = await userManager.FindByIdAsync(id);
       if (user == null)
@@ -142,6 +169,18 @@ public static class AuthController
         Message: "User not found"
       ));
       }
+
+      var orthopedicBank = await api.OrthopedicBanks
+          .Where(o => o.Id == user.OrthopedicBankId)
+          .AsNoTracking()
+          .Select(o => new ResponseEntityOrthopedicBankDTO(
+            o.Id,
+            o.Name ?? "",
+            o.City ?? "",
+            o.CreatedAt
+          ))
+          .FirstOrDefaultAsync();
+
       return Results.Ok(new ResponseControllerUserDTO(
         Success: true,
         Data: new ResponseEntityUserDTO(
@@ -149,13 +188,14 @@ public static class AuthController
           Name: user.Name ?? "",
           Email: user.Email ?? "",
           PhoneNumber: user.PhoneNumber ?? "",
+          OrthopedicBank: orthopedicBank,
           CreatedAt: user.CreatedAt
         ),
         Message: "User retrieved successfully"
       ));
     }).RequireAuthorization();
 
-    authRoutes.MapPatch("/user", async (UserManager<User> userManager, HttpContext context, RequestUpdateUserDto updatedUser) =>
+    authRoutes.MapPatch("/user", async (UserManager<User> userManager, HttpContext context, ApiDbContext api, RequestUpdateUserDto updatedUser) =>
     {
       var user = await userManager.GetUserAsync(context.User);
       if (user == null)
@@ -199,6 +239,18 @@ public static class AuthController
         Message: "User not found" + string.Join(", ", result.Errors.Select(e => e.Description)
       )));
       }
+
+      var orthopedicBank = await api.OrthopedicBanks
+        .Where(o => o.Id == user.OrthopedicBankId)
+        .AsNoTracking()
+        .Select(o => new ResponseEntityOrthopedicBankDTO(
+          o.Id,
+          o.Name ?? "",
+          o.City ?? "",
+          o.CreatedAt
+        ))
+        .FirstOrDefaultAsync();
+
       return Results.Ok(new ResponseControllerUserDTO(
         Success: true,
         Data: new ResponseEntityUserDTO(
@@ -206,6 +258,7 @@ public static class AuthController
           Name: user.Name ?? "",
           Email: user.Email ?? "",
           PhoneNumber: user.PhoneNumber ?? "",
+          OrthopedicBank: orthopedicBank,
           CreatedAt: user.CreatedAt
         ),
         Message: "User updated successfully"

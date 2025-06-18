@@ -4,7 +4,7 @@ namespace api.Modules.Items.Dto;
 
 //Response Services
 public record ResponseEntityItemDTO(Guid Id,
-    int SeriaCode, string ImageUrl, string Status, DateTime UpdatedAt);
+    int SeriaCode, string ImageUrl, string Status, DateTime CreatedAt);
 public record ResponseItemDTO(HttpStatusCode Status, ResponseEntityItemDTO? Data, string? Message);
 public record ResponseItemListDTO(HttpStatusCode Status, int Count, List<ResponseEntityItemDTO>? Data, string? Message);
 

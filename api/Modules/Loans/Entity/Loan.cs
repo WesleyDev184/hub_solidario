@@ -1,5 +1,3 @@
-using System;
-using api.Auth.Entity;
 using api.Modules.Applicants.Entity;
 using api.Modules.Items.Entity;
 
@@ -11,7 +9,7 @@ public class Loan
   public Guid ApplicantId { get; init; }
   public Guid ResponsibleId { get; init; }
   public Guid ItemId { get; init; }
-  public DateTime? ReturnDate { get; set; }
+  public DateTime ReturnDate { get; set; }
   public string Reason { get; set; }
   public bool IsActive { get; set; } = true;
   public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
@@ -28,6 +26,7 @@ public class Loan
     ResponsibleId = responsibleId;
     ItemId = itemId;
     Reason = reason;
+    ReturnDate = DateTime.UtcNow.AddMonths(3);
   }
 
   private Loan()
@@ -37,11 +36,12 @@ public class Loan
     ResponsibleId = Guid.Empty;
     ItemId = Guid.Empty;
     Reason = string.Empty;
+    ReturnDate = DateTime.UtcNow.AddMonths(3);
   }
 
-  public void SetReturnDate(DateTime? returnDate)
+  public void SetReturnDate()
   {
-    ReturnDate = returnDate;
+    ReturnDate = DateTime.UtcNow.AddMonths(3);
   }
 
   public void SetReason(string reason)

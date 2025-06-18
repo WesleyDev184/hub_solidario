@@ -9,11 +9,11 @@ using api.DB;
 
 #nullable disable
 
-namespace api.Migrations.ApiDb
+namespace api.Migrations.app
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250618033351_appv5")]
-    partial class appv5
+    [Migration("20250618220012_appv1")]
+    partial class appv1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -142,6 +142,46 @@ namespace api.Migrations.ApiDb
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("api.Modules.Loans.Entity.Loan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ResponsibleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ReturnDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicantId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("Loans");
+                });
+
             modelBuilder.Entity("api.Modules.OrthopedicBanks.Entity.OrthopedicBank", b =>
                 {
                     b.Property<Guid>("Id")
@@ -220,6 +260,25 @@ namespace api.Migrations.ApiDb
                         .IsRequired();
 
                     b.Navigation("Stock");
+                });
+
+            modelBuilder.Entity("api.Modules.Loans.Entity.Loan", b =>
+                {
+                    b.HasOne("api.Modules.Applicants.Entity.Applicant", "Applicant")
+                        .WithMany()
+                        .HasForeignKey("ApplicantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Modules.Items.Entity.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Applicant");
+
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("api.Modules.Applicants.Entity.Applicant", b =>

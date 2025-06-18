@@ -1,7 +1,8 @@
 namespace api.Auth.Dto;
 
 //Create User
-public record RequestCreateUserDto(string Name, string Email, string Password, string PhoneNumber);
+public record RequestCreateUserDto(string Name, string Email, string Password, string PhoneNumber,
+    Guid OrthopedicBankId);
 
 public record RequestUpdateUserDto(string? Name, string? Email, string? Password, string? PhoneNumber);
 

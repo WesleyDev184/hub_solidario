@@ -4,6 +4,7 @@ using api.DB;
 using api.Modules.Applicants;
 using api.Modules.Dependents;
 using api.Modules.Items;
+using api.Modules.Loans;
 using api.Modules.OrthopedicBanks;
 using api.Modules.Stocks;
 
@@ -46,5 +47,6 @@ app.StockRoutes();
 app.ItemRoutes();
 app.ApplicantRoutes();
 app.DependentRoutes();
+app.LoanRoutes();
 
 app.Run();
