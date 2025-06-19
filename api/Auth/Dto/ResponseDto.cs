@@ -19,5 +19,9 @@ public record ResponseUserListDTO(HttpStatusCode Status, int Count, List<Respons
 
 
 //Response Controller
-public record ResponseControllerUserDTO(bool Success, ResponseEntityUserDTO? Data, string? Message);
+public record ResponseControllerUserDTO(
+  bool Success,
+  ResponseEntityUserDTO? Data,
+  string? Message
+  );
 public record ResponseControllerUserListDTO(bool Success, int Count, List<ResponseEntityUserDTO> Data, string? Message);

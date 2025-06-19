@@ -5,7 +5,11 @@ using api.Modules.OrthopedicBanks.Dto;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Auth;
 
@@ -16,7 +20,14 @@ public static class AuthController
   {
     var authRoutes = app.MapGroup("").WithTags("Auth");
 
-    authRoutes.MapPost("/login", async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>> (HttpRequest request, SignInManager<User> signInManager, RequestLoginUserDto login) =>
+    authRoutes.MapPost("/login",
+        [SwaggerOperation(
+            Summary = "User Login",
+            Description = "Logs in a user with email and password. Returns an access token if successful."
+        ),
+        SwaggerResponse(200, "Login successful", typeof(AccessTokenResponse)),
+        SwaggerResponse(401, "Invalid credentials or lockout", typeof(ProblemDetails))]
+    async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>> (HttpRequest request, SignInManager<User> signInManager, RequestLoginUserDto login) =>
     {
       var useCookies = request.Query.ContainsKey("useCookies") && bool.TryParse(request.Query["useCookies"], out var useCookieValue) && useCookieValue;
       var useSessionCookies = request.Query.ContainsKey("useSessionCookies") && bool.TryParse(request.Query["useSessionCookies"], out var useSessionCookieValue) && useSessionCookieValue;
@@ -32,11 +43,38 @@ public static class AuthController
         return TypedResults.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
       }
 
-      // The signInManager already produced the needed response in the form of a cookie or bearer token.
       return TypedResults.Empty;
+    })
+    .WithOpenApi(operation =>
+    {
+      operation.Parameters.Add(new OpenApiParameter
+      {
+        Name = "useCookies",
+        In = ParameterLocation.Query,
+        Description = "Set to true to use persistent cookies for authentication. Mutually exclusive with useSessionCookies.",
+        Required = false,
+        Schema = new OpenApiSchema { Type = "boolean", Default = new OpenApiBoolean(false) }
+      });
+
+      operation.Parameters.Add(new OpenApiParameter
+      {
+        Name = "useSessionCookies",
+        In = ParameterLocation.Query,
+        Description = "Set to true to use session-only cookies for authentication. Mutually exclusive with useCookies.",
+        Required = false,
+        Schema = new OpenApiSchema { Type = "boolean", Default = new OpenApiBoolean(false) }
+      });
+
+      return operation;
     });
 
-    authRoutes.MapPost("/logout", async (SignInManager<User> signInManager) =>
+    authRoutes.MapPost("/logout",
+    [SwaggerOperation(
+        Summary = "User Logout",
+        Description = "Logs out the currently authenticated user. Invalidates the access token and removes the session."
+    ),
+    SwaggerResponse(200, "Logout successful", typeof(ResponseControllerUserDTO)),]
+    async (SignInManager<User> signInManager) =>
     {
       await signInManager.SignOutAsync();
       return Results.Ok(new ResponseControllerUserDTO(
@@ -46,7 +84,14 @@ public static class AuthController
       ));
     });
 
-    authRoutes.MapPost("/user", async (UserManager<User> userManager, RequestCreateUserDto newUser) =>
+    authRoutes.MapPost("/user",
+    [SwaggerOperation(
+        Summary = "Create User",
+        Description = "Creates a new user with the provided details. Returns the created user ID if successful."
+    ),
+    SwaggerResponse(201, "User created successfully", typeof(ResponseControllerUserDTO)),
+    SwaggerResponse(400, "Bad Request", typeof(ResponseControllerUserDTO)),]
+    async (UserManager<User> userManager, RequestCreateUserDto newUser) =>
     {
       if (string.IsNullOrWhiteSpace(newUser.Email) || string.IsNullOrWhiteSpace(newUser.Password))
       {
@@ -93,7 +138,14 @@ public static class AuthController
       ));
     });
 
-    authRoutes.MapGet("/user", async (UserManager<User> userManager, ApiDbContext api, HttpContext context) =>
+    authRoutes.MapGet("/user",
+    [SwaggerOperation(
+        Summary = "Get Current User",
+        Description = "Retrieves the currently authenticated user details."
+    ),
+    SwaggerResponse(200, "User retrieved successfully", typeof(ResponseControllerUserDTO)),
+    SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO)),]
+    async (UserManager<User> userManager, ApiDbContext api, HttpContext context) =>
     {
       var user = await userManager.GetUserAsync(context.User);
       if (user == null)
@@ -130,7 +182,14 @@ public static class AuthController
       ));
     }).RequireAuthorization();
 
-    authRoutes.MapGet("/users", async (UserManager<User> userManager) =>
+    authRoutes.MapGet("/users",
+    [SwaggerOperation(
+        Summary = "Get All Users",
+        Description = "Retrieves a list of all users in the system."
+    ),
+    SwaggerResponse(200, "Users retrieved successfully", typeof(ResponseControllerUserListDTO)),
+    SwaggerResponse(404, "No users found", typeof(ResponseControllerUserListDTO)),]
+    async (UserManager<User> userManager) =>
     {
       var users = await userManager.Users.ToListAsync();
       if (users == null || !users.Any())
@@ -158,7 +217,14 @@ public static class AuthController
       ));
     }).RequireAuthorization();
 
-    authRoutes.MapGet("/user/{id}", async (UserManager<User> userManager, ApiDbContext api, string id) =>
+    authRoutes.MapGet("/user/{id}",
+    [SwaggerOperation(
+        Summary = "Get User by ID",
+        Description = "Retrieves a user by their ID."
+    ),
+    SwaggerResponse(200, "User retrieved successfully", typeof(ResponseControllerUserDTO)),
+    SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO)),]
+    async (UserManager<User> userManager, ApiDbContext api, string id) =>
     {
       var user = await userManager.FindByIdAsync(id);
       if (user == null)
@@ -195,7 +261,15 @@ public static class AuthController
       ));
     }).RequireAuthorization();
 
-    authRoutes.MapPatch("/user", async (UserManager<User> userManager, HttpContext context, ApiDbContext api, RequestUpdateUserDto updatedUser) =>
+    authRoutes.MapPatch("/user",
+    [SwaggerOperation(
+        Summary = "Update User",
+        Description = "Updates the details of the currently authenticated user."
+    ),
+    SwaggerResponse(200, "User updated successfully", typeof(ResponseControllerUserDTO)),
+    SwaggerResponse(400, "Email already exists", typeof(ResponseControllerUserDTO)),
+    SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO)),]
+    async (UserManager<User> userManager, HttpContext context, ApiDbContext api, RequestUpdateUserDto updatedUser) =>
     {
       var user = await userManager.GetUserAsync(context.User);
       if (user == null)
@@ -233,7 +307,7 @@ public static class AuthController
 
       if (!result.Succeeded)
       {
-        return Results.BadRequest(new ResponseControllerUserDTO(
+        return Results.NotFound(new ResponseControllerUserDTO(
         Success: false,
         Data: null,
         Message: "User not found" + string.Join(", ", result.Errors.Select(e => e.Description)
@@ -265,7 +339,15 @@ public static class AuthController
       ));
     }).RequireAuthorization();
 
-    authRoutes.MapDelete("/user/{id}", async (UserManager<User> userManager, string id) =>
+    authRoutes.MapDelete("/user/{id}",
+    [SwaggerOperation(
+        Summary = "Delete User",
+        Description = "Deletes a user by their ID."
+    ),
+    SwaggerResponse(200, "User deleted successfully", typeof(ResponseControllerUserDTO)),
+    SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO)),
+    SwaggerResponse(400, "Error deleting user", typeof(ResponseControllerUserDTO)),]
+    async (UserManager<User> userManager, string id) =>
     {
       var user = await userManager.FindByIdAsync(id);
       if (user == null)
