@@ -7,7 +7,7 @@ namespace api.Modules.Stocks.Dto;
 public record ResponseEntityStockDTO(Guid Id, string Title,
     int MaintenanceQtd, int AvailableQtd, int BorrowedQtd, int TotalQtd, ResponseEntityItemDTO[]? Items,
     DateTime CreatedAt);
-    
+
 public record ResponseStockDTO(HttpStatusCode Status, ResponseEntityStockDTO? Data, string? Message);
 public record ResponseStockListDTO(HttpStatusCode Status, int Count, List<ResponseEntityStockDTO>? Data, string? Message);
 

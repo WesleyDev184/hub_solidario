@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using api.Auth;
 using api.Auth.Entity;
 using api.DB;
@@ -13,6 +12,7 @@ using api.Swagger;
 using DotNetEnv;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,31 +25,30 @@ builder.Configuration["API_KEY"] = Env.GetString("API_KEY");
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
-    c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Rotary APi",
-        Version = "v1.0",
-        Description = "API for Rotary Club orthosis loan management system",
-    });
-    c.EnableAnnotations();
-    // Adiciona o Schema Filter para enums
-    c.SchemaFilter<EnumSchemaFilter>();
+    c => {
+        c.SwaggerDoc("v1", new OpenApiInfo {
+            Title = "Rotary APi",
+            Version = "v1.0",
+            Description = "API for Rotary Club orthosis loan management system",
+        });
+        c.EnableAnnotations();
+        c.ExampleFilters();
 
-    // Adicionar esquema de segurança para chave de API
-    c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
-    {
-        Description = "API Key needed to access the endpoints. ApiKey: X-Api-Key",
-        In = ParameterLocation.Header,
-        Name = "x-api-key",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "ApiKeyScheme"
-    });
+        // Adiciona o Schema Filter para enums
+        c.SchemaFilter<EnumSchemaFilter>();
 
-    // Adicionar requisito de segurança global
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+        // Adicionar esquema de segurança para chave de API
+        c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme {
+            Description = "API Key needed to access the endpoints. ApiKey: X-Api-Key",
+            In = ParameterLocation.Header,
+            Name = "x-api-key",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "ApiKeyScheme"
+        });
+
+        // Adicionar requisito de segurança global
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
         {
             new OpenApiSecurityScheme
             {
@@ -65,8 +64,10 @@ builder.Services.AddSwaggerGen(
             new List<string>()
         }
     });
-}
+    }
 );
+
+builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
 // auth
 builder.Services.AddDbContext<AuthDbContext>();
@@ -80,10 +81,8 @@ builder.Services
 builder.Services.AddScoped<ApiDbContext>();
 
 //Politica de CORS
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
+builder.Services.AddCors(options => {
+    options.AddDefaultPolicy(policy => {
         policy.AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader();
@@ -93,14 +92,11 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger(c =>
-    {
+if (app.Environment.IsDevelopment()) {
+    app.UseSwagger(c => {
         c.RouteTemplate = "/openapi/{documentName}.json";
     });
-    app.MapScalarApiReference(opt =>
-    {
+    app.MapScalarApiReference(opt => {
         opt.Title = "Rotary API Reference";
         opt.ShowSidebar = true;
         opt.Theme = ScalarTheme.DeepSpace;
@@ -109,8 +105,7 @@ if (app.Environment.IsDevelopment())
         opt.HideClientButton = true;
         opt.HideModels = true;
         opt.AddPreferredSecuritySchemes(new[] { "ApiKey" })
-            .AddApiKeyAuthentication("ApiKey", apiKey =>
-            {
+            .AddApiKeyAuthentication("ApiKey", apiKey => {
                 apiKey.Value = "your_api_key_here";
             });
     });

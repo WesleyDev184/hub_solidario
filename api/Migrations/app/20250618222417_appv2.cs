@@ -2,14 +2,11 @@
 
 #nullable disable
 
-namespace api.Migrations.app
-{
+namespace api.Migrations.app {
     /// <inheritdoc />
-    public partial class appv2 : Migration
-    {
+    public partial class appv2 : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropForeignKey(
                 name: "FK_Loans_Applicants_ApplicantId",
                 table: "Loans");
@@ -47,8 +44,7 @@ namespace api.Migrations.app
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropForeignKey(
                 name: "FK_Loans_Applicants_ApplicantId",
                 table: "Loans");

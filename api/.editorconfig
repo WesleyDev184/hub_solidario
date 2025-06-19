@@ -1,0 +1,83 @@
+# Top-level settings
+root = true
+
+# Primary language
+[*.cs]
+
+# General C# formatting rules
+# Indentation and spacing
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Braces
+# CHAVE PRINCIPAL AQUI: Define que chaves de abertura fiquem na mesma linha
+csharp_new_line_before_open_brace = none
+# As linhas abaixo garantem que o fechamento das chaves de controle fique na mesma indentação
+csharp_style_control_brace_placement = new_line
+csharp_style_pattern_matching_on_type_and_member_access_brace_placement = new_line
+
+# Outras configurações de espaçamento para as chaves internas (como em objetos e arrays)
+csharp_style_array_initializer_space_before_and_after_commas = true
+csharp_style_object_initializer_space_before_and_after_commas = true
+csharp_style_parenthesized_expression_space_within = false
+csharp_style_parenthesized_expression_space_after_parentheses = false
+csharp_style_parenthesized_lambda_parameter_list_space_within = false
+csharp_style_parenthesized_lambda_parameter_list_space_after_parentheses = false
+
+# Naming conventions (mantidas as mesmas do anterior, mas você pode ajustar)
+dotnet_naming_rule.interface_should_be_prefixed_with_i.severity = warning
+dotnet_naming_rule.interface_should_be_prefixed_with_i.symbols = interfaces
+dotnet_naming_rule.interface_should_be_prefixed_with_i.style = pascal_case_with_i_prefix
+
+dotnet_naming_rule.types_should_be_pascal_case.severity = warning
+dotnet_naming_rule.types_should_be_pascal_case.symbols = types
+dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_rule.methods_should_be_pascal_case.severity = warning
+dotnet_naming_rule.methods_should_be_pascal_case.symbols = methods
+dotnet_naming_rule.methods_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_rule.properties_should_be_pascal_case.severity = warning
+dotnet_naming_rule.properties_should_be_pascal_case.symbols = properties
+dotnet_naming_rule.properties_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_rule.fields_should_be_camel_case.severity = warning
+dotnet_naming_rule.fields_should_be_camel_case.symbols = fields
+dotnet_naming_rule.fields_should_be_camel_case.style = camel_case
+
+# Code style rules (mantidas as mesmas do anterior)
+csharp_style_var_for_built_in_types = false
+csharp_style_var_when_type_is_apparent = true
+csharp_style_var_elsewhere = false
+
+csharp_style_expression_bodied_methods = when_on_single_line
+csharp_style_expression_bodied_properties = when_on_single_line
+csharp_style_expression_bodied_accessors = when_on_single_line
+csharp_style_expression_bodied_constructors = when_on_single_line
+csharp_style_expression_bodied_operators = when_on_single_line
+csharp_style_expression_bodied_lambdas = when_on_single_line
+
+csharp_style_prefer_is_null_check = true:suggestion
+csharp_style_prefer_not_null_check = true:suggestion
+
+csharp_style_prefer_system_index_and_range = true
+csharp_style_namespace_declarations = file_scoped
+csharp_using_directive_placement = inside_namespace
+
+# New line preferences (algumas destas podem ser ajustadas se você vir diferenças finas)
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_and_collection_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_between_query_clauses = true
+
+# Other
+csharp_prefer_simple_using_statement = true
+csharp_style_inferred_anonymous_type_member_names = true
+csharp_style_inferred_tuple_element_names = true
+csharp_prefer_readonly_structs = true
+csharp_prefer_static_local_function = true
+csharp_style_prefer_collection_expression = true

@@ -3,18 +3,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace api.Migrations.app
-{
+namespace api.Migrations.app {
     /// <inheritdoc />
-    public partial class appv1 : Migration
-    {
+    public partial class appv1 : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.CreateTable(
                 name: "Applicants",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     CPF = table.Column<string>(type: "text", nullable: false),
@@ -26,30 +22,26 @@ namespace api.Migrations.app
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Applicants", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "OrthopedicBanks",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     City = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_OrthopedicBanks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Stocks",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
                     MaintenanceQtd = table.Column<int>(type: "integer", nullable: false),
@@ -59,15 +51,13 @@ namespace api.Migrations.app
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Stocks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Dependents",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     CPF = table.Column<string>(type: "text", nullable: false),
@@ -78,8 +68,7 @@ namespace api.Migrations.app
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Dependents", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Dependents_Applicants_ApplicantId",
@@ -91,8 +80,7 @@ namespace api.Migrations.app
 
             migrationBuilder.CreateTable(
                 name: "Items",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SeriaCode = table.Column<int>(type: "integer", nullable: false),
                     ImageUrl = table.Column<string>(type: "text", nullable: false),
@@ -101,8 +89,7 @@ namespace api.Migrations.app
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Items", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Items_Stocks_StockId",
@@ -114,8 +101,7 @@ namespace api.Migrations.app
 
             migrationBuilder.CreateTable(
                 name: "Loans",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ApplicantId = table.Column<Guid>(type: "uuid", nullable: false),
                     ResponsibleId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -126,8 +112,7 @@ namespace api.Migrations.app
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Loans", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Loans_Applicants_ApplicantId",
@@ -165,8 +150,7 @@ namespace api.Migrations.app
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropTable(
                 name: "Dependents");
 
