@@ -1,12 +1,16 @@
 using System.Net;
 using api.DB;
 using api.Modules.Items.Dto;
+using api.Modules.Items.Dto.ExampleDoc;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace api.Modules.Items;
 
-public static class ItemController {
-    public static void ItemRoutes(this WebApplication app) {
+public static class ItemController
+{
+    public static void ItemRoutes(this WebApplication app)
+    {
         var itemGroup = app.MapGroup("items")
           .WithTags("Items");
 
@@ -27,10 +31,24 @@ public static class ItemController {
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerItemDTO))]
-        async (RequestCreateItemDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status201Created,
+            typeof(ExampleResponseCreateItemDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status409Conflict,
+            typeof(ExampleResponseConflictItemDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status400BadRequest,
+            typeof(ExampleResponseBadRequestItemDTO))]
+        [SwaggerRequestExample(
+            typeof(RequestCreateItemDto),
+            typeof(ExampleRequestCreateItemDto))]
+        async (RequestCreateItemDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ItemService.CreateItem(request, context, ct);
 
-            if (response.Status == HttpStatusCode.Conflict) {
+            if (response.Status == HttpStatusCode.Conflict)
+            {
                 return Results.Conflict(new ResponseControllerItemDTO(
               false,
               null,
@@ -62,10 +80,21 @@ public static class ItemController {
           StatusCodes.Status400BadRequest,
           "Invalid ID format.",
           typeof(ResponseControllerItemDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseItemNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status400BadRequest,
+            typeof(ExampleResponseBadRequestItemDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseGetItemDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ItemService.GetItem(id, context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerItemDTO(
               false,
               null,
@@ -91,21 +120,29 @@ public static class ItemController {
           StatusCodes.Status404NotFound,
           "No items found.",
           typeof(ResponseControllerItemDTO))]
-        async (ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseItemNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseGetAllItemDTO))]
+        async (ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ItemService.GetItems(context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerItemDTO(
-              false,
-              null,
-              response.Message));
+                  false,
+                  null,
+                  response.Message));
             }
 
             return Results.Ok(new ResponseControllerItemListDTO(
-          response.Status == HttpStatusCode.OK,
-          response.Count,
-          response.Data,
-          response.Message));
+              response.Status == HttpStatusCode.OK,
+              response.Count,
+              response.Data,
+              response.Message));
         });
 
         itemGroup.MapPatch("/{id:guid}",
@@ -121,10 +158,18 @@ public static class ItemController {
           StatusCodes.Status404NotFound,
           "Item not found.",
           typeof(ResponseControllerItemDTO))]
-        async (Guid id, RequestUpdateItemDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseItemNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseUpdateItemDTO))]
+        async (Guid id, RequestUpdateItemDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ItemService.UpdateItem(id, request, context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerItemDTO(
               false,
               null,
@@ -150,10 +195,18 @@ public static class ItemController {
           StatusCodes.Status404NotFound,
           "Item not found.",
           typeof(ResponseControllerItemDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseItemNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseDeleteItemDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ItemService.DeleteItem(id, context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerItemDTO(
               false,
               null,

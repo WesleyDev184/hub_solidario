@@ -1,12 +1,16 @@
+namespace api.Modules.Applicants;
+
 using System.Net;
 using api.DB;
 using api.Modules.Applicants.Dto;
+using api.Modules.Applicants.Dto.ExempleDoc;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
-namespace api.Modules.Applicants;
-
-public static class ApplicantsController {
-    public static void ApplicantRoutes(this WebApplication app) {
+public static class ApplicantsController
+{
+    public static void ApplicantRoutes(this WebApplication app)
+    {
         var group = app.MapGroup("/applicants").WithTags("Applicants");
 
         group.MapPost("/",
@@ -22,10 +26,19 @@ public static class ApplicantsController {
           StatusCodes.Status409Conflict,
           "Applicant already exists.",
           typeof(ResponseControllerApplicantsDTO))]
-        async (RequestCreateApplicantDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status201Created, typeof(ExampleResponseCreateApplicantDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status409Conflict, typeof(ExampleResponseConflictApplicantDTO))]
+        [SwaggerRequestExample(
+          typeof(RequestCreateApplicantDto),
+          typeof(ExampleRequestCreateApplicantDTO))]
+        async (RequestCreateApplicantDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ApplicantService.CreateApplicant(request, context, ct);
 
-            if (response.Status == HttpStatusCode.Conflict) {
+            if (response.Status == HttpStatusCode.Conflict)
+            {
                 return Results.Conflict(new ResponseControllerApplicantsDTO(
               false,
               null,
@@ -53,10 +66,16 @@ public static class ApplicantsController {
           StatusCodes.Status404NotFound,
           "Applicant not found.",
           typeof(ResponseControllerApplicantsDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK, typeof(ExampleResponseGetApplicantDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound, typeof(ExampleResponseApplicantNotFoundDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ApplicantService.GetApplicant(id, context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerApplicantsDTO(
               false,
               null,
@@ -82,10 +101,16 @@ public static class ApplicantsController {
           StatusCodes.Status404NotFound,
           "No applicants found.",
           typeof(ResponseControllerApplicantsListDTO))]
-        async (ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK, typeof(ExampleResponseGetAllApplicantDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound, typeof(ExampleResponseApplicantNotFoundDTO))]
+        async (ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ApplicantService.GetApplicants(context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerApplicantsListDTO(
               false,
               0,
@@ -113,10 +138,19 @@ public static class ApplicantsController {
           StatusCodes.Status404NotFound,
           "Applicant not found.",
           typeof(ResponseControllerApplicantsDTO))]
-        async (Guid id, RequestUpdateApplicantDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK, typeof(ExampleResponseUpdateApplicantDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound, typeof(ExampleResponseApplicantNotFoundDTO))]
+        [SwaggerRequestExample(
+          typeof(RequestUpdateApplicantDto),
+          typeof(ExampleRequestUpdateApplicantDTO))]
+        async (Guid id, RequestUpdateApplicantDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ApplicantService.UpdateApplicant(id, request, context, ct);
 
-            if (response.Status != HttpStatusCode.OK) {
+            if (response.Status != HttpStatusCode.OK)
+            {
                 return Results.NotFound(new ResponseControllerApplicantsDTO(
               false,
               null,
@@ -142,10 +176,16 @@ public static class ApplicantsController {
           StatusCodes.Status404NotFound,
           "Applicant not found.",
           typeof(ResponseControllerApplicantsDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK, typeof(ExampleResponseDeleteApplicantDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound, typeof(ExampleResponseApplicantNotFoundDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await ApplicantService.DeleteApplicant(id, context, ct);
 
-            if (response.Status == HttpStatusCode.NotFound) {
+            if (response.Status == HttpStatusCode.NotFound)
+            {
                 return Results.NotFound(new ResponseControllerApplicantsDTO(
               false,
               null,

@@ -1,6 +1,7 @@
-using Swashbuckle.AspNetCore.Annotations;
-
 namespace api.Auth.Dto;
+
+using api.Auth.Entity;
+using Swashbuckle.AspNetCore.Annotations;
 
 //Create User
 public record RequestCreateUserDto(
@@ -17,7 +18,8 @@ public record RequestCreateUserDto(
     string PhoneNumber,
 
     [SwaggerParameter(Description = "The ID of the orthopedic bank associated with the user", Required = true)]
-    Guid OrthopedicBankId);
+    Guid OrthopedicBankId
+);
 
 public record RequestUpdateUserDto(
     [SwaggerParameter(Description = "The name of the user", Required = false)]
@@ -30,7 +32,8 @@ public record RequestUpdateUserDto(
     string? Password,
 
     [SwaggerParameter(Description = "The phone number of the user", Required = false)]
-    string? PhoneNumber);
+    string? PhoneNumber
+);
 
 //Login User
 public record RequestLoginUserDto(

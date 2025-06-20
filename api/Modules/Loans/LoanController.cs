@@ -2,13 +2,17 @@ using System.Net;
 using api.Auth.Entity;
 using api.DB;
 using api.Modules.Loans.Dto;
+using api.Modules.Loans.Dto.ExampleDoc;
 using Microsoft.AspNetCore.Identity;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace api.Modules.Loans;
 
-public static class LoanController {
-    public static void LoanRoutes(this WebApplication app) {
+public static class LoanController
+{
+    public static void LoanRoutes(this WebApplication app)
+    {
         var loanGroup = app.MapGroup("loans")
           .WithTags("Loans");
 
@@ -25,10 +29,21 @@ public static class LoanController {
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerLoanDTO))]
-        async (RequestCreateLoanDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status201Created,
+          typeof(ExampleResponseCreateLoanDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status400BadRequest,
+          typeof(ExampleResponseErrorDTO))]
+        [SwaggerRequestExample(
+          typeof(RequestCreateLoanDto),
+          typeof(ExampleRequestCreateLoanDto))]
+        async (RequestCreateLoanDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await LoanService.CreateLoan(request, context, ct);
 
-            if (res.Status != HttpStatusCode.Created) {
+            if (res.Status != HttpStatusCode.Created)
+            {
                 return Results.BadRequest(new ResponseControllerLoanDTO(
               false,
               null,
@@ -58,10 +73,18 @@ public static class LoanController {
           StatusCodes.Status404NotFound,
           "Loan not found.",
           typeof(ResponseControllerLoanDTO))]
-        async (Guid id, UserManager<User> userManager, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseGetLoanDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseLoanNotFoundDTO))]
+        async (Guid id, UserManager<User> userManager, ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await LoanService.GetLoan(id, context, userManager, ct);
 
-            if (res.Data == null) {
+            if (res.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerLoanDTO(
               false,
               null,
@@ -88,10 +111,18 @@ public static class LoanController {
           StatusCodes.Status404NotFound,
           "No loans found.",
           typeof(ResponseControllerLoanListDTO))]
-        async (UserManager<User> userManager, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseGetAllLoanDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseLoansNotFoundDTO))]
+        async (UserManager<User> userManager, ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await LoanService.GetLoans(context, userManager, ct);
 
-            if (res.Data == null || res.Count == 0) {
+            if (res.Data == null || res.Count == 0)
+            {
                 return Results.NotFound(new ResponseControllerLoanListDTO(
               false,
               0,
@@ -100,10 +131,10 @@ public static class LoanController {
             }
 
             return Results.Ok(new ResponseControllerLoanListDTO(
-          res.Status == HttpStatusCode.OK,
-          res.Count,
-          res.Data,
-          res.Message));
+              res.Status == HttpStatusCode.OK,
+              res.Count,
+              res.Data,
+              res.Message));
         }).RequireAuthorization()
           .WithName("GetLoans");
 
@@ -120,10 +151,21 @@ public static class LoanController {
           StatusCodes.Status404NotFound,
           "Loan not found.",
           typeof(ResponseControllerLoanDTO))]
-        async (Guid id, RequestUpdateLoanDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseUpdateLoanDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseLoanNotFoundDTO))]
+        [SwaggerRequestExample(
+          typeof(RequestUpdateLoanDto),
+          typeof(ExampleRequestUpdateLoanDto))]
+        async (Guid id, RequestUpdateLoanDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await LoanService.UpdateLoan(id, request, context, ct);
 
-            if (res.Status != HttpStatusCode.OK) {
+            if (res.Status != HttpStatusCode.OK)
+            {
                 return Results.NotFound(new ResponseControllerLoanDTO(
               false,
               null,
@@ -150,10 +192,18 @@ public static class LoanController {
           StatusCodes.Status404NotFound,
           "Loan not found.",
           typeof(ResponseControllerLoanDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseDeleteLoanDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseLoanNotFoundDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await LoanService.DeleteLoan(id, context, ct);
 
-            if (res.Status != HttpStatusCode.OK) {
+            if (res.Status != HttpStatusCode.OK)
+            {
                 return Results.NotFound(new ResponseControllerLoanDTO(
               false,
               null,

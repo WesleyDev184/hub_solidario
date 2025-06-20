@@ -1,12 +1,16 @@
 using System.Net;
 using api.DB;
 using api.Modules.Dependents.Dto;
+using api.Modules.Dependents.Dto.ExampleDoc;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace api.Modules.Dependents;
 
-public static class DependentController {
-    public static void DependentRoutes(this WebApplication app) {
+public static class DependentController
+{
+    public static void DependentRoutes(this WebApplication app)
+    {
         var group = app.MapGroup("/dependents").WithTags("Dependents");
 
         group.MapPost("/",
@@ -22,10 +26,21 @@ public static class DependentController {
           StatusCodes.Status409Conflict,
           "Dependent already exists.",
           typeof(ResponseControllerDependentDTO))]
-        async (RequestCreateDependentDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status409Conflict,
+            typeof(ExampleResponseConflictDependentDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status201Created,
+            typeof(ExampleResponseCreateDependentDTO))]
+        [SwaggerRequestExample(
+            typeof(RequestCreateDependentDto),
+            typeof(ExampleRequestCreateDependentDto))]
+        async (RequestCreateDependentDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await DependentService.CreateDependent(request, context, ct);
 
-            if (response.Status == HttpStatusCode.Conflict) {
+            if (response.Status == HttpStatusCode.Conflict)
+            {
                 return Results.Conflict(new ResponseControllerDependentDTO(
               false,
               null,
@@ -53,10 +68,18 @@ public static class DependentController {
           StatusCodes.Status404NotFound,
           "Dependent not found.",
           typeof(ResponseControllerDependentDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseDependentNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseGetDependentDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await DependentService.GetDependent(id, context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerDependentDTO(
               false,
               null,
@@ -82,10 +105,18 @@ public static class DependentController {
           StatusCodes.Status404NotFound,
           "No dependents found.",
           typeof(ResponseControllerDependentListDTO))]
-        async (ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseDependentNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseGetAllDependentDTO))]
+        async (ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await DependentService.GetDependent(context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerDependentListDTO(
               false,
               0,
@@ -113,10 +144,21 @@ public static class DependentController {
           StatusCodes.Status404NotFound,
           "Dependent not found.",
           typeof(ResponseControllerDependentDTO))]
-        async (Guid id, RequestUpdateDependentDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseDependentNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseUpdateDependentDTO))]
+        [SwaggerRequestExample(
+            typeof(RequestUpdateDependentDto),
+            typeof(ExampleRequestUpdateDependentDto))]
+        async (Guid id, RequestUpdateDependentDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await DependentService.UpdateDependent(id, request, context, ct);
 
-            if (response.Status != HttpStatusCode.OK) {
+            if (response.Status != HttpStatusCode.OK)
+            {
                 return Results.NotFound(new ResponseControllerDependentDTO(
               false,
               null,
@@ -142,10 +184,18 @@ public static class DependentController {
           StatusCodes.Status404NotFound,
           "Dependent not found.",
           typeof(ResponseControllerDependentDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseDependentNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseDeleteDependentDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await DependentService.DeleteDependent(id, context, ct);
 
-            if (response.Status == HttpStatusCode.NotFound) {
+            if (response.Status == HttpStatusCode.NotFound)
+            {
                 return Results.NotFound(new ResponseControllerDependentDTO(
               false,
               null,

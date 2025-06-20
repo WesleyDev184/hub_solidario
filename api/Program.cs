@@ -25,29 +25,32 @@ builder.Configuration["API_KEY"] = Env.GetString("API_KEY");
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
-    c => {
-      c.SwaggerDoc("v1", new OpenApiInfo {
-        Title = "Rotary APi",
-        Version = "v1.0",
-        Description = "API for Rotary Club orthosis loan management system",
-      });
-      c.EnableAnnotations();
-      c.ExampleFilters();
+    c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "Rotary APi",
+            Version = "v1.0",
+            Description = "API for Rotary Club orthosis loan management system",
+        });
+        c.EnableAnnotations();
+        c.ExampleFilters();
 
-      // Adiciona o Schema Filter para enums
-      c.SchemaFilter<EnumSchemaFilter>();
+        // Adiciona o Schema Filter para enums
+        c.SchemaFilter<EnumSchemaFilter>();
 
-      // Adicionar esquema de segurança para chave de API
-      c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme {
-        Description = "API Key needed to access the endpoints. ApiKey: X-Api-Key",
-        In = ParameterLocation.Header,
-        Name = "x-api-key",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "ApiKeyScheme"
-      });
+        // Adicionar esquema de segurança para chave de API
+        c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+        {
+            Description = "API Key needed to access the endpoints. ApiKey: X-Api-Key",
+            In = ParameterLocation.Header,
+            Name = "x-api-key",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "ApiKeyScheme"
+        });
 
-      // Adicionar requisito de segurança global
-      c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        // Adicionar requisito de segurança global
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
       {
         {
             new OpenApiSecurityScheme
@@ -81,34 +84,40 @@ builder.Services
 builder.Services.AddScoped<ApiDbContext>();
 
 //Politica de CORS
-builder.Services.AddCors(options => {
-  options.AddDefaultPolicy(policy => {
-    policy.AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-  });
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) {
-  app.UseSwagger(c => {
-    c.RouteTemplate = "/openapi/{documentName}.json";
-  });
-  app.MapScalarApiReference(opt => {
-    opt.Title = "Rotary API Reference";
-    opt.ShowSidebar = true;
-    opt.Theme = ScalarTheme.DeepSpace;
-    opt.Favicon = "https://clubrunner.blob.core.windows.net/00000002427/PhotoAlbum/branding/Mark-of-Excellence-4992.png";
-    opt.HideDarkModeToggle = true;
-    opt.HideClientButton = true;
-    opt.HideModels = true;
-    opt.AddPreferredSecuritySchemes(new[] { "ApiKey" })
-        .AddApiKeyAuthentication("ApiKey", apiKey => {
-          apiKey.Value = "your_api_key_here";
-        });
-  });
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "/openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference(opt =>
+    {
+        opt.Title = "Rotary API Reference";
+        opt.ShowSidebar = true;
+        opt.Theme = ScalarTheme.DeepSpace;
+        opt.Favicon = "https://clubrunner.blob.core.windows.net/00000002427/PhotoAlbum/branding/Mark-of-Excellence-4992.png";
+        opt.HideDarkModeToggle = true;
+        opt.HideClientButton = true;
+        opt.HideModels = true;
+        opt.AddPreferredSecuritySchemes(new[] { "ApiKey" })
+            .AddApiKeyAuthentication("ApiKey", apiKey =>
+            {
+                apiKey.Value = "your_api_key_here";
+            });
+    });
 }
 
 
