@@ -3,7 +3,6 @@ using Swashbuckle.AspNetCore.Filters;
 using System.Net;
 using api.DB;
 using api.Modules.OrthopedicBanks.Dto;
-using Swashbuckle.AspNetCore.Filters;
 using api.Modules.OrthopedicBanks.Dto.ExampleDoc;
 
 namespace api.Modules.OrthopedicBanks;
