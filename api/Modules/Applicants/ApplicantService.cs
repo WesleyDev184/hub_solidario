@@ -1,79 +1,261 @@
-using System.Net;
+using System.Net; // Use System.Net for HttpStatusCode
 using api.DB;
 using api.Modules.Applicants.Dto;
 using api.Modules.Applicants.Entity;
-using api.Modules.Dependents.Dto;
+using api.Modules.Dependents.Dto; // Needed for ResponseEntityDependentDTO mapping
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Modules.Applicants;
 
-public static class ApplicantService {
+public static class ApplicantService
+{
+    /// <summary>
+    /// Creates a new applicant in the system.
+    /// </summary>
     public static async Task<ResponseApplicantsDTO> CreateApplicant(
-          RequestCreateApplicantDto request,
-          ApiDbContext context,
-          CancellationToken ct) {
-        if (string.IsNullOrWhiteSpace(request.Name)) {
-            return new ResponseApplicantsDTO(
-                HttpStatusCode.BadRequest,
-                null,
-                "Name is required");
+        RequestCreateApplicantDto request,
+        ApiDbContext context,
+        CancellationToken ct)
+    {
+        // Early exit for null request
+        if (request == null)
+        {
+            return new ResponseApplicantsDTO(HttpStatusCode.BadRequest, null, "Invalid request data provided.");
         }
 
-        // Verifica se já existe um applicant com este CPF
-        var existingApplicant = await context.Applicants.AsNoTracking()
-          .AnyAsync(a => a.CPF == request.CPF || a.Email == request.Email, ct);
+        await using var transaction = await context.Database.BeginTransactionAsync(ct);
+        try
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                await transaction.RollbackAsync(ct);
+                return new ResponseApplicantsDTO(HttpStatusCode.BadRequest, null, "Name is required.");
+            }
 
-        if (existingApplicant) {
-            return new ResponseApplicantsDTO(
-                  HttpStatusCode.Conflict,
-                  null,
-                  "Applicant with this CPF or Email already exists");
+            // Check if an applicant with the same CPF or Email already exists
+            var existingApplicant = await context.Applicants.AsNoTracking()
+                .AnyAsync(a => a.CPF == request.CPF || a.Email == request.Email, ct);
+
+            if (existingApplicant)
+            {
+                await transaction.RollbackAsync(ct);
+                return new ResponseApplicantsDTO(HttpStatusCode.Conflict, null, $"Applicant with CPF '{request.CPF}' or Email '{request.Email}' already exists.");
+            }
+
+            var newApplicant = new Applicant(
+                request.Name,
+                request.CPF,
+                request.Email,
+                request.PhoneNumber,
+                request.Address,
+                request.IsBeneficiary
+            );
+
+            context.Applicants.Add(newApplicant);
+            await context.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
+            // Return the created applicant's data in the response
+            var responseEntityApplicant = MapToResponseEntityApplicantsDTO(newApplicant);
+            return new ResponseApplicantsDTO(HttpStatusCode.Created, responseEntityApplicant, "Applicant created successfully.");
         }
-
-        // Cria um novo applicant
-        var newApplicant = new Applicant(
-            request.Name,
-            request.CPF,
-            request.Email,
-            request.PhoneNumber,
-            request.Address,
-            request.IsBeneficiary
-        );
-
-        context.Applicants.Add(newApplicant);
-        await context.SaveChangesAsync(ct);
-
-        return new ResponseApplicantsDTO(HttpStatusCode.Created, null, "Applicant created successfully");
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync(ct);
+            // Log the exception for debugging purposes
+            Console.WriteLine($"Error creating applicant: {ex.Message} - {ex.InnerException?.Message}");
+            return new ResponseApplicantsDTO(HttpStatusCode.InternalServerError, null, "An unexpected error occurred while creating the applicant.");
+        }
     }
 
+    /// <summary>
+    /// Retrieves a single applicant by their ID, including their associated dependents.
+    /// </summary>
     public static async Task<ResponseApplicantsDTO> GetApplicant(
-      Guid id,
-      ApiDbContext context,
-      CancellationToken ct) {
-        // Retrieve the applicant entity with related dependents
+        Guid id,
+        ApiDbContext context,
+        CancellationToken ct)
+    {
+        // Retrieve the applicant entity with related dependents (eager loading)
         var applicantEntity = await context.Applicants.AsNoTracking()
-            .Include(a => a.Dependents)
+            .Include(a => a.Dependents) // Include dependents for full details
             .SingleOrDefaultAsync(a => a.Id == id, ct);
 
-        if (applicantEntity == null) {
-            return new ResponseApplicantsDTO(
-                HttpStatusCode.NotFound,
-                null,
-                "Applicant not found");
+        if (applicantEntity == null)
+        {
+            return new ResponseApplicantsDTO(HttpStatusCode.NotFound, null, $"Applicant with ID '{id}' not found.");
         }
 
         // Map the entity to the DTO
-        var applicantDto = new ResponseEntityApplicantsDTO(
-            applicantEntity.Id,
-            applicantEntity.Name,
-            applicantEntity.CPF,
-            applicantEntity.Email,
-            applicantEntity.PhoneNumber,
-            applicantEntity.Address,
-            applicantEntity.IsBeneficiary,
-            applicantEntity.BeneficiaryQtd,
-            applicantEntity.CreatedAt,
-            applicantEntity.Dependents?.Select(d => new ResponseEntityDependentDTO(
+        var applicantDto = MapToResponseEntityApplicantsDTO(applicantEntity);
+
+        return new ResponseApplicantsDTO(
+            HttpStatusCode.OK,
+            applicantDto,
+            "Applicant retrieved successfully.");
+    }
+
+    /// <summary>
+    /// Retrieves a list of all applicants.
+    /// </summary>
+    public static async Task<ResponseApplicantsListDTO> GetApplicants(
+        ApiDbContext context,
+        CancellationToken ct)
+    {
+        // Select directly into the DTO for efficiency, without dependents for list view
+        var applicants = await context.Applicants.AsNoTracking()
+            .Select(a => new ResponseEntityApplicantsDTO(
+                a.Id,
+                a.Name,
+                a.CPF,
+                a.Email,
+                a.PhoneNumber,
+                a.Address,
+                a.IsBeneficiary,
+                a.BeneficiaryQtd,
+                a.CreatedAt,
+                null // Dependents are typically not included in list views for performance
+            )).ToListAsync(ct);
+
+        return new ResponseApplicantsListDTO(HttpStatusCode.OK, applicants.Count, applicants, "Applicants retrieved successfully.");
+    }
+
+    /// <summary>
+    /// Updates an existing applicant's information.
+    /// </summary>
+    public static async Task<ResponseApplicantsDTO> UpdateApplicant(
+        Guid id,
+        RequestUpdateApplicantDto request,
+        ApiDbContext context,
+        CancellationToken ct)
+    {
+        // Early exit for null request
+        if (request == null)
+        {
+            return new ResponseApplicantsDTO(HttpStatusCode.BadRequest, null, "Invalid request data provided.");
+        }
+
+        await using var transaction = await context.Database.BeginTransactionAsync(ct);
+        try
+        {
+            var applicant = await context.Applicants.SingleOrDefaultAsync(a => a.Id == id, ct);
+
+            if (applicant == null)
+            {
+                await transaction.RollbackAsync(ct);
+                return new ResponseApplicantsDTO(HttpStatusCode.NotFound, null, $"Applicant with ID '{id}' not found.");
+            }
+
+            // Only update if the request property is not null/empty AND different from current value
+            if (!string.IsNullOrWhiteSpace(request.Name))
+            {
+                applicant.SetName(request.Name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.CPF) && request.CPF != applicant.CPF)
+            {
+                // Check if another applicant already exists with this CPF
+                var exists = await context.Applicants.AsNoTracking()
+                    .AnyAsync(a => a.CPF == request.CPF && a.Id != id, ct);
+
+                if (exists)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return new ResponseApplicantsDTO(HttpStatusCode.Conflict, null, $"Applicant with CPF '{request.CPF}' already exists.");
+                }
+                applicant.SetCPF(request.CPF);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Email) && request.Email != applicant.Email)
+            {
+                // Check if another applicant already exists with this Email
+                var exists = await context.Applicants.AsNoTracking()
+                    .AnyAsync(a => a.Email == request.Email && a.Id != id, ct);
+
+                if (exists)
+                {
+                    await transaction.RollbackAsync(ct);
+                    return new ResponseApplicantsDTO(HttpStatusCode.Conflict, null, $"Applicant with Email '{request.Email}' already exists.");
+                }
+                applicant.SetEmail(request.Email);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+            {
+                applicant.SetPhoneNumber(request.PhoneNumber);
+            }
+            if (!string.IsNullOrWhiteSpace(request.Address))
+            {
+                applicant.SetAddress(request.Address);
+            }
+            if (request.IsBeneficiary.HasValue)
+            {
+                applicant.SetIsBeneficiary(request.IsBeneficiary.Value);
+            }
+
+            applicant.UpdateTimestamps(); // Assuming this updates the ModifiedAt timestamp
+
+            await context.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
+            // Return the updated applicant's data in the response
+            var updatedApplicantDto = MapToResponseEntityApplicantsDTO(applicant);
+            return new ResponseApplicantsDTO(HttpStatusCode.OK, updatedApplicantDto, "Applicant updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync(ct);
+            Console.WriteLine($"Error updating applicant: {ex.Message} - {ex.InnerException?.Message}");
+            return new ResponseApplicantsDTO(HttpStatusCode.InternalServerError, null, "An unexpected error occurred while updating the applicant.");
+        }
+    }
+
+    /// <summary>
+    /// Deletes an applicant from the database.
+    /// Note: This operation does NOT automatically delete associated dependents.
+    /// Consider implementing cascade deletion or a business rule to handle dependents.
+    /// </summary>
+    public static async Task<ResponseApplicantsDTO> DeleteApplicant(
+        Guid id,
+        ApiDbContext context,
+        CancellationToken ct)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync(ct);
+        try
+        {
+            var applicant = await context.Applicants
+                                        .Include(a => a.Dependents) // Load dependents to check for them
+                                        .SingleOrDefaultAsync(a => a.Id == id, ct);
+
+            if (applicant == null)
+            {
+                await transaction.RollbackAsync(ct);
+                return new ResponseApplicantsDTO(HttpStatusCode.NotFound, null, $"Applicant with ID '{id}' not found.");
+            }
+
+            context.Applicants.Remove(applicant);
+            await context.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
+            // 204 No Content is standard for successful DELETE operations where no content is returned
+            return new ResponseApplicantsDTO(HttpStatusCode.OK, null, "Applicant deleted successfully.");
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync(ct);
+            Console.WriteLine($"Error deleting applicant: {ex.Message} - {ex.InnerException?.Message}");
+            return new ResponseApplicantsDTO(HttpStatusCode.InternalServerError, null, "An unexpected error occurred while deleting the applicant.");
+        }
+    }
+
+    /// <summary>
+    /// Maps an Applicant entity to a ResponseEntityApplicantsDTO, including mapped dependents if available.
+    /// </summary>
+    private static ResponseEntityApplicantsDTO MapToResponseEntityApplicantsDTO(Applicant applicant)
+    {
+        // Map dependents if they are loaded and exist
+        var dependentsDto = applicant.Dependents?
+            .Select(d => new ResponseEntityDependentDTO(
                 d.Id,
                 d.Name,
                 d.CPF,
@@ -82,109 +264,19 @@ public static class ApplicantService {
                 d.Address,
                 d.ApplicantId,
                 d.CreatedAt
-            )).ToArray()
+            )).ToArray();
+
+        return new ResponseEntityApplicantsDTO(
+            applicant.Id,
+            applicant.Name,
+            applicant.CPF,
+            applicant.Email,
+            applicant.PhoneNumber,
+            applicant.Address,
+            applicant.IsBeneficiary,
+            applicant.BeneficiaryQtd,
+            applicant.CreatedAt,
+            dependentsDto
         );
-
-        return new ResponseApplicantsDTO(
-            HttpStatusCode.OK,
-            applicantDto,
-            "Applicant retrieved successfully");
-    }
-
-    public static async Task<ResponseApplicantsListDTO> GetApplicants(
-          ApiDbContext context,
-          CancellationToken ct) {
-        var applicants = await context.Applicants.AsNoTracking().Select(a => new ResponseEntityApplicantsDTO(
-            a.Id,
-            a.Name,
-            a.CPF,
-            a.Email,
-            a.PhoneNumber,
-            a.Address,
-            a.IsBeneficiary,
-            a.BeneficiaryQtd,
-            a.CreatedAt,
-            null
-          )).ToListAsync(ct);
-
-        return new ResponseApplicantsListDTO(HttpStatusCode.OK, applicants.Count, applicants, "Applicants retrieved successfully");
-    }
-
-    public static async Task<ResponseApplicantsDTO> UpdateApplicant(
-          Guid id,
-          RequestUpdateApplicantDto request,
-          ApiDbContext context,
-          CancellationToken ct) {
-        var applicant = await context.Applicants.SingleOrDefaultAsync(a => a.Id == id, ct);
-
-        if (applicant == null) {
-            return new ResponseApplicantsDTO(
-                HttpStatusCode.NotFound,
-                null,
-                "Applicant not found");
-        }
-
-        if (request.Name != null) {
-            applicant.SetName(request.Name);
-        }
-        if (request.CPF != null) {
-            // Verifica se já existe um applicant com este CPF
-            var exists = await context.Applicants.AsNoTracking()
-              .AnyAsync(a => a.CPF == request.CPF && a.Id != id, ct);
-
-            if (exists) {
-                return new ResponseApplicantsDTO(
-                    HttpStatusCode.Conflict,
-                    null,
-                    "Applicant with this CPF already exists");
-            }
-            applicant.SetCPF(request.CPF);
-        }
-        if (request.Email != null) {
-            // Verifica se já existe um applicant com este Email
-            var exists = await context.Applicants.AsNoTracking()
-              .AnyAsync(a => a.Email == request.Email && a.Id != id, ct);
-
-            if (exists) {
-                return new ResponseApplicantsDTO(
-                    HttpStatusCode.Conflict,
-                    null,
-                    "Applicant with this Email already exists");
-            }
-            applicant.SetEmail(request.Email);
-        }
-        if (request.PhoneNumber != null) {
-            applicant.SetPhoneNumber(request.PhoneNumber);
-        }
-        if (request.Address != null) {
-            applicant.SetAddress(request.Address);
-        }
-        if (request.IsBeneficiary.HasValue) {
-            applicant.SetIsBeneficiary(request.IsBeneficiary.Value);
-        }
-        applicant.UpdateTimestamps();
-
-        await context.SaveChangesAsync(ct);
-
-        return new ResponseApplicantsDTO(HttpStatusCode.OK, null, "Applicant updated successfully");
-    }
-
-    public static async Task<ResponseApplicantsDTO> DeleteApplicant(
-          Guid id,
-          ApiDbContext context,
-          CancellationToken ct) {
-        var applicant = await context.Applicants.SingleOrDefaultAsync(a => a.Id == id, ct);
-
-        if (applicant == null) {
-            return new ResponseApplicantsDTO(
-                HttpStatusCode.NotFound,
-                null,
-                "Applicant not found");
-        }
-
-        context.Applicants.Remove(applicant);
-        await context.SaveChangesAsync(ct);
-
-        return new ResponseApplicantsDTO(HttpStatusCode.OK, null, "Applicant deleted successfully");
     }
 }

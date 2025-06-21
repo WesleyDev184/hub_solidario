@@ -12,10 +12,7 @@ public record RequestCreateItemDto(
     Guid StockId,
 
     [SwaggerParameter(Description = "Image URL for the item", Required = false)]
-    string? ImageUrl,
-
-    [SwaggerParameter(Description = "Status of the item", Required = true)]
-    ItemStatus Status
+    string? ImageUrl
 );
 
 public record RequestUpdateItemDto(

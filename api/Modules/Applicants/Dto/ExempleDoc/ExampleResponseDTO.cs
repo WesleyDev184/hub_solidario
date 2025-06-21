@@ -54,6 +54,32 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
         }
     }
 
+    // Response 400 Bad Request
+    public class ExampleResponseBadRequestApplicantDTO : IExamplesProvider<ResponseControllerApplicantsDTO>
+    {
+        public ResponseControllerApplicantsDTO GetExamples()
+        {
+            return new ResponseControllerApplicantsDTO(
+                Success: false,
+                Data: null,
+                Message: "Bad Request Error message"
+            );
+        }
+    }
+
+    // Response Internal Server Error
+    public class ExampleResponseInternalServerErrorApplicantDTO : IExamplesProvider<ResponseControllerApplicantsDTO>
+    {
+        public ResponseControllerApplicantsDTO GetExamples()
+        {
+            return new ResponseControllerApplicantsDTO(
+                Success: false,
+                Data: null,
+                Message: "Internal Server Error message"
+            );
+        }
+    }
+
     // Response 200 GetAll Applicants
     public class ExampleResponseGetAllApplicantDTO : IExamplesProvider<ResponseControllerApplicantsListDTO>
     {

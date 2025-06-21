@@ -54,7 +54,7 @@ namespace api.Modules.Dependents.Dto.ExampleDoc
             return new ResponseControllerDependentDTO(
                 Success: false,
                 Data: null,
-                Message: "Dependent not found"
+                Message: "Dependent or Applicant not found"
             );
         }
     }
@@ -68,6 +68,32 @@ namespace api.Modules.Dependents.Dto.ExampleDoc
                 Success: false,
                 Data: null,
                 Message: "Conflict error occurred"
+            );
+        }
+    }
+
+    // Response 400 Bad Request
+    public class ExampleResponseBadRequestDependentDTO : IExamplesProvider<ResponseControllerDependentDTO>
+    {
+        public ResponseControllerDependentDTO GetExamples()
+        {
+            return new ResponseControllerDependentDTO(
+                Success: false,
+                Data: null,
+                Message: "Bad request error occurred"
+            );
+        }
+    }
+
+    // Response Internal Server Error
+    public class ExampleResponseInternalServerErrorDependentDTO : IExamplesProvider<ResponseControllerDependentDTO>
+    {
+        public ResponseControllerDependentDTO GetExamples()
+        {
+            return new ResponseControllerDependentDTO(
+                Success: false,
+                Data: null,
+                Message: "Internal server error occurred"
             );
         }
     }

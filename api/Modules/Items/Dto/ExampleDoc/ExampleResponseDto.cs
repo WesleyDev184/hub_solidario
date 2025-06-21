@@ -9,13 +9,7 @@ namespace api.Modules.Items.Dto.ExampleDoc
         {
             return new ResponseControllerItemDTO(
                 Success: true,
-                Data: new ResponseEntityItemDTO(
-                    Id: Guid.NewGuid(),
-                    SeriaCode: 12345,
-                    ImageUrl: "https://example.com/item-image.png",
-                    Status: "Available",
-                    CreatedAt: DateTime.UtcNow
-                ),
+                Data: null,
                 Message: "Item created successfully"
             );
         }
@@ -42,7 +36,7 @@ namespace api.Modules.Items.Dto.ExampleDoc
             return new ResponseControllerItemDTO(
                 Success: false,
                 Data: null,
-                Message: "Item not found"
+                Message: "Item or Stock not found"
             );
         }
     }
@@ -68,8 +62,8 @@ namespace api.Modules.Items.Dto.ExampleDoc
             return new ResponseControllerItemListDTO(
                 Success: true,
                 Count: 1,
-                Data: new List<ResponseEntityItemDTO>
-                {
+                Data:
+                [
                     new ResponseEntityItemDTO(
                         Id: Guid.NewGuid(),
                         SeriaCode: 12345,
@@ -77,7 +71,7 @@ namespace api.Modules.Items.Dto.ExampleDoc
                         Status: "Available",
                         CreatedAt: DateTime.UtcNow
                     )
-                },
+                ],
                 Message: "Items retrieved successfully"
             );
         }
@@ -124,6 +118,19 @@ namespace api.Modules.Items.Dto.ExampleDoc
                 Success: true,
                 Data: null,
                 Message: "Item deleted successfully"
+            );
+        }
+    }
+
+    // internal server error response (HTTP 500)
+    public class ExampleResponseInternalServerErrorItemDTO : IExamplesProvider<ResponseControllerItemDTO>
+    {
+        public ResponseControllerItemDTO GetExamples()
+        {
+            return new ResponseControllerItemDTO(
+                Success: false,
+                Data: null,
+                Message: "An unexpected error occurred"
             );
         }
     }

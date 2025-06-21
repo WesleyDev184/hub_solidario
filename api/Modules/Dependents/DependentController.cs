@@ -26,12 +26,31 @@ public static class DependentController
           StatusCodes.Status409Conflict,
           "Dependent already exists.",
           typeof(ResponseControllerDependentDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status400BadRequest,
+          "Invalid request data.",
+          typeof(ResponseControllerDependentDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status404NotFound,
+          "Applicant not found.",
+          typeof(ResponseControllerDependentDTO))]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError,
+          "An unexpected error occurred.",
+          typeof(ResponseControllerDependentDTO))]
         [SwaggerResponseExample(
             StatusCodes.Status409Conflict,
             typeof(ExampleResponseConflictDependentDTO))]
         [SwaggerResponseExample(
             StatusCodes.Status201Created,
             typeof(ExampleResponseCreateDependentDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status400BadRequest,
+            typeof(ExampleResponseBadRequestDependentDTO))]
+        [SwaggerResponseExample(StatusCodes.Status404NotFound,
+            typeof(ExampleResponseDependentNotFoundDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status500InternalServerError,
+            typeof(ExampleResponseInternalServerErrorDependentDTO))]
         [SwaggerRequestExample(
             typeof(RequestCreateDependentDto),
             typeof(ExampleRequestCreateDependentDto))]
@@ -42,17 +61,43 @@ public static class DependentController
             if (response.Status == HttpStatusCode.Conflict)
             {
                 return Results.Conflict(new ResponseControllerDependentDTO(
-              false,
-              null,
-              response.Message));
+                  false,
+                  null,
+                  response.Message));
+            }
+
+            if (response.Status == HttpStatusCode.BadRequest)
+            {
+                return Results.BadRequest(new ResponseControllerDependentDTO(
+                  false,
+                  null,
+                  response.Message));
+            }
+
+            if (response.Status == HttpStatusCode.NotFound)
+            {
+                return Results.NotFound(new ResponseControllerDependentDTO(
+                  false,
+                  null,
+                  response.Message));
+            }
+
+            if (response.Status == HttpStatusCode.InternalServerError)
+            {
+                return Results.Json(
+                    new ResponseControllerDependentDTO(
+                            false,
+                            null,
+                            response.Message),
+                    statusCode: (int)response.Status);
             }
 
             return Results.Created(
-          $"/Dependents/{response.Data?.Id}",
-          new ResponseControllerDependentDTO(
-            response.Status == HttpStatusCode.Created,
-            response.Data,
-            response.Message));
+              $"/Dependents/{response.Data?.Id}",
+              new ResponseControllerDependentDTO(
+                response.Status == HttpStatusCode.Created,
+                response.Data,
+                response.Message));
         }).RequireAuthorization();
 
         group.MapGet("/{id:guid}",
@@ -78,7 +123,7 @@ public static class DependentController
         {
             var response = await DependentService.GetDependent(id, context, ct);
 
-            if (response.Data == null)
+            if (response.Status == HttpStatusCode.NotFound)
             {
                 return Results.NotFound(new ResponseControllerDependentDTO(
               false,
@@ -101,34 +146,18 @@ public static class DependentController
           StatusCodes.Status200OK,
           "Dependents retrieved successfully.",
           typeof(ResponseControllerDependentListDTO))]
-        [SwaggerResponse(
-          StatusCodes.Status404NotFound,
-          "No dependents found.",
-          typeof(ResponseControllerDependentListDTO))]
-        [SwaggerResponseExample(
-            StatusCodes.Status404NotFound,
-            typeof(ExampleResponseDependentNotFoundDTO))]
         [SwaggerResponseExample(
             StatusCodes.Status200OK,
             typeof(ExampleResponseGetAllDependentDTO))]
         async (ApiDbContext context, CancellationToken ct) =>
         {
-            var response = await DependentService.GetDependent(context, ct);
-
-            if (response.Data == null)
-            {
-                return Results.NotFound(new ResponseControllerDependentListDTO(
-              false,
-              0,
-              null,
-              response.Message));
-            }
+            var response = await DependentService.GetDependents(context, ct);
 
             return Results.Ok(new ResponseControllerDependentListDTO(
-          response.Status == HttpStatusCode.OK,
-          response.Count,
-          response.Data,
-          response.Message));
+              response.Status == HttpStatusCode.OK,
+              response.Count,
+              response.Data,
+              response.Message));
         }).RequireAuthorization();
 
         group.MapPatch("/{id:guid}",
@@ -144,6 +173,27 @@ public static class DependentController
           StatusCodes.Status404NotFound,
           "Dependent not found.",
           typeof(ResponseControllerDependentDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status400BadRequest,
+          "Invalid request data.",
+          typeof(ResponseControllerDependentDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status409Conflict,
+          "Conflict error occurred.",
+          typeof(ResponseControllerDependentDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status500InternalServerError,
+          "An unexpected error occurred.",
+          typeof(ResponseControllerDependentDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status500InternalServerError,
+            typeof(ExampleResponseInternalServerErrorDependentDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status409Conflict,
+            typeof(ExampleResponseConflictDependentDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status400BadRequest,
+            typeof(ExampleResponseBadRequestDependentDTO))]
         [SwaggerResponseExample(
             StatusCodes.Status404NotFound,
             typeof(ExampleResponseDependentNotFoundDTO))]
@@ -157,18 +207,42 @@ public static class DependentController
         {
             var response = await DependentService.UpdateDependent(id, request, context, ct);
 
-            if (response.Status != HttpStatusCode.OK)
+            if (response.Status == HttpStatusCode.Conflict)
+            {
+                return Results.Conflict(new ResponseControllerDependentDTO(
+                  false,
+                  null,
+                  response.Message));
+            }
+            if (response.Status == HttpStatusCode.BadRequest)
+            {
+                return Results.BadRequest(new ResponseControllerDependentDTO(
+                  false,
+                  null,
+                  response.Message));
+            }
+            if (response.Status == HttpStatusCode.NotFound)
             {
                 return Results.NotFound(new ResponseControllerDependentDTO(
-              false,
-              null,
-              response.Message));
+                  false,
+                  null,
+                  response.Message));
+            }
+
+            if (response.Status == HttpStatusCode.InternalServerError)
+            {
+                return Results.Json(
+                    new ResponseControllerDependentDTO(
+                            false,
+                            null,
+                            response.Message),
+                    statusCode: (int)response.Status);
             }
 
             return Results.Ok(new ResponseControllerDependentDTO(
-          response.Status == HttpStatusCode.OK,
-          response.Data,
-          response.Message));
+              response.Status == HttpStatusCode.OK,
+              response.Data,
+              response.Message));
         }).RequireAuthorization();
 
         group.MapDelete("/{id:guid}",
@@ -184,12 +258,19 @@ public static class DependentController
           StatusCodes.Status404NotFound,
           "Dependent not found.",
           typeof(ResponseControllerDependentDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status500InternalServerError,
+          "An unexpected error occurred.",
+          typeof(ResponseControllerDependentDTO))]
         [SwaggerResponseExample(
             StatusCodes.Status404NotFound,
             typeof(ExampleResponseDependentNotFoundDTO))]
         [SwaggerResponseExample(
             StatusCodes.Status200OK,
             typeof(ExampleResponseDeleteDependentDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status500InternalServerError,
+            typeof(ExampleResponseInternalServerErrorDependentDTO))]
         async (Guid id, ApiDbContext context, CancellationToken ct) =>
         {
             var response = await DependentService.DeleteDependent(id, context, ct);
@@ -197,9 +278,19 @@ public static class DependentController
             if (response.Status == HttpStatusCode.NotFound)
             {
                 return Results.NotFound(new ResponseControllerDependentDTO(
-              false,
-              null,
-              response.Message));
+                  false,
+                  null,
+                  response.Message));
+            }
+
+            if (response.Status == HttpStatusCode.InternalServerError)
+            {
+                return Results.Json(
+                    new ResponseControllerDependentDTO(
+                            false,
+                            null,
+                            response.Message),
+                    statusCode: (int)response.Status);
             }
 
             return Results.Ok(new ResponseControllerDependentDTO(
