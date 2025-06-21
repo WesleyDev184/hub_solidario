@@ -1,19 +1,19 @@
-namespace api.Modules.Applicants;
-
-using System.Net;
-using api.DB;
-using api.Modules.Applicants.Dto;
-using api.Modules.Applicants.Dto.ExempleDoc;
-using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.Filters;
-
-public static class ApplicantsController
+namespace api.Modules.Applicants
 {
+  using System.Net;
+  using DB;
+  using Dto;
+  using Dto.ExempleDoc;
+  using Swashbuckle.AspNetCore.Annotations;
+  using Swashbuckle.AspNetCore.Filters;
+
+  public static class ApplicantsController
+  {
     public static void ApplicantRoutes(this WebApplication app)
     {
-        var group = app.MapGroup("/applicants").WithTags("Applicants");
+      RouteGroupBuilder group = app.MapGroup("/applicants").WithTags("Applicants");
 
-        group.MapPost("/",
+      group.MapPost("/",
         [SwaggerOperation(
           Summary = "Create a new applicant",
           Description = "Creates a new applicant in the system.")
@@ -47,41 +47,23 @@ public static class ApplicantsController
           typeof(ExampleRequestCreateApplicantDTO))]
         async (RequestCreateApplicantDto request, ApiDbContext context, CancellationToken ct) =>
         {
-            var response = await ApplicantService.CreateApplicant(request, context, ct);
+          ResponseApplicantsDTO response = await ApplicantService.CreateApplicant(request, context, ct);
 
-            if (response.Status == HttpStatusCode.Conflict)
-            {
-                return Results.Conflict(new ResponseControllerApplicantsDTO(
-              false,
-              null,
-              response.Message));
-            }
-            if (response.Status == HttpStatusCode.BadRequest)
-            {
-                return Results.BadRequest(new ResponseControllerApplicantsDTO(
-              false,
-              null,
-              response.Message));
-            }
-
-            if (response.Status == HttpStatusCode.InternalServerError)
-            {
-                return Results.Json(new ResponseControllerApplicantsDTO(
-              false,
-              null,
-              response.Message),
-              statusCode: (int)response.Status);
-            }
-
-            return Results.Created(
-              $"/applicants/{response.Data?.Id}",
-              new ResponseControllerApplicantsDTO(
-                response.Status == HttpStatusCode.Created,
-                response.Data,
-                response.Message));
+          return response.Status switch
+          {
+            HttpStatusCode.Conflict => Results.Conflict(new ResponseControllerApplicantsDTO(
+              false, null, response.Message)),
+            HttpStatusCode.BadRequest => Results.BadRequest(new ResponseControllerApplicantsDTO(
+              false, null, response.Message)),
+            HttpStatusCode.InternalServerError => Results.Json(
+              new ResponseControllerApplicantsDTO(false, null, response.Message), statusCode: (int)response.Status),
+            _ => Results.Created($"/applicants/{response.Data?.Id}",
+              new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.Created, response.Data,
+                response.Message))
+          };
         }).RequireAuthorization();
 
-        group.MapGet("/{id:guid}",
+      group.MapGet("/{id:guid}",
         [SwaggerOperation(
           Summary = "Get an applicant by ID",
           Description = "Retrieves an applicant from the system by their unique identifier.")
@@ -100,23 +82,23 @@ public static class ApplicantsController
           StatusCodes.Status404NotFound, typeof(ExampleResponseApplicantNotFoundDTO))]
         async (Guid id, ApiDbContext context, CancellationToken ct) =>
         {
-            var response = await ApplicantService.GetApplicant(id, context, ct);
+          ResponseApplicantsDTO response = await ApplicantService.GetApplicant(id, context, ct);
 
-            if (response.Data == null)
-            {
-                return Results.NotFound(new ResponseControllerApplicantsDTO(
+          if (response.Data == null)
+          {
+            return Results.NotFound(new ResponseControllerApplicantsDTO(
               false,
               null,
               response.Message));
-            }
+          }
 
-            return Results.Ok(new ResponseControllerApplicantsDTO(
-          response.Status == HttpStatusCode.OK,
-          response.Data,
-          response.Message));
+          return Results.Ok(new ResponseControllerApplicantsDTO(
+            response.Status == HttpStatusCode.OK,
+            response.Data,
+            response.Message));
         }).RequireAuthorization();
 
-        group.MapGet("/",
+      group.MapGet("/",
         [SwaggerOperation(
           Summary = "Get all applicants",
           Description = "Retrieves a list of all applicants in the system.")
@@ -129,16 +111,16 @@ public static class ApplicantsController
           StatusCodes.Status200OK, typeof(ExampleResponseGetAllApplicantDTO))]
         async (ApiDbContext context, CancellationToken ct) =>
         {
-            var response = await ApplicantService.GetApplicants(context, ct);
+          ResponseApplicantsListDTO response = await ApplicantService.GetApplicants(context, ct);
 
-            return Results.Ok(new ResponseControllerApplicantsListDTO(
-              response.Status == HttpStatusCode.OK,
-              response.Count,
-              response.Data,
-              response.Message));
+          return Results.Ok(new ResponseControllerApplicantsListDTO(
+            response.Status == HttpStatusCode.OK,
+            response.Count,
+            response.Data,
+            response.Message));
         }).RequireAuthorization();
 
-        group.MapPatch("/{id:guid}",
+      group.MapPatch("/{id:guid}",
         [SwaggerOperation(
           Summary = "Update an applicant",
           Description = "Updates an existing applicant's information in the system.")
@@ -176,47 +158,26 @@ public static class ApplicantsController
         [SwaggerRequestExample(
           typeof(RequestUpdateApplicantDto),
           typeof(ExampleRequestUpdateApplicantDTO))]
-        async (Guid id, RequestUpdateApplicantDto request, ApiDbContext context, CancellationToken ct) =>
+        async (Guid id, RequestUpdateApplicantDto? request, ApiDbContext context, CancellationToken ct) =>
         {
-            var response = await ApplicantService.UpdateApplicant(id, request, context, ct);
+          ResponseApplicantsDTO response = await ApplicantService.UpdateApplicant(id, request, context, ct);
 
-            if (response.Status == HttpStatusCode.BadRequest)
-            {
-                return Results.BadRequest(new ResponseControllerApplicantsDTO(
-                  false,
-                  null,
-                  response.Message));
-            }
-            if (response.Status == HttpStatusCode.InternalServerError)
-            {
-                return Results.Json(new ResponseControllerApplicantsDTO(
-                  false,
-                  null,
-                  response.Message),
-                  statusCode: (int)response.Status);
-            }
-            if (response.Status == HttpStatusCode.Conflict)
-            {
-                return Results.Conflict(new ResponseControllerApplicantsDTO(
-                  false,
-                  null,
-                  response.Message));
-            }
-            if (response.Status == HttpStatusCode.NotFound)
-            {
-                return Results.NotFound(new ResponseControllerApplicantsDTO(
-                  false,
-                  null,
-                  response.Message));
-            }
-
-            return Results.Ok(new ResponseControllerApplicantsDTO(
-              response.Status == HttpStatusCode.OK,
-              response.Data,
-              response.Message));
+          return response.Status switch
+          {
+            HttpStatusCode.BadRequest => Results.BadRequest(new ResponseControllerApplicantsDTO(
+              false, null, response.Message)),
+            HttpStatusCode.InternalServerError => Results.Json(
+              new ResponseControllerApplicantsDTO(false, null, response.Message), statusCode: (int)response.Status),
+            HttpStatusCode.Conflict => Results.Conflict(new ResponseControllerApplicantsDTO(
+              false, null, response.Message)),
+            HttpStatusCode.NotFound => Results.NotFound(new ResponseControllerApplicantsDTO(
+              false, null, response.Message)),
+            _ => Results.Ok(new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.OK, response.Data,
+              response.Message))
+          };
         }).RequireAuthorization();
 
-        group.MapDelete("/{id:guid}",
+      group.MapDelete("/{id:guid}",
         [SwaggerOperation(
           Summary = "Delete an applicant",
           Description = "Deletes an existing applicant from the system by their unique identifier.")
@@ -240,29 +201,18 @@ public static class ApplicantsController
           StatusCodes.Status500InternalServerError, typeof(ExampleResponseInternalServerErrorApplicantDTO))]
         async (Guid id, ApiDbContext context, CancellationToken ct) =>
         {
-            var response = await ApplicantService.DeleteApplicant(id, context, ct);
+          ResponseApplicantsDTO response = await ApplicantService.DeleteApplicant(id, context, ct);
 
-            if (response.Status == HttpStatusCode.NotFound)
-            {
-                return Results.NotFound(new ResponseControllerApplicantsDTO(
-                  false,
-                  null,
-                  response.Message));
-            }
-
-            if (response.Status == HttpStatusCode.InternalServerError)
-            {
-                return Results.Json(new ResponseControllerApplicantsDTO(
-                  false,
-                  null,
-                  response.Message),
-                  statusCode: (int)response.Status);
-            }
-
-            return Results.Ok(new ResponseControllerApplicantsDTO(
-              response.Status == HttpStatusCode.OK,
-              null,
-              response.Message));
+          return response.Status switch
+          {
+            HttpStatusCode.NotFound => Results.NotFound(new ResponseControllerApplicantsDTO(
+              false, null, response.Message)),
+            HttpStatusCode.InternalServerError => Results.Json(
+              new ResponseControllerApplicantsDTO(false, null, response.Message), statusCode: (int)response.Status),
+            _ => Results.Ok(new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.OK, null,
+              response.Message))
+          };
         }).RequireAuthorization();
     }
+  }
 }
