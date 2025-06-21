@@ -62,6 +62,10 @@ public class ApiDbContext : DbContext
           .HasIndex(a => a.CPF)
           .IsUnique();
 
+        modelBuilder.Entity<Dependent>()
+          .HasIndex(a => a.CPF)
+          .IsUnique();
+
         modelBuilder.Entity<Stock>()
           .HasIndex(s => s.Title);
 

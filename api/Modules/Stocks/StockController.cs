@@ -1,12 +1,16 @@
 using System.Net;
 using api.DB;
 using api.Modules.Stocks.Dto;
+using api.Modules.Stocks.Dto.ExampleDoc;
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace api.Modules.Stocks;
 
-public static class StockController {
-    public static void StockRoutes(this WebApplication app) {
+public static class StockController
+{
+    public static void StockRoutes(this WebApplication app)
+    {
         var stockGroup = app.MapGroup("stocks")
           .WithTags("Stocks");
 
@@ -23,10 +27,21 @@ public static class StockController {
           StatusCodes.Status409Conflict,
           "Stock already exists.",
           typeof(ResponseControllerStockDTO))]
-        async (RequestCreateStockDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status201Created,
+          typeof(ExampleResponseCreateStockDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status409Conflict,
+          typeof(ExampleResponseConflictStockDTO))]
+        [SwaggerRequestExample(
+          typeof(RequestCreateStockDto),
+          typeof(ExampleRequestCreateStockDto))]
+        async (RequestCreateStockDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await StockService.CreateStock(request, context, ct);
 
-            if (response.Status == HttpStatusCode.Conflict) {
+            if (response.Status == HttpStatusCode.Conflict)
+            {
                 return Results.Conflict(new ResponseControllerStockDTO(
               false,
               null,
@@ -56,10 +71,18 @@ public static class StockController {
           StatusCodes.Status404NotFound,
           "Stock not found.",
           typeof(ResponseControllerStockDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseGetStockDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseStockNotFoundDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await StockService.GetStock(id, context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerStockDTO(
               false,
               null,
@@ -85,10 +108,18 @@ public static class StockController {
           StatusCodes.Status404NotFound,
           "No stocks found.",
           typeof(ResponseControllerStockDTO))]
-        async (ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseGetAllStocksDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseStocksNotFoundDTO))]
+        async (ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await StockService.GetStocks(context, ct);
 
-            if (response.Data == null || !response.Data.Any()) {
+            if (response.Data == null || !response.Data.Any())
+            {
                 return Results.NotFound(new ResponseControllerStockDTO(
               false,
               null,
@@ -96,10 +127,10 @@ public static class StockController {
             }
 
             return Results.Ok(new ResponseControllerStockListDTO(
-          response.Status == HttpStatusCode.OK,
-          response.Count,
-          response.Data,
-          response.Message));
+              response.Status == HttpStatusCode.OK,
+              response.Count,
+              response.Data,
+              response.Message));
         });
 
         stockGroup.MapPatch("/{id:guid}",
@@ -115,10 +146,21 @@ public static class StockController {
           StatusCodes.Status404NotFound,
           "Stock not found.",
           typeof(ResponseControllerStockDTO))]
-        async (Guid id, RequestUpdateStockDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseUpdateStockDTO))]
+        [SwaggerRequestExample(
+          typeof(RequestUpdateStockDto),
+          typeof(ExampleRequestUpdateStockDto))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseStockNotFoundDTO))]
+        async (Guid id, RequestUpdateStockDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await StockService.UpdateStock(id, request, context, ct);
 
-            if (response.Data == null) {
+            if (response.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerStockDTO(
               false,
               null,
@@ -144,10 +186,18 @@ public static class StockController {
           StatusCodes.Status404NotFound,
           "Stock not found.",
           typeof(ResponseControllerStockDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseDeleteStockDTO))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseStockNotFoundDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var response = await StockService.DeleteStock(id, context, ct);
 
-            if (response.Data == null || response.Status == HttpStatusCode.NotFound) {
+            if (response.Data == null || response.Status == HttpStatusCode.NotFound)
+            {
                 return Results.NotFound(new ResponseControllerStockDTO(
               false,
               null,

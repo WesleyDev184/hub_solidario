@@ -1,12 +1,17 @@
 using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 using System.Net;
 using api.DB;
 using api.Modules.OrthopedicBanks.Dto;
+using Swashbuckle.AspNetCore.Filters;
+using api.Modules.OrthopedicBanks.Dto.ExampleDoc;
 
 namespace api.Modules.OrthopedicBanks;
 
-public static class OrthopedicBankController {
-    public static void OrthopedicBankRoutes(this WebApplication app) {
+public static class OrthopedicBankController
+{
+    public static void OrthopedicBankRoutes(this WebApplication app)
+    {
         var orthopedicBankGroup = app.MapGroup("orthopedic-banks")
           .WithTags("Orthopedic Banks");
 
@@ -23,10 +28,21 @@ public static class OrthopedicBankController {
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        async (RequestCreateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status201Created,
+            typeof(ExampleResponseCreateOrthopedicBankDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status400BadRequest,
+            typeof(ExampleResponseBadRequestOrthopedicBankDTO))]
+        [SwaggerRequestExample(
+            typeof(RequestCreateOrthopedicBankDto),
+            typeof(ExampleRequestCreateOrthopedicBankDto))]
+        async (RequestCreateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await OrthopedicBankService.CreateOrthopedicBank(request, context, ct);
 
-            if (res.Data == null) {
+            if (res.Data == null)
+            {
                 return Results.BadRequest(new ResponseControllerOrthopedicBankDTO(
               false,
               null,
@@ -57,10 +73,18 @@ public static class OrthopedicBankController {
           StatusCodes.Status404NotFound,
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseGetOrthopedicBankDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseOrthopedicBankNotFoundDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await OrthopedicBankService.GetOrthopedicBank(id, context, ct);
 
-            if (res.Data == null) {
+            if (res.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerOrthopedicBankDTO(
               false,
               null,
@@ -88,10 +112,18 @@ public static class OrthopedicBankController {
           StatusCodes.Status404NotFound,
           "No orthopedic banks found.",
           typeof(ResponseControllerOrthopedicBankListDTO))]
-        async (ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseGetAllOrthopedicBankDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseOrthopedicBanksNotFoundDTO))]
+        async (ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await OrthopedicBankService.GetOrthopedicBanks(context, ct);
 
-            if (res.Data == null || res.Count == 0) {
+            if (res.Data == null || res.Count == 0)
+            {
                 return Results.NotFound(new ResponseControllerOrthopedicBankListDTO(
               false,
               0,
@@ -121,10 +153,21 @@ public static class OrthopedicBankController {
           StatusCodes.Status404NotFound,
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        async (Guid id, RequestUpdateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseUpdateOrthopedicBankDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseOrthopedicBankNotFoundDTO))]
+        [SwaggerRequestExample(
+            typeof(RequestUpdateOrthopedicBankDto),
+            typeof(ExampleRequestUpdateOrthopedicBankDto))]
+        async (Guid id, RequestUpdateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
+        {
             var res = await OrthopedicBankService.UpdateOrthopedicBank(id, request, context, ct);
 
-            if (res.Data == null) {
+            if (res.Data == null)
+            {
                 return Results.NotFound(new ResponseControllerOrthopedicBankDTO(
               false,
               null,
@@ -152,11 +195,19 @@ public static class OrthopedicBankController {
           StatusCodes.Status404NotFound,
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) => {
+        [SwaggerResponseExample(
+            StatusCodes.Status200OK,
+            typeof(ExampleResponseDeleteOrthopedicBankDTO))]
+        [SwaggerResponseExample(
+            StatusCodes.Status404NotFound,
+            typeof(ExampleResponseOrthopedicBankNotFoundDTO))]
+        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+        {
             Console.WriteLine($"Deleting orthopedic bank with ID: {id}");
             var res = await OrthopedicBankService.DeleteOrthopedicBank(id, context, ct);
 
-            if (res.Data == null || res.Status == HttpStatusCode.NotFound) {
+            if (res.Data == null || res.Status == HttpStatusCode.NotFound)
+            {
                 return Results.NotFound(new ResponseControllerOrthopedicBankDTO(
               false,
               null,
