@@ -9,15 +9,16 @@ namespace api.Modules.OrthopedicBanks;
 
 public static class OrthopedicBankController
 {
-    public static void OrthopedicBankRoutes(this WebApplication app)
-    {
-        var orthopedicBankGroup = app.MapGroup("orthopedic-banks")
-          .WithTags("Orthopedic Banks");
+  public static void OrthopedicBankRoutes(this WebApplication app)
+  {
+    RouteGroupBuilder orthopedicBankGroup = app.MapGroup("orthopedic-banks")
+      .WithTags("Orthopedic Banks");
 
-        orthopedicBankGroup.MapPost("/",
-        [SwaggerOperation(
-          Summary = "Create a new orthopedic bank",
-          Description = "Creates a new orthopedic bank in the system.")
+    orthopedicBankGroup.MapPost("/",
+        [
+          SwaggerOperation(
+            Summary = "Create a new orthopedic bank",
+            Description = "Creates a new orthopedic bank in the system.")
         ]
         [SwaggerResponse(
           StatusCodes.Status201Created,
@@ -27,39 +28,48 @@ public static class OrthopedicBankController
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerOrthopedicBankDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status500InternalServerError,
+          "An error occurred while processing the request.",
+          typeof(ResponseControllerOrthopedicBankDTO))]
+        [SwaggerResponse(StatusCodes.Status409Conflict,
+          "Orthopedic bank already exists.",
+          typeof(ResponseControllerOrthopedicBankDTO))]
         [SwaggerResponseExample(
-            StatusCodes.Status201Created,
-            typeof(ExampleResponseCreateOrthopedicBankDTO))]
+          StatusCodes.Status500InternalServerError,
+          typeof(ExampleResponseInternalServerErrorOrthopedicBankDto))]
         [SwaggerResponseExample(
-            StatusCodes.Status400BadRequest,
-            typeof(ExampleResponseBadRequestOrthopedicBankDTO))]
+          StatusCodes.Status201Created,
+          typeof(ExampleResponseCreateOrthopedicBankDto))]
+        [SwaggerResponseExample(
+          StatusCodes.Status400BadRequest,
+          typeof(ExampleResponseBadRequestOrthopedicBankDto))]
+        [SwaggerResponseExample(
+          StatusCodes.Status409Conflict,
+          typeof(ExampleResponseConflictOrthopedicBankDto))]
         [SwaggerRequestExample(
-            typeof(RequestCreateOrthopedicBankDto),
-            typeof(ExampleRequestCreateOrthopedicBankDto))]
+          typeof(RequestCreateOrthopedicBankDto),
+          typeof(ExampleRequestCreateOrthopedicBankDto))]
         async (RequestCreateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
         {
-            var res = await OrthopedicBankService.CreateOrthopedicBank(request, context, ct);
+          var res = await OrthopedicBankService.CreateOrthopedicBank(request, context, ct);
 
-            if (res.Data == null)
-            {
-                return Results.BadRequest(new ResponseControllerOrthopedicBankDTO(
-              false,
-              null,
-              res.Message));
-            }
-
-            return Results.Created(
-          $"/orthopedic-banks/{res.Data?.Id}",
-          new ResponseControllerOrthopedicBankDTO(
-            res.Status == HttpStatusCode.Created,
-            res.Data,
-            res.Message
-          ));
+          return res.Status switch
+          {
+            HttpStatusCode.BadRequest => Results.BadRequest(new ResponseControllerOrthopedicBankDTO(
+              false, null, res.Message)),
+            HttpStatusCode.Conflict => Results.Conflict(new ResponseControllerOrthopedicBankDTO(
+              false, null, res.Message)),
+            HttpStatusCode.InternalServerError => Results.Problem(detail: res.Message,
+              statusCode: StatusCodes.Status500InternalServerError),
+            _ => Results.Created($"/orthopedic-banks/{res.Data?.Id}",
+              new ResponseControllerOrthopedicBankDTO(res.Status == HttpStatusCode.Created, res.Data, res.Message))
+          };
         })
-        .RequireAuthorization()
-        .WithName("CreateOrthopedicBank");
+      .RequireAuthorization()
+      .WithName("CreateOrthopedicBank");
 
-        orthopedicBankGroup.MapGet("/{id:guid}",
+    orthopedicBankGroup.MapGet("/{id:guid}",
         [SwaggerOperation(
           Summary = "Get an orthopedic bank by ID",
           Description = "Retrieves an orthopedic bank from the system by its unique identifier.")
@@ -73,32 +83,32 @@ public static class OrthopedicBankController
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
         [SwaggerResponseExample(
-            StatusCodes.Status200OK,
-            typeof(ExampleResponseGetOrthopedicBankDTO))]
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseGetOrthopedicBankDto))]
         [SwaggerResponseExample(
-            StatusCodes.Status404NotFound,
-            typeof(ExampleResponseOrthopedicBankNotFoundDTO))]
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseOrthopedicBankNotFoundDto))]
         async (Guid id, ApiDbContext context, CancellationToken ct) =>
         {
-            var res = await OrthopedicBankService.GetOrthopedicBank(id, context, ct);
+          var res = await OrthopedicBankService.GetOrthopedicBank(id, context, ct);
 
-            if (res.Data == null)
-            {
-                return Results.NotFound(new ResponseControllerOrthopedicBankDTO(
+          if (res.Status == HttpStatusCode.NotFound || res.Data == null)
+          {
+            return Results.NotFound(new ResponseControllerOrthopedicBankDTO(
               false,
               null,
               res.Message));
-            }
+          }
 
-            return Results.Ok(new ResponseControllerOrthopedicBankDTO(
-          res.Status == HttpStatusCode.OK,
-          res.Data,
-          res.Message));
+          return Results.Ok(new ResponseControllerOrthopedicBankDTO(
+            res.Status == HttpStatusCode.OK,
+            res.Data,
+            res.Message));
         })
-        .RequireAuthorization()
-        .WithName("GetOrthopedicBank");
+      .RequireAuthorization()
+      .WithName("GetOrthopedicBank");
 
-        orthopedicBankGroup.MapGet("/",
+    orthopedicBankGroup.MapGet("/",
         [SwaggerOperation(
           Summary = "Get all orthopedic banks",
           Description = "Retrieves a list of all orthopedic banks in the system.")
@@ -107,42 +117,27 @@ public static class OrthopedicBankController
           StatusCodes.Status200OK,
           "Orthopedic banks retrieved successfully.",
           typeof(ResponseControllerOrthopedicBankListDTO))]
-        [SwaggerResponse(
-          StatusCodes.Status404NotFound,
-          "No orthopedic banks found.",
-          typeof(ResponseControllerOrthopedicBankListDTO))]
         [SwaggerResponseExample(
-            StatusCodes.Status200OK,
-            typeof(ExampleResponseGetAllOrthopedicBankDTO))]
-        [SwaggerResponseExample(
-            StatusCodes.Status404NotFound,
-            typeof(ExampleResponseOrthopedicBanksNotFoundDTO))]
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseGetAllOrthopedicBankDto))]
         async (ApiDbContext context, CancellationToken ct) =>
         {
-            var res = await OrthopedicBankService.GetOrthopedicBanks(context, ct);
+          var res = await OrthopedicBankService.GetOrthopedicBanks(context, ct);
 
-            if (res.Data == null || res.Count == 0)
-            {
-                return Results.NotFound(new ResponseControllerOrthopedicBankListDTO(
-              false,
-              0,
-              null,
-              res.Message));
-            }
-
-            return Results.Ok(new ResponseControllerOrthopedicBankListDTO(
-          res.Status == HttpStatusCode.OK,
-          res.Count,
-          res.Data,
-          res.Message));
+          return Results.Ok(new ResponseControllerOrthopedicBankListDTO(
+            res.Status == HttpStatusCode.OK,
+            res.Count,
+            res.Data,
+            res.Message));
         })
-        .RequireAuthorization()
-        .WithName("GetOrthopedicBanks");
+      .RequireAuthorization()
+      .WithName("GetOrthopedicBanks");
 
-        orthopedicBankGroup.MapPatch("/{id:guid}",
-        [SwaggerOperation(
-          Summary = "Update an orthopedic bank",
-          Description = "Updates an existing orthopedic bank in the system.")
+    orthopedicBankGroup.MapPatch("/{id:guid}",
+        [
+          SwaggerOperation(
+            Summary = "Update an orthopedic bank",
+            Description = "Updates an existing orthopedic bank in the system.")
         ]
         [SwaggerResponse(
           StatusCodes.Status200OK,
@@ -152,36 +147,59 @@ public static class OrthopedicBankController
           StatusCodes.Status404NotFound,
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status400BadRequest,
+          "Invalid request data.",
+          typeof(ResponseControllerOrthopedicBankDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status409Conflict,
+          "Orthopedic bank already exists.",
+          typeof(ResponseControllerOrthopedicBankDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status500InternalServerError,
+          "An error occurred while processing the request.",
+          typeof(ResponseControllerOrthopedicBankDTO))]
         [SwaggerResponseExample(
-            StatusCodes.Status200OK,
-            typeof(ExampleResponseUpdateOrthopedicBankDTO))]
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseUpdateOrthopedicBankDto))]
         [SwaggerResponseExample(
-            StatusCodes.Status404NotFound,
-            typeof(ExampleResponseOrthopedicBankNotFoundDTO))]
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseOrthopedicBankNotFoundDto))]
+        [SwaggerResponseExample(
+          StatusCodes.Status400BadRequest,
+          typeof(ExampleResponseBadRequestOrthopedicBankDto))]
+        [SwaggerResponseExample(
+          StatusCodes.Status409Conflict,
+          typeof(ExampleResponseConflictOrthopedicBankDto))]
+        [SwaggerResponseExample(
+          StatusCodes.Status500InternalServerError,
+          typeof(ExampleResponseInternalServerErrorOrthopedicBankDto))]
         [SwaggerRequestExample(
-            typeof(RequestUpdateOrthopedicBankDto),
-            typeof(ExampleRequestUpdateOrthopedicBankDto))]
+          typeof(RequestUpdateOrthopedicBankDto),
+          typeof(ExampleRequestUpdateOrthopedicBankDto))]
         async (Guid id, RequestUpdateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
+
         {
-            var res = await OrthopedicBankService.UpdateOrthopedicBank(id, request, context, ct);
+          var res = await OrthopedicBankService.UpdateOrthopedicBank(id, request, context, ct);
 
-            if (res.Data == null)
-            {
-                return Results.NotFound(new ResponseControllerOrthopedicBankDTO(
-              false,
-              null,
-              res.Message));
-            }
-
-            return Results.Ok(new ResponseControllerOrthopedicBankDTO(
-          res.Status == HttpStatusCode.OK,
-          res.Data,
-          res.Message));
+          return res.Status switch
+          {
+            HttpStatusCode.BadRequest => Results.BadRequest(new ResponseControllerOrthopedicBankDTO(
+              false, null, res.Message)),
+            HttpStatusCode.Conflict => Results.Conflict(new ResponseControllerOrthopedicBankDTO(
+              false, null, res.Message)),
+            HttpStatusCode.InternalServerError => Results.Problem(detail: res.Message,
+              statusCode: StatusCodes.Status500InternalServerError),
+            HttpStatusCode.NotFound => Results.NotFound(new ResponseControllerOrthopedicBankDTO(
+              false, null, res.Message)),
+            _ => Results.Ok(new ResponseControllerOrthopedicBankDTO(
+              res.Status == HttpStatusCode.OK, res.Data, res.Message))
+          };
         })
-        .RequireAuthorization()
-        .WithName("UpdateOrthopedicBank");
+      .RequireAuthorization()
+      .WithName("UpdateOrthopedicBank");
 
-        orthopedicBankGroup.MapDelete("/{id:guid}",
+    orthopedicBankGroup.MapDelete("/{id:guid}",
         [SwaggerOperation(
           Summary = "Delete an orthopedic bank",
           Description = "Deletes an existing orthopedic bank from the system.")
@@ -194,33 +212,34 @@ public static class OrthopedicBankController
           StatusCodes.Status404NotFound,
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
+        [SwaggerResponse(
+          StatusCodes.Status400BadRequest,
+          $"Orthopedic bank cannot be deleted because it has associated stock/items.",
+          typeof(ResponseControllerOrthopedicBankDTO))]
         [SwaggerResponseExample(
-            StatusCodes.Status200OK,
-            typeof(ExampleResponseDeleteOrthopedicBankDTO))]
+          StatusCodes.Status400BadRequest,
+          typeof(ExampleResponseBadRequestOrthopedicBankDto))]
         [SwaggerResponseExample(
-            StatusCodes.Status404NotFound,
-            typeof(ExampleResponseOrthopedicBankNotFoundDTO))]
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseDeleteOrthopedicBankDto))]
+        [SwaggerResponseExample(
+          StatusCodes.Status404NotFound,
+          typeof(ExampleResponseOrthopedicBankNotFoundDto))]
         async (Guid id, ApiDbContext context, CancellationToken ct) =>
         {
-            Console.WriteLine($"Deleting orthopedic bank with ID: {id}");
-            var res = await OrthopedicBankService.DeleteOrthopedicBank(id, context, ct);
+          Console.WriteLine($"Deleting orthopedic bank with ID: {id}");
+          var res = await OrthopedicBankService.DeleteOrthopedicBank(id, context, ct);
 
-            if (res.Data == null || res.Status == HttpStatusCode.NotFound)
-            {
-                return Results.NotFound(new ResponseControllerOrthopedicBankDTO(
-              false,
-              null,
-              res.Message));
-            }
-
-            return Results.Ok(new ResponseControllerOrthopedicBankDTO(
-          res.Status == HttpStatusCode.OK,
-          null,
-          res.Message));
+          return res.Status switch
+          {
+            HttpStatusCode.NotFound => Results.NotFound(new ResponseControllerOrthopedicBankDTO(
+              false, null, res.Message)),
+            HttpStatusCode.BadRequest => Results.BadRequest(new ResponseControllerOrthopedicBankDTO(
+              false, null, res.Message)),
+            _ => Results.Ok(new ResponseControllerOrthopedicBankDTO(res.Status == HttpStatusCode.OK, null, res.Message))
+          };
         })
-        .RequireAuthorization()
-        .WithName("DeleteOrthopedicBank");
-
-    }
-
+      .RequireAuthorization()
+      .WithName("DeleteOrthopedicBank");
+  }
 }

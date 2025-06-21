@@ -3,8 +3,11 @@ using api.Auth.Dto;
 using api.Auth.Entity;
 using api.DB;
 using api.Modules.Applicants.Dto;
+using api.Modules.Applicants.Entity;
 using api.Modules.Items.Dto;
+using api.Modules.Items.Entity;
 using api.Modules.Items.Enum;
+using api.Modules.Stocks.Entity; // Assuming Stock entity for status updates
 using api.Modules.Loans.Dto;
 using api.Modules.Loans.Entity;
 using Microsoft.AspNetCore.Identity;
@@ -14,218 +17,389 @@ namespace api.Modules.Loans;
 
 public static class LoanService
 {
-    public static async Task<ResponseLoanDTO> CreateLoan(
-        RequestCreateLoanDto request,
-        ApiDbContext context,
-        CancellationToken ct)
+  /// <summary>
+  /// Creates a new loan record, changes the item's status to UNAVAILABLE, and updates stock quantities.
+  /// </summary>
+  public static async Task<ResponseLoanDTO> CreateLoan(
+    RequestCreateLoanDto request,
+    ApiDbContext context,
+    CancellationToken ct)
+  {
+    if (request.ApplicantId == Guid.Empty ||
+        request.ResponsibleId == Guid.Empty ||
+        request.ItemId == Guid.Empty ||
+        string.IsNullOrWhiteSpace(request.Reason))
     {
-
-        if (request.ApplicantId == Guid.Empty ||
-            request.ResponsibleId == Guid.Empty ||
-            request.ItemId == Guid.Empty ||
-            string.IsNullOrWhiteSpace(request.Reason))
-        {
-            return new ResponseLoanDTO(
-                HttpStatusCode.BadRequest,
-                null,
-                "All fields are required");
-        }
-
-        // Verifica se o item está disponível
-        var item = await context.Items.SingleOrDefaultAsync(
-            i => i.Id == request.ItemId && i.Status == ItemStatus.AVAILABLE, ct);
-
-        if (item == null)
-        {
-            return new ResponseLoanDTO(
-                HttpStatusCode.Conflict,
-                null,
-                "Item is not available for loan");
-        }
-
-        // Cria um novo empréstimo
-        var newLoan = new Loan(
-            request.ApplicantId,
-            request.ResponsibleId,
-            request.ItemId,
-            request.Reason);
-
-        context.Loans.Add(newLoan);
-        context.SaveChanges();
-
-        return new ResponseLoanDTO(HttpStatusCode.Created, null, "Loan created successfully");
+      return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "All required fields must be provided.");
     }
 
-    public static async Task<ResponseLoanDTO> GetLoan(
-        Guid id,
-        ApiDbContext context,
-        UserManager<User> userManager,
-        CancellationToken ct)
+    await using var transaction = await context.Database.BeginTransactionAsync(ct);
+    try
     {
-        var loan = await context.Loans
-          .Include(l => l.Item)
-          .Include(l => l.Applicant)
-          .Where(l => l.Id == id)
-          .Select(l => new
+      // Verify if the item exists and is AVAILABLE
+      var item = await context.Items
+        .Include(i => i.Stock) // Include Stock to update its quantities
+        .SingleOrDefaultAsync(i => i.Id == request.ItemId, ct);
+
+      if (item == null)
+      {
+        await transaction.RollbackAsync(ct);
+        return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Item with ID '{request.ItemId}' not found.");
+      }
+
+      if (item.Status != ItemStatus.AVAILABLE)
+      {
+        await transaction.RollbackAsync(ct);
+        return new ResponseLoanDTO(HttpStatusCode.Conflict, null,
+          $"Item '{item.SeriaCode}' is not available for loan. Current status: {item.Status}.");
+      }
+
+      // Verify if Applicant exists (optional, but good for data integrity)
+      var applicant = await context.Applicants.SingleOrDefaultAsync(a => a.Id == request.ApplicantId, ct);
+      if (applicant == null)
+      {
+        await transaction.RollbackAsync(ct);
+        return new ResponseLoanDTO(HttpStatusCode.NotFound, null,
+          $"Applicant with ID '{request.ApplicantId}' not found.");
+      }
+
+      var newLoan = new Loan(
+        request.ApplicantId,
+        request.ResponsibleId,
+        request.ItemId,
+        request.Reason);
+
+      context.Loans.Add(newLoan);
+
+      // Change item status to UNAVAILABLE and update stock
+      UpdateItemStatusAndStock(item, item.Stock, ItemStatus.UNAVAILABLE);
+
+      await context.SaveChangesAsync(ct);
+      await transaction.CommitAsync(ct);
+
+      return new ResponseLoanDTO(HttpStatusCode.Created, null, "Loan created successfully.");
+    }
+    catch (Exception ex)
+    {
+      await transaction.RollbackAsync(ct);
+      Console.WriteLine($"Error creating loan: {ex.Message} - {ex.InnerException?.Message}");
+      return new ResponseLoanDTO(HttpStatusCode.InternalServerError, null,
+        "An unexpected error occurred while creating the loan.");
+    }
+  }
+
+  /// <summary>
+  /// Retrieves a single loan by its ID, including related item, applicant, and responsible user details.
+  /// </summary>
+  public static async Task<ResponseLoanDTO> GetLoan(
+    Guid id,
+    ApiDbContext context,
+    UserManager<User> userManager,
+    CancellationToken ct)
+  {
+    var loan = await context.Loans
+      .Include(l => l.Item)
+      .Include(l => l.Applicant)
+      .SingleOrDefaultAsync(l => l.Id == id, ct); // Use SingleOrDefaultAsync directly here
+
+    if (loan == null)
+    {
+      return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Loan with ID '{id}' not found.");
+    }
+
+    ResponseEntityUserDTO? responsibleDto = await userManager.Users
+      .Where(u => u.Id == loan.ResponsibleId)
+      .Select(u => new ResponseEntityUserDTO(
+        u.Id,
+        u.Name ?? string.Empty,
+        u.Email ?? string.Empty,
+        u.PhoneNumber ?? string.Empty,
+        null, // Roles not included here for simplicity, adjust as needed
+        u.CreatedAt
+      )).SingleOrDefaultAsync(ct);
+
+    var responseLoan = MapToResponseEntityLoanDto(
+      loan,
+      loan.Item,
+      loan.Applicant,
+      responsibleDto
+    );
+
+    return new ResponseLoanDTO(HttpStatusCode.OK, responseLoan, "Loan retrieved successfully.");
+  }
+
+  /// <summary>
+  /// Retrieves a list of all active loans, including summarized details of related item, applicant, and responsible user.
+  /// </summary>
+  public static async Task<ResponseLoanListDTO> GetLoans(
+    ApiDbContext context,
+    UserManager<User> userManager,
+    CancellationToken ct)
+  {
+    // Select only necessary data to improve performance
+    var loansData = await context.Loans.AsNoTracking()
+      .Include(l => l.Applicant)
+      .Include(l => l.Item)
+      .Where(l => l.IsActive)
+      .OrderByDescending(l => l.CreatedAt)
+      .Select(l => new // Project to an anonymous type first to avoid mapping issues with DTOs directly
+      {
+        l.Id,
+        l.ReturnDate,
+        l.Reason,
+        l.IsActive,
+        l.ResponsibleId,
+        ItemSeriaCode = l.Item != null ? l.Item.SeriaCode : 0,
+        ApplicantName = l.Applicant != null ? l.Applicant.Name : string.Empty,
+        l.CreatedAt
+      })
+      .ToListAsync(ct);
+
+    if (loansData.Count == 0)
+    {
+      return new ResponseLoanListDTO(HttpStatusCode.OK, 0, new List<ResponseEntityLoanListDTO>(),
+        "No active loans found.");
+    }
+
+    // Efficiently fetch all responsible user names in one go
+    var responsibleIds = loansData.Select(l => l.ResponsibleId).Distinct().ToList();
+    var responsibleNames = await userManager.Users
+      .Where(u => responsibleIds.Contains(u.Id))
+      .ToDictionaryAsync(u => u.Id, u => u.Name, ct);
+
+    // Map the collected data to the response DTOs
+    var responseLoans = loansData.Select(l => new ResponseEntityLoanListDTO(
+      l.Id,
+      l.ReturnDate,
+      l.Reason,
+      l.IsActive,
+      l.ItemSeriaCode,
+      l.ApplicantName,
+      responsibleNames.GetValueOrDefault(l.ResponsibleId, string.Empty) ??
+      string.Empty, // Handle potential null Name from UserManager
+      l.CreatedAt
+    )).ToList();
+
+    return new ResponseLoanListDTO(HttpStatusCode.OK, loansData.Count, responseLoans, "Loans retrieved successfully.");
+  }
+
+  /// <summary>
+  /// Updates an existing loan's information.
+  /// </summary>
+  public static async Task<ResponseLoanDTO> UpdateLoan(
+    Guid id,
+    RequestUpdateLoanDto request,
+    ApiDbContext context,
+    CancellationToken ct)
+  {
+    if (request == null)
+    {
+      return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "Invalid request data provided.");
+    }
+
+    await using var transaction = await context.Database.BeginTransactionAsync(ct);
+    try
+    {
+      var loan = await context.Loans
+        .Include(l => l.Item).ThenInclude(item => item.Stock) // Include item to potentially update its status
+        .Include(l => l.Applicant) // Include applicant for mapping response
+        .SingleOrDefaultAsync(l => l.Id == id, ct);
+
+      if (loan == null)
+      {
+        await transaction.RollbackAsync(ct);
+        return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Loan with ID '{id}' not found.");
+      }
+
+      var oldIsActiveStatus = loan.IsActive; // Store old status before updating
+
+      if (!string.IsNullOrWhiteSpace(request.Reason))
+      {
+        loan.Reason = request.Reason;
+      }
+
+      if (request.IsActive.HasValue)
+      {
+        loan.IsActive = request.IsActive.Value;
+      }
+
+      // If loan status changed from active to inactive, or vice versa, update item status and stock
+      if (request.IsActive.HasValue && request.IsActive.Value != oldIsActiveStatus)
+      {
+        if (loan.IsActive) // Loan became active (e.g., re-activated) -> item should be unavailable
+        {
+          if (loan.Item.Status != ItemStatus.UNAVAILABLE)
           {
-              l.Id,
-              l.ReturnDate,
-              l.Reason,
-              l.IsActive,
-              l.ResponsibleId,
-              Item = l.Item == null ? null : new ResponseEntityItemDTO(
-              l.Item.Id,
-              l.Item.SeriaCode,
-              l.Item.ImageUrl,
-              l.Item.Status.ToString(),
-              l.Item.CreatedAt
-            ),
-              Applicant = l.Applicant == null ? null : new ResponseEntityApplicantsDTO(
-              l.Applicant.Id,
-              l.Applicant.Name,
-              l.Applicant.CPF,
-              l.Applicant.Email,
-              l.Applicant.PhoneNumber,
-              l.Applicant.Address,
-              l.Applicant.IsBeneficiary,
-              l.Applicant.BeneficiaryQtd,
-              l.Applicant.CreatedAt,
-              null
-            ),
-              l.CreatedAt
-          })
-          .SingleOrDefaultAsync(ct);
-
-        if (loan == null)
-        {
-            return new ResponseLoanDTO(HttpStatusCode.NotFound, null, "Loan not found");
+            UpdateItemStatusAndStock(loan.Item, loan.Item.Stock, ItemStatus.UNAVAILABLE);
+          }
         }
-
-        ResponseEntityUserDTO? responsible = null;
-        var user = await userManager.FindByIdAsync(loan.ResponsibleId.ToString());
-        if (user != null)
+        else // Loan became inactive (e.g., returned) -> item should be available
         {
-            responsible = new ResponseEntityUserDTO(
-              user.Id,
-              user.Name ?? string.Empty,
-              user.Email ?? string.Empty,
-              user.PhoneNumber ?? string.Empty,
-              null,
-              user.CreatedAt);
+          if (loan.Item.Status != ItemStatus.AVAILABLE)
+          {
+            UpdateItemStatusAndStock(loan.Item, loan.Item.Stock, ItemStatus.AVAILABLE);
+          }
         }
+      }
 
-        var responseLoan = new ResponseEntityLoanDTO(
-          loan.Id,
-          loan.ReturnDate,
-          loan.Reason,
-          loan.IsActive,
-          loan.Item,
-          loan.Applicant,
-          responsible,
-          loan.CreatedAt
-        );
+      loan.UpdateTimestamps(); // Assuming this sets ModifiedAt
+      await context.SaveChangesAsync(ct);
+      await transaction.CommitAsync(ct);
 
-        if (loan == null)
-        {
-            return new ResponseLoanDTO(HttpStatusCode.NotFound, null, "Loan not found");
-        }
-
-        return new ResponseLoanDTO(HttpStatusCode.OK, responseLoan, "Loan retrieved successfully");
+      return new ResponseLoanDTO(HttpStatusCode.OK, null, "Loan updated successfully.");
     }
-
-    public static async Task<ResponseLoanListDTO> GetLoans(
-        ApiDbContext context,
-        UserManager<User> userManager,
-        CancellationToken ct)
+    catch (Exception ex)
     {
-        var loans = await context.Loans.AsNoTracking()
-            .Include(l => l.Applicant)
-            .Include(l => l.Item)
-            .Where(l => l.IsActive)
-            .OrderByDescending(l => l.CreatedAt)
-            .Select(l => new
-            {
-                l.Id,
-                l.ResponsibleId,
-                l.ReturnDate,
-                l.Reason,
-                l.IsActive,
-                Item = l.Item != null ? l.Item.SeriaCode : 0,
-                Applicants = l.Applicant != null ? l.Applicant.Name : string.Empty,
-                l.CreatedAt
-            }).ToListAsync(ct);
-
-        if (loans.Count == 0)
-        {
-            return new ResponseLoanListDTO(HttpStatusCode.NotFound, 0, null, "No loans found");
-        }
-
-        var responsibleIds = loans.Select(l => l.ResponsibleId).Distinct().ToList();
-
-        var responsibleNames = await userManager.Users
-            .Where(u => responsibleIds.Contains(u.Id))
-            .ToDictionaryAsync(u => u.Id, u => u.Name, ct);
-
-        var responseLoans = loans.Select(l => new ResponseEntityLoanListDTO(
-            l.Id,
-            l.ReturnDate,
-            l.Reason,
-            l.IsActive,
-            l.Item,
-            l.Applicants ?? string.Empty,
-            responsibleNames.GetValueOrDefault(l.ResponsibleId, string.Empty),
-            l.CreatedAt
-        )).ToList();
-
-        return new ResponseLoanListDTO(HttpStatusCode.OK, loans.Count, responseLoans, "Loans retrieved successfully");
+      await transaction.RollbackAsync(ct);
+      Console.WriteLine($"Error updating loan: {ex.Message} - {ex.InnerException?.Message}");
+      return new ResponseLoanDTO(HttpStatusCode.InternalServerError, null,
+        "An unexpected error occurred while updating the loan.");
     }
+  }
 
-    public static async Task<ResponseLoanDTO> UpdateLoan(
-        Guid id,
-        RequestUpdateLoanDto request,
-        ApiDbContext context,
-        CancellationToken ct)
+  /// <summary>
+  /// Deletes a loan record and reverts the associated item's status to AVAILABLE, updating stock quantities.
+  /// </summary>
+  public static async Task<ResponseLoanDTO> DeleteLoan(
+    Guid id,
+    ApiDbContext context,
+    CancellationToken ct)
+  {
+    await using var transaction = await context.Database.BeginTransactionAsync(ct);
+    try
     {
-        var loan = await context.Loans
-            .SingleOrDefaultAsync(l => l.Id == id, ct);
+      var loan = await context.Loans
+        .Include(l => l.Item).ThenInclude(item => item.Stock)
+        .SingleOrDefaultAsync(l => l.Id == id, ct);
 
-        if (loan == null)
-        {
-            return new ResponseLoanDTO(HttpStatusCode.NotFound, null, "Loan not found");
-        }
+      if (loan == null)
+      {
+        await transaction.RollbackAsync(ct);
+        return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Loan with ID '{id}' not found.");
+      }
 
-        if (!string.IsNullOrWhiteSpace(request.Reason))
-        {
-            loan.Reason = request.Reason;
-        }
+      context.Loans.Remove(loan);
 
-        if (request.IsActive.HasValue)
-        {
-            loan.IsActive = request.IsActive.Value;
-        }
+      // Revert item status to AVAILABLE and update stock when loan is deleted
+      if (loan.Item != null)
+      {
+        UpdateItemStatusAndStock(loan.Item, loan.Item.Stock, ItemStatus.AVAILABLE);
+      }
 
-        loan.UpdateTimestamps();
-        await context.SaveChangesAsync(ct);
+      await context.SaveChangesAsync(ct);
+      await transaction.CommitAsync(ct);
 
-        return new ResponseLoanDTO(HttpStatusCode.OK, null, "Loan updated successfully");
+      // 200 is standard for successful DELETE operations
+      return new ResponseLoanDTO(HttpStatusCode.OK, null, "Loan deleted successfully.");
     }
-
-    public static async Task<ResponseLoanDTO> DeleteLoan(
-        Guid id,
-        ApiDbContext context,
-        CancellationToken ct)
+    catch (Exception ex)
     {
-        var loan = await context.Loans
-            .SingleOrDefaultAsync(l => l.Id == id, ct);
-
-        if (loan == null)
-        {
-            return new ResponseLoanDTO(HttpStatusCode.NotFound, null, "Loan not found");
-        }
-
-        context.Loans.Remove(loan);
-        await context.SaveChangesAsync(ct);
-
-        return new ResponseLoanDTO(HttpStatusCode.OK, null, "Loan deleted successfully");
+      await transaction.RollbackAsync(ct);
+      Console.WriteLine($"Error deleting loan: {ex.Message} - {ex.InnerException?.Message}");
+      return new ResponseLoanDTO(HttpStatusCode.InternalServerError, null,
+        "An unexpected error occurred while deleting the loan.");
     }
+  }
+
+  /// <summary>
+  /// Helper method to update an item's status and its corresponding stock quantities.
+  /// This logic could also be in a shared 'ItemService' helper if tightly coupled.
+  /// </summary>
+  private static void UpdateItemStatusAndStock(Item item, Stock? stock, ItemStatus newStatus)
+  {
+    if (item == null || stock == null) return; // Should not happen if Include is used correctly
+
+    var oldStatus = item.Status;
+
+    // Only proceed if status is actually changing
+    if (oldStatus == newStatus) return;
+
+    // Decrement from old status
+    switch (oldStatus)
+    {
+      case ItemStatus.AVAILABLE:
+        stock.SetAvailableQtd(stock.AvailableQtd - 1);
+        break;
+      case ItemStatus.UNAVAILABLE:
+        stock.SetBorrowedQtd(stock.BorrowedQtd - 1); // Assuming UNAVAILABLE means borrowed
+        break;
+      case ItemStatus.MAINTENANCE:
+        stock.SetMaintenanceQtd(stock.MaintenanceQtd - 1);
+        break;
+    }
+
+    // Increment to new status
+    item.SetStatus(newStatus); // Update item's status first
+
+    switch (newStatus)
+    {
+      case ItemStatus.AVAILABLE:
+        stock.SetAvailableQtd(stock.AvailableQtd + 1);
+        break;
+      case ItemStatus.UNAVAILABLE:
+        stock.SetBorrowedQtd(stock.BorrowedQtd + 1);
+        break;
+      case ItemStatus.MAINTENANCE:
+        stock.SetMaintenanceQtd(stock.MaintenanceQtd + 1);
+        break;
+    }
+  }
+
+  /// <summary>
+  /// Maps a User entity to a ResponseEntityUserDTO.
+  /// </summary>
+  private static ResponseEntityUserDTO? MapToResponseEntityUserDto(User? user)
+  {
+    if (user == null) return null;
+    return new ResponseEntityUserDTO(
+      user.Id,
+      user.Name ?? string.Empty,
+      user.Email ?? string.Empty,
+      user.PhoneNumber ?? string.Empty,
+      null, // Roles are not included here for simplicity, adjust as needed
+      user.CreatedAt
+    );
+  }
+
+  /// <summary>
+  /// Maps a Loan entity, its related Item and Applicant to a ResponseEntityLoanDTO.
+  /// </summary>
+  private static ResponseEntityLoanDTO MapToResponseEntityLoanDto(
+    Loan loan,
+    Item? item,
+    Applicant? applicant,
+    ResponseEntityUserDTO? responsibleUserDto)
+  {
+    return new ResponseEntityLoanDTO(
+      loan.Id,
+      loan.ReturnDate,
+      loan.Reason,
+      loan.IsActive,
+      item == null
+        ? null
+        : new ResponseEntityItemDTO(
+          item.Id,
+          item.SeriaCode,
+          item.ImageUrl,
+          item.Status.ToString(),
+          item.CreatedAt
+        ),
+      applicant == null
+        ? null
+        : new ResponseEntityApplicantsDTO(
+          applicant.Id,
+          applicant.Name,
+          applicant.CPF,
+          applicant.Email,
+          applicant.PhoneNumber,
+          applicant.Address,
+          applicant.IsBeneficiary,
+          applicant.BeneficiaryQtd,
+          applicant.CreatedAt,
+          null // Dependents not included in this nested DTO for brevity
+        ),
+      responsibleUserDto,
+      loan.CreatedAt
+    );
+  }
 }

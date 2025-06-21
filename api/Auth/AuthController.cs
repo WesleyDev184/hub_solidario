@@ -187,6 +187,7 @@ namespace api.Auth
               o.Id,
               o.Name,
               o.City,
+              null,
               o.CreatedAt
             ))
             .FirstOrDefaultAsync();
@@ -273,6 +274,7 @@ namespace api.Auth
               o.Id,
               o.Name,
               o.City,
+              null,
               o.CreatedAt
             ))
             .FirstOrDefaultAsync();
@@ -350,27 +352,9 @@ namespace api.Auth
               )));
           }
 
-          ResponseEntityOrthopedicBankDTO? orthopedicBank = await api.OrthopedicBanks
-            .Where(o => o.Id == user.OrthopedicBankId)
-            .AsNoTracking()
-            .Select(o => new ResponseEntityOrthopedicBankDTO(
-              o.Id,
-              o.Name,
-              o.City,
-              o.CreatedAt
-            ))
-            .FirstOrDefaultAsync();
-
           return Results.Ok(new ResponseControllerUserDTO(
             true,
-            new ResponseEntityUserDTO(
-              user.Id,
-              user.Name ?? "",
-              user.Email ?? "",
-              user.PhoneNumber ?? "",
-              orthopedicBank,
-              user.CreatedAt
-            ),
+            null,
             "User updated successfully"
           ));
         }).RequireAuthorization();

@@ -9,154 +9,167 @@ using api.Auth.Dto;
 
 namespace api.Modules.Loans.Dto.ExampleDoc
 {
-    // Example for Create Loan response (HTTP 201)
-    public class ExampleResponseCreateLoanDTO : IExamplesProvider<ResponseControllerLoanDTO>
+  // Example for Create Loan response (HTTP 201)
+  public class ExampleResponseCreateLoanDto : IExamplesProvider<ResponseControllerLoanDTO>
+  {
+    public ResponseControllerLoanDTO GetExamples()
     {
-        public ResponseControllerLoanDTO GetExamples()
-        {
-            return new ResponseControllerLoanDTO(
-                Success: true,
-                null,
-                Message: "Loan created successfully"
-            );
-        }
+      return new ResponseControllerLoanDTO(
+        Success: true,
+        null,
+        Message: "Loan created successfully"
+      );
     }
+  }
 
-    // Example for Update Loan response (HTTP 200)
-    public class ExampleResponseUpdateLoanDTO : IExamplesProvider<ResponseControllerLoanDTO>
+  // Example for Update Loan response (HTTP 200)
+  public class ExampleResponseUpdateLoanDto : IExamplesProvider<ResponseControllerLoanDTO>
+  {
+    public ResponseControllerLoanDTO GetExamples()
     {
-        public ResponseControllerLoanDTO GetExamples()
-        {
-            return new ResponseControllerLoanDTO(
-                Success: true,
-                Data: null,
-                Message: "Loan updated successfully"
-            );
-        }
+      return new ResponseControllerLoanDTO(
+        Success: true,
+        Data: null,
+        Message: "Loan updated successfully"
+      );
     }
+  }
 
-    // Example for Loan Not Found response (HTTP 404)
-    public class ExampleResponseLoanNotFoundDTO : IExamplesProvider<ResponseControllerLoanDTO>
+  // Example for Loan Not Found response (HTTP 404)
+  public class ExampleResponseLoanNotFoundDto : IExamplesProvider<ResponseControllerLoanDTO>
+  {
+    public ResponseControllerLoanDTO GetExamples()
     {
-        public ResponseControllerLoanDTO GetExamples()
-        {
-            return new ResponseControllerLoanDTO(
-                Success: false,
-                Data: null,
-                Message: "Loan not found"
-            );
-        }
+      return new ResponseControllerLoanDTO(
+        Success: false,
+        Data: null,
+        Message: "Loan not found"
+      );
     }
+  }
 
-    // Example for Loans Not Found response (HTTP 404)
-    public class ExampleResponseLoansNotFoundDTO : IExamplesProvider<ResponseControllerLoanListDTO>
+  // ExampleResponseItemNotAvailableDto
+  public class ExampleResponseItemNotAvailableDto : IExamplesProvider<ResponseControllerLoanDTO>
+  {
+    public ResponseControllerLoanDTO GetExamples()
     {
-        public ResponseControllerLoanListDTO GetExamples()
-        {
-            return new ResponseControllerLoanListDTO(
-                Success: false,
-                Count: 0,
-                Data: null,
-                Message: "No loans found"
-            );
-        }
+      return new ResponseControllerLoanDTO(
+        Success: false,
+        Data: null,
+        Message: "Item is not available for loan"
+      );
     }
+  }
 
-    // response for error (HTTP 400)
-    public class ExampleResponseErrorDTO : IExamplesProvider<ResponseControllerLoanDTO>
+  // Example for Loans Not Found response (HTTP 404)
+  public class ExampleResponseLoansNotFoundDto : IExamplesProvider<ResponseControllerLoanListDTO>
+  {
+    public ResponseControllerLoanListDTO GetExamples()
     {
-        public ResponseControllerLoanDTO GetExamples()
-        {
-            return new ResponseControllerLoanDTO(
-                Success: false,
-                Data: null,
-                Message: "An error occurred while processing your request"
-            );
-        }
+      return new ResponseControllerLoanListDTO(
+        Success: false,
+        Count: 0,
+        Data: null,
+        Message: "No loans found"
+      );
     }
+  }
 
-    // Example for Get All Loans response (HTTP 200)
-    public class ExampleResponseGetAllLoanDTO : IExamplesProvider<ResponseControllerLoanListDTO>
+  // response for error (HTTP 400)
+  public class ExampleResponseErrorDto : IExamplesProvider<ResponseControllerLoanDTO>
+  {
+    public ResponseControllerLoanDTO GetExamples()
     {
-        public ResponseControllerLoanListDTO GetExamples()
-        {
-            return new ResponseControllerLoanListDTO(
-                Success: true,
-                Count: 1,
-                Data:
-                [
-                    new ResponseEntityLoanListDTO(
-                        Id: Guid.NewGuid(),
-                        ReturnDate: DateTime.UtcNow.AddDays(7),
-                        Reason: "Loaning item for temporary use",
-                        IsActive: true,
-                        Item: 12345,
-                        Applicant: "John Doe",
-                        Responsible: "Jane Smith",
-                        CreatedAt: DateTime.UtcNow
-                    )
-                ],
-                Message: "Loans retrieved successfully"
-            );
-        }
+      return new ResponseControllerLoanDTO(
+        Success: false,
+        Data: null,
+        Message: "An error occurred while processing your request"
+      );
     }
+  }
 
-    // Example for Get Single Loan response (HTTP 200)
-    public class ExampleResponseGetLoanDTO : IExamplesProvider<ResponseControllerLoanDTO>
+  // Example for Get All Loans response (HTTP 200)
+  public class ExampleResponseGetAllLoanDto : IExamplesProvider<ResponseControllerLoanListDTO>
+  {
+    public ResponseControllerLoanListDTO GetExamples()
     {
-        public ResponseControllerLoanDTO GetExamples()
-        {
-            return new ResponseControllerLoanDTO(
-                Success: true,
-                Data: new ResponseEntityLoanDTO(
-                    Id: Guid.NewGuid(),
-                    ReturnDate: DateTime.UtcNow.AddDays(7),
-                    Reason: "Loaning item for temporary use",
-                    IsActive: true,
-                    Item: new ResponseEntityItemDTO(
-                        Id: Guid.NewGuid(),
-                        SeriaCode: 12345,
-                        ImageUrl: "https://example.com/item-image.png",
-                        Status: "Available",
-                        CreatedAt: DateTime.UtcNow
-                    ),
-                    Applicant: new ResponseEntityApplicantsDTO(
-                        Id: Guid.NewGuid(),
-                        Name: "John Doe",
-                        CPF: "12345678901",
-                        Email: "john.doe@example.com",
-                        PhoneNumber: "11999999999",
-                        Address: "123 Main St",
-                        IsBeneficiary: true,
-                        BeneficiaryQtd: 1,
-                        CreatedAt: DateTime.UtcNow,
-                        Dependents: null
-                    ),
-                    Responsible: new ResponseEntityUserDTO(
-                        Id: Guid.NewGuid(),
-                        Name: "Jane Smith",
-                        Email: "jane.smith@example.com",
-                        PhoneNumber: "11888888888",
-                        OrthopedicBank: null,
-                        CreatedAt: DateTime.UtcNow
-                    ),
-                    CreatedAt: DateTime.UtcNow
-                ),
-                Message: "Loan retrieved successfully"
-            );
-        }
+      return new ResponseControllerLoanListDTO(
+        Success: true,
+        Count: 1,
+        Data:
+        [
+          new ResponseEntityLoanListDTO(
+            Id: Guid.NewGuid(),
+            ReturnDate: DateTime.UtcNow.AddDays(7),
+            Reason: "Loaning item for temporary use",
+            IsActive: true,
+            Item: 12345,
+            Applicant: "John Doe",
+            Responsible: "Jane Smith",
+            CreatedAt: DateTime.UtcNow
+          )
+        ],
+        Message: "Loans retrieved successfully"
+      );
     }
+  }
 
-    // example delete loan response (HTTP 200)
-    public class ExampleResponseDeleteLoanDTO : IExamplesProvider<ResponseControllerLoanDTO>
+  // Example for Get Single Loan response (HTTP 200)
+  public class ExampleResponseGetLoanDto : IExamplesProvider<ResponseControllerLoanDTO>
+  {
+    public ResponseControllerLoanDTO GetExamples()
     {
-        public ResponseControllerLoanDTO GetExamples()
-        {
-            return new ResponseControllerLoanDTO(
-                Success: true,
-                Data: null,
-                Message: "Loan deleted successfully"
-            );
-        }
+      return new ResponseControllerLoanDTO(
+        Success: true,
+        Data: new ResponseEntityLoanDTO(
+          Id: Guid.NewGuid(),
+          ReturnDate: DateTime.UtcNow.AddDays(7),
+          Reason: "Loaning item for temporary use",
+          IsActive: true,
+          Item: new ResponseEntityItemDTO(
+            Id: Guid.NewGuid(),
+            SeriaCode: 12345,
+            ImageUrl: "https://example.com/item-image.png",
+            Status: "Available",
+            CreatedAt: DateTime.UtcNow
+          ),
+          Applicant: new ResponseEntityApplicantsDTO(
+            Id: Guid.NewGuid(),
+            Name: "John Doe",
+            CPF: "12345678901",
+            Email: "john.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "123 Main St",
+            IsBeneficiary: true,
+            BeneficiaryQtd: 1,
+            CreatedAt: DateTime.UtcNow,
+            Dependents: null
+          ),
+          Responsible: new ResponseEntityUserDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Smith",
+            Email: "jane.smith@example.com",
+            PhoneNumber: "11888888888",
+            OrthopedicBank: null,
+            CreatedAt: DateTime.UtcNow
+          ),
+          CreatedAt: DateTime.UtcNow
+        ),
+        Message: "Loan retrieved successfully"
+      );
     }
+  }
+
+  // example delete loan response (HTTP 200)
+  public class ExampleResponseDeleteLoanDto : IExamplesProvider<ResponseControllerLoanDTO>
+  {
+    public ResponseControllerLoanDTO GetExamples()
+    {
+      return new ResponseControllerLoanDTO(
+        Success: true,
+        Data: null,
+        Message: "Loan deleted successfully"
+      );
+    }
+  }
 }
