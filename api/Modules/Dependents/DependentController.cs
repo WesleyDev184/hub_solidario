@@ -47,7 +47,7 @@ namespace api.Modules.Dependents
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseBadRequestDependentDTO))]
         [SwaggerResponseExample(StatusCodes.Status404NotFound,
-          typeof(ExampleResponseDependentNotFoundDTO))]
+          typeof(ExampleResponseDependentApplicantNotFoundDTO))]
         [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseInternalServerErrorDependentDTO))]
@@ -170,7 +170,7 @@ namespace api.Modules.Dependents
           typeof(ExampleResponseBadRequestDependentDTO))]
         [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
-          typeof(ExampleResponseDependentNotFoundDTO))]
+          typeof(ExampleResponseDependentOrApplicantNotFoundDTO))]
         [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseUpdateDependentDTO))]

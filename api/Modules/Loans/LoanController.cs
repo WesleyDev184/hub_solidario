@@ -50,7 +50,7 @@ public static class LoanController
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseErrorDto))]
         [SwaggerResponseExample(StatusCodes.Status404NotFound,
-          typeof(ExampleResponseLoanNotFoundDto))]
+          typeof(ExampleResponseLoanItemOrApplicantNotFoundDto))]
         [
           SwaggerResponseExample(StatusCodes.Status409Conflict,
             typeof(ExampleResponseItemNotAvailableDto))]

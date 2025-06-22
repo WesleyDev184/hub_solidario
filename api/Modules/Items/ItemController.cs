@@ -34,7 +34,7 @@ namespace api.Modules.Items
         [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Stock not found.",
-          typeof(ResponseControllerItemDTO))]
+          typeof(ExampleResponseItemStockNotFoundDTO))]
         [SwaggerResponse(
           StatusCodes.Status500InternalServerError,
           "An unexpected error occurred.",

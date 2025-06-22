@@ -30,7 +30,33 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
       return new ResponseControllerStockDTO(
         Success: false,
         Data: null,
-        Message: "Stock already exists"
+        Message: "Stock with name already exists"
+      );
+    }
+  }
+
+  //response bad request
+  public class ExampleResponseBadRequestStockDTO : IExamplesProvider<ResponseControllerStockDTO>
+  {
+    public ResponseControllerStockDTO GetExamples()
+    {
+      return new ResponseControllerStockDTO(
+        Success: false,
+        Data: null,
+        Message: "Invalid request data"
+      );
+    }
+  }
+
+  // response for internal server error
+  public class ExampleResponseInternalServerErrorStockDTO : IExamplesProvider<ResponseControllerStockDTO>
+  {
+    public ResponseControllerStockDTO GetExamples()
+    {
+      return new ResponseControllerStockDTO(
+        Success: false,
+        Data: null,
+        Message: "An unexpected error occurred"
       );
     }
   }
@@ -101,18 +127,17 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
     }
   }
 
-  public class ExampleResponseStocksNotFoundDTO : IExamplesProvider<ResponseControllerStockDTO>
+  public class ExampleResponseStockOrthopedicBankNotFoundDTO : IExamplesProvider<ResponseControllerStockDTO>
   {
     public ResponseControllerStockDTO GetExamples()
     {
       return new ResponseControllerStockDTO(
         Success: false,
         Data: null,
-        Message: "Stocks not found"
+        Message: "Orthopedic Bank with is Id not found"
       );
     }
   }
-
 
   // Example for Get All Stocks response (HTTP 200)
   public class ExampleResponseGetAllStocksDTO : IExamplesProvider<ResponseControllerStockListDTO>

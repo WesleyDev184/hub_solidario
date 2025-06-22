@@ -48,6 +48,18 @@ namespace api.Modules.Loans.Dto.ExampleDoc
     }
   }
 
+  public class ExampleResponseLoanItemOrApplicantNotFoundDto : IExamplesProvider<ResponseControllerLoanDTO>
+  {
+    public ResponseControllerLoanDTO GetExamples()
+    {
+      return new ResponseControllerLoanDTO(
+        Success: false,
+        Data: null,
+        Message: "Item or Applicant not found"
+      );
+    }
+  }
+
   // ExampleResponseItemNotAvailableDto
   public class ExampleResponseItemNotAvailableDto : IExamplesProvider<ResponseControllerLoanDTO>
   {
