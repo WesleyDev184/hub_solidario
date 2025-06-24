@@ -2,12 +2,12 @@ using api.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Service Configuration Extension
+// Service Configuration Extension.
 builder.BuilderConfig();
 
 WebApplication app = builder.Build();
 
-// App Configuration Extension
+// App Configuration Extension.
 app.AppConfig();
 
 app.Run();
