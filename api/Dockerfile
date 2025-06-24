@@ -21,4 +21,4 @@ COPY --from=build /app .
 
 USER $APP_UID
 
-ENTRYPOINT ["dotnet", "mrx_back.dll"]
+ENTRYPOINT ["dotnet", "api.dll"]
