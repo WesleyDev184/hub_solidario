@@ -2,10 +2,11 @@ version: "3.8"
 
 services:
   reverse-proxy:
-    image: traefik:v3.1
+    image: traefik:v3.4
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=roncadorlabs@gmail.com"
@@ -17,10 +18,21 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8081:8080" # The Traefik dashboard
+    restart: always
+    networks:
+      - proxy
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
+    labels:
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.bovisoft.com`)"
+      - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver"
+
+      # - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth@file" # Descomente para ativar autenticação
 
   watchtower:
     image: containrrr/watchtower
@@ -29,6 +41,9 @@ services:
       - "--interval"
       - "30"
       - "--rolling-restart"
+    networks:
+      - proxy
+    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ~/.docker/config.json:/config.json:ro
@@ -36,6 +51,8 @@ services:
   db:
     image: postgres:15
     restart: always
+    networks:
+      - proxy
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -51,21 +68,28 @@ services:
   api:
     image: ghcr.io/wesleydev184/rotary:main
     restart: always
+    networks:
+      - proxy
     deploy:
       replicas: 1
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-      - "traefik.http.routers.guestbook.rule=Host(`bovisoft.com`)"
-      - "traefik.http.services.guestbook.loadbalancer.server.port=8080"
-      - "traefik.http.routers.guestbook.entrypoints=websecure"
-      - "traefik.http.routers.guestbook.tls.certresolver=myresolver"
+      - "traefik.http.routers.api.rule=Host(`api.bovisoft.com`)"
+      - "traefik.http.services.api.loadbalancer.server.port=5001"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
     environment:
       DB_URL: "Host=db;Port=5432;Database=rotarydb;Username=postgres;Password=postgres"
       API_KEY: "your_api_key_here"
     depends_on:
       db:
         condition: service_healthy
+
 volumes:
   postgres-data:
   letsencrypt:
+
+networks:
+  proxy:
+    external: true

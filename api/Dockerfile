@@ -17,6 +17,10 @@ WORKDIR /app
 
 COPY --from=build /app .
 
+# define a porta interna e expõe para fora do container
+ENV ASPNETCORE_URLS=http://+:5001
+EXPOSE 5001
+
 USER $APP_UID
 
 ENTRYPOINT ["dotnet", "api.dll"]
