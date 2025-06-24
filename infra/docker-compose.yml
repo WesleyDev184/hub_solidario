@@ -1,6 +1,38 @@
 version: "3.8"
 
 services:
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=roncadorlabs@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--api.insecure=true"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8081:8080"  # The Traefik dashboard
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ~/.docker/config.json:/config.json:ro
+
   db:
     image: postgres:15
     restart: always
@@ -14,12 +46,20 @@ services:
   api:
     image: ghcr.io/wesleydev184/rotary:main
     restart: always
+    deploy:
+      replicas: 1
+    labels: 
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.enable=true"
+      - "traefik.http.routers.guestbook.rule=Host(`bovisoft.com`)"
+      - "traefik.http.services.guestbook.loadbalancer.server.port=8080"
+      - "traefik.http.routers.guestbook.entrypoints=websecure"
+      - "traefik.http.routers.guestbook.tls.certresolver=myresolver"
     environment:
       DB_URL: "Host=db;Port=5432;Database=rotarydb;Username=postgres;Password=postgres"
-    ports:
-      - "8081:8080"
     depends_on:
       - db
 
 volumes:
   postgres-data:
+  letsencrypt:
