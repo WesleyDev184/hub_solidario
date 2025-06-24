@@ -17,7 +17,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8081:8080"  # The Traefik dashboard
+      - "8081:8080" # The Traefik dashboard
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -42,13 +42,18 @@ services:
       POSTGRES_DB: rotarydb
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   api:
     image: ghcr.io/wesleydev184/rotary:main
     restart: always
     deploy:
       replicas: 1
-    labels: 
+    labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
       - "traefik.http.routers.guestbook.rule=Host(`bovisoft.com`)"
@@ -57,9 +62,10 @@ services:
       - "traefik.http.routers.guestbook.tls.certresolver=myresolver"
     environment:
       DB_URL: "Host=db;Port=5432;Database=rotarydb;Username=postgres;Password=postgres"
+      API_KEY: "your_api_key_here"
     depends_on:
-      - db
-
+      db:
+        condition: service_healthy
 volumes:
   postgres-data:
   letsencrypt:
