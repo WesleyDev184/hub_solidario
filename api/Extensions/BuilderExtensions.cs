@@ -29,7 +29,7 @@ namespace api.Extensions
             {
               Title = "Rotary APi",
               Version = "v1.3",
-              Description = "API for Rotary Club orthosis loan management system",
+              Description = "API for Rotary Club orthosis loan management system.",
             });
           c.EnableAnnotations();
           c.ExampleFilters();

@@ -13,8 +13,10 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-      labels:
-        - "com.centurylinklabs.watchtower.enable=true"
+      placement:
+        constraints:
+          - node.role == manager
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /home/wesley/.docker/config.json:/config.json:ro
@@ -52,6 +54,7 @@ services:
         - "traefik.http.routers.api.entrypoints=websecure"
         - "traefik.http.services.api.loadbalancer.server.port=5001"
         - "traefik.http.routers.api.tls.certresolver=myresolver"
+        - "com.centurylinklabs.watchtower.enable=true"
     environment:
       DB_URL: "Host=db;Port=5432;Database=rotarydb;Username=postgres;Password=postgres"
       API_KEY: "your_api_key_here"
