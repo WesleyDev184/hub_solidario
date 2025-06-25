@@ -28,7 +28,7 @@ namespace api.Extensions
             new OpenApiInfo
             {
               Title = "Rotary APi",
-              Version = "v1.2",
+              Version = "v1.3",
               Description = "API for Rotary Club orthosis loan management system",
             });
           c.EnableAnnotations();

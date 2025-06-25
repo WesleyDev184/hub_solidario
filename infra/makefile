@@ -13,3 +13,6 @@ setup: rsync
 
 deploy: rsync
 	ssh $(server) "cd $(project_path) &&  docker stack deploy -c compose.yml rotary --with-registry-auth --resolve-image=always"
+
+api: rsync
+	ssh $(server) "cd $(project_path) &&  docker stack deploy -c docker-compose.yml api --with-registry-auth --resolve-image=always"
