@@ -7,12 +7,8 @@ rsync:
 # First run for setup docker compose and traefik
 setup: rsync
 	ssh $(server) "cd ~/$(project_path) &&\
-	 	docker swarm init --advertise-addr $$(hostname -I | awk '{print $$1}') || true && \
-    docker network create --driver overlay --attachable proxy || true && \
-    docker stack deploy -c compose.yml rotary"
+	 	docker network create proxy &&\
+		docker compose up -d"
 
 deploy: rsync
-	ssh $(server) "cd $(project_path) &&  docker stack deploy -c compose.yml rotary --with-registry-auth --resolve-image=always"
-
-api: rsync
-	ssh $(server) "cd $(project_path) &&  docker stack deploy -c docker-compose.yml api --with-registry-auth --resolve-image=always"
+	ssh $(server) "cd $(project_path) && docker compose down && docker compose up -d"
