@@ -20,37 +20,37 @@ public static class OrthopedicBankController
             Summary = "Create a new orthopedic bank",
             Description = "Creates a new orthopedic bank in the system.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status201Created,
           "Orthopedic bank created successfully.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status500InternalServerError,
           "An error occurred while processing the request.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(StatusCodes.Status409Conflict,
+    [SwaggerResponse(StatusCodes.Status409Conflict,
           "Orthopedic bank already exists.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseInternalServerErrorOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status201Created,
           typeof(ExampleResponseCreateOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseBadRequestOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status409Conflict,
           typeof(ExampleResponseConflictOrthopedicBankDto))]
-        [SwaggerRequestExample(
+    [SwaggerRequestExample(
           typeof(RequestCreateOrthopedicBankDto),
           typeof(ExampleRequestCreateOrthopedicBankDto))]
-        async (RequestCreateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
+    async (RequestCreateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
         {
           var res = await OrthopedicBankService.CreateOrthopedicBank(request, context, ct);
 
@@ -66,7 +66,6 @@ public static class OrthopedicBankController
               new ResponseControllerOrthopedicBankDTO(res.Status == HttpStatusCode.Created, res.Data, res.Message))
           };
         })
-      .RequireAuthorization()
       .WithName("CreateOrthopedicBank");
 
     orthopedicBankGroup.MapGet("/{id:guid}",
@@ -74,21 +73,21 @@ public static class OrthopedicBankController
           Summary = "Get an orthopedic bank by ID",
           Description = "Retrieves an orthopedic bank from the system by its unique identifier.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status200OK,
           "Orthopedic bank retrieved successfully.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseGetOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseOrthopedicBankNotFoundDto))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, ApiDbContext context, CancellationToken ct) =>
         {
           var res = await OrthopedicBankService.GetOrthopedicBank(id, context, ct);
 
@@ -113,14 +112,14 @@ public static class OrthopedicBankController
           Summary = "Get all orthopedic banks",
           Description = "Retrieves a list of all orthopedic banks in the system.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status200OK,
           "Orthopedic banks retrieved successfully.",
           typeof(ResponseControllerOrthopedicBankListDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseGetAllOrthopedicBankDto))]
-        async (ApiDbContext context, CancellationToken ct) =>
+    async (ApiDbContext context, CancellationToken ct) =>
         {
           var res = await OrthopedicBankService.GetOrthopedicBanks(context, ct);
 
@@ -139,45 +138,45 @@ public static class OrthopedicBankController
             Summary = "Update an orthopedic bank",
             Description = "Updates an existing orthopedic bank in the system.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status200OK,
           "Orthopedic bank updated successfully.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status409Conflict,
           "Orthopedic bank already exists.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status500InternalServerError,
           "An error occurred while processing the request.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseUpdateOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseOrthopedicBankNotFoundDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseBadRequestOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status409Conflict,
           typeof(ExampleResponseConflictOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseInternalServerErrorOrthopedicBankDto))]
-        [SwaggerRequestExample(
+    [SwaggerRequestExample(
           typeof(RequestUpdateOrthopedicBankDto),
           typeof(ExampleRequestUpdateOrthopedicBankDto))]
-        async (Guid id, RequestUpdateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, RequestUpdateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
 
         {
           var res = await OrthopedicBankService.UpdateOrthopedicBank(id, request, context, ct);
@@ -204,28 +203,28 @@ public static class OrthopedicBankController
           Summary = "Delete an orthopedic bank",
           Description = "Deletes an existing orthopedic bank from the system.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status200OK,
           "Orthopedic bank deleted successfully.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Orthopedic bank not found.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status400BadRequest,
           $"Orthopedic bank cannot be deleted because it has associated stock/items.",
           typeof(ResponseControllerOrthopedicBankDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseBadRequestOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseDeleteOrthopedicBankDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseOrthopedicBankNotFoundDto))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, ApiDbContext context, CancellationToken ct) =>
         {
           Console.WriteLine($"Deleting orthopedic bank with ID: {id}");
           var res = await OrthopedicBankService.DeleteOrthopedicBank(id, context, ct);
