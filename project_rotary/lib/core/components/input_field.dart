@@ -5,6 +5,7 @@ class InputField extends StatelessWidget {
   final String hint;
   final IconData icon;
   final bool obscureText;
+  final String? Function(String?)? validator;
 
   const InputField({
     super.key,
@@ -12,14 +13,19 @@ class InputField extends StatelessWidget {
     required this.hint,
     required this.icon,
     this.obscureText = false,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      decoration: InputDecoration(labelText: hint, suffixIcon: Icon(icon)),
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: hint, 
+        suffixIcon: Icon(icon)
+      ),
     );
   }
 }

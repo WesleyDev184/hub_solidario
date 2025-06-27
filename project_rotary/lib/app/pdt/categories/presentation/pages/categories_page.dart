@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/pages/new_category_page.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/widgets/action_menu_categories.dart';
 import 'package:project_rotary/app/pdt/categories/presentation/widgets/category_card.dart';
-import 'package:project_rotary/app/pdt/category/presentation/pages/category_page.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/pages/category_page.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
+import 'package:project_rotary/core/theme/custom_colors.dart';
 
 final List<Map<String, dynamic>> categoryData = List.generate(10, (index) {
   return {
@@ -54,6 +57,22 @@ class _CategoriesPageState extends State<CategoriesPage> {
     searchController.removeListener(filterCategories);
     searchController.dispose();
     super.dispose();
+  }
+
+  void _showActionsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return ActionMenuCategories(
+          onCreatePressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const NewCategoryPage()),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -126,6 +145,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showActionsMenu(context),
+        backgroundColor: CustomColors.primary,
+        child: const Icon(LucideIcons.menu, color: Colors.white),
       ),
     );
   }
