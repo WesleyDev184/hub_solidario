@@ -101,7 +101,6 @@ class BeneficiaryPage extends StatelessWidget {
                     ...address!
                         .split(',')
                         .map((section) => Text('${section.trim()},'))
-                        .toList()
                   else
                     const Text('Endereço não informado'),
                 ],
