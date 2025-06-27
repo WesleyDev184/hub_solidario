@@ -154,7 +154,7 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
 
                                   const SizedBox(height: 16),
 
-                                  Button(
+                                    Button(
                                     text: "Sair",
                                     icon: Icon(
                                       LucideIcons.logOut,
@@ -162,14 +162,13 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
                                     ),
                                     backgroundColor: CustomColors.error,
                                     onPressed: () {
-                                      Navigator.of(
-                                        context,
-                                      ).pushNamedAndRemoveUntil(
-                                        '/',
-                                        (route) => false,
+                                      Navigator.of(context, rootNavigator: true)
+                                        .pushNamedAndRemoveUntil(
+                                      '/',
+                                      (route) => false,
                                       );
                                     },
-                                  ),
+                                    ),
 
                                   Padding(
                                     padding: const EdgeInsets.only(

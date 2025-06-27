@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicant/presentation/pages/applicant_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/applicant_page.dart';
 import 'package:project_rotary/app/pdt/applicants/presentation/widgets/applicants_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';

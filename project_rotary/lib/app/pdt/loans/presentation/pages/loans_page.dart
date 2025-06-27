@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/pages/new_category_page.dart';
+import 'package:project_rotary/app/pdt/loans/presentation/widgets/action_menu_loans.dart';
 import 'package:project_rotary/app/pdt/loans/presentation/widgets/loan_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
+import 'package:project_rotary/core/theme/custom_colors.dart';
 
 final List<Map<String, dynamic>> loansData = List.generate(10, (index) {
   return {
@@ -60,6 +63,22 @@ class _LoansPageState extends State<LoansPage> {
     super.dispose();
   }
 
+  void _showActionsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return ActionMenuLoans(
+          onBorrowPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const NewCategoryPage()),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,6 +133,11 @@ class _LoansPageState extends State<LoansPage> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showActionsMenu(context),
+        backgroundColor: CustomColors.primary,
+        child: const Icon(LucideIcons.menu, color: Colors.white),
       ),
     );
   }

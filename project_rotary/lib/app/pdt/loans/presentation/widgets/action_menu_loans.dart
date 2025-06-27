@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
-class ActionMenuCategories extends StatelessWidget {
-  final VoidCallback? onCreatePressed;
+class ActionMenuLoans extends StatelessWidget {
+  final VoidCallback? onBorrowPressed;
   final String title;
 
-  const ActionMenuCategories({
+  const ActionMenuLoans({
     super.key,
-    this.onCreatePressed,
+    this.onBorrowPressed,
     this.title = 'Ações',
   });
 
@@ -45,12 +45,12 @@ class ActionMenuCategories extends StatelessWidget {
           const SizedBox(height: 16),
           _buildActionItem(
             context,
-            icon: LucideIcons.plus,
-            title: 'Criar',
-            subtitle: 'Criar nova categoria',
+            icon: LucideIcons.layoutList,
+            title: 'Emprestar',
+            subtitle: "Criar novo empréstimo",
             onTap: () {
               Navigator.pop(context);
-              onCreatePressed?.call();
+              onBorrowPressed?.call();
             },
           ),
           const SizedBox(height: 20),

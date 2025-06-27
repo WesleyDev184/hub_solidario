@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicant/presentation/widgets/beneficiary_card.dart';
-import 'package:project_rotary/app/pdt/beneficiary/presentation/pages/beneficiary_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/widgets/beneficiary_card.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/beneficiary_page.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/avatar.dart';
 import 'package:project_rotary/core/components/info_row.dart';
