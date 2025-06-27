@@ -47,7 +47,8 @@ public static class OrthopedicBankService
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
 
-      return new ResponseOrthopedicBankDTO(HttpStatusCode.Created, null,
+      var responseBank = MapToResponseEntityOrthopedicBankDto(newBank);
+      return new ResponseOrthopedicBankDTO(HttpStatusCode.Created, responseBank,
         "Orthopedic bank created successfully.");
     }
     catch (Exception ex)

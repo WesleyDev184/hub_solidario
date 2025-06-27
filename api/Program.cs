@@ -22,4 +22,4 @@ using (var scope = app.Services.CreateScope())
 // App Configuration Extension.
 app.AppConfig();
 
-app.Run();
+app.Run();  
