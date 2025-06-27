@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/categories/presentation/pages/new_category_page.dart';
-import 'package:project_rotary/app/pdt/loans/presentation/widgets/action_menu_loans.dart';
 import 'package:project_rotary/app/pdt/loans/presentation/widgets/loan_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
-import 'package:project_rotary/core/theme/custom_colors.dart';
 
 final List<Map<String, dynamic>> loansData = List.generate(10, (index) {
   return {
@@ -19,6 +16,7 @@ final List<Map<String, dynamic>> loansData = List.generate(10, (index) {
     "beneficiary": "Beneficiário ${index + 1}",
     "returnDate": "15/06/2025",
     "status": index % 2 == 0 ? "Ativo" : "devolvido",
+    "reason": "Motivo do Empréstimo ${index + 1}",
   };
 });
 
@@ -49,8 +47,17 @@ class _LoansPageState extends State<LoansPage> {
       } else {
         filteredLoans =
             loansData.where((loan) {
-              final title = loan["title"].toString().toLowerCase();
-              return title.contains(query);
+              final applicant = loan["applicant"].toString().toLowerCase();
+              final serialCode = loan["serialCode"].toString().toLowerCase();
+              final responsible = loan["responsible"].toString().toLowerCase();
+              final beneficiary = loan["beneficiary"].toString().toLowerCase();
+              final reason = loan["reason"].toString().toLowerCase();
+
+              return applicant.contains(query) ||
+                  serialCode.contains(query) ||
+                  responsible.contains(query) ||
+                  beneficiary.contains(query) ||
+                  reason.contains(query);
             }).toList();
       }
     });
@@ -61,22 +68,6 @@ class _LoansPageState extends State<LoansPage> {
     searchController.removeListener(filterLoans);
     searchController.dispose();
     super.dispose();
-  }
-
-  void _showActionsMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return ActionMenuLoans(
-          onBorrowPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const NewCategoryPage()),
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
@@ -122,6 +113,7 @@ class _LoansPageState extends State<LoansPage> {
                               responsible: loan["responsible"] as String,
                               returnDate: loan["returnDate"] as String,
                               status: loan["status"] as String,
+                              reason: loan["reason"] as String,
                             ),
                           ),
                         ),
@@ -133,11 +125,6 @@ class _LoansPageState extends State<LoansPage> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showActionsMenu(context),
-        backgroundColor: CustomColors.primary,
-        child: const Icon(LucideIcons.menu, color: Colors.white),
       ),
     );
   }

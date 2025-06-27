@@ -14,6 +14,7 @@ class LoanCard extends StatelessWidget {
   final String beneficiary;
   final String returnDate;
   final String status;
+  final String reason;
 
   const LoanCard({
     super.key,
@@ -26,6 +27,7 @@ class LoanCard extends StatelessWidget {
     required this.beneficiary,
     required this.returnDate,
     required this.status,
+    required this.reason,
   });
 
   @override
@@ -101,6 +103,7 @@ class LoanCard extends StatelessWidget {
                                         loanReturnDate: returnDate,
                                         loanStatus: status,
                                         loanDate: date,
+                                        loanReason: reason,
                                       ),
                                 ),
                               );

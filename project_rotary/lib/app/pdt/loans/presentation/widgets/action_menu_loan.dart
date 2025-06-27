@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
-class ActionMenuLoans extends StatelessWidget {
+class ActionMenuLoan extends StatelessWidget {
   final VoidCallback? onBorrowPressed;
   final String title;
 
-  const ActionMenuLoans({
-    super.key,
-    this.onBorrowPressed,
-    this.title = 'Ações',
-  });
+  const ActionMenuLoan({super.key, this.onBorrowPressed, this.title = 'Ações'});
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +41,19 @@ class ActionMenuLoans extends StatelessWidget {
           const SizedBox(height: 16),
           _buildActionItem(
             context,
-            icon: LucideIcons.layoutList,
-            title: 'Emprestar',
-            subtitle: "Criar novo empréstimo",
+            icon: LucideIcons.pen,
+            title: 'Editar empréstimo',
+            subtitle: "Edite o empréstimo atual",
+            onTap: () {
+              Navigator.pop(context);
+              onBorrowPressed?.call();
+            },
+          ),
+          _buildActionItem(
+            context,
+            icon: LucideIcons.cornerDownLeft,
+            title: 'Finalizar empréstimo',
+            subtitle: "Finalize o empréstimo atual",
             onTap: () {
               Navigator.pop(context);
               onBorrowPressed?.call();
