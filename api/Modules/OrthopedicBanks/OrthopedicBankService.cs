@@ -30,7 +30,7 @@ public static class OrthopedicBankService
     {
       // Check if an orthopedic bank with this name already exists
       var existingBank = await context.OrthopedicBanks.AsNoTracking()
-        .AnyAsync(b => b.Name.Equals(request.Name, StringComparison.CurrentCultureIgnoreCase), ct);
+        .AnyAsync(b => b.Name.ToLower() == request.Name.ToLower(), ct);
 
       if (existingBank)
       {
@@ -128,7 +128,7 @@ public static class OrthopedicBankService
       {
         // Check for duplicate name if it's being changed
         var existingBankWithSameName = await context.OrthopedicBanks.AsNoTracking()
-          .AnyAsync(b => b.Name == request.Name && b.Id != id, ct);
+          .AnyAsync(b => b.Name.ToLower() == request.Name.ToLower() && b.Id != id, ct);
 
         if (existingBankWithSameName)
         {
