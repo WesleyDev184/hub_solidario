@@ -16,6 +16,7 @@ final List<Map<String, dynamic>> loansData = List.generate(10, (index) {
     "beneficiary": "Beneficiário ${index + 1}",
     "returnDate": "15/06/2025",
     "status": index % 2 == 0 ? "Ativo" : "devolvido",
+    "reason": "Motivo do Empréstimo ${index + 1}",
   };
 });
 
@@ -46,8 +47,17 @@ class _LoansPageState extends State<LoansPage> {
       } else {
         filteredLoans =
             loansData.where((loan) {
-              final title = loan["title"].toString().toLowerCase();
-              return title.contains(query);
+              final applicant = loan["applicant"].toString().toLowerCase();
+              final serialCode = loan["serialCode"].toString().toLowerCase();
+              final responsible = loan["responsible"].toString().toLowerCase();
+              final beneficiary = loan["beneficiary"].toString().toLowerCase();
+              final reason = loan["reason"].toString().toLowerCase();
+
+              return applicant.contains(query) ||
+                  serialCode.contains(query) ||
+                  responsible.contains(query) ||
+                  beneficiary.contains(query) ||
+                  reason.contains(query);
             }).toList();
       }
     });
@@ -103,6 +113,7 @@ class _LoansPageState extends State<LoansPage> {
                               responsible: loan["responsible"] as String,
                               returnDate: loan["returnDate"] as String,
                               status: loan["status"] as String,
+                              reason: loan["reason"] as String,
                             ),
                           ),
                         ),

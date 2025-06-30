@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/pages/new_category_page.dart';
+import 'package:project_rotary/app/pdt/loans/presentation/widgets/action_menu_loan.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
-import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class LoanPage extends StatelessWidget {
@@ -13,6 +14,7 @@ class LoanPage extends StatelessWidget {
   final String loanDate;
   final String loanReturnDate;
   final String loanStatus;
+  final String loanReason;
 
   const LoanPage({
     super.key,
@@ -24,7 +26,24 @@ class LoanPage extends StatelessWidget {
     required this.loanDate,
     required this.loanReturnDate,
     required this.loanStatus,
+    required this.loanReason,
   });
+
+  void _showActionsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return ActionMenuLoan(
+          onBorrowPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const NewCategoryPage()),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,87 +90,79 @@ class LoanPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Stack(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.only(bottom: 80),
                   children: [
-                    ListView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.only(bottom: 80),
-                      children: [
-                        const SizedBox(height: 16),
-                        Text(
-                          loanSerialCode,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: CustomColors.textPrimary, // cor roxa escura
-                          ),
-                        ),
-                        const SizedBox(height: 48),
-
-                        // Responsável
-                        _buildInfoRow(
-                          LucideIcons.idCard,
-                          'Responsável:',
-                          loanResponsible,
-                        ),
-                        const Divider(),
-                        const SizedBox(height: 8),
-
-                        // Solicitante
-                        _buildInfoRow(
-                          LucideIcons.idCard,
-                          'Solicitante:',
-                          loanApplicant,
-                        ),
-                        const Divider(),
-                        const SizedBox(height: 8),
-
-                        // Beneficiado
-                        _buildInfoRow(
-                          LucideIcons.idCard,
-                          'Beneficiado:',
-                          loanBeneficiary,
-                        ),
-                        const Divider(),
-                        const SizedBox(height: 8),
-
-                        // Empréstimo
-                        _buildInfoRow(
-                          LucideIcons.calendar,
-                          'Empréstimo:',
-                          loanDate,
-                        ),
-                        const Divider(),
-                        const SizedBox(height: 8),
-
-                        // Devolução
-                        _buildInfoRow(
-                          LucideIcons.calendar,
-                          'Devolução:',
-                          loanReturnDate,
-                        ),
-                      ],
-                    ),
-                    Positioned(
-                      bottom: 16,
-                      left: 16,
-                      right: 16,
-                      child: Button(
-                        onPressed: () {},
-                        text: 'Finalizar Empréstimo',
-                        backgroundColor: CustomColors.success,
-                        icon: Icon(
-                          LucideIcons.cornerDownLeft,
-                          color: CustomColors.white,
-                        ),
+                    const SizedBox(height: 16),
+                    Text(
+                      loanSerialCode,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: CustomColors.textPrimary, // cor roxa escura
                       ),
                     ),
+                    const SizedBox(height: 48),
+
+                    // Responsável
+                    _buildInfoRow(
+                      LucideIcons.idCard,
+                      'Responsável:',
+                      loanResponsible,
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Solicitante
+                    _buildInfoRow(
+                      LucideIcons.idCard,
+                      'Solicitante:',
+                      loanApplicant,
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Beneficiado
+                    _buildInfoRow(
+                      LucideIcons.idCard,
+                      'Beneficiado:',
+                      loanBeneficiary,
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Empréstimo
+                    _buildInfoRow(
+                      LucideIcons.calendar,
+                      'Empréstimo:',
+                      loanDate,
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Devolução
+                    _buildInfoRow(
+                      LucideIcons.calendar,
+                      'Devolução:',
+                      loanReturnDate,
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
+
+                    // Motivo
+                    _buildInfoRow(LucideIcons.fileText, 'Motivo:', loanReason),
                   ],
                 ),
               );
             },
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showActionsMenu(context),
+        backgroundColor: CustomColors.primary,
+        child: const Icon(LucideIcons.menu, color: CustomColors.white),
       ),
     );
   }

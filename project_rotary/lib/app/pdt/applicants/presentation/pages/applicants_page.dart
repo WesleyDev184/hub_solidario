@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicant/presentation/pages/applicant_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/applicant_page.dart';
 import 'package:project_rotary/app/pdt/applicants/presentation/widgets/applicants_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
@@ -46,8 +46,15 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
           query.isEmpty
               ? List.from(applicantsData)
               : applicantsData.where((applicant) {
-                final title = applicant["title"].toString().toLowerCase();
-                return title.contains(query);
+                final name = applicant["name"].toString().toLowerCase();
+                final cpf = applicant["cpf"].toString().toLowerCase();
+                final email = applicant["email"].toString().toLowerCase();
+                final phone = applicant["phone"].toString().toLowerCase();
+
+                return name.contains(query) ||
+                    cpf.contains(query) ||
+                    email.contains(query) ||
+                    phone.contains(query);
               }).toList();
     });
   }

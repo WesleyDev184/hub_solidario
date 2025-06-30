@@ -9,7 +9,7 @@ builder.BuilderConfig();
 
 WebApplication app = builder.Build();
 
-// // Aplica migrations automaticamente ao iniciar
+// Aplica migrations automaticamente ao iniciar
 // using (var scope = app.Services.CreateScope())
 // {
 //   var apiDb = scope.ServiceProvider.GetRequiredService<ApiDbContext>();

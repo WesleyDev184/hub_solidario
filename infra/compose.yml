@@ -66,6 +66,16 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - proxy
+    deploy:
+      replicas: 1
+
   api:
     image: ghcr.io/wesleydev184/rotary:main
     restart: always
@@ -83,6 +93,7 @@ services:
     environment:
       DB_URL: "Host=db;Port=5432;Database=rotarydb;Username=postgres;Password=postgres"
       API_KEY: "your_api_key_here"
+      REDIS_URL: "redis:6379"
     depends_on:
       db:
         condition: service_healthy

@@ -27,7 +27,7 @@ namespace api.Extensions
 
     private static void AddCaching(this WebApplicationBuilder builder)
     {
-      var redisConnectionString = Env.GetString("REDIS_URL", "localhost:6379");
+      var redisConnectionString = Env.GetString("REDIS_URL");
       builder.Services.AddMemoryCache();
       builder.Services.AddStackExchangeRedisCache(options =>
       {
@@ -38,11 +38,6 @@ namespace api.Extensions
       {
         options.MaximumPayloadBytes = 1024 * 1024;
         options.MaximumKeyLength = 1024;
-        options.DefaultEntryOptions = new HybridCacheEntryOptions
-        {
-          Expiration = TimeSpan.FromSeconds(10),
-          LocalCacheExpiration = TimeSpan.FromSeconds(10)
-        };
       });
     }
 

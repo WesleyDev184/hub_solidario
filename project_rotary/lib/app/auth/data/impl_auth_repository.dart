@@ -8,6 +8,7 @@ import '../domain/auth_repository.dart';
 class ImplAuthRepository implements AuthRepository {
   @override
   AsyncResult<String> signin({required SignInDTO signInDTO}) async {
+    // R12kf#eXMayy Senha de login
     await Future.delayed(const Duration(seconds: 1));
 
     debugPrint('Login realizado com sucesso');

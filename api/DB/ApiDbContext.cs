@@ -33,6 +33,13 @@ public class ApiDbContext : DbContext
   {
     base.OnModelCreating(modelBuilder);
 
+    // Relacionamento OrthopedicBank -> Stock
+    modelBuilder.Entity<OrthopedicBank>()
+      .HasMany(ob => ob.Stocks)
+      .WithOne(s => s.OrthopedicBank)
+      .HasForeignKey(s => s.OrthopedicBankId)
+      .OnDelete(DeleteBehavior.Cascade);
+
     modelBuilder.Entity<Stock>()
       .HasMany(s => s.Items)
       .WithOne(i => i.Stock)
