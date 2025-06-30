@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:project_rotary/app/auth/presentation/pages/signup_page.dart';
 import 'package:project_rotary/app/auth/presentation/pages/singin_page.dart';
 import 'package:project_rotary/app/pdt/layout.dart';
@@ -14,6 +15,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Rotary Project',
+      debugShowCheckedModeBanner: false,
+      locale: const Locale('pt', 'BR'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('pt', 'BR')],
       initialRoute: '/',
       routes: {
         '/': (context) => SingInPage(),
