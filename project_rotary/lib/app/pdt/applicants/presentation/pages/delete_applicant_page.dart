@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicants/data/impl_applicant_repository.dart';
+import 'package:project_rotary/app/pdt/applicants/di/applicant_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/applicants/presentation/controller/applicant_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
+import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class DeleteApplicantPage extends StatefulWidget {
   final String applicantId;
@@ -23,7 +24,68 @@ class DeleteApplicantPage extends StatefulWidget {
 }
 
 class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
-  final applicantController = ApplicantController(ImplApplicantRepository());
+  late final ApplicantController applicantController;
+
+  @override
+  void initState() {
+    super.initState();
+    applicantController = ApplicantDependencyFactory.applicantController;
+  }
+
+  Future<void> _showFinalConfirmation() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text(
+              'Confirmação Final',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  color: CustomColors.textPrimary,
+                  fontSize: 16,
+                ),
+                children: [
+                  const TextSpan(text: 'Confirma a exclusão do solicitante '),
+                  TextSpan(
+                    text: widget.applicantName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const TextSpan(text: '?\n\nEsta ação é '),
+                  const TextSpan(
+                    text: 'irreversível',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: CustomColors.error,
+                    ),
+                  ),
+                  const TextSpan(text: '.'),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: CustomColors.error,
+                  foregroundColor: CustomColors.white,
+                ),
+                child: const Text('Confirmar Exclusão'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      await _deleteApplicant();
+    }
+  }
 
   Future<void> _deleteApplicant() async {
     final result = await applicantController.deleteApplicant(
@@ -32,11 +94,11 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
 
     if (mounted) {
       result.fold(
-        (success) {
+        (successMessage) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Solicitante excluído com sucesso!'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: Text(successMessage),
+              backgroundColor: CustomColors.success,
             ),
           );
           Navigator.pop(context, true);
@@ -47,7 +109,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
               content: Text(
                 applicantController.error ?? 'Erro ao excluir solicitante',
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: CustomColors.error,
             ),
           );
         },
@@ -73,10 +135,14 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: CustomColors.error.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.warning_rounded, color: Colors.red, size: 40),
+                child: Icon(
+                  Icons.warning_rounded,
+                  color: CustomColors.error,
+                  size: 40,
+                ),
               ),
             ),
 
@@ -88,7 +154,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: CustomColors.textPrimary,
               ),
             ),
 
@@ -97,7 +163,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
             Text(
               'Tem certeza de que deseja deletar o solicitante?',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 16, color: CustomColors.textSecondary),
             ),
 
             const SizedBox(height: 24),
@@ -105,10 +171,10 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: CustomColors.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.red.withOpacity(0.3),
+                  color: CustomColors.error.withOpacity(0.3),
                   width: 1,
                 ),
               ),
@@ -117,14 +183,18 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                 children: [
                   Row(
                     children: [
-                      const Icon(LucideIcons.user, color: Colors.red, size: 20),
+                      const Icon(
+                        LucideIcons.user,
+                        color: CustomColors.error,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         'Solicitante a ser deletado:',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[700],
+                          color: CustomColors.textSecondary,
                         ),
                       ),
                     ],
@@ -135,7 +205,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: CustomColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -159,10 +229,10 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: CustomColors.warning.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.orange.withOpacity(0.3),
+                  color: CustomColors.warning.withOpacity(0.3),
                   width: 1,
                 ),
               ),
@@ -173,7 +243,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                     children: [
                       const Icon(
                         LucideIcons.info,
-                        color: Colors.orange,
+                        color: CustomColors.warning,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -182,7 +252,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange,
+                          color: CustomColors.warning,
                         ),
                       ),
                     ],
@@ -190,7 +260,10 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                   const SizedBox(height: 8),
                   Text(
                     'Esta ação não pode ser desfeita. Todos os empréstimos e dados relacionados a este solicitante também serão removidos.',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: CustomColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -209,7 +282,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                             : () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: Colors.grey[400]!),
+                      side: BorderSide(color: CustomColors.border!),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -219,7 +292,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey,
+                        color: CustomColors.textSecondary,
                       ),
                     ),
                   ),
@@ -233,9 +306,9 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                         onPressed:
                             applicantController.isLoading
                                 ? null
-                                : _deleteApplicant,
+                                : _showFinalConfirmation,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: CustomColors.error,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -250,7 +323,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
+                                      CustomColors.white,
                                     ),
                                   ),
                                 )
@@ -259,7 +332,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white,
+                                    color: CustomColors.white,
                                   ),
                                 ),
                       );
@@ -279,21 +352,24 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: Colors.grey[600]),
+        Icon(icon, size: 18, color: CustomColors.textSecondary),
         const SizedBox(width: 8),
         Text(
           label,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.grey[600],
+            color: CustomColors.textSecondary,
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
+            style: const TextStyle(
+              fontSize: 14,
+              color: CustomColors.textPrimary,
+            ),
           ),
         ),
       ],

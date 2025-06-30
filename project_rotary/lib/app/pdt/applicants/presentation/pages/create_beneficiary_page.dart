@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicants/data/impl_beneficiary_repository.dart';
+import 'package:project_rotary/app/pdt/applicants/di/applicant_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/applicants/domain/dto/create_beneficiary_dto.dart';
 import 'package:project_rotary/app/pdt/applicants/presentation/controller/beneficiary_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
@@ -35,7 +35,7 @@ class _CreateBeneficiaryPageState extends State<CreateBeneficiaryPage> {
   @override
   void initState() {
     super.initState();
-    _beneficiaryController = BeneficiaryController(ImplBeneficiaryRepository());
+    _beneficiaryController = ApplicantDependencyFactory.beneficiaryController;
   }
 
   @override
@@ -66,10 +66,12 @@ class _CreateBeneficiaryPageState extends State<CreateBeneficiaryPage> {
 
     if (mounted) {
       result.fold(
-        (success) {
+        (newBeneficiary) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Beneficiário criado com sucesso!'),
+            SnackBar(
+              content: Text(
+                'Beneficiário ${newBeneficiary.name} criado com sucesso!',
+              ),
               backgroundColor: Colors.green,
             ),
           );

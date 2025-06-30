@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/categories/data/impl_category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
 import 'package:project_rotary/app/pdt/categories/presentation/controller/category_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
@@ -33,11 +33,12 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
   final TextEditingController _availableController = TextEditingController();
   final TextEditingController _maintenanceController = TextEditingController();
   final TextEditingController _borrowedController = TextEditingController();
-  final categoryController = CategoryController(ImplCategoryRepository());
+  late final CategoryController categoryController;
 
   @override
   void initState() {
     super.initState();
+    categoryController = CategoryDependencyFactory.instance.categoryController;
     _titleController.text = widget.currentTitle;
     _availableController.text = widget.currentAvailable.toString();
     _maintenanceController.text = widget.currentInMaintenance.toString();
@@ -116,33 +117,30 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
               : null,
     );
 
-    final result = await categoryController.updateCategory(
+    await categoryController.updateCategory(
       id: widget.categoryId,
       updateCategoryDTO: updateDTO,
     );
 
     if (mounted) {
-      result.fold(
-        (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Categoria atualizada com sucesso!'),
-              backgroundColor: Colors.green,
+      if (categoryController.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria atualizada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              categoryController.errorMessage ?? 'Erro ao atualizar categoria',
             ),
-          );
-          Navigator.pop(context, true);
-        },
-        (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                categoryController.error ?? 'Erro ao atualizar categoria',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-      );
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

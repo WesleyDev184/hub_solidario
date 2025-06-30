@@ -2,12 +2,16 @@ import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/update_item_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/models/category.dart';
 import 'package:project_rotary/app/pdt/categories/domain/models/item.dart';
 import 'package:project_rotary/app/pdt/categories/domain/models/loan.dart';
 import 'package:project_rotary/app/pdt/categories/domain/models/user.dart';
 import 'package:result_dart/result_dart.dart';
 
+/// Interface do repositório para gerenciar operações relacionadas a categorias,
+/// itens, empréstimos e usuários. Seguindo o padrão de Clean Architecture.
 abstract class CategoryRepository {
   // Category operations
   AsyncResult<Category> createCategory({
@@ -24,6 +28,12 @@ abstract class CategoryRepository {
   // Item operations
   AsyncResult<Item> createItem({required CreateItemDTO createItemDTO});
   AsyncResult<List<Item>> getItemsByCategory({required String categoryId});
+  AsyncResult<Item> getItemById({required String id});
+  AsyncResult<Item> updateItem({
+    required String id,
+    required UpdateItemDTO updateItemDTO,
+  });
+  AsyncResult<String> deleteItem({required String id});
 
   // User operations
   AsyncResult<List<User>> getUsers();
@@ -32,4 +42,13 @@ abstract class CategoryRepository {
 
   // Loan operations
   AsyncResult<Loan> createLoan({required CreateLoanDTO createLoanDTO});
+  AsyncResult<List<Loan>> getLoans();
+  AsyncResult<Loan> getLoanById({required String id});
+  AsyncResult<Loan> updateLoan({
+    required String id,
+    required UpdateLoanDTO updateLoanDTO,
+  });
+  AsyncResult<String> deleteLoan({required String id});
+  AsyncResult<List<Loan>> getLoansByApplicant({required String applicantId});
+  AsyncResult<List<Loan>> getLoansByItem({required String itemId});
 }

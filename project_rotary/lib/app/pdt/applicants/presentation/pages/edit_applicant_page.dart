@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicants/data/impl_applicant_repository.dart';
+import 'package:project_rotary/app/pdt/applicants/di/applicant_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/applicants/domain/dto/update_applicant_dto.dart';
 import 'package:project_rotary/app/pdt/applicants/presentation/controller/applicant_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
@@ -38,12 +38,13 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final applicantController = ApplicantController(ImplApplicantRepository());
+  late final ApplicantController applicantController;
   bool _isBeneficiary = false;
 
   @override
   void initState() {
     super.initState();
+    applicantController = ApplicantDependencyFactory.applicantController;
     _nameController.text = widget.currentName;
     _cpfController.text = widget.currentCpf;
     _emailController.text = widget.currentEmail;
@@ -156,10 +157,10 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
 
     if (mounted) {
       result.fold(
-        (success) {
+        (updatedApplicant) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Solicitante atualizado com sucesso!'),
+            SnackBar(
+              content: Text('${updatedApplicant.name} atualizado com sucesso!'),
               backgroundColor: Colors.green,
             ),
           );

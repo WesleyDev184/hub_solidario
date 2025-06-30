@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/categories/data/impl_category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/presentation/controller/category_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 
@@ -19,35 +19,36 @@ class DeleteCategoryPage extends StatefulWidget {
 }
 
 class _DeleteCategoryPageState extends State<DeleteCategoryPage> {
-  final categoryController = CategoryController(ImplCategoryRepository());
+  late final CategoryController categoryController;
+
+  @override
+  void initState() {
+    super.initState();
+    categoryController = CategoryDependencyFactory.instance.categoryController;
+  }
 
   Future<void> _deleteCategory() async {
-    final result = await categoryController.deleteCategory(
-      id: widget.categoryId,
-    );
+    await categoryController.deleteCategory(id: widget.categoryId);
 
     if (mounted) {
-      result.fold(
-        (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Categoria deletada com sucesso!'),
-              backgroundColor: Colors.green,
+      if (categoryController.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria deletada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              categoryController.errorMessage ?? 'Erro ao deletar categoria',
             ),
-          );
-          Navigator.pop(context, true);
-        },
-        (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                categoryController.error ?? 'Erro ao deletar categoria',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-      );
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

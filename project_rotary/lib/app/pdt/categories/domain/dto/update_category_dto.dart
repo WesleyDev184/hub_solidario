@@ -1,11 +1,13 @@
 class UpdateCategoryDTO {
   final String? title;
+  final String? orthopedicBankId;
   final int? maintenanceQtd;
   final int? availableQtd;
   final int? borrowedQtd;
 
-  UpdateCategoryDTO({
+  const UpdateCategoryDTO({
     this.title,
+    this.orthopedicBankId,
     this.maintenanceQtd,
     this.availableQtd,
     this.borrowedQtd,
@@ -15,10 +17,23 @@ class UpdateCategoryDTO {
     final Map<String, dynamic> json = {};
 
     if (title != null) json['title'] = title;
+    if (orthopedicBankId != null) json['orthopedicBankId'] = orthopedicBankId;
     if (maintenanceQtd != null) json['maintenanceQtd'] = maintenanceQtd;
     if (availableQtd != null) json['availableQtd'] = availableQtd;
     if (borrowedQtd != null) json['borrowedQtd'] = borrowedQtd;
 
     return json;
+  }
+
+  bool get isEmpty =>
+      title == null &&
+      orthopedicBankId == null &&
+      maintenanceQtd == null &&
+      availableQtd == null &&
+      borrowedQtd == null;
+
+  @override
+  String toString() {
+    return 'UpdateCategoryDTO(${toJson()})';
   }
 }

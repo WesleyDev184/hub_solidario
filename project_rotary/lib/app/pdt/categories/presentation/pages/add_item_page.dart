@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/categories/data/impl_category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
-import 'package:project_rotary/app/pdt/categories/presentation/controller/category_controller.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/controller/item_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -25,7 +25,13 @@ class _AddItemPageState extends State<AddItemPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _serialCodeController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
-  final categoryController = CategoryController(ImplCategoryRepository());
+  late final ItemController itemController;
+
+  @override
+  void initState() {
+    super.initState();
+    itemController = CategoryDependencyFactory.instance.itemController;
+  }
 
   @override
   void dispose() {
@@ -64,8 +70,9 @@ class _AddItemPageState extends State<AddItemPage> {
       return;
     }
 
-    final result = await categoryController.createItem(
+    await itemController.createItem(
       createItemDTO: CreateItemDTO(
+        categoryId: int.parse(widget.categoryId),
         serialCode: int.parse(_serialCodeController.text.trim()),
         stockId: widget.categoryId,
         imageUrl: _imageUrlController.text.trim(),
@@ -73,25 +80,22 @@ class _AddItemPageState extends State<AddItemPage> {
     );
 
     if (mounted) {
-      result.fold(
-        (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Item criado com sucesso!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context, true);
-        },
-        (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(categoryController.error ?? 'Erro ao criar item'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-      );
+      if (itemController.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Item criado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(itemController.errorMessage ?? 'Erro ao criar item'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -170,7 +174,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed:
-                          categoryController.isLoading
+                          itemController.isLoading
                               ? null
                               : () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
@@ -193,11 +197,11 @@ class _AddItemPageState extends State<AddItemPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ListenableBuilder(
-                      listenable: categoryController,
+                      listenable: itemController,
                       builder: (context, child) {
                         return ElevatedButton(
                           onPressed:
-                              categoryController.isLoading ? null : _saveItem,
+                              itemController.isLoading ? null : _saveItem,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: CustomColors.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -207,7 +211,7 @@ class _AddItemPageState extends State<AddItemPage> {
                             elevation: 0,
                           ),
                           child:
-                              categoryController.isLoading
+                              itemController.isLoading
                                   ? const SizedBox(
                                     height: 20,
                                     width: 20,

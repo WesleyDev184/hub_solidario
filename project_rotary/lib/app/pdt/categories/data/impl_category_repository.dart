@@ -4,6 +4,8 @@ import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/update_item_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/models/category.dart';
 import 'package:project_rotary/app/pdt/categories/domain/models/item.dart';
 import 'package:project_rotary/app/pdt/categories/domain/models/loan.dart';
@@ -298,6 +300,7 @@ class ImplCategoryRepository implements CategoryRepository {
         'responsibleId': createLoanDTO.responsibleId,
         'itemId': createLoanDTO.itemId,
         'reason': createLoanDTO.reason,
+        'status': 'ativo',
         'createdAt': DateTime.now().toIso8601String(),
       };
 
@@ -305,6 +308,251 @@ class ImplCategoryRepository implements CategoryRepository {
       return Success(loan);
     } catch (e) {
       return Failure(Exception('Erro inesperado: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<Item> getItemById({required String id}) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Mock item data
+      final itemData = {
+        'id': id,
+        'serialCode': 12345,
+        'stockId': 'STOCK_001',
+        'imageUrl': 'https://example.com/item.png',
+        'status': 'Disponível',
+        'createdAt': DateTime.now().toIso8601String(),
+      };
+
+      final item = Item.fromJson(itemData);
+      return Success(item);
+    } catch (e) {
+      return Failure(Exception('Erro ao buscar item: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<Item> updateItem({
+    required String id,
+    required UpdateItemDTO updateItemDTO,
+  }) async {
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Simular possível erro
+      if (DateTime.now().millisecond % 12 == 0) {
+        return Failure(Exception('Erro ao atualizar item'));
+      }
+
+      final itemData = {
+        'id': id,
+        'serialCode': updateItemDTO.serialCode ?? 12345,
+        'stockId': updateItemDTO.stockId ?? 'STOCK_001',
+        'imageUrl': updateItemDTO.imageUrl ?? 'https://example.com/item.png',
+        'status': 'Disponível',
+        'createdAt':
+            DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+      };
+
+      final item = Item.fromJson(itemData);
+      return Success(item);
+    } catch (e) {
+      return Failure(Exception('Erro inesperado: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<String> deleteItem({required String id}) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      // Simular possível erro
+      if (DateTime.now().millisecond % 15 == 0) {
+        return Failure(Exception('Erro ao deletar item'));
+      }
+
+      return Success('Item deletado com sucesso');
+    } catch (e) {
+      return Failure(Exception('Erro inesperado: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<List<Loan>> getLoans() async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      // Mock loans
+      final mockLoans = List.generate(3, (index) {
+        return {
+          'id': 'loan_${index + 1}',
+          'applicantId': '${index + 2}',
+          'responsibleId': '${index + 1}',
+          'itemId': 'item_${index + 1}',
+          'reason': 'Necessidade médica ${index + 1}',
+          'status': index == 0 ? 'ativo' : 'finalizado',
+          'createdAt':
+              DateTime.now()
+                  .subtract(Duration(days: index + 1))
+                  .toIso8601String(),
+        };
+      });
+
+      final loans = mockLoans.map((data) => Loan.fromJson(data)).toList();
+      return Success(loans);
+    } catch (e) {
+      return Failure(Exception('Erro ao buscar empréstimos: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<Loan> getLoanById({required String id}) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      final loanData = {
+        'id': id,
+        'applicantId': '2',
+        'responsibleId': '1',
+        'itemId': 'item_1',
+        'reason': 'Necessidade médica urgente',
+        'status': 'ativo',
+        'createdAt':
+            DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+      };
+
+      final loan = Loan.fromJson(loanData);
+      return Success(loan);
+    } catch (e) {
+      return Failure(Exception('Erro ao buscar empréstimo: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<Loan> updateLoan({
+    required String id,
+    required UpdateLoanDTO updateLoanDTO,
+  }) async {
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Simular possível erro
+      if (DateTime.now().millisecond % 10 == 0) {
+        return Failure(Exception('Erro ao atualizar empréstimo'));
+      }
+
+      final loanData = {
+        'id': id,
+        'applicantId': updateLoanDTO.applicantId ?? '2',
+        'responsibleId': updateLoanDTO.responsibleId ?? '1',
+        'itemId': updateLoanDTO.itemId ?? 'item_1',
+        'reason': updateLoanDTO.reason ?? 'Necessidade médica',
+        'status': updateLoanDTO.status ?? 'ativo',
+        'createdAt':
+            DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+        'returnDate': updateLoanDTO.returnDate?.toIso8601String(),
+      };
+
+      final loan = Loan.fromJson(loanData);
+      return Success(loan);
+    } catch (e) {
+      return Failure(Exception('Erro inesperado: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<String> deleteLoan({required String id}) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      // Simular possível erro
+      if (DateTime.now().millisecond % 15 == 0) {
+        return Failure(Exception('Erro ao deletar empréstimo'));
+      }
+
+      return Success('Empréstimo deletado com sucesso');
+    } catch (e) {
+      return Failure(Exception('Erro inesperado: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<List<Loan>> getLoansByApplicant({
+    required String applicantId,
+  }) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      // Mock loans by applicant
+      final mockLoans = [
+        {
+          'id': 'loan_applicant_1',
+          'applicantId': applicantId,
+          'responsibleId': '1',
+          'itemId': 'item_1',
+          'reason': 'Reabilitação pós-cirúrgica',
+          'status': 'ativo',
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 5))
+                  .toIso8601String(),
+        },
+        {
+          'id': 'loan_applicant_2',
+          'applicantId': applicantId,
+          'responsibleId': '3',
+          'itemId': 'item_3',
+          'reason': 'Fisioterapia domiciliar',
+          'status': 'finalizado',
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 15))
+                  .toIso8601String(),
+          'returnDate':
+              DateTime.now()
+                  .subtract(const Duration(days: 2))
+                  .toIso8601String(),
+        },
+      ];
+
+      final loans = mockLoans.map((data) => Loan.fromJson(data)).toList();
+      return Success(loans);
+    } catch (e) {
+      return Failure(
+        Exception('Erro ao buscar empréstimos do solicitante: ${e.toString()}'),
+      );
+    }
+  }
+
+  @override
+  AsyncResult<List<Loan>> getLoansByItem({required String itemId}) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      // Mock loans by item
+      final mockLoans = [
+        {
+          'id': 'loan_item_1',
+          'applicantId': '2',
+          'responsibleId': '1',
+          'itemId': itemId,
+          'reason': 'Tratamento fisioterapêutico',
+          'status': 'ativo',
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 3))
+                  .toIso8601String(),
+        },
+      ];
+
+      final loans = mockLoans.map((data) => Loan.fromJson(data)).toList();
+      return Success(loans);
+    } catch (e) {
+      return Failure(
+        Exception('Erro ao buscar empréstimos do item: ${e.toString()}'),
+      );
     }
   }
 }

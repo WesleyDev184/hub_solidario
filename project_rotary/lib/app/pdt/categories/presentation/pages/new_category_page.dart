@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/categories/data/impl_category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/presentation/controller/category_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/select_field.dart';
@@ -27,7 +26,8 @@ class NewCategoryPage extends StatefulWidget {
 class _NewCategoryPageState extends State<NewCategoryPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
-  final categoryController = CategoryController(ImplCategoryRepository());
+  final categoryController =
+      CategoryDependencyFactory.instance.categoryController;
 
   String? _selectedOrthopedicBankId;
 
@@ -59,7 +59,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
       return;
     }
 
-    final result = await categoryController.createCategory(
+    await categoryController.createCategory(
       createCategoryDTO: CreateCategoryDTO(
         title: _titleController.text.trim(),
         orthopedicBankId: _selectedOrthopedicBankId!,
@@ -67,35 +67,24 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
     );
 
     if (mounted) {
-      result.fold(
-        (success) {
-          // Em caso de sucesso
-          print('Categoria criada com sucesso:');
-          print('ID: ${success.id}');
-          print('Título: ${success.title}');
-          print('Banco Ortopédico: ${success.orthopedicBank['name']}');
-          print('Criado em: ${success.createdAt}');
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Categoria criada com sucesso!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context);
-        },
-        (error) {
-          // Em caso de erro
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                categoryController.error ?? 'Erro ao criar categoria',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-      );
+      if (categoryController.errorMessage != null) {
+        // Em caso de erro
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(categoryController.errorMessage!),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        // Em caso de sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria criada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
     }
   }
 
