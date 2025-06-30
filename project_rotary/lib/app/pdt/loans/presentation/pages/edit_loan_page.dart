@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/loans/data/impl_loan_repository.dart';
+import 'package:project_rotary/app/pdt/loans/di/loan_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/loans/domain/dto/update_loan_dto.dart';
 import 'package:project_rotary/app/pdt/loans/presentation/controller/loan_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
@@ -30,12 +30,13 @@ class _EditLoanPageState extends State<EditLoanPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _reasonController = TextEditingController();
   final TextEditingController _returnDateController = TextEditingController();
-  final loanController = LoanController(ImplLoanRepository());
+  late final LoanController loanController;
   bool _isActive = false;
 
   @override
   void initState() {
     super.initState();
+    loanController = LoanDependencyFactory.instance.loanController;
     _reasonController.text = widget.currentReason;
     _returnDateController.text = widget.currentReturnDate;
     _isActive = widget.currentIsActive;
@@ -131,33 +132,30 @@ class _EditLoanPageState extends State<EditLoanPage> {
               : null,
     );
 
-    final result = await loanController.updateLoan(
+    await loanController.updateLoan(
       id: widget.loanId,
       updateLoanDTO: updateDTO,
     );
 
     if (mounted) {
-      result.fold(
-        (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Empréstimo atualizado com sucesso!'),
-              backgroundColor: Colors.green,
+      if (loanController.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Empréstimo atualizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              loanController.errorMessage ?? 'Erro ao atualizar empréstimo',
             ),
-          );
-          Navigator.pop(context, true);
-        },
-        (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                loanController.error ?? 'Erro ao atualizar empréstimo',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-      );
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

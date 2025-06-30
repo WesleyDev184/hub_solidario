@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_item_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/item.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_item_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/delete_item_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_item_by_id_usecase.dart';

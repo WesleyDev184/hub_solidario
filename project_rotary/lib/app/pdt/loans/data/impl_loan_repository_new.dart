@@ -1,6 +1,6 @@
-import 'package:project_rotary/app/pdt/loans/domain/entities/loan.dart';
 import 'package:project_rotary/app/pdt/loans/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/loans/domain/dto/update_loan_dto.dart';
+import 'package:project_rotary/app/pdt/loans/domain/entities/loan.dart';
 import 'package:project_rotary/app/pdt/loans/domain/loan_repository.dart';
 import 'package:result_dart/result_dart.dart';
 
@@ -8,7 +8,6 @@ import 'package:result_dart/result_dart.dart';
 /// Segue o padrão Clean Architecture implementado em applicants e categories.
 /// Simula operações com dados usando delays e dados mockados.
 class ImplLoanRepository implements LoanRepository {
-  
   @override
   AsyncResult<Loan> createLoan({required CreateLoanDTO createLoanDTO}) async {
     try {
@@ -33,9 +32,7 @@ class ImplLoanRepository implements LoanRepository {
       final loan = Loan.fromJson(loanData);
       return Success(loan);
     } catch (e) {
-      return Failure(
-        Exception('Erro ao criar empréstimo: ${e.toString()}'),
-      );
+      return Failure(Exception('Erro ao criar empréstimo: ${e.toString()}'));
     }
   }
 
@@ -52,7 +49,10 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-001',
           'itemId': 'item-001',
           'reason': 'Evento do Rotary Club',
-          'createdAt': DateTime.now().subtract(const Duration(days: 10)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 10))
+                  .toIso8601String(),
           'returnedAt': null,
         },
         {
@@ -61,8 +61,14 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-001',
           'itemId': 'item-002',
           'reason': 'Apresentação institucional',
-          'createdAt': DateTime.now().subtract(const Duration(days: 7)).toIso8601String(),
-          'returnedAt': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 7))
+                  .toIso8601String(),
+          'returnedAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 2))
+                  .toIso8601String(),
         },
         {
           'id': 'loan-003',
@@ -70,7 +76,10 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-002',
           'itemId': 'item-003',
           'reason': 'Projeto comunitário',
-          'createdAt': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 5))
+                  .toIso8601String(),
           'returnedAt': null,
         },
       ];
@@ -78,9 +87,7 @@ class ImplLoanRepository implements LoanRepository {
       final loans = loansData.map((data) => Loan.fromJson(data)).toList();
       return Success(loans);
     } catch (e) {
-      return Failure(
-        Exception('Erro ao buscar empréstimos: ${e.toString()}'),
-      );
+      return Failure(Exception('Erro ao buscar empréstimos: ${e.toString()}'));
     }
   }
 
@@ -96,16 +103,15 @@ class ImplLoanRepository implements LoanRepository {
         'responsibleId': 'responsible-001',
         'itemId': 'item-001',
         'reason': 'Evento do Rotary Club',
-        'createdAt': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
+        'createdAt':
+            DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
         'returnedAt': null,
       };
 
       final loan = Loan.fromJson(loanData);
       return Success(loan);
     } catch (e) {
-      return Failure(
-        Exception('Erro ao buscar empréstimo: ${e.toString()}'),
-      );
+      return Failure(Exception('Erro ao buscar empréstimo: ${e.toString()}'));
     }
   }
 
@@ -158,9 +164,7 @@ class ImplLoanRepository implements LoanRepository {
 
       return Success('Empréstimo deletado com sucesso');
     } catch (e) {
-      return Failure(
-        Exception('Erro ao deletar empréstimo: ${e.toString()}'),
-      );
+      return Failure(Exception('Erro ao deletar empréstimo: ${e.toString()}'));
     }
   }
 
@@ -181,7 +185,8 @@ class ImplLoanRepository implements LoanRepository {
         'responsibleId': 'responsible-001',
         'itemId': 'item-001',
         'reason': 'Evento do Rotary Club',
-        'createdAt': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
+        'createdAt':
+            DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
         'returnedAt': DateTime.now().toIso8601String(),
       };
 
@@ -195,7 +200,9 @@ class ImplLoanRepository implements LoanRepository {
   }
 
   @override
-  AsyncResult<List<Loan>> getLoansByApplicant({required String applicantId}) async {
+  AsyncResult<List<Loan>> getLoansByApplicant({
+    required String applicantId,
+  }) async {
     try {
       await Future.delayed(const Duration(milliseconds: 600));
 
@@ -207,7 +214,10 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-001',
           'itemId': 'item-001',
           'reason': 'Evento do Rotary Club',
-          'createdAt': DateTime.now().subtract(const Duration(days: 10)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 10))
+                  .toIso8601String(),
           'returnedAt': null,
         },
         {
@@ -216,8 +226,14 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-002',
           'itemId': 'item-004',
           'reason': 'Reunião mensal',
-          'createdAt': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
-          'returnedAt': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 3))
+                  .toIso8601String(),
+          'returnedAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 1))
+                  .toIso8601String(),
         },
       ];
 
@@ -243,7 +259,10 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-001',
           'itemId': 'item-001',
           'reason': 'Evento do Rotary Club',
-          'createdAt': DateTime.now().subtract(const Duration(days: 10)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 10))
+                  .toIso8601String(),
           'returnedAt': null,
         },
         {
@@ -252,7 +271,10 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-002',
           'itemId': 'item-003',
           'reason': 'Projeto comunitário',
-          'createdAt': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 5))
+                  .toIso8601String(),
           'returnedAt': null,
         },
       ];
@@ -279,8 +301,14 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-001',
           'itemId': 'item-002',
           'reason': 'Apresentação institucional',
-          'createdAt': DateTime.now().subtract(const Duration(days: 7)).toIso8601String(),
-          'returnedAt': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 7))
+                  .toIso8601String(),
+          'returnedAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 2))
+                  .toIso8601String(),
         },
         {
           'id': 'loan-005',
@@ -288,8 +316,14 @@ class ImplLoanRepository implements LoanRepository {
           'responsibleId': 'responsible-002',
           'itemId': 'item-005',
           'reason': 'Workshop educacional',
-          'createdAt': DateTime.now().subtract(const Duration(days: 12)).toIso8601String(),
-          'returnedAt': DateTime.now().subtract(const Duration(days: 8)).toIso8601String(),
+          'createdAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 12))
+                  .toIso8601String(),
+          'returnedAt':
+              DateTime.now()
+                  .subtract(const Duration(days: 8))
+                  .toIso8601String(),
         },
       ];
 

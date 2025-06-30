@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/category.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_category_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/delete_category_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_all_categories_usecase.dart';

@@ -1,6 +1,6 @@
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/loan.dart';
+import 'package:project_rotary/app/pdt/loans/domain/entities/loan.dart';
 import 'package:result_dart/result_dart.dart';
 
 /// Use case para atualizar um empréstimo existente.

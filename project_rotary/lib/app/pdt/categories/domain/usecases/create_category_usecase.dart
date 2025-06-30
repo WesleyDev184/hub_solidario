@@ -1,6 +1,6 @@
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/category.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
 import 'package:result_dart/result_dart.dart';
 
 class CreateCategoryUseCase {

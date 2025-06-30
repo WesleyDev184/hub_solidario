@@ -1,5 +1,5 @@
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/user.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/user.dart';
 import 'package:result_dart/result_dart.dart';
 
 /// Use case para buscar todos os usuários.

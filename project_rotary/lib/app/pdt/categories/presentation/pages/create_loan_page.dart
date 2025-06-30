@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/item.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:project_rotary/app/pdt/categories/presentation/controller/item_controller.dart';
 import 'package:project_rotary/app/pdt/categories/presentation/controller/loan_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';

@@ -4,10 +4,10 @@ import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dar
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/category.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/item.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/loan.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/user.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/user.dart';
+import 'package:project_rotary/app/pdt/loans/domain/entities/loan.dart';
 import 'package:result_dart/result_dart.dart';
 
 /// Interface do repositório para gerenciar operações relacionadas a categorias,

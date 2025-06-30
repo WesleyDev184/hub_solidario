@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/loans/data/impl_loan_repository.dart';
+import 'package:project_rotary/app/pdt/loans/di/loan_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/loans/presentation/controller/loan_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 
@@ -23,33 +23,36 @@ class FinalizeLoanPage extends StatefulWidget {
 }
 
 class _FinalizeLoanPageState extends State<FinalizeLoanPage> {
-  final loanController = LoanController(ImplLoanRepository());
+  late final LoanController loanController;
+
+  @override
+  void initState() {
+    super.initState();
+    loanController = LoanDependencyFactory.instance.loanController;
+  }
 
   Future<void> _finalizeLoan() async {
-    final result = await loanController.finalizeLoan(id: widget.loanId);
+    await loanController.finalizeLoan(id: widget.loanId);
 
     if (mounted) {
-      result.fold(
-        (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Empréstimo finalizado com sucesso!'),
-              backgroundColor: Colors.green,
+      if (loanController.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Empréstimo finalizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              loanController.errorMessage ?? 'Erro ao finalizar empréstimo',
             ),
-          );
-          Navigator.pop(context, true);
-        },
-        (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                loanController.error ?? 'Erro ao finalizar empréstimo',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-      );
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

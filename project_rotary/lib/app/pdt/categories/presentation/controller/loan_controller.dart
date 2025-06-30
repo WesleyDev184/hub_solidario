@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/loan.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/user.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/user.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_loan_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/delete_loan_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_all_loans_usecase.dart';
@@ -11,6 +10,7 @@ import 'package:project_rotary/app/pdt/categories/domain/usecases/get_loan_by_id
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_loans_by_applicant_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_responsibles_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/update_loan_usecase.dart';
+import 'package:project_rotary/app/pdt/loans/domain/entities/loan.dart';
 
 /// Controller reativo para gerenciar o estado de empréstimos.
 /// Implementa o padrão Clean Architecture usando Use Cases.

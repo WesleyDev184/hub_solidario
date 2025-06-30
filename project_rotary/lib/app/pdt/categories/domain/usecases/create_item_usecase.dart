@@ -1,6 +1,6 @@
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/item.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:result_dart/result_dart.dart';
 
 class CreateItemUseCase {
