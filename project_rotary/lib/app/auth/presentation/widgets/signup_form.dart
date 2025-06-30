@@ -3,7 +3,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/auth/data/impl_auth_repository.dart';
 import 'package:project_rotary/app/auth/domain/dto/signup_dto.dart';
 import 'package:project_rotary/app/auth/presentation/controller/auth_controller.dart';
-import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/password_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -46,95 +45,228 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
+    return Container(
+      margin: EdgeInsets.zero,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 15,
+            offset: const Offset(0, -8),
+            spreadRadius: 1,
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Criar conta",
-              style: TextStyle(
-                color: CustomColors.primary,
-                fontSize: 25,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 16),
-            InputField(
-              controller: nameController,
-              hint: "Nome",
-              icon: LucideIcons.user,
-            ),
-            const SizedBox(height: 8),
-            InputField(
-              controller: emailController,
-              hint: "Email",
-              icon: LucideIcons.mail,
-            ),
-            const SizedBox(height: 8),
-            InputField(
-              controller: phoneController,
-              hint: "Telefone",
-              icon: LucideIcons.phone,
-            ),
-            const SizedBox(height: 8),
-            PasswordField(controller: passwordController, hint: "Senha"),
-            const SizedBox(height: 8),
-            PasswordField(
-              controller: confirmPasswordController,
-              hint: "Confirmar senha",
-            ),
-            const SizedBox(height: 16),
-            Button(
-              onPressed: () async {
-                final result = await authController.signup(
-                  signUpDTO: SignUpDTO(
-                    email: emailController.text,
-                    password: passwordController.text,
-                    confirmPassword: confirmPasswordController.text,
-                    name: nameController.text,
-                    phone: phoneController.text,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Indicador visual para o card
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                );
+                ),
+              ),
+              const SizedBox(height: 16),
 
-                if (context.mounted) {
-                  result.fold(
-                    (success) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        '/layout',
-                        (route) => false,
-                      );
-                    },
-                    (error) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            authController.error ?? 'Erro ao fazer login',
-                          ),
-                        ),
-                      );
-                    },
+              // Título da seção
+              const Text(
+                "Criar conta",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "Preencha os dados para se cadastrar",
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 20),
+
+              // Campo Nome
+              const Text(
+                'Nome completo *',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 6),
+              InputField(
+                controller: nameController,
+                hint: "Digite seu nome completo",
+                icon: LucideIcons.user,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Campo Email
+              const Text(
+                'Email *',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 6),
+              InputField(
+                controller: emailController,
+                hint: "Digite seu email",
+                icon: LucideIcons.mail,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Campo Telefone
+              const Text(
+                'Telefone *',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 6),
+              InputField(
+                controller: phoneController,
+                hint: "Digite seu telefone",
+                icon: LucideIcons.phone,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Campo Senha
+              const Text(
+                'Senha *',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 6),
+              PasswordField(
+                controller: passwordController,
+                hint: "Digite sua senha",
+              ),
+
+              const SizedBox(height: 16),
+
+              // Campo Confirmar Senha
+              const Text(
+                'Confirmar senha *',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 6),
+              PasswordField(
+                controller: confirmPasswordController,
+                hint: "Confirme sua senha",
+              ),
+
+              const SizedBox(height: 20),
+
+              // Botão principal
+              ElevatedButton(
+                onPressed: () async {
+                  final result = await authController.signup(
+                    signUpDTO: SignUpDTO(
+                      email: emailController.text,
+                      password: passwordController.text,
+                      confirmPassword: confirmPasswordController.text,
+                      name: nameController.text,
+                      phone: phoneController.text,
+                    ),
                   );
-                }
-              },
-              text: "Criar conta",
-              backgroundColor: CustomColors.success,
-              isFullWidth: true,
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Já tem uma conta? Faça login"),
-            ),
-          ],
+
+                  if (context.mounted) {
+                    result.fold(
+                      (success) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/layout',
+                          (route) => false,
+                        );
+                      },
+                      (error) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              authController.error ?? 'Erro ao criar conta',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: CustomColors.success,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Criar conta',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Link de navegação
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Já tem uma conta? ",
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Text(
+                      "Faça login",
+                      style: TextStyle(
+                        color: CustomColors.primary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

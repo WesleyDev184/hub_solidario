@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:project_rotary/app/auth/presentation/pages/forgot_password_page.dart';
 import 'package:project_rotary/app/auth/presentation/pages/signup_page.dart';
 import 'package:project_rotary/app/auth/presentation/pages/singin_page.dart';
 import 'package:project_rotary/app/pdt/layout.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => SingInPage(),
         '/signup': (context) => SignUpPage(),
+        '/forgot-password': (context) => ForgotPasswordPage(),
         '/layout': (context) => Layout(),
       },
     );

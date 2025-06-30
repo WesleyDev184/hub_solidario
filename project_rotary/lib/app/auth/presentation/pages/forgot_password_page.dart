@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:project_rotary/app/auth/presentation/widgets/signin_form.dart';
+import 'package:project_rotary/app/auth/presentation/widgets/forgot_password_form.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 import '../widgets/header_logo.dart';
 
-class SingInPage extends StatelessWidget {
-  const SingInPage({super.key});
+class ForgotPasswordPage extends StatelessWidget {
+  const ForgotPasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class SingInPage extends StatelessWidget {
           children: [
             // Header fixo com logo
             Container(
-              height: 220,
+              height: 200,
               width: double.infinity,
               padding: const EdgeInsets.only(top: 70),
               child: const HeaderLogo(),
@@ -36,7 +36,7 @@ class SingInPage extends StatelessWidget {
             Expanded(
               child: Container(
                 alignment: Alignment.bottomCenter,
-                child: SingInForm(),
+                child: const ForgotPasswordForm(),
               ),
             ),
           ],

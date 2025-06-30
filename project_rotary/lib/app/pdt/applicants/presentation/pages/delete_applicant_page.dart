@@ -282,7 +282,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
                             : () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: CustomColors.border!),
+                      side: BorderSide(color: CustomColors.border),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

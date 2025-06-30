@@ -1,36 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/auth/data/impl_auth_repository.dart';
-import 'package:project_rotary/app/auth/domain/dto/signin_dto.dart';
-import 'package:project_rotary/app/auth/presentation/controller/auth_controller.dart';
 import 'package:project_rotary/core/components/input_field.dart';
-import 'package:project_rotary/core/components/password_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
-class SingInForm extends StatefulWidget {
-  const SingInForm({super.key});
+class ForgotPasswordForm extends StatefulWidget {
+  const ForgotPasswordForm({super.key});
 
   @override
-  _SingInFormState createState() => _SingInFormState();
+  _ForgotPasswordFormState createState() => _ForgotPasswordFormState();
 }
 
-class _SingInFormState extends State<SingInForm> {
-  final authController = AuthController(ImplAuthRepository());
+class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
   late TextEditingController emailController;
-  late TextEditingController passwordController;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     emailController = TextEditingController();
-    passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
     emailController.dispose();
-    passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _sendResetEmail() async {
+    if (emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, digite seu email'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    // Simular envio de email (aqui você implementaria a lógica real)
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (context.mounted) {
+      setState(() {
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email de recuperação enviado com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Voltar para a tela de login após enviar
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -77,7 +105,7 @@ class _SingInFormState extends State<SingInForm> {
 
               // Título da seção
               const Text(
-                "Login",
+                "Esqueci minha senha",
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -86,10 +114,29 @@ class _SingInFormState extends State<SingInForm> {
               ),
               const SizedBox(height: 6),
               Text(
-                "Entre com sua conta",
+                "Digite seu email para receber as instruções de recuperação",
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               const SizedBox(height: 20),
+
+              // Ícone ilustrativo
+              Container(
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: CustomColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                  child: Icon(
+                    LucideIcons.mail,
+                    size: 40,
+                    color: CustomColors.primary,
+                  ),
+                ),
+              ),
 
               // Campo Email
               const Text(
@@ -107,95 +154,48 @@ class _SingInFormState extends State<SingInForm> {
                 icon: LucideIcons.mail,
               ),
 
-              const SizedBox(height: 16),
-
-              // Campo Senha
-              const Text(
-                'Senha *',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 6),
-              PasswordField(
-                controller: passwordController,
-                hint: "Digite sua senha",
-              ),
-
-              const SizedBox(height: 12),
-
-              // Link esqueci senha
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/forgot-password');
-                  },
-                  child: Text(
-                    "Esqueci minha senha",
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
               // Botão principal
               ElevatedButton(
-                onPressed: () async {
-                  final result = await authController.signin(
-                    signInDTO: SignInDTO(
-                      email: emailController.text,
-                      password: passwordController.text,
-                    ),
-                  );
-
-                  if (context.mounted) {
-                    result.fold(
-                      (success) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/layout',
-                          (route) => false,
-                        );
-                      },
-                      (error) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              authController.error ?? 'Erro ao fazer login',
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
+                onPressed: isLoading ? null : _sendResetEmail,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.success,
+                  backgroundColor: CustomColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(LucideIcons.logIn, color: Colors.white, size: 18),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Entrar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
+                child:
+                    isLoading
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              LucideIcons.send,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Enviar instruções',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
               ),
 
               const SizedBox(height: 16),
@@ -205,13 +205,13 @@ class _SingInFormState extends State<SingInForm> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Não tenho uma conta? ",
+                    "Lembrou da senha? ",
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                   GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/signup'),
+                    onTap: () => Navigator.pop(context),
                     child: Text(
-                      "Registre-se",
+                      "Fazer login",
                       style: TextStyle(
                         color: CustomColors.primary,
                         fontSize: 14,
