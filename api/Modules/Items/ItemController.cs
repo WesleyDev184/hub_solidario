@@ -2,6 +2,7 @@ using System.Net;
 using api.DB;
 using api.Modules.Items.Dto;
 using api.Modules.Items.Dto.ExampleDoc;
+using Microsoft.Extensions.Caching.Hybrid;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -19,47 +20,53 @@ namespace api.Modules.Items
           Summary = "Create a new item",
           Description = "Creates a new item in the system.")
         ]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status201Created,
           "Item created successfully.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status409Conflict,
           "Item already exists.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Stock not found.",
           typeof(ExampleResponseItemStockNotFoundDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status500InternalServerError,
           "An unexpected error occurred.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseItemNotFoundDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status201Created,
           typeof(ExampleResponseCreateItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status409Conflict,
           typeof(ExampleResponseConflictItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseBadRequestItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseInternalServerErrorItemDTO))]
-        [SwaggerRequestExample(
+      [SwaggerRequestExample(
           typeof(RequestCreateItemDto),
           typeof(ExampleRequestCreateItemDto))]
-        async (RequestCreateItemDto request, ApiDbContext context, CancellationToken ct) =>
+      async (RequestCreateItemDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
           ResponseItemDTO response = await ItemService.CreateItem(request, context, ct);
+
+          // Invalidar cache após criação bem-sucedida
+          if (response.Status == HttpStatusCode.Created)
+          {
+            await ItemCacheService.InvalidateAllItemCaches(cache, ct);
+          }
 
           switch (response.Status)
           {
@@ -102,36 +109,47 @@ namespace api.Modules.Items
           Summary = "Get an item by ID",
           Description = "Retrieves an item from the system by its unique identifier.")
         ]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status200OK,
           "Item retrieved successfully.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Item not found.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseItemNotFoundDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseGetItemDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+      async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          ResponseItemDTO response = await ItemService.GetItem(id, context, ct);
+          var cacheKey = ItemCacheService.Keys.ItemById(id);
 
-          if (response.Status == HttpStatusCode.NotFound)
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel => await ItemService.GetItem(id, context, cancel),
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromMinutes(5),
+              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+            },
+            cancellationToken: ct);
+
+          if (cachedResponse.Status == HttpStatusCode.NotFound)
           {
             return Results.NotFound(new ResponseControllerItemDTO(
               false,
               null,
-              response.Message));
+              cachedResponse.Message));
           }
 
           return Results.Ok(new ResponseControllerItemDTO(
-            response.Status == HttpStatusCode.OK,
-            response.Data,
-            response.Message));
+            cachedResponse.Status == HttpStatusCode.OK,
+            cachedResponse.Data,
+            cachedResponse.Message));
         });
 
       itemGroup.MapGet("/",
@@ -139,22 +157,33 @@ namespace api.Modules.Items
           Summary = "Get all items",
           Description = "Retrieves a list of all items in the system.")
         ]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status200OK,
           "Items retrieved successfully.",
           typeof(ResponseControllerItemListDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseGetAllItemDTO))]
-        async (ApiDbContext context, CancellationToken ct) =>
+      async (ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          ResponseItemListDTO response = await ItemService.GetItems(context, ct);
+          var cacheKey = ItemCacheService.Keys.AllItems;
+
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel => await ItemService.GetItems(context, cancel),
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromMinutes(3),
+              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+            },
+            cancellationToken: ct);
 
           return Results.Ok(new ResponseControllerItemListDTO(
-            response.Status == HttpStatusCode.OK,
-            response.Count,
-            response.Data,
-            response.Message));
+            cachedResponse.Status == HttpStatusCode.OK,
+            cachedResponse.Count,
+            cachedResponse.Data,
+            cachedResponse.Message));
         });
 
       itemGroup.MapPatch("/{id:guid}",
@@ -162,46 +191,52 @@ namespace api.Modules.Items
           Summary = "Update an existing item",
           Description = "Updates the details of an existing item in the system.")
         ]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status200OK,
           "Item updated successfully.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Item not found.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status409Conflict,
           "Item already exists.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError,
+      [SwaggerResponse(StatusCodes.Status500InternalServerError,
           "An unexpected error occurred.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseItemNotFoundDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseUpdateItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseBadRequestItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status409Conflict,
           typeof(ExampleResponseConflictItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseInternalServerErrorItemDTO))]
-        [SwaggerRequestExample(
+      [SwaggerRequestExample(
           typeof(RequestUpdateItemDto),
           typeof(ExampleRequestUpdateItemDto))]
-        async (Guid id, RequestUpdateItemDto request, ApiDbContext context, CancellationToken ct) =>
+      async (Guid id, RequestUpdateItemDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
           ResponseItemDTO response = await ItemService.UpdateItem(id, request, context, ct);
+
+          // Invalidar cache após atualização bem-sucedida
+          if (response.Status == HttpStatusCode.OK)
+          {
+            await ItemCacheService.InvalidateItemCache(cache, id, ct: ct);
+          }
 
           return response.Status switch
           {
@@ -221,30 +256,36 @@ namespace api.Modules.Items
           Summary = "Delete an item",
           Description = "Deletes an item from the system by its unique identifier.")
         ]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status200OK,
           "Item deleted successfully.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Item not found.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponse(
+      [SwaggerResponse(
           StatusCodes.Status500InternalServerError,
           "An unexpected error occurred.",
           typeof(ResponseControllerItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseItemNotFoundDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseDeleteItemDTO))]
-        [SwaggerResponseExample(
+      [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseInternalServerErrorItemDTO))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+      async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
           ResponseItemDTO response = await ItemService.DeleteItem(id, context, ct);
+
+          // Invalidar cache após exclusão bem-sucedida
+          if (response.Status == HttpStatusCode.OK)
+          {
+            await ItemCacheService.InvalidateItemCache(cache, id, ct);
+          }
 
           return response.Status switch
           {

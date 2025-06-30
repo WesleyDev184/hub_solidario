@@ -9,15 +9,15 @@ builder.BuilderConfig();
 
 WebApplication app = builder.Build();
 
-// Aplica migrations automaticamente ao iniciar.
-using (var scope = app.Services.CreateScope())
-{
-  var apiDb = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-  apiDb.Database.Migrate();
+// // Aplica migrations automaticamente ao iniciar
+// using (var scope = app.Services.CreateScope())
+// {
+//   var apiDb = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+//   apiDb.Database.Migrate();
 
-  var authDb = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-  authDb.Database.Migrate();
-}
+//   var authDb = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+//   authDb.Database.Migrate();
+// }
 
 // App Configuration Extension.
 app.AppConfig();

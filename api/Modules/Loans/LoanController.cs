@@ -4,6 +4,7 @@ using api.DB;
 using api.Modules.Loans.Dto;
 using api.Modules.Loans.Dto.ExampleDoc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Hybrid;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -22,45 +23,51 @@ public static class LoanController
             Summary = "Create a new loan",
             Description = "Creates a new loan in the system.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status201Created,
           "Loan created successfully.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(StatusCodes.Status404NotFound,
+    [SwaggerResponse(StatusCodes.Status404NotFound,
           "Item or Applicant not found.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status500InternalServerError,
           "An error occurred while processing the request.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(StatusCodes.Status409Conflict,
+    [SwaggerResponse(StatusCodes.Status409Conflict,
           "Item is not available for loan",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseErrorDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status201Created,
           typeof(ExampleResponseCreateLoanDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseErrorDto))]
-        [SwaggerResponseExample(StatusCodes.Status404NotFound,
+    [SwaggerResponseExample(StatusCodes.Status404NotFound,
           typeof(ExampleResponseLoanItemOrApplicantNotFoundDto))]
-        [
+    [
           SwaggerResponseExample(StatusCodes.Status409Conflict,
             typeof(ExampleResponseItemNotAvailableDto))]
-        [SwaggerRequestExample(
+    [SwaggerRequestExample(
           typeof(RequestCreateLoanDto),
           typeof(ExampleRequestCreateLoanDto))]
-        async (RequestCreateLoanDto request, ApiDbContext context, CancellationToken ct) =>
+    async (RequestCreateLoanDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
 
         {
           var res = await LoanService.CreateLoan(request, context, ct);
+
+          // Invalidar cache após criação bem-sucedida
+          if (res.Status == HttpStatusCode.Created)
+          {
+            await LoanCacheService.InvalidateAllLoanCaches(cache, ct);
+          }
 
           return res.Status switch
           {
@@ -80,36 +87,47 @@ public static class LoanController
           Summary = "Get a loan by ID",
           Description = "Retrieves a loan from the system by its unique identifier.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status200OK,
           "Loan retrieved successfully.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Loan not found.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseGetLoanDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseLoanNotFoundDto))]
-        async (Guid id, UserManager<User> userManager, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, UserManager<User> userManager, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          var res = await LoanService.GetLoan(id, context, userManager, ct);
+          var cacheKey = LoanCacheService.Keys.LoanById(id);
 
-          if (res.Status == HttpStatusCode.NotFound)
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel => await LoanService.GetLoan(id, context, userManager, cancel),
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromMinutes(30),
+              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+            },
+            cancellationToken: ct);
+
+          if (cachedResponse.Status == HttpStatusCode.NotFound)
           {
             return Results.NotFound(new ResponseControllerLoanDTO(
               false,
               null,
-              res.Message));
+              cachedResponse.Message));
           }
 
           return Results.Ok(new ResponseControllerLoanDTO(
-            res.Status == HttpStatusCode.OK,
-            res.Data,
-            res.Message));
+            cachedResponse.Status == HttpStatusCode.OK,
+            cachedResponse.Data,
+            cachedResponse.Message));
         }).RequireAuthorization()
       .WithName("GetLoan");
 
@@ -118,22 +136,33 @@ public static class LoanController
           Summary = "Get all loans",
           Description = "Retrieves a list of all loans in the system.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status200OK,
           "Loans retrieved successfully.",
           typeof(ResponseControllerLoanListDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseGetAllLoanDto))]
-        async (UserManager<User> userManager, ApiDbContext context, CancellationToken ct) =>
+    async (UserManager<User> userManager, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          var res = await LoanService.GetLoans(context, userManager, ct);
+          var cacheKey = LoanCacheService.Keys.AllLoans;
+
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel => await LoanService.GetLoans(context, userManager, cancel),
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromDays(1),
+              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+            },
+            cancellationToken: ct);
 
           return Results.Ok(new ResponseControllerLoanListDTO(
-            res.Status == HttpStatusCode.OK,
-            res.Count,
-            res.Data,
-            res.Message));
+            cachedResponse.Status == HttpStatusCode.OK,
+            cachedResponse.Count,
+            cachedResponse.Data,
+            cachedResponse.Message));
         }).RequireAuthorization()
       .WithName("GetLoans");
 
@@ -143,40 +172,46 @@ public static class LoanController
             Summary = "Update an existing loan",
             Description = "Updates the details of an existing loan in the system.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status200OK,
           "Loan updated successfully.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Loan not found.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status400BadRequest,
           "Invalid request data.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError,
+    [SwaggerResponse(StatusCodes.Status500InternalServerError,
           "An error occurred while processing the request.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseErrorDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status400BadRequest,
           typeof(ExampleResponseErrorDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseUpdateLoanDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseLoanNotFoundDto))]
-        [SwaggerRequestExample(
+    [SwaggerRequestExample(
           typeof(RequestUpdateLoanDto),
           typeof(ExampleRequestUpdateLoanDto))]
-        async (Guid id, RequestUpdateLoanDto request, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, RequestUpdateLoanDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
 
         {
           var res = await LoanService.UpdateLoan(id, request, context, ct);
+
+          // Invalidar cache após atualização bem-sucedida
+          if (res.Status == HttpStatusCode.OK)
+          {
+            await LoanCacheService.InvalidateLoanCache(cache, id, ct: ct);
+          }
 
           return res.Status switch
           {
@@ -194,29 +229,35 @@ public static class LoanController
           Summary = "Delete a loan",
           Description = "Deletes a loan from the system by its unique identifier.")
         ]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status200OK,
           "Loan deleted successfully.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(
+    [SwaggerResponse(
           StatusCodes.Status404NotFound,
           "Loan not found.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError,
+    [SwaggerResponse(StatusCodes.Status500InternalServerError,
           "An error occurred while processing the request.",
           typeof(ResponseControllerLoanDTO))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseDeleteLoanDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError,
           typeof(ExampleResponseErrorDto))]
-        [SwaggerResponseExample(
+    [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseLoanNotFoundDto))]
-        async (Guid id, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
           var res = await LoanService.DeleteLoan(id, context, ct);
+
+          // Invalidar cache após exclusão bem-sucedida
+          if (res.Status == HttpStatusCode.OK)
+          {
+            await LoanCacheService.InvalidateLoanCache(cache, id, ct);
+          }
 
           return res.Status switch
           {

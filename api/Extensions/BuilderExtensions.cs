@@ -2,6 +2,7 @@ using api.Auth.Entity;
 using api.DB;
 using api.Swagger;
 using DotNetEnv;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -16,10 +17,36 @@ namespace api.Extensions
       // Adicionar a chave de API ao IConfiguration
       builder.Configuration["API_KEY"] = Env.GetString("API_KEY");
 
-      builder.BuilderServices();
+      builder.AddCaching();
+      builder.AddSwagger();
+      builder.AddAuthentication();
+      builder.AddDatabase();
+      builder.AddApplicationServices();
+      builder.AddCorsPolicy();
     }
 
-    private static void BuilderServices(this WebApplicationBuilder builder)
+    private static void AddCaching(this WebApplicationBuilder builder)
+    {
+      var redisConnectionString = Env.GetString("REDIS_URL", "localhost:6379");
+      builder.Services.AddMemoryCache();
+      builder.Services.AddStackExchangeRedisCache(options =>
+      {
+        options.Configuration = redisConnectionString;
+      });
+
+      builder.Services.AddHybridCache(options =>
+      {
+        options.MaximumPayloadBytes = 1024 * 1024;
+        options.MaximumKeyLength = 1024;
+        options.DefaultEntryOptions = new HybridCacheEntryOptions
+        {
+          Expiration = TimeSpan.FromSeconds(10),
+          LocalCacheExpiration = TimeSpan.FromSeconds(10)
+        };
+      });
+    }
+
+    private static void AddSwagger(this WebApplicationBuilder builder)
     {
       builder.Services.AddEndpointsApiExplorer();
       builder.Services.AddSwaggerGen(c =>
@@ -27,7 +54,7 @@ namespace api.Extensions
           c.SwaggerDoc("v1",
             new OpenApiInfo
             {
-              Title = "Rotary APi",
+              Title = "Rotary API",
               Version = "v1.4",
               Description = "API for Rotary Club orthosis loan management system.",
             });
@@ -66,19 +93,33 @@ namespace api.Extensions
       );
 
       builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
+    }
 
-      // auth
-      builder.Services.AddDbContext<AuthDbContext>();
+    private static void AddAuthentication(this WebApplicationBuilder builder)
+    {
       builder.Services.AddAuthentication();
       builder.Services.AddAuthorization();
       builder.Services
         .AddIdentityApiEndpoints<User>()
         .AddEntityFrameworkStores<AuthDbContext>();
+    }
 
-      // api
+    private static void AddDatabase(this WebApplicationBuilder builder)
+    {
+      builder.Services.AddDbContext<AuthDbContext>();
       builder.Services.AddScoped<ApiDbContext>();
+    }
 
-      //Politica de CORS
+    private static void AddApplicationServices(this WebApplicationBuilder builder)
+    {
+      // Aqui você pode adicionar services específicos dos módulos quando necessário
+      // Exemplo:
+      // builder.Services.AddScoped<IApplicantService, ApplicantService>();
+      // builder.Services.AddScoped<ILoanService, LoanService>();
+    }
+
+    private static void AddCorsPolicy(this WebApplicationBuilder builder)
+    {
       builder.Services.AddCors(options =>
       {
         options.AddDefaultPolicy(policy =>

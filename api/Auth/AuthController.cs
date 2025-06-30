@@ -10,6 +10,7 @@ namespace api.Auth
   using Microsoft.AspNetCore.Identity;
   using Microsoft.AspNetCore.Mvc;
   using Microsoft.EntityFrameworkCore;
+  using Microsoft.Extensions.Caching.Hybrid;
   using Microsoft.OpenApi.Any;
   using Microsoft.OpenApi.Models;
   using Swashbuckle.AspNetCore.Annotations;
@@ -27,12 +28,12 @@ namespace api.Auth
             Summary = "User Login",
             Description = "Logs in a user with email and password. Returns an access token if successful."
           )]
-          [SwaggerResponse(200, "Login successful", typeof(AccessTokenResponse))]
-          [SwaggerResponse(401, "Invalid credentials or lockout", typeof(ProblemDetails))]
-          [SwaggerResponseExample(200, typeof(ExampleResponseLoginUserDTO))]
-          [SwaggerResponseExample(401, typeof(ExampleResponseLoginErrorUserDTO))]
-          [SwaggerRequestExample(typeof(RequestLoginUserDto), typeof(ExampleRequestLoginUserDTO))]
-          async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>> (
+      [SwaggerResponse(200, "Login successful", typeof(AccessTokenResponse))]
+      [SwaggerResponse(401, "Invalid credentials or lockout", typeof(ProblemDetails))]
+      [SwaggerResponseExample(200, typeof(ExampleResponseLoginUserDTO))]
+      [SwaggerResponseExample(401, typeof(ExampleResponseLoginErrorUserDTO))]
+      [SwaggerRequestExample(typeof(RequestLoginUserDto), typeof(ExampleRequestLoginUserDTO))]
+      async Task<Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>> (
             HttpRequest request, SignInManager<User> signInManager, RequestLoginUserDto login) =>
           {
             bool useCookies = request.Query.ContainsKey("useCookies") &&
@@ -90,9 +91,9 @@ namespace api.Auth
           Description =
             "Logs out the currently authenticated user. Invalidates the access token and removes the session."
         )]
-        [SwaggerResponse(200, "Logout successful", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponseExample(200, typeof(ExampleResponseLogoutUserDTO))]
-        async (SignInManager<User> signInManager) =>
+      [SwaggerResponse(200, "Logout successful", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponseExample(200, typeof(ExampleResponseLogoutUserDTO))]
+      async (SignInManager<User> signInManager) =>
         {
           await signInManager.SignOutAsync();
           return Results.Ok(new ResponseControllerUserDTO(
@@ -108,11 +109,11 @@ namespace api.Auth
           Description =
             "Creates a new user with the provided details. Returns the created user ID if successful."
         )]
-        [SwaggerResponse(201, "User created successfully", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponse(400, "Bad Request", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponseExample(201, typeof(ExampleResponseCreateUserDTO))]
-        [SwaggerResponseExample(400, typeof(ExampleResponseErrorUserDTO))]
-        async (UserManager<User> userManager, RequestCreateUserDto newUser) =>
+      [SwaggerResponse(201, "User created successfully", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponse(400, "Bad Request", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponseExample(201, typeof(ExampleResponseCreateUserDTO))]
+      [SwaggerResponseExample(400, typeof(ExampleResponseErrorUserDTO))]
+      async (UserManager<User> userManager, RequestCreateUserDto newUser, HybridCache cache, CancellationToken ct) =>
         {
           if (string.IsNullOrWhiteSpace(newUser.Email) || string.IsNullOrWhiteSpace(newUser.Password))
           {
@@ -152,6 +153,10 @@ namespace api.Auth
             ));
           }
 
+          // Invalidar cache após criação bem-sucedida
+          await AuthCacheService.InvalidateAllUserCaches(cache, ct);
+          await AuthCacheService.InvalidateOrthopedicBankUserCaches(cache, newUser.OrthopedicBankId, ct);
+
           return Results.Created($"/user/{user.Id}", new ResponseControllerUserDTO(
             true,
             null,
@@ -164,13 +169,14 @@ namespace api.Auth
           Summary = "Get Current User",
           Description = "Retrieves the currently authenticated user details."
         )]
-        [SwaggerResponse(200, "User retrieved successfully", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponseExample(200, typeof(ExampleResponseGetUserDTO))]
-        [SwaggerResponseExample(404, typeof(ExampleResponseUserNotFoundDTO))]
-        async (UserManager<User> userManager, ApiDbContext api, HttpContext context) =>
+      [SwaggerResponse(200, "User retrieved successfully", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponseExample(200, typeof(ExampleResponseGetUserDTO))]
+      [SwaggerResponseExample(404, typeof(ExampleResponseUserNotFoundDTO))]
+      async (UserManager<User> userManager, ApiDbContext api, HttpContext context, HybridCache cache, CancellationToken ct) =>
         {
-          User? user = await userManager.GetUserAsync(context.User);
+          var user = await userManager.GetUserAsync(context.User);
+
           if (user == null)
           {
             return Results.NotFound(new ResponseControllerUserDTO(
@@ -180,28 +186,44 @@ namespace api.Auth
             ));
           }
 
-          ResponseEntityOrthopedicBankDTO? orthopedicBank = await api.OrthopedicBanks
-            .Where(o => o.Id == user.OrthopedicBankId)
-            .AsNoTracking()
-            .Select(o => new ResponseEntityOrthopedicBankDTO(
-              o.Id,
-              o.Name,
-              o.City,
-              null,
-              o.CreatedAt
-            ))
-            .FirstOrDefaultAsync();
+          var cacheKey = AuthCacheService.Keys.UserById(user.Id);
+
+          // Tentar obter do cache primeiro
+          var cachedUserData = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel =>
+            {
+              ResponseEntityOrthopedicBankDTO? orthopedicBank = await api.OrthopedicBanks
+                .Where(o => o.Id == user.OrthopedicBankId)
+                .AsNoTracking()
+                .Select(o => new ResponseEntityOrthopedicBankDTO(
+                  o.Id,
+                  o.Name,
+                  o.City,
+                  null,
+                  o.CreatedAt
+                ))
+                .FirstOrDefaultAsync(cancel);
+
+              return new ResponseEntityUserDTO(
+                user.Id,
+                user.Name ?? "",
+                user.Email ?? "",
+                user.PhoneNumber ?? "",
+                orthopedicBank,
+                user.CreatedAt
+              );
+            },
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5)
+            },
+            cancellationToken: ct);
 
           return Results.Ok(new ResponseControllerUserDTO(
             true,
-            new ResponseEntityUserDTO(
-              user.Id,
-              user.Name ?? "",
-              user.Email ?? "",
-              user.PhoneNumber ?? "",
-              orthopedicBank,
-              user.CreatedAt
-            ),
+            cachedUserData,
             "User retrieved successfully"
           ));
         }).RequireAuthorization();
@@ -211,15 +233,37 @@ namespace api.Auth
           Summary = "Get All Users",
           Description = "Retrieves a list of all users in the system."
         )]
-        [SwaggerResponse(200, "Users retrieved successfully", typeof(ResponseControllerUserListDTO))]
-        [SwaggerResponse(404, "No users found", typeof(ResponseControllerUserListDTO))]
-        [SwaggerResponseExample(200, typeof(ExampleResponseGetAllUserDTO))]
-        [SwaggerResponseExample(404, typeof(ExampleResponseUserListNotFoundDTO))]
-        async (UserManager<User> userManager) =>
+      [SwaggerResponse(200, "Users retrieved successfully", typeof(ResponseControllerUserListDTO))]
+      [SwaggerResponse(404, "No users found", typeof(ResponseControllerUserListDTO))]
+      [SwaggerResponseExample(200, typeof(ExampleResponseGetAllUserDTO))]
+      [SwaggerResponseExample(404, typeof(ExampleResponseUserListNotFoundDTO))]
+      async (UserManager<User> userManager, HybridCache cache, CancellationToken ct) =>
         {
-          List<User> users = await userManager.Users.ToListAsync();
+          var cacheKey = AuthCacheService.Keys.AllUsers;
 
-          if (users.Count == 0)
+          // Tentar obter do cache primeiro
+          var cachedUsers = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel =>
+            {
+              List<User> users = await userManager.Users.ToListAsync(cancel);
+              return users.Select(u => new ResponseEntityUserDTO(
+                u.Id,
+                u.Name ?? "",
+                u.Email ?? "",
+                u.PhoneNumber ?? "",
+                null,
+                u.CreatedAt
+              )).ToList();
+            },
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(10)
+            },
+            cancellationToken: ct);
+
+          if (cachedUsers.Count == 0)
           {
             return Results.Ok(new ResponseControllerUserListDTO(
               true,
@@ -231,17 +275,8 @@ namespace api.Auth
 
           return Results.Ok(new ResponseControllerUserListDTO(
             true,
-            users.Count,
-            [
-              .. users.Select(u => new ResponseEntityUserDTO(
-                u.Id,
-                u.Name ?? "",
-                u.Email ?? "",
-                u.PhoneNumber ?? "",
-                null,
-                u.CreatedAt
-              ))
-            ],
+            cachedUsers.Count,
+            cachedUsers,
             "Users retrieved successfully"
           ));
         }).RequireAuthorization();
@@ -251,14 +286,58 @@ namespace api.Auth
           Summary = "Get User by ID",
           Description = "Retrieves a user by their ID."
         )]
-        [SwaggerResponse(200, "User retrieved successfully", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponseExample(200, typeof(ExampleResponseGetUserDTO))]
-        [SwaggerResponseExample(404, typeof(ExampleResponseUserNotFoundDTO))]
-        async (UserManager<User> userManager, ApiDbContext api, string id) =>
+      [SwaggerResponse(200, "User retrieved successfully", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponseExample(200, typeof(ExampleResponseGetUserDTO))]
+      [SwaggerResponseExample(404, typeof(ExampleResponseUserNotFoundDTO))]
+      async (UserManager<User> userManager, ApiDbContext api, Guid id, HybridCache cache, CancellationToken ct) =>
         {
-          User? user = await userManager.FindByIdAsync(id);
-          if (user == null)
+          var cacheKey = AuthCacheService.Keys.UserById(id);
+
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel =>
+            {
+              User? user = await userManager.FindByIdAsync(id.ToString());
+              if (user == null)
+              {
+                return new { User = (ResponseEntityUserDTO?)null, Found = false };
+              }
+
+              ResponseEntityOrthopedicBankDTO? orthopedicBank = await api.OrthopedicBanks
+                .Where(o => o.Id == user.OrthopedicBankId)
+                .AsNoTracking()
+                .Select(o => new ResponseEntityOrthopedicBankDTO(
+                  o.Id,
+                  o.Name,
+                  o.City,
+                  null,
+                  o.CreatedAt
+                ))
+                .FirstOrDefaultAsync(cancel);
+
+              return new
+              {
+                User = (ResponseEntityUserDTO?)new ResponseEntityUserDTO(
+                  user.Id,
+                  user.Name ?? "",
+                  user.Email ?? "",
+                  user.PhoneNumber ?? "",
+                  orthopedicBank,
+                  user.CreatedAt
+                ),
+                Found = true
+              };
+            },
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5)
+            },
+            cancellationToken: ct);
+
+          if (!cachedResponse.Found)
           {
             return Results.NotFound(new ResponseControllerUserDTO(
               false,
@@ -267,28 +346,9 @@ namespace api.Auth
             ));
           }
 
-          ResponseEntityOrthopedicBankDTO? orthopedicBank = await api.OrthopedicBanks
-            .Where(o => o.Id == user.OrthopedicBankId)
-            .AsNoTracking()
-            .Select(o => new ResponseEntityOrthopedicBankDTO(
-              o.Id,
-              o.Name,
-              o.City,
-              null,
-              o.CreatedAt
-            ))
-            .FirstOrDefaultAsync();
-
           return Results.Ok(new ResponseControllerUserDTO(
             true,
-            new ResponseEntityUserDTO(
-              user.Id,
-              user.Name ?? "",
-              user.Email ?? "",
-              user.PhoneNumber ?? "",
-              orthopedicBank,
-              user.CreatedAt
-            ),
+            cachedResponse.User,
             "User retrieved successfully"
           ));
         }).RequireAuthorization();
@@ -298,15 +358,15 @@ namespace api.Auth
           Summary = "Update User",
           Description = "Updates the details of the currently authenticated user."
         )]
-        [SwaggerResponse(200, "User updated successfully", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponse(400, "Email already exists", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponseExample(200, typeof(ExampleResponseUpdateUserDTO))]
-        [SwaggerResponseExample(400, typeof(ExampleResponseConflictUserDTO))]
-        [SwaggerResponseExample(404, typeof(ExampleResponseUserNotFoundDTO))]
-        [SwaggerRequestExample(typeof(RequestUpdateUserDto), typeof(ExampleRequestUpdateUserDTO))]
-        async (UserManager<User> userManager, HttpContext context, ApiDbContext api,
-          RequestUpdateUserDto updatedUser) =>
+      [SwaggerResponse(200, "User updated successfully", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponse(400, "Email already exists", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponseExample(200, typeof(ExampleResponseUpdateUserDTO))]
+      [SwaggerResponseExample(400, typeof(ExampleResponseConflictUserDTO))]
+      [SwaggerResponseExample(404, typeof(ExampleResponseUserNotFoundDTO))]
+      [SwaggerRequestExample(typeof(RequestUpdateUserDto), typeof(ExampleRequestUpdateUserDTO))]
+      async (UserManager<User> userManager, HttpContext context, ApiDbContext api,
+          RequestUpdateUserDto updatedUser, HybridCache cache, CancellationToken ct) =>
         {
           User? user = await userManager.GetUserAsync(context.User);
           if (user == null)
@@ -352,6 +412,9 @@ namespace api.Auth
               )));
           }
 
+          // Invalidar cache após atualização bem-sucedida
+          await AuthCacheService.InvalidateUserCache(cache, user.Id, ct);
+
           return Results.Ok(new ResponseControllerUserDTO(
             true,
             null,
@@ -364,15 +427,15 @@ namespace api.Auth
           Summary = "Delete User",
           Description = "Deletes a user by their ID."
         )]
-        [SwaggerResponse(200, "User deleted successfully", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponse(400, "Error deleting user", typeof(ResponseControllerUserDTO))]
-        [SwaggerResponseExample(200, typeof(ExampleResponseDeleteUserDTO))]
-        [SwaggerResponseExample(404, typeof(ExampleResponseUserNotFoundDTO))]
-        [SwaggerResponseExample(400, typeof(ExampleResponseErrorUserDTO))]
-        async (UserManager<User> userManager, string id) =>
+      [SwaggerResponse(200, "User deleted successfully", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponse(404, "User not found", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponse(400, "Error deleting user", typeof(ResponseControllerUserDTO))]
+      [SwaggerResponseExample(200, typeof(ExampleResponseDeleteUserDTO))]
+      [SwaggerResponseExample(404, typeof(ExampleResponseUserNotFoundDTO))]
+      [SwaggerResponseExample(400, typeof(ExampleResponseErrorUserDTO))]
+      async (UserManager<User> userManager, Guid id, HybridCache cache, CancellationToken ct) =>
         {
-          User? user = await userManager.FindByIdAsync(id);
+          User? user = await userManager.FindByIdAsync(id.ToString());
           if (user == null)
           {
             return Results.NotFound(new ResponseControllerUserDTO(
@@ -381,6 +444,9 @@ namespace api.Auth
               "User not found"
             ));
           }
+
+          var userEmail = user.Email;
+          var userOrthopedicBankId = user.OrthopedicBankId;
 
           IdentityResult result = await userManager.DeleteAsync(user);
           if (!result.Succeeded)
@@ -392,10 +458,62 @@ namespace api.Auth
             ));
           }
 
+          // Invalidar cache após exclusão bem-sucedida
+          await AuthCacheService.InvalidateUserCache(cache, id, ct);
+          if (userOrthopedicBankId.HasValue)
+          {
+            await AuthCacheService.InvalidateOrthopedicBankUserCaches(cache, userOrthopedicBankId.Value, ct);
+          }
+
           return Results.Ok(new ResponseControllerUserDTO(
             true,
             null,
             "User deleted successfully"
+          ));
+        }).RequireAuthorization();
+
+      // Endpoint adicional com cache por banco ortopédico
+      authRoutes.MapGet("/users/orthopedic-bank/{orthopedicBankId:guid}",
+        [SwaggerOperation(
+          Summary = "Get users by orthopedic bank",
+          Description = "Retrieves all users for a specific orthopedic bank."
+        )]
+      [SwaggerResponse(200, "Users retrieved successfully", typeof(ResponseControllerUserListDTO))]
+      [SwaggerResponse(404, "Orthopedic bank not found", typeof(ResponseControllerUserListDTO))]
+      async (Guid orthopedicBankId, UserManager<User> userManager, HybridCache cache, CancellationToken ct) =>
+        {
+          var cacheKey = AuthCacheService.Keys.UsersByOrthopedicBank(orthopedicBankId);
+
+          // Buscar usuários do banco ortopédico específico com cache
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel =>
+            {
+              var users = await userManager.Users
+                .Where(u => u.OrthopedicBankId == orthopedicBankId)
+                .Select(u => new ResponseEntityUserDTO(
+                  u.Id,
+                  u.Name ?? "",
+                  u.Email ?? "",
+                  u.PhoneNumber ?? "",
+                  null, // Não incluir dados do banco ortopédico para evitar referência circular
+                  u.CreatedAt))
+                .ToListAsync(cancel);
+
+              return users;
+            },
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5)
+            },
+            cancellationToken: ct);
+
+          return Results.Ok(new ResponseControllerUserListDTO(
+            true,
+            cachedResponse.Count,
+            cachedResponse,
+            $"Users for orthopedic bank {orthopedicBankId} retrieved successfully."
           ));
         }).RequireAuthorization();
     }

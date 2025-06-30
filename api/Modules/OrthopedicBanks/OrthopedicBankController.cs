@@ -4,6 +4,7 @@ using System.Net;
 using api.DB;
 using api.Modules.OrthopedicBanks.Dto;
 using api.Modules.OrthopedicBanks.Dto.ExampleDoc;
+using Microsoft.Extensions.Caching.Hybrid;
 
 namespace api.Modules.OrthopedicBanks;
 
@@ -50,9 +51,15 @@ public static class OrthopedicBankController
     [SwaggerRequestExample(
           typeof(RequestCreateOrthopedicBankDto),
           typeof(ExampleRequestCreateOrthopedicBankDto))]
-    async (RequestCreateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
+    async (RequestCreateOrthopedicBankDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
           var res = await OrthopedicBankService.CreateOrthopedicBank(request, context, ct);
+
+          // Invalidar cache após criação bem-sucedida
+          if (res.Status == HttpStatusCode.Created)
+          {
+            await OrthopedicBankCacheService.InvalidateAllOrthopedicBankCaches(cache, ct);
+          }
 
           return res.Status switch
           {
@@ -87,22 +94,33 @@ public static class OrthopedicBankController
     [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseOrthopedicBankNotFoundDto))]
-    async (Guid id, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          var res = await OrthopedicBankService.GetOrthopedicBank(id, context, ct);
+          var cacheKey = OrthopedicBankCacheService.Keys.OrthopedicBankById(id);
 
-          if (res.Status == HttpStatusCode.NotFound || res.Data == null)
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel => await OrthopedicBankService.GetOrthopedicBank(id, context, cancel),
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromMinutes(5),
+              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+            },
+            cancellationToken: ct);
+
+          if (cachedResponse.Status == HttpStatusCode.NotFound || cachedResponse.Data == null)
           {
             return Results.NotFound(new ResponseControllerOrthopedicBankDTO(
               false,
               null,
-              res.Message));
+              cachedResponse.Message));
           }
 
           return Results.Ok(new ResponseControllerOrthopedicBankDTO(
-            res.Status == HttpStatusCode.OK,
-            res.Data,
-            res.Message));
+            cachedResponse.Status == HttpStatusCode.OK,
+            cachedResponse.Data,
+            cachedResponse.Message));
         })
       .RequireAuthorization()
       .WithName("GetOrthopedicBank");
@@ -119,17 +137,27 @@ public static class OrthopedicBankController
     [SwaggerResponseExample(
           StatusCodes.Status200OK,
           typeof(ExampleResponseGetAllOrthopedicBankDto))]
-    async (ApiDbContext context, CancellationToken ct) =>
+    async (ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          var res = await OrthopedicBankService.GetOrthopedicBanks(context, ct);
+          var cacheKey = OrthopedicBankCacheService.Keys.AllOrthopedicBanks;
+
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel => await OrthopedicBankService.GetOrthopedicBanks(context, cancel),
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromDays(3),
+              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+            },
+            cancellationToken: ct);
 
           return Results.Ok(new ResponseControllerOrthopedicBankListDTO(
-            res.Status == HttpStatusCode.OK,
-            res.Count,
-            res.Data,
-            res.Message));
+            cachedResponse.Status == HttpStatusCode.OK,
+            cachedResponse.Count,
+            cachedResponse.Data,
+            cachedResponse.Message));
         })
-      .RequireAuthorization()
       .WithName("GetOrthopedicBanks");
 
     orthopedicBankGroup.MapPatch("/{id:guid}",
@@ -176,10 +204,16 @@ public static class OrthopedicBankController
     [SwaggerRequestExample(
           typeof(RequestUpdateOrthopedicBankDto),
           typeof(ExampleRequestUpdateOrthopedicBankDto))]
-    async (Guid id, RequestUpdateOrthopedicBankDto request, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, RequestUpdateOrthopedicBankDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
 
         {
           var res = await OrthopedicBankService.UpdateOrthopedicBank(id, request, context, ct);
+
+          // Invalidar cache após atualização bem-sucedida
+          if (res.Status == HttpStatusCode.OK)
+          {
+            await OrthopedicBankCacheService.InvalidateOrthopedicBankCache(cache, id, ct: ct);
+          }
 
           return res.Status switch
           {
@@ -224,10 +258,16 @@ public static class OrthopedicBankController
     [SwaggerResponseExample(
           StatusCodes.Status404NotFound,
           typeof(ExampleResponseOrthopedicBankNotFoundDto))]
-    async (Guid id, ApiDbContext context, CancellationToken ct) =>
+    async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
           Console.WriteLine($"Deleting orthopedic bank with ID: {id}");
           var res = await OrthopedicBankService.DeleteOrthopedicBank(id, context, ct);
+
+          // Invalidar cache após exclusão bem-sucedida
+          if (res.Status == HttpStatusCode.OK)
+          {
+            await OrthopedicBankCacheService.InvalidateOrthopedicBankCache(cache, id, ct);
+          }
 
           return res.Status switch
           {
