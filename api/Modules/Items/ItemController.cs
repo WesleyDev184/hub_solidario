@@ -65,7 +65,7 @@ namespace api.Modules.Items
           // Invalidar cache após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
-            await ItemCacheService.InvalidateOnItemCreated(cache, request.StockId, ct: ct);
+            await ItemCacheService.InvalidateAllItemCaches(cache, ct);
           }
 
           switch (response.Status)
@@ -235,7 +235,7 @@ namespace api.Modules.Items
           // Invalidar cache após atualização bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await ItemCacheService.InvalidateOnItemUpdated(cache, id, ct: ct);
+            await ItemCacheService.InvalidateItemCache(cache, id, ct: ct);
           }
 
           return response.Status switch
@@ -284,7 +284,7 @@ namespace api.Modules.Items
           // Invalidar cache após exclusão bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await ItemCacheService.InvalidateOnItemDeleted(cache, id, ct);
+            await ItemCacheService.InvalidateItemCache(cache, id, ct);
           }
 
           return response.Status switch

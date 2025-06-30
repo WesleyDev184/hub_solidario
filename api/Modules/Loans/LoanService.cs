@@ -201,7 +201,7 @@ public static class LoanService
     try
     {
       var loan = await context.Loans
-        .Include(l => l.Item).ThenInclude(item => item.Stock) // Include item to potentially update its status
+        .Include(l => l.Item).ThenInclude(item => item!.Stock) // Include item to potentially update its status
         .Include(l => l.Applicant) // Include applicant for mapping response
         .SingleOrDefaultAsync(l => l.Id == id, ct);
 
@@ -209,6 +209,12 @@ public static class LoanService
       {
         await transaction.RollbackAsync(ct);
         return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Loan with ID '{id}' not found.");
+      }
+
+      if (loan.Item == null)
+      {
+        await transaction.RollbackAsync(ct);
+        return new ResponseLoanDTO(HttpStatusCode.InternalServerError, null, "Loan item data is missing.");
       }
 
       var oldIsActiveStatus = loan.IsActive; // Store old status before updating
@@ -224,7 +230,7 @@ public static class LoanService
       }
 
       // If loan status changed from active to inactive, or vice versa, update item status and stock
-      if (request.IsActive.HasValue && request.IsActive.Value != oldIsActiveStatus)
+      if (request.IsActive.HasValue && request.IsActive.Value != oldIsActiveStatus && loan.Item != null)
       {
         if (loan.IsActive) // Loan became active (e.g., re-activated) -> item should be unavailable
         {
@@ -269,7 +275,7 @@ public static class LoanService
     try
     {
       var loan = await context.Loans
-        .Include(l => l.Item).ThenInclude(item => item.Stock)
+        .Include(l => l.Item).ThenInclude(item => item!.Stock)
         .SingleOrDefaultAsync(l => l.Id == id, ct);
 
       if (loan == null)

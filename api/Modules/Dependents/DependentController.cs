@@ -62,7 +62,7 @@ namespace api.Modules.Dependents
           // Invalidar cache após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
-            await DependentCacheService.InvalidateOnDependentCreated(cache, request.ApplicantId, ct);
+            await DependentCacheService.InvalidateAllDependentCaches(cache, ct);
           }
 
           return response.Status switch
@@ -110,7 +110,7 @@ namespace api.Modules.Dependents
             async cancel => await DependentService.GetDependent(id, context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(5),
+              Expiration = TimeSpan.FromMinutes(30),
               LocalCacheExpiration = TimeSpan.FromMinutes(2)
             },
             cancellationToken: ct);
@@ -151,7 +151,7 @@ namespace api.Modules.Dependents
             async cancel => await DependentService.GetDependents(context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(3),
+              Expiration = TimeSpan.FromDays(2),
               LocalCacheExpiration = TimeSpan.FromMinutes(1)
             },
             cancellationToken: ct);
@@ -213,7 +213,7 @@ namespace api.Modules.Dependents
           // Invalidar cache após atualização bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await DependentCacheService.InvalidateOnDependentUpdated(cache, id, ct: ct);
+            await DependentCacheService.InvalidateDependentCache(cache, id, ct);
           }
 
           return response.Status switch
@@ -264,7 +264,7 @@ namespace api.Modules.Dependents
           // Invalidar cache após exclusão bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await DependentCacheService.InvalidateOnDependentDeleted(cache, id, ct);
+            await DependentCacheService.InvalidateDependentCache(cache, id, ct);
           }
 
           return response.Status switch

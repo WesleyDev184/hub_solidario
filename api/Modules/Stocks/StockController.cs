@@ -67,7 +67,7 @@ public static class StockController
         // Invalidar cache após criação bem-sucedida
         if (response.Status == HttpStatusCode.Created)
         {
-          await StockCacheService.InvalidateOnStockCreated(cache, request.OrthopedicBankId, ct);
+          await StockCacheService.InvalidateAllStockCaches(cache, ct);
         }
 
         return response.Status switch
@@ -112,7 +112,7 @@ public static class StockController
           async cancel => await StockService.GetStock(id, context, cancel),
           options: new HybridCacheEntryOptions
           {
-            Expiration = TimeSpan.FromMinutes(5),
+            Expiration = TimeSpan.FromDays(1),
             LocalCacheExpiration = TimeSpan.FromMinutes(2)
           },
           cancellationToken: ct);
@@ -153,7 +153,7 @@ public static class StockController
           async cancel => await StockService.GetStocks(context, cancel),
           options: new HybridCacheEntryOptions
           {
-            Expiration = TimeSpan.FromMinutes(3),
+            Expiration = TimeSpan.FromDays(2),
             LocalCacheExpiration = TimeSpan.FromMinutes(1)
           },
           cancellationToken: ct);
@@ -214,7 +214,7 @@ public static class StockController
         // Invalidar cache após atualização bem-sucedida
         if (response.Status == HttpStatusCode.OK)
         {
-          await StockCacheService.InvalidateOnStockUpdated(cache, id, ct);
+          await StockCacheService.InvalidateStockCache(cache, id, ct);
         }
 
         return response.Status switch
@@ -270,7 +270,7 @@ public static class StockController
         // Invalidar cache após exclusão bem-sucedida
         if (response.Status == HttpStatusCode.OK)
         {
-          await StockCacheService.InvalidateOnStockDeleted(cache, id, ct);
+          await StockCacheService.InvalidateStockCache(cache, id, ct);
         }
 
         return response.Status switch

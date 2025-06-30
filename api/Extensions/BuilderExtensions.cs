@@ -27,10 +27,11 @@ namespace api.Extensions
 
     private static void AddCaching(this WebApplicationBuilder builder)
     {
+      var redisConnectionString = Env.GetString("REDIS_URL", "localhost:6379");
       builder.Services.AddMemoryCache();
       builder.Services.AddStackExchangeRedisCache(options =>
       {
-        options.Configuration = "localhost:6379";
+        options.Configuration = redisConnectionString;
       });
 
       builder.Services.AddHybridCache(options =>

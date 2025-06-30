@@ -66,7 +66,7 @@ public static class LoanController
           // Invalidar cache após criação bem-sucedida
           if (res.Status == HttpStatusCode.Created)
           {
-            await LoanCacheService.InvalidateOnLoanCreated(cache, request.ApplicantId, request.ItemId, ct: ct);
+            await LoanCacheService.InvalidateAllLoanCaches(cache, ct);
           }
 
           return res.Status switch
@@ -111,7 +111,7 @@ public static class LoanController
             async cancel => await LoanService.GetLoan(id, context, userManager, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(5),
+              Expiration = TimeSpan.FromMinutes(30),
               LocalCacheExpiration = TimeSpan.FromMinutes(2)
             },
             cancellationToken: ct);
@@ -153,7 +153,7 @@ public static class LoanController
             async cancel => await LoanService.GetLoans(context, userManager, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(3),
+              Expiration = TimeSpan.FromDays(1),
               LocalCacheExpiration = TimeSpan.FromMinutes(1)
             },
             cancellationToken: ct);
@@ -210,7 +210,7 @@ public static class LoanController
           // Invalidar cache após atualização bem-sucedida
           if (res.Status == HttpStatusCode.OK)
           {
-            await LoanCacheService.InvalidateOnLoanUpdated(cache, id, ct: ct);
+            await LoanCacheService.InvalidateLoanCache(cache, id, ct: ct);
           }
 
           return res.Status switch
@@ -256,7 +256,7 @@ public static class LoanController
           // Invalidar cache após exclusão bem-sucedida
           if (res.Status == HttpStatusCode.OK)
           {
-            await LoanCacheService.InvalidateOnLoanDeleted(cache, id, ct);
+            await LoanCacheService.InvalidateLoanCache(cache, id, ct);
           }
 
           return res.Status switch

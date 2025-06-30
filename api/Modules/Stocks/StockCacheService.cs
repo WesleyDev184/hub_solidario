@@ -36,29 +36,4 @@ public static class StockCacheService
     await cache.RemoveAsync(Keys.StocksByOrthopedicBank(orthopedicBankId), ct);
     await cache.RemoveAsync(Keys.AllStocks, ct);
   }
-
-  /// <summary>
-  /// Invalida todos os caches relacionados quando um stock é criado
-  /// </summary>
-  public static async Task InvalidateOnStockCreated(HybridCache cache, Guid orthopedicBankId, CancellationToken ct = default)
-  {
-    await InvalidateAllStockCaches(cache, ct);
-    await InvalidateOrthopedicBankStockCaches(cache, orthopedicBankId, ct);
-  }
-
-  /// <summary>
-  /// Invalida todos os caches relacionados quando um stock é atualizado
-  /// </summary>
-  public static async Task InvalidateOnStockUpdated(HybridCache cache, Guid stockId, CancellationToken ct = default)
-  {
-    await InvalidateStockCache(cache, stockId, ct);
-  }
-
-  /// <summary>
-  /// Invalida todos os caches relacionados quando um stock é deletado
-  /// </summary>
-  public static async Task InvalidateOnStockDeleted(HybridCache cache, Guid stockId, CancellationToken ct = default)
-  {
-    await InvalidateStockCache(cache, stockId, ct);
-  }
 }

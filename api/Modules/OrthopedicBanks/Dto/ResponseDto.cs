@@ -13,7 +13,7 @@ public record ResponseEntityOrthopedicBankDTO(
   [property: SwaggerSchema(Description = "City of the orthopedic bank", Format = "string")]
   string City,
   [property: SwaggerSchema(Description = "List of orthopedic bank stocks", Format = "string")]
-  ResponseEntityStockDTO[] Stocks,
+  ResponseEntityStockDTO[]? Stocks,
   [property: SwaggerSchema(Description = "Creation date of the orthopedic bank", Format = "date-time")]
   DateTime CreatedAt
 );

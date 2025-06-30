@@ -53,7 +53,7 @@ namespace api.Modules.Applicants
           // Invalidar cache após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
-            await ApplicantCacheService.InvalidateOnApplicantCreated(cache, request.Email, ct);
+            await ApplicantCacheService.InvalidateAllApplicantCaches(cache, ct);
           }
 
           return response.Status switch
@@ -97,12 +97,12 @@ namespace api.Modules.Applicants
             async cancel => await ApplicantService.GetApplicant(id, context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(5),
+              Expiration = TimeSpan.FromMinutes(30),
               LocalCacheExpiration = TimeSpan.FromMinutes(2)
             },
             cancellationToken: ct);
 
-          if (cachedResponse.Data == null)
+          if (cachedResponse.Status == HttpStatusCode.NotFound)
           {
             return Results.NotFound(new ResponseControllerApplicantsDTO(
               false,
@@ -137,8 +137,8 @@ namespace api.Modules.Applicants
             async cancel => await ApplicantService.GetApplicants(context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(3),
-              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5)
             },
             cancellationToken: ct);
 
@@ -194,7 +194,7 @@ namespace api.Modules.Applicants
           // Invalidar cache após atualização bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await ApplicantCacheService.InvalidateOnApplicantUpdated(cache, id, request?.Email, ct);
+            await ApplicantCacheService.InvalidateApplicantCache(cache, id, ct);
           }
 
           return response.Status switch
@@ -241,7 +241,7 @@ namespace api.Modules.Applicants
           // Invalidar cache após exclusão bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await ApplicantCacheService.InvalidateOnApplicantDeleted(cache, id, ct);
+            await ApplicantCacheService.InvalidateApplicantCache(cache, id, ct);
           }
 
           return response.Status switch
