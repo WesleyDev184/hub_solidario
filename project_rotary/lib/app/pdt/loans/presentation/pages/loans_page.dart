@@ -54,10 +54,12 @@ class _LoansPageState extends State<LoansPage> {
               final applicant = loan.applicantId.toLowerCase();
               final reason = loan.reason.toLowerCase();
               final responsibleId = loan.responsibleId.toLowerCase();
+              final serialCode = loan.id.toLowerCase();
 
               return applicant.contains(query) ||
                   reason.contains(query) ||
-                  responsibleId.contains(query);
+                  responsibleId.contains(query) ||
+                  serialCode.contains(query);
             }).toList();
       }
     });
