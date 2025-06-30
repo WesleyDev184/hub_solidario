@@ -58,10 +58,10 @@ public static class LoanController
     [SwaggerRequestExample(
           typeof(RequestCreateLoanDto),
           typeof(ExampleRequestCreateLoanDto))]
-    async (RequestCreateLoanDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+    async (RequestCreateLoanDto request, UserManager<User> userManager, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
 
         {
-          var res = await LoanService.CreateLoan(request, context, ct);
+          var res = await LoanService.CreateLoan(request, context, userManager, ct);
 
           // Invalidar cache após criação bem-sucedida
           if (res.Status == HttpStatusCode.Created)
@@ -202,10 +202,10 @@ public static class LoanController
     [SwaggerRequestExample(
           typeof(RequestUpdateLoanDto),
           typeof(ExampleRequestUpdateLoanDto))]
-    async (Guid id, RequestUpdateLoanDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+    async (Guid id, RequestUpdateLoanDto request, ApiDbContext context, UserManager<User> userManager, HybridCache cache, CancellationToken ct) =>
 
         {
-          var res = await LoanService.UpdateLoan(id, request, context, ct);
+          var res = await LoanService.UpdateLoan(id, request, context, userManager, ct);
 
           // Invalidar cache após atualização bem-sucedida
           if (res.Status == HttpStatusCode.OK)

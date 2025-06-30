@@ -68,7 +68,7 @@ public static class StockService
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
 
-      return new ResponseStockDTO(HttpStatusCode.Created, null, "Stock created successfully.");
+      return new ResponseStockDTO(HttpStatusCode.Created, MapToResponseEntityStockDto(newStock, null, null), "Stock created successfully.");
     }
     catch (Exception ex)
     {
@@ -125,6 +125,50 @@ public static class StockService
 
     // Return 200 OK with an empty list if no stocks are found, not 404
     return new ResponseStockListDTO(HttpStatusCode.OK, stocks.Count, stocks, "Stocks retrieved successfully.");
+  }
+
+  /// <summary>
+  /// Retrieves a list of all stocks for a specific orthopedic bank.
+  /// </summary>
+  public static async Task<ResponseStockListDTO> GetStocksByOrthopedicBank(
+    Guid orthopedicBankId,
+    ApiDbContext context,
+    CancellationToken ct)
+  {
+    // Verify that the associated OrthopedicBank exists
+    var orthopedicBankExists = await context.OrthopedicBanks
+      .AsNoTracking()
+      .AnyAsync(ob => ob.Id == orthopedicBankId, ct);
+
+    if (!orthopedicBankExists)
+    {
+      return new ResponseStockListDTO(
+        HttpStatusCode.NotFound,
+        0,
+        new List<ResponseEntityStockDTO>(),
+        $"Orthopedic bank with ID '{orthopedicBankId}' not found.");
+    }
+
+    var stocks = await context.Stocks
+      .AsNoTracking()
+      .Where(s => s.OrthopedicBankId == orthopedicBankId)
+      .Select(s => new ResponseEntityStockDTO(
+        s.Id,
+        s.Title,
+        s.MaintenanceQtd,
+        s.AvailableQtd,
+        s.BorrowedQtd,
+        s.TotalQtd,
+        null, // OrthopedicBank not included in list view for brevity/performance
+        null, // Items not included in list view for brevity/performance
+        s.CreatedAt))
+      .ToListAsync(ct);
+
+    return new ResponseStockListDTO(
+      HttpStatusCode.OK,
+      stocks.Count,
+      stocks,
+      $"Stocks for orthopedic bank {orthopedicBankId} retrieved successfully.");
   }
 
   /// <summary>
@@ -208,7 +252,7 @@ public static class StockService
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
 
-      return new ResponseStockDTO(HttpStatusCode.OK, null, "Stock updated successfully.");
+      return new ResponseStockDTO(HttpStatusCode.OK, MapToResponseEntityStockDto(stock, null, null), "Stock updated successfully.");
     }
     catch (Exception ex)
     {
@@ -294,6 +338,7 @@ public static class StockService
         i.SeriaCode,
         i.ImageUrl,
         i.Status.ToString(),
+        i.StockId,
         i.CreatedAt)).ToArray(),
       stock.CreatedAt
     );

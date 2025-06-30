@@ -23,6 +23,7 @@ public static class LoanService
   public static async Task<ResponseLoanDTO> CreateLoan(
     RequestCreateLoanDto request,
     ApiDbContext context,
+    UserManager<User> userManager,
     CancellationToken ct)
   {
     if (request.ApplicantId == Guid.Empty ||
@@ -77,7 +78,26 @@ public static class LoanService
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
 
-      return new ResponseLoanDTO(HttpStatusCode.Created, null, "Loan created successfully.");
+      ResponseEntityUserDTO? responsibleDto = await userManager.Users
+      .Where(u => u.Id == request.ResponsibleId)
+      .AsNoTracking() // Use AsNoTracking for better performance if no updates are needed
+      .Select(u => new ResponseEntityUserDTO(
+        u.Id,
+        u.Name ?? string.Empty,
+        u.Email ?? string.Empty,
+        u.PhoneNumber ?? string.Empty,
+        null, // Roles not included here for simplicity, adjust as needed
+        u.CreatedAt
+      )).SingleOrDefaultAsync(ct);
+
+      var responseLoan = MapToResponseEntityLoanDto(
+        newLoan,
+        item,
+        applicant,
+        responsibleDto
+      );
+
+      return new ResponseLoanDTO(HttpStatusCode.Created, responseLoan, "Loan created successfully.");
     }
     catch (Exception ex)
     {
@@ -100,6 +120,7 @@ public static class LoanService
     var loan = await context.Loans
       .Include(l => l.Item)
       .Include(l => l.Applicant)
+      .AsNoTracking() // Use AsNoTracking for better performance if no updates are needed
       .SingleOrDefaultAsync(l => l.Id == id, ct); // Use SingleOrDefaultAsync directly here
 
     if (loan == null)
@@ -109,6 +130,7 @@ public static class LoanService
 
     ResponseEntityUserDTO? responsibleDto = await userManager.Users
       .Where(u => u.Id == loan.ResponsibleId)
+      .AsNoTracking() // Use AsNoTracking for better performance if no updates are needed
       .Select(u => new ResponseEntityUserDTO(
         u.Id,
         u.Name ?? string.Empty,
@@ -190,6 +212,7 @@ public static class LoanService
     Guid id,
     RequestUpdateLoanDto request,
     ApiDbContext context,
+    UserManager<User> userManager,
     CancellationToken ct)
   {
     if (request == null)
@@ -252,7 +275,26 @@ public static class LoanService
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
 
-      return new ResponseLoanDTO(HttpStatusCode.OK, null, "Loan updated successfully.");
+      ResponseEntityUserDTO? responsibleDto = await userManager.Users
+        .Where(u => u.Id == loan.ResponsibleId)
+        .AsNoTracking() // Use AsNoTracking for better performance if no updates are needed
+        .Select(u => new ResponseEntityUserDTO(
+          u.Id,
+          u.Name ?? string.Empty,
+          u.Email ?? string.Empty,
+          u.PhoneNumber ?? string.Empty,
+          null, // Roles not included here for simplicity, adjust as needed
+          u.CreatedAt
+        )).SingleOrDefaultAsync(ct);
+
+      var responseLoan = MapToResponseEntityLoanDto(
+        loan,
+        loan.Item,
+        loan.Applicant,
+        responsibleDto
+      );
+
+      return new ResponseLoanDTO(HttpStatusCode.OK, responseLoan, "Loan updated successfully.");
     }
     catch (Exception ex)
     {
@@ -352,22 +394,6 @@ public static class LoanService
   }
 
   /// <summary>
-  /// Maps a User entity to a ResponseEntityUserDTO.
-  /// </summary>
-  private static ResponseEntityUserDTO? MapToResponseEntityUserDto(User? user)
-  {
-    if (user == null) return null;
-    return new ResponseEntityUserDTO(
-      user.Id,
-      user.Name ?? string.Empty,
-      user.Email ?? string.Empty,
-      user.PhoneNumber ?? string.Empty,
-      null, // Roles are not included here for simplicity, adjust as needed
-      user.CreatedAt
-    );
-  }
-
-  /// <summary>
   /// Maps a Loan entity, its related Item and Applicant to a ResponseEntityLoanDTO.
   /// </summary>
   private static ResponseEntityLoanDTO MapToResponseEntityLoanDto(
@@ -388,6 +414,7 @@ public static class LoanService
           item.SeriaCode,
           item.ImageUrl,
           item.Status.ToString(),
+          item.StockId,
           item.CreatedAt
         ),
       applicant == null

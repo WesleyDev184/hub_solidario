@@ -279,7 +279,7 @@ namespace api.Modules.Items
           typeof(ExampleResponseInternalServerErrorItemDTO))]
       async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          ResponseItemDTO response = await ItemService.DeleteItem(id, context, ct);
+          var response = await ItemService.DeleteItem(id, context, ct);
 
           // Invalidar cache após exclusão bem-sucedida
           if (response.Status == HttpStatusCode.OK)
@@ -292,7 +292,7 @@ namespace api.Modules.Items
             HttpStatusCode.NotFound => Results.NotFound(new ResponseControllerItemDTO(false, null, response.Message)),
             HttpStatusCode.InternalServerError => Results.Json(
               new ResponseControllerItemDTO(false, null, response.Message), statusCode: (int)response.Status),
-            _ => Results.Ok(new ResponseControllerItemDTO(response.Status == HttpStatusCode.OK, response.Data,
+            _ => Results.Ok(new ResponseControllerItemDTO(response.Status == HttpStatusCode.OK, null,
               response.Message))
           };
         });

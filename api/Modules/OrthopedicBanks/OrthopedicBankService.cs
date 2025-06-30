@@ -47,7 +47,7 @@ public static class OrthopedicBankService
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
 
-      return new ResponseOrthopedicBankDTO(HttpStatusCode.Created, null,
+      return new ResponseOrthopedicBankDTO(HttpStatusCode.Created, MapToResponseEntityOrthopedicBankDto(newBank),
         "Orthopedic bank created successfully.");
     }
     catch (Exception ex)
@@ -150,7 +150,7 @@ public static class OrthopedicBankService
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
 
-      return new ResponseOrthopedicBankDTO(HttpStatusCode.OK, null,
+      return new ResponseOrthopedicBankDTO(HttpStatusCode.OK, MapToResponseEntityOrthopedicBankDto(orthopedicBank),
         "Orthopedic bank updated successfully.");
     }
     catch (Exception ex)

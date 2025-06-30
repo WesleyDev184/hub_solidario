@@ -259,7 +259,7 @@ namespace api.Modules.Dependents
           typeof(ExampleResponseInternalServerErrorDependentDTO))]
       async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          ResponseDependentDTO response = await DependentService.DeleteDependent(id, context, ct);
+          var response = await DependentService.DeleteDependent(id, context, ct);
 
           // Invalidar cache após exclusão bem-sucedida
           if (response.Status == HttpStatusCode.OK)

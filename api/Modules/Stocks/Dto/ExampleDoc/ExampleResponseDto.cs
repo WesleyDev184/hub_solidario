@@ -1,8 +1,4 @@
-using System;
-using System.Net;
-using System.Collections.Generic;
 using Swashbuckle.AspNetCore.Filters;
-using api.Modules.Stocks.Dto;
 using api.Modules.Items.Dto;
 using api.Modules.Items.Enum;
 using api.Modules.OrthopedicBanks.Dto;
@@ -16,7 +12,17 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
     {
       return new ResponseControllerStockDTO(
         Success: true,
-        Data: null,
+        Data: new ResponseEntityStockDTO(
+            Id: Guid.NewGuid(),
+            Title: "Existing Stock Title",
+            MaintenanceQtd: 5,
+            AvailableQtd: 10,
+            BorrowedQtd: 2,
+            TotalQtd: 17,
+            OrthopedicBank: null,
+            Items: null,
+            CreatedAt: DateTime.UtcNow
+          ),
         Message: "Stock created successfully"
       );
     }
@@ -29,7 +35,17 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
     {
       return new ResponseControllerStockDTO(
         Success: false,
-        Data: null,
+        Data: new ResponseEntityStockDTO(
+            Id: Guid.NewGuid(),
+            Title: "Existing Stock Title",
+            MaintenanceQtd: 5,
+            AvailableQtd: 10,
+            BorrowedQtd: 2,
+            TotalQtd: 17,
+            OrthopedicBank: null,
+            Items: null,
+            CreatedAt: DateTime.UtcNow
+          ),
         Message: "Stock with name already exists"
       );
     }
@@ -94,6 +110,8 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
               "https://example.com/image1.jpg",
               Status:
               ItemStatus.AVAILABLE.ToString(),
+              StockId:
+              Guid.NewGuid(),
               CreatedAt:
               DateTime.UtcNow
             ),
@@ -102,6 +120,7 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
               SeriaCode: 23344557,
               ImageUrl: "https://example.com/image1.jpg",
               Status: ItemStatus.MAINTENANCE.ToString(),
+              StockId: Guid.NewGuid(),
               CreatedAt: DateTime.UtcNow
             )
           ],

@@ -63,7 +63,9 @@ namespace api.Modules.Items
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
-        return new ResponseItemDTO(HttpStatusCode.Created, null, "Item created successfully.");
+        var responseItem = MapToResponseEntityItemDto(newItem);
+
+        return new ResponseItemDTO(HttpStatusCode.Created, responseItem, "Item created successfully.");
       }
       catch
       {
@@ -211,7 +213,9 @@ namespace api.Modules.Items
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
-        return new ResponseItemDTO(HttpStatusCode.OK, null, "Item updated successfully.");
+        var responseItem = MapToResponseEntityItemDto(item);
+
+        return new ResponseItemDTO(HttpStatusCode.OK, responseItem, "Item updated successfully.");
       }
       catch
       {
@@ -225,7 +229,7 @@ namespace api.Modules.Items
     /// <summary>
     /// Deletes an item from the database.
     /// </summary>
-    public static async Task<ResponseItemDTO> DeleteItem(
+    public static async Task<ResponseItemDeleteDTO> DeleteItem(
       Guid id,
       ApiDbContext context,
       CancellationToken ct)
@@ -241,7 +245,7 @@ namespace api.Modules.Items
         if (item == null)
         {
           await transaction.RollbackAsync(ct);
-          return new ResponseItemDTO(HttpStatusCode.NotFound, null, $"Item with ID '{id}' not found.");
+          return new ResponseItemDeleteDTO(HttpStatusCode.NotFound, null, $"Item with ID '{id}' not found.");
         }
 
         if (item.Status is ItemStatus.AVAILABLE or ItemStatus.MAINTENANCE or ItemStatus.UNAVAILABLE)
@@ -259,12 +263,12 @@ namespace api.Modules.Items
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
-        return new ResponseItemDTO(HttpStatusCode.OK, null, "Item deleted successfully.");
+        return new ResponseItemDeleteDTO(HttpStatusCode.OK, item.StockId, "Item deleted successfully.");
       }
       catch
       {
         await transaction.RollbackAsync(ct);
-        return new ResponseItemDTO(HttpStatusCode.InternalServerError, null,
+        return new ResponseItemDeleteDTO(HttpStatusCode.InternalServerError, null,
           "An unexpected error occurred while deleting the item.");
       }
     }
@@ -303,6 +307,7 @@ namespace api.Modules.Items
         item.SeriaCode,
         item.ImageUrl,
         item.Status.ToString(),
+        item.StockId,
         item.CreatedAt
       );
     }

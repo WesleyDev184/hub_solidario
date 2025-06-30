@@ -94,6 +94,7 @@ services:
       DB_URL: "Host=db;Port=5432;Database=rotarydb;Username=postgres;Password=postgres"
       API_KEY: "your_api_key_here"
       REDIS_URL: "redis:6379"
+      RUN_MIGRATIONS: "true"
     depends_on:
       db:
         condition: service_healthy

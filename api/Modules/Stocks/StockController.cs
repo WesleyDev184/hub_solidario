@@ -305,32 +305,22 @@ public static class StockController
         // Buscar stocks do banco ortopédico específico com cache
         var cachedResponse = await cache.GetOrCreateAsync(
           cacheKey,
-          async cancel =>
-          {
-            var stocks = await context.Stocks
-              .AsNoTracking()
-              .Where(s => s.OrthopedicBankId == orthopedicBankId)
-              .Select(s => new ResponseEntityStockDTO(
-                s.Id,
-                s.Title,
-                s.MaintenanceQtd,
-                s.AvailableQtd,
-                s.BorrowedQtd,
-                s.TotalQtd,
-                null,
-                null,
-                s.CreatedAt))
-              .ToListAsync(cancel);
-
-            return new ResponseStockListDTO(HttpStatusCode.OK, stocks.Count, stocks,
-              $"Stocks for orthopedic bank {orthopedicBankId} retrieved successfully.");
-          },
+          async cancel => await StockService.GetStocksByOrthopedicBank(orthopedicBankId, context, cancel),
           options: new HybridCacheEntryOptions
           {
             Expiration = TimeSpan.FromMinutes(5),
             LocalCacheExpiration = TimeSpan.FromMinutes(2)
           },
           cancellationToken: ct);
+
+        if (cachedResponse.Status == HttpStatusCode.NotFound)
+        {
+          return Results.NotFound(new ResponseControllerStockListDTO(
+            false,
+            0,
+            null,
+            cachedResponse.Message));
+        }
 
         return Results.Ok(new ResponseControllerStockListDTO(
           cachedResponse.Status == HttpStatusCode.OK,

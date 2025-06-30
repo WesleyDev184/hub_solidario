@@ -245,6 +245,18 @@ namespace api.Modules.Applicants
           return new ResponseApplicantsDTO(HttpStatusCode.NotFound, null, $"Applicant with ID '{id}' not found.");
         }
 
+        var dependentCount = applicant.Dependents?.Count ?? 0;
+
+        if (dependentCount > 0)
+        {
+          await transaction.RollbackAsync(ct);
+          return new ResponseApplicantsDTO(HttpStatusCode.Conflict, null,
+            $"Cannot delete applicant with ID '{id}' because they have {dependentCount} dependent(s). " +
+            "Please delete the dependents first.");
+        }
+
+        var applicantId = applicant.Id;
+
         context.Applicants.Remove(applicant);
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
