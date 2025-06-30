@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicants/presentation/widgets/beneficiary_card.dart';
 import 'package:project_rotary/app/pdt/applicants/presentation/pages/beneficiary_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/create_beneficiary_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/delete_applicant_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/delete_beneficiary_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/edit_applicant_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/edit_beneficiary_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/widgets/action_menu_applicant.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/widgets/beneficiary_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/avatar.dart';
 import 'package:project_rotary/core/components/info_row.dart';
@@ -14,6 +20,7 @@ final List<Map<String, dynamic>> beneficiaries = List.generate(10, (index) {
     'name': 'Beneficiário ${index + 1}',
     'cpf': '000.000.00${index + 1}-00',
     'phone': '(00) 00000-000${index + 1}',
+    'email': 'beneficiario${index + 1}@example.com',
     'address': 'Rua Exemplo, ${index + 1}, Bairro, Cidade, Estado',
   };
 });
@@ -40,6 +47,57 @@ class ApplicantPage extends StatelessWidget {
     required this.beneficiaryStatus,
   });
 
+  void _showActionsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return ActionMenuApplicant(
+          onCreatedPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder:
+                    (context) => CreateBeneficiaryPage(
+                      applicantId: applicantId,
+                      applicantName: name,
+                    ),
+              ),
+            );
+          },
+          onEditPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder:
+                    (context) => EditApplicantPage(
+                      applicantId: applicantId,
+                      currentName: name,
+                      currentCpf: cpf,
+                      currentEmail: email,
+                      currentPhoneNumber: phone,
+                      currentAddress: address,
+                      currentIsBeneficiary: beneficiaryStatus,
+                    ),
+              ),
+            );
+          },
+          onDeletePressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder:
+                    (context) => DeleteApplicantPage(
+                      applicantId: applicantId,
+                      applicantName: name,
+                      applicantCpf: cpf,
+                      applicantEmail: email,
+                    ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,26 +123,6 @@ class ApplicantPage extends StatelessWidget {
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        LucideIcons.trash,
-                        color: CustomColors.error,
-                      ),
-                      onPressed: () {},
-                    ),
-                    const SizedBox(width: 16),
-                    IconButton(
-                      icon: const Icon(
-                        LucideIcons.pen,
-                        color: CustomColors.warning,
-                      ),
-                      onPressed: () {},
                     ),
                   ],
                 ),
@@ -159,6 +197,7 @@ class ApplicantPage extends StatelessWidget {
                                 name: beneficiary["name"],
                                 cpf: beneficiary["cpf"],
                                 phone: beneficiary["phone"],
+                                email: beneficiary["email"],
                                 address: beneficiary["address"],
                                 imageUrl: beneficiary["imageUrl"],
                               ),
@@ -170,6 +209,34 @@ class ApplicantPage extends StatelessWidget {
                       imageUrl: beneficiary["imageUrl"],
                       name: beneficiary["name"]!,
                       cpf: beneficiary["cpf"]!,
+                      onEdit: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (context) => EditBeneficiaryPage(
+                                  beneficiaryId: beneficiary["id"]!,
+                                  currentName: beneficiary["name"]!,
+                                  currentCpf: beneficiary["cpf"]!,
+                                  currentEmail: beneficiary["email"]!,
+                                  currentPhoneNumber: beneficiary["phone"]!,
+                                  currentAddress: beneficiary["address"],
+                                ),
+                          ),
+                        );
+                      },
+                      onDelete: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (context) => DeleteBeneficiaryPage(
+                                  beneficiaryId: beneficiary["id"]!,
+                                  beneficiaryName: beneficiary["name"]!,
+                                  beneficiaryCpf: beneficiary["cpf"]!,
+                                  beneficiaryEmail: beneficiary["email"]!,
+                                ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
@@ -177,6 +244,11 @@ class ApplicantPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showActionsMenu(context),
+        backgroundColor: CustomColors.primary,
+        child: const Icon(LucideIcons.menu, color: CustomColors.white),
       ),
     );
   }

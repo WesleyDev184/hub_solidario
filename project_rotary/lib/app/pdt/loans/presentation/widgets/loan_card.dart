@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/loans/presentation/pages/finalize_loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/presentation/pages/loan_page.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -116,7 +117,19 @@ class LoanCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Button(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => FinalizeLoanPage(
+                                        loanId: id,
+                                        loanSerialCode: serialCodeText,
+                                        loanApplicant: name,
+                                        loanDate: date,
+                                      ),
+                                ),
+                              );
+                            },
                             icon: Icon(
                               LucideIcons.arrowLeft,
                               color: Colors.white,

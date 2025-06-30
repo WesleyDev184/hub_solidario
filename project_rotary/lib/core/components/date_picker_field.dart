@@ -29,6 +29,9 @@ class DatePickerField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: hint,
         suffixIcon: const Icon(LucideIcons.calendar),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
       ),
     );
   }

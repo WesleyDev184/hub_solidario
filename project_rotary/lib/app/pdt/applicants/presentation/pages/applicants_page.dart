@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/applicants/presentation/pages/applicant_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/delete_applicant_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/edit_applicant_page.dart';
 import 'package:project_rotary/app/pdt/applicants/presentation/widgets/applicants_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
@@ -125,6 +127,39 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                                 qtd: applicant["qtdBeneficiaries"] as int,
                                 beneficiary:
                                     applicant["isBeneficiary"] ?? false,
+                                onEdit: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => EditApplicantPage(
+                                            applicantId: applicant["id"],
+                                            currentName: applicant["name"],
+                                            currentCpf: applicant["cpf"],
+                                            currentEmail: applicant["email"],
+                                            currentPhoneNumber:
+                                                applicant["phone"],
+                                            currentAddress:
+                                                applicant["address"],
+                                            currentIsBeneficiary:
+                                                applicant["isBeneficiary"] ??
+                                                false,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                onDelete: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => DeleteApplicantPage(
+                                            applicantId: applicant["id"],
+                                            applicantName: applicant["name"],
+                                            applicantCpf: applicant["cpf"],
+                                            applicantEmail: applicant["email"],
+                                          ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ),

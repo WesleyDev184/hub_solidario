@@ -9,6 +9,8 @@ class ApplicantsCard extends StatelessWidget {
   final String name;
   final int qtd;
   final bool beneficiary;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const ApplicantsCard({
     super.key,
@@ -17,6 +19,8 @@ class ApplicantsCard extends StatelessWidget {
     required this.name,
     required this.qtd,
     required this.beneficiary,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -55,12 +59,12 @@ class ApplicantsCard extends StatelessWidget {
               ),
             ),
             IconButton(
-              onPressed: () {},
-              icon: Icon(LucideIcons.trash, color: Colors.red),
+              onPressed: onEdit,
+              icon: Icon(LucideIcons.pen, color: Colors.amber),
             ),
             IconButton(
-              onPressed: () {},
-              icon: Icon(LucideIcons.pen, color: Colors.amber),
+              onPressed: onDelete,
+              icon: Icon(LucideIcons.trash, color: Colors.red),
             ),
           ],
         ),

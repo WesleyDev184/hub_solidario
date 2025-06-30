@@ -31,6 +31,9 @@ class _PasswordFieldState extends State<PasswordField> {
             setState(() => _obscure = !_obscure);
           },
         ),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
       ),
     );
   }
