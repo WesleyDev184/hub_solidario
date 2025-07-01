@@ -207,28 +207,98 @@ class ImplCategoryRepository implements CategoryRepository {
     required UpdateCategoryDTO updateCategoryDTO,
   }) async {
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      debugPrint('CategoryRepository: Atualizando categoria $id via API');
 
-      // Simular possível erro
-      if (DateTime.now().millisecond % 15 == 0) {
-        return Failure(Exception('Erro ao atualizar categoria'));
+      // Verifica se há dados para atualizar
+      if (updateCategoryDTO.isEmpty) {
+        return Failure(Exception('Nenhum dado para atualizar'));
       }
 
-      // Mock data da categoria atualizada
-      final categoryData = {
-        'id': id,
-        'title': updateCategoryDTO.title ?? 'Categoria Atualizada',
-        'orthopedicBank': orthopedicBanks.first,
-        'createdAt':
-            DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
-        'maintenanceQtd': updateCategoryDTO.maintenanceQtd ?? 2,
-        'availableQtd': updateCategoryDTO.availableQtd ?? 8,
-        'borrowedQtd': updateCategoryDTO.borrowedQtd ?? 3,
-      };
+      final updateData = updateCategoryDTO.toJson();
+      debugPrint('CategoryRepository: Dados de atualização: $updateData');
 
-      final category = Category.fromJson(categoryData);
-      return Success(category);
+      // Chama PATCH /stocks/{id}
+      final result = await _apiClient.patch(
+        ApiEndpoints.stockById(id),
+        updateData,
+        useAuth: true,
+      );
+
+      return result.fold(
+        (data) {
+          debugPrint(
+            'CategoryRepository: Categoria atualizada com sucesso: $data',
+          );
+
+          // A API pode retornar data: null em caso de sucesso
+          if (data['success'] == true) {
+            // Se há dados retornados, usar eles; senão criar categoria mock com dados atualizados
+            if (data['data'] != null) {
+              final categoryData = data['data'] as Map<String, dynamic>;
+
+              // Transformar resposta do stock em Category
+              final category = Category.fromJson({
+                'id': categoryData['id']?.toString() ?? id,
+                'title': categoryData['title'] ?? 'Categoria Atualizada',
+                'orthopedicBank': {
+                  'id': categoryData['orthopedicBank']?['id'] ?? '',
+                  'name':
+                      categoryData['orthopedicBank']?['name'] ??
+                      'Banco Ortopédico',
+                },
+                'createdAt':
+                    categoryData['createdAt'] ??
+                    DateTime.now().toIso8601String(),
+                'updatedAt':
+                    categoryData['updatedAt'] ??
+                    DateTime.now().toIso8601String(),
+                'imageUrl': categoryData['imageUrl'] ?? 'assets/images/cr.jpg',
+                'availableQtd': categoryData['availableQtd'] ?? 0,
+                'borrowedQtd': categoryData['borrowedQtd'] ?? 0,
+                'maintenanceQtd': categoryData['maintenanceQtd'] ?? 0,
+              });
+
+              return Success(category);
+            } else {
+              // API retornou sucesso mas sem dados - criar categoria temporária
+              debugPrint(
+                'CategoryRepository: Categoria atualizada (sem dados retornados)',
+              );
+              final tempCategory = Category.fromJson({
+                'id': id,
+                'title': updateCategoryDTO.title ?? 'Categoria Atualizada',
+                'orthopedicBank': {'id': '', 'name': 'Banco Ortopédico'},
+                'createdAt':
+                    DateTime.now()
+                        .subtract(const Duration(days: 5))
+                        .toIso8601String(),
+                'updatedAt': DateTime.now().toIso8601String(),
+                'imageUrl': 'assets/images/cr.jpg',
+                'availableQtd': updateCategoryDTO.availableQtd ?? 0,
+                'borrowedQtd': updateCategoryDTO.borrowedQtd ?? 0,
+                'maintenanceQtd': updateCategoryDTO.maintenanceQtd ?? 0,
+              });
+
+              return Success(tempCategory);
+            }
+          } else {
+            debugPrint(
+              'CategoryRepository: Erro ao atualizar categoria: $data',
+            );
+            return Failure(
+              Exception(data['message'] ?? 'Erro ao atualizar categoria'),
+            );
+          }
+        },
+        (error) {
+          debugPrint('CategoryRepository: Erro na requisição: $error');
+          return Failure(
+            Exception('Erro ao atualizar categoria: ${error.toString()}'),
+          );
+        },
+      );
     } catch (e) {
+      debugPrint('CategoryRepository: Erro inesperado: $e');
       return Failure(Exception('Erro inesperado: ${e.toString()}'));
     }
   }

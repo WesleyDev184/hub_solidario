@@ -42,11 +42,6 @@ class UpdateCategoryUseCase {
         }
       }
 
-      if (updateCategoryDTO.orthopedicBankId != null &&
-          updateCategoryDTO.orthopedicBankId!.trim().isEmpty) {
-        return Failure(Exception('Banco ortopédico é obrigatório'));
-      }
-
       return await _repository.updateCategory(
         id: id,
         updateCategoryDTO: updateCategoryDTO,

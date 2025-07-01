@@ -39,6 +39,7 @@ class ApiEndpoints {
 
   // Stocks endpoints
   static const String stocks = '/stocks';
+  static String stockById(String id) => '/stocks/$id';
   static String stocksByOrthopedicBank(String orthopedicBankId) =>
       '/stocks/orthopedic-bank/$orthopedicBankId';
 
