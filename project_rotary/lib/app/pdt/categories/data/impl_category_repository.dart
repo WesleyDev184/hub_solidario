@@ -196,9 +196,70 @@ class ImplCategoryRepository implements CategoryRepository {
 
   @override
   AsyncResult<String> deleteCategory({required String id}) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    // Implementar exclusão
-    return Success('Categoria deletada com sucesso');
+    try {
+      debugPrint('CategoryRepository: Deletando categoria $id via API');
+
+      // Chama DELETE /stocks/{id}
+      final result = await _apiClient.delete(
+        ApiEndpoints.stockById(id),
+        useAuth: true,
+      );
+
+      return result.fold(
+        (data) {
+          debugPrint('CategoryRepository: Resposta da deleção: $data');
+
+          if (data['success'] == true) {
+            final message = data['message'] ?? 'Categoria deletada com sucesso';
+            debugPrint('CategoryRepository: $message');
+            return Success(message);
+          } else {
+            // Tratamento de diferentes tipos de erro
+            final errorMessage = data['message'] ?? 'Erro ao deletar categoria';
+            debugPrint(
+              'CategoryRepository: Erro ao deletar categoria: $errorMessage',
+            );
+
+            // Verificar se é erro de categoria não encontrada
+            if (errorMessage.toLowerCase().contains('not found')) {
+              return Failure(Exception('Categoria não encontrada'));
+            }
+
+            // Verificar se é erro de categoria com itens associados
+            if (errorMessage.toLowerCase().contains('associated') ||
+                errorMessage.toLowerCase().contains('items')) {
+              return Failure(
+                Exception(
+                  'Não é possível deletar categoria que possui itens associados',
+                ),
+              );
+            }
+
+            return Failure(Exception(errorMessage));
+          }
+        },
+        (error) {
+          debugPrint('CategoryRepository: Erro na requisição: $error');
+
+          // Verificar se é erro 404 (categoria não encontrada)
+          if (error.toString().contains('404')) {
+            return Failure(Exception('Categoria não encontrada'));
+          }
+
+          // Verificar se é erro 400 (possível categoria com itens)
+          if (error.toString().contains('400')) {
+            return Failure(Exception('Não é possível deletar esta categoria'));
+          }
+
+          return Failure(
+            Exception('Erro ao deletar categoria: ${error.toString()}'),
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('CategoryRepository: Erro inesperado: $e');
+      return Failure(Exception('Erro inesperado: ${e.toString()}'));
+    }
   }
 
   @override

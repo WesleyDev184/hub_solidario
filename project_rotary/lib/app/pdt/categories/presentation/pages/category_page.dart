@@ -94,6 +94,9 @@ class _CategoryPageState extends State<CategoryPage> {
             );
           },
           onDeletePressed: () {
+            Navigator.pop(
+              context,
+            ); // Fecha o menu antes de abrir a página de exclusão
             Navigator.push(
               context,
               MaterialPageRoute(
