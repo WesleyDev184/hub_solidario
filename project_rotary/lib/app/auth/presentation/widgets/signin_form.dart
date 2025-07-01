@@ -15,8 +15,29 @@ class SingInForm extends StatefulWidget {
 
 class _SingInFormState extends State<SingInForm> {
   final authController = AuthDependencyFactory.instance.authController;
+  final _formKey = GlobalKey<FormState>();
+
   late TextEditingController emailController;
   late TextEditingController passwordController;
+
+  // Métodos de validação
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Email é obrigatório';
+    }
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value.trim())) {
+      return 'Email inválido';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Senha é obrigatória';
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -54,173 +75,183 @@ class _SingInFormState extends State<SingInForm> {
       ),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Indicador visual para o card
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Título da seção
-              const Text(
-                "Login",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                "Entre com sua conta",
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 20),
-
-              // Campo Email
-              const Text(
-                'Email *',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 6),
-              InputField(
-                controller: emailController,
-                hint: "Digite seu email",
-                icon: LucideIcons.mail,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Campo Senha
-              const Text(
-                'Senha *',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 6),
-              PasswordField(
-                controller: passwordController,
-                hint: "Digite sua senha",
-              ),
-
-              const SizedBox(height: 12),
-
-              // Link esqueci senha
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/forgot-password');
-                  },
-                  child: Text(
-                    "Esqueci minha senha",
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Botão principal
-              ElevatedButton(
-                onPressed: () async {
-                  final result = await authController.signin(
-                    signInDTO: SignInDTO(
-                      email: emailController.text,
-                      password: passwordController.text,
+        child: Form(
+          key: _formKey,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Indicador visual para o card
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                  );
-
-                  if (context.mounted) {
-                    result.fold(
-                      (authData) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/layout',
-                          (route) => false,
-                        );
-                      },
-                      (error) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              authController.error ?? 'Erro ao fazer login',
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.success,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
                   ),
-                  elevation: 0,
                 ),
-                child: Row(
+                const SizedBox(height: 16),
+
+                // Título da seção
+                const Text(
+                  "Login",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "Entre com sua conta",
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 20),
+
+                // Campo Email
+                const Text(
+                  'Email *',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                InputField(
+                  controller: emailController,
+                  hint: "Digite seu email",
+                  icon: LucideIcons.mail,
+                  validator: _validateEmail,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Campo Senha
+                const Text(
+                  'Senha *',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                PasswordField(
+                  controller: passwordController,
+                  hint: "Digite sua senha",
+                  validator: _validatePassword,
+                ),
+
+                const SizedBox(height: 12),
+
+                // Link esqueci senha
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/forgot-password');
+                    },
+                    child: Text(
+                      "Esqueci minha senha",
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Botão principal
+                ElevatedButton(
+                  onPressed: () async {
+                    // Valida o formulário
+                    if (!_formKey.currentState!.validate()) {
+                      return;
+                    }
+
+                    final result = await authController.signin(
+                      signInDTO: SignInDTO(
+                        email: emailController.text,
+                        password: passwordController.text,
+                      ),
+                    );
+
+                    if (context.mounted) {
+                      result.fold(
+                        (authData) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/layout',
+                            (route) => false,
+                          );
+                        },
+                        (error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                authController.error ?? 'Erro ao fazer login',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CustomColors.success,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(LucideIcons.logIn, color: Colors.white, size: 18),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Entrar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Link de navegação
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(LucideIcons.logIn, color: Colors.white, size: 18),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Entrar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                    Text(
+                      "Não tenho uma conta? ",
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, '/signup'),
+                      child: Text(
+                        "Registre-se",
+                        style: TextStyle(
+                          color: CustomColors.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Link de navegação
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Não tenho uma conta? ",
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/signup'),
-                    child: Text(
-                      "Registre-se",
-                      style: TextStyle(
-                        color: CustomColors.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
