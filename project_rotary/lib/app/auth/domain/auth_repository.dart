@@ -20,6 +20,9 @@ abstract class AuthRepository {
   /// Verifica se o usuário está logado
   AsyncResult<bool> isLoggedIn();
 
+  /// Verifica e restaura uma sessão salva anteriormente
+  AsyncResult<bool> restoreSession();
+
   /// Obtém dados do usuário atual
   AsyncResult<User> getCurrentUser();
 

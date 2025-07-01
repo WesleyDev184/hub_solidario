@@ -55,6 +55,9 @@ class AuthController extends ChangeNotifier {
   AuthData? _authData;
   List<OrthopedicBank> _orthopedicBanks = [];
 
+  // Flag para evitar múltiplas requisições simultâneas
+  bool _isFetchingUser = false;
+
   bool get isLoading => _isLoading;
   String? get error => _error;
   User? get currentUser => _currentUser;
@@ -151,6 +154,7 @@ class AuthController extends ChangeNotifier {
       (message) {
         _setAuthData(null);
         _setCurrentUser(null);
+        _isFetchingUser = false; // Limpa a flag de busca
         _setError(null);
       },
       (failure) {
@@ -193,24 +197,64 @@ class AuthController extends ChangeNotifier {
 
   /// Obtém dados do usuário atual
   AsyncResult<User> getCurrentUser() async {
+    // Se já temos o usuário em cache, retorna imediatamente
+    if (_currentUser != null) {
+      return Success(_currentUser!);
+    }
+
+    // Se já está buscando, aguarda um pouco e retorna
+    if (_isFetchingUser) {
+      // Aguarda um pouco para ver se a requisição atual completa
+      int attempts = 0;
+      while (_isFetchingUser && attempts < 50) {
+        // máximo 5 segundos
+        await Future.delayed(Duration(milliseconds: 100));
+        attempts++;
+        if (_currentUser != null) {
+          return Success(_currentUser!);
+        }
+      }
+      // Se ainda não tem usuário, deixa continuar normalmente
+    }
+
+    return await _fetchCurrentUser();
+  }
+
+  /// Método privado que efetivamente busca o usuário da API
+  AsyncResult<User> _fetchCurrentUser() async {
+    if (_isFetchingUser) {
+      // Se já está buscando, retorna erro
+      return Failure(Exception('Requisição já em andamento'));
+    }
+
+    _isFetchingUser = true;
     _setLoading(true);
     _setError(null);
 
-    final result = await _getCurrentUserUseCase();
+    try {
+      final result = await _getCurrentUserUseCase();
 
-    result.fold(
-      (user) {
-        _setCurrentUser(user);
-        _setError(null);
-      },
-      (failure) {
-        _setError(failure.toString());
-        _setCurrentUser(null);
-      },
-    );
+      result.fold(
+        (user) {
+          _setCurrentUser(user);
+          _setError(null);
+        },
+        (failure) {
+          _setError(failure.toString());
+          _setCurrentUser(null);
+        },
+      );
 
-    _setLoading(false);
-    return result;
+      _setLoading(false);
+      _isFetchingUser = false;
+      return result;
+    } catch (e) {
+      _setLoading(false);
+      _isFetchingUser = false;
+      final error = Exception('Erro ao buscar usuário: ${e.toString()}');
+      _setError(error.toString());
+      return Failure(error);
+    }
   }
 
   /// Atualiza o token de acesso

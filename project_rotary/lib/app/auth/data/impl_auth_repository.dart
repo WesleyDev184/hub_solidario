@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:project_rotary/app/auth/data/auth_storage.dart';
 import 'package:project_rotary/app/auth/domain/auth_repository.dart';
 import 'package:project_rotary/app/auth/domain/dto/signin_dto.dart';
 import 'package:project_rotary/app/auth/domain/dto/signup_dto.dart';
@@ -17,11 +18,36 @@ class ImplAuthRepository implements AuthRepository {
   // Cache local do usuário e dados de autenticação
   static User? _currentUser;
   static AuthData? _currentAuthData;
+  static bool _isLoadingUser =
+      false; // Flag para evitar múltiplas requisições simultâneas
 
   ImplAuthRepository({ApiClient? apiClient})
     : _apiClient = apiClient ?? ApiClient() {
-    // TODO: Configurar API Key se necessária
-    // _apiClient.setApiKey('your-api-key-here');
+    // Carrega dados salvos na inicialização
+    _loadSavedAuthData();
+  }
+
+  /// Carrega dados de autenticação salvos localmente
+  Future<void> _loadSavedAuthData() async {
+    try {
+      final savedAuthData = await AuthStorage.getAuthData();
+      final savedUser = await AuthStorage.getUser();
+
+      if (savedAuthData != null && !savedAuthData.isExpired) {
+        _currentAuthData = savedAuthData;
+        _apiClient.setAccessToken(savedAuthData.accessToken);
+        debugPrint('AuthData carregado do armazenamento local');
+      }
+
+      if (savedUser != null) {
+        _currentUser = savedUser;
+        debugPrint(
+          'Usuário carregado do armazenamento local: ${savedUser.name}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar dados salvos: $e');
+    }
   }
 
   @override
@@ -34,7 +60,7 @@ class ImplAuthRepository implements AuthRepository {
       });
 
       return result.fold(
-        (data) {
+        (data) async {
           // Parse da resposta AccessTokenResponse
           final authData = AuthData(
             accessToken: data['accessToken'] as String,
@@ -47,6 +73,9 @@ class ImplAuthRepository implements AuthRepository {
 
           // Define o token para futuras requisições
           _apiClient.setAccessToken(authData.accessToken);
+
+          // Salva os dados de autenticação localmente
+          await AuthStorage.saveAuthData(authData);
 
           debugPrint('Login realizado com sucesso');
           return Success(authData);
@@ -108,19 +137,23 @@ class ImplAuthRepository implements AuthRepository {
       );
 
       return result.fold(
-        (data) {
-          // Limpa os dados locais
+        (data) async {
+          // Limpa os dados locais e do armazenamento
           _currentUser = null;
           _currentAuthData = null;
+          _isLoadingUser = false;
           _apiClient.clearAccessToken();
+          await AuthStorage.clearAuthData();
 
           return Success('Logout realizado com sucesso');
         },
-        (error) {
+        (error) async {
           // Mesmo em caso de erro na API, limpa os dados locais
           _currentUser = null;
           _currentAuthData = null;
+          _isLoadingUser = false;
           _apiClient.clearAccessToken();
+          await AuthStorage.clearAuthData();
 
           return Success('Logout realizado localmente');
         },
@@ -129,7 +162,9 @@ class ImplAuthRepository implements AuthRepository {
       // Em caso de erro, limpa os dados locais
       _currentUser = null;
       _currentAuthData = null;
+      _isLoadingUser = false;
       _apiClient.clearAccessToken();
+      await AuthStorage.clearAuthData();
 
       return Success('Logout realizado localmente');
     }
@@ -138,11 +173,26 @@ class ImplAuthRepository implements AuthRepository {
   @override
   AsyncResult<bool> isLoggedIn() async {
     try {
-      final isLoggedIn =
+      // Primeiro verifica os dados em memória
+      final isLoggedInMemory =
           _currentAuthData != null &&
           !_currentAuthData!.isExpired &&
           _currentUser != null;
-      return Success(isLoggedIn);
+
+      if (isLoggedInMemory) {
+        return Success(true);
+      }
+
+      // Se não estiver em memória, verifica o armazenamento local
+      final isLoggedInStorage = await AuthStorage.isLoggedIn();
+
+      if (isLoggedInStorage) {
+        // Carrega os dados do armazenamento se estiverem válidos
+        await _loadSavedAuthData();
+        return Success(true);
+      }
+
+      return Success(false);
     } catch (e) {
       return Failure(Exception('Erro ao verificar login: ${e.toString()}'));
     }
@@ -158,11 +208,22 @@ class ImplAuthRepository implements AuthRepository {
         return Success(_currentUser!);
       }
 
+      // Se já está fazendo uma requisição, aguarda
+      if (_isLoadingUser) {
+        // Aguarda um pouco e tenta novamente
+        await Future.delayed(Duration(milliseconds: 100));
+        if (_currentUser != null) {
+          return Success(_currentUser!);
+        }
+      }
+
+      _isLoadingUser = true;
+
       // Caso contrário, busca da API - GET /user
       final result = await _apiClient.get(ApiEndpoints.user, useAuth: true);
 
       return result.fold(
-        (data) {
+        (data) async {
           // Parse do usuário da resposta da API
           final userData = data['data'] as Map<String, dynamic>? ?? data;
 
@@ -176,17 +237,26 @@ class ImplAuthRepository implements AuthRepository {
           final user = User.fromMap(userData);
 
           _currentUser = user;
+          _isLoadingUser = false;
+
+          // Salva o usuário no armazenamento local
+          await AuthStorage.saveUser(user);
+
           debugPrint('ImplAuthRepository - Usuário parseado: $user');
           debugPrint(
             'ImplAuthRepository - Banco do usuário: ${user.orthopedicBank?.name}',
           );
           return Success(user);
         },
-        (error) => Failure(
-          Exception('Erro ao obter usuário atual: ${error.toString()}'),
-        ),
+        (error) {
+          _isLoadingUser = false;
+          return Failure(
+            Exception('Erro ao obter usuário atual: ${error.toString()}'),
+          );
+        },
       );
     } catch (e) {
+      _isLoadingUser = false;
       return Failure(Exception('Erro ao obter usuário atual: ${e.toString()}'));
     }
   }
@@ -253,6 +323,29 @@ class ImplAuthRepository implements AuthRepository {
       return result.fold((data) => Success(true), (error) => Success(false));
     } catch (e) {
       return Success(false);
+    }
+  }
+
+  /// Verifica e restaura uma sessão salva anteriormente
+  /// Útil para chamar na inicialização do app
+  @override
+  AsyncResult<bool> restoreSession() async {
+    try {
+      final isLoggedIn = await AuthStorage.isLoggedIn();
+
+      if (isLoggedIn) {
+        await _loadSavedAuthData();
+
+        // Verifica se os dados carregados são válidos
+        if (_currentAuthData != null && !_currentAuthData!.isExpired) {
+          debugPrint('Sessão restaurada com sucesso');
+          return Success(true);
+        }
+      }
+
+      return Success(false);
+    } catch (e) {
+      return Failure(Exception('Erro ao restaurar sessão: ${e.toString()}'));
     }
   }
 

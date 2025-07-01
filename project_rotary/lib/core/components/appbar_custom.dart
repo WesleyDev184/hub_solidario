@@ -24,15 +24,28 @@ class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
 
 class _AppBarCustomState extends State<AppBarCustom> {
   final authController = AuthDependencyFactory.instance.authController;
+  bool _hasLoadedUserData = false;
 
   @override
   void initState() {
     super.initState();
-    // Carrega os dados do usuário atual e bancos ortopédicos
-    _loadUserData();
+    // Carrega os dados do usuário atual apenas uma vez
+    _loadUserDataOnce();
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _loadUserDataOnce() async {
+    // Evita múltiplas chamadas se já carregou ou já tem usuário em cache
+    if (_hasLoadedUserData || authController.currentUser != null) {
+      return;
+    }
+
+    // Evita também se já está carregando
+    if (authController.isLoading) {
+      return;
+    }
+
+    _hasLoadedUserData = true;
+
     try {
       debugPrint('AppBar - Iniciando carregamento de dados do usuário...');
 
