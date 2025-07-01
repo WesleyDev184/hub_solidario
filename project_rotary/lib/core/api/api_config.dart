@@ -37,10 +37,14 @@ class ApiEndpoints {
   static const String orthopedicBanks = '/orthopedic-banks';
   static String orthopedicBankById(String id) => '/orthopedic-banks/$id';
 
+  // Stocks endpoints
+  static const String stocks = '/stocks';
+  static String stocksByOrthopedicBank(String orthopedicBankId) =>
+      '/stocks/orthopedic-bank/$orthopedicBankId';
+
   // Outros endpoints disponíveis na API
   static const String applicants = '/applicants';
   static const String dependents = '/dependents';
   static const String items = '/items';
   static const String loans = '/loans';
-  static const String stocks = '/stocks';
 }

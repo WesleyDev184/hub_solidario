@@ -4,6 +4,10 @@ class Category {
   final Map<String, dynamic> orthopedicBank;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String? imageUrl;
+  final int? availableQtd;
+  final int? borrowedQtd;
+  final int? maintenanceQtd;
 
   const Category({
     required this.id,
@@ -11,6 +15,10 @@ class Category {
     required this.orthopedicBank,
     required this.createdAt,
     this.updatedAt,
+    this.imageUrl,
+    this.availableQtd,
+    this.borrowedQtd,
+    this.maintenanceQtd,
   });
 
   factory Category.fromJson(Map<String, dynamic> json) {
@@ -23,6 +31,10 @@ class Category {
           json['updatedAt'] != null
               ? DateTime.parse(json['updatedAt'] as String)
               : null,
+      imageUrl: json['imageUrl'] as String?,
+      availableQtd: json['availableQtd'] as int?,
+      borrowedQtd: json['borrowedQtd'] as int?,
+      maintenanceQtd: json['maintenanceQtd'] as int?,
     );
   }
 
@@ -33,6 +45,10 @@ class Category {
       'orthopedicBank': orthopedicBank,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'imageUrl': imageUrl,
+      'availableQtd': availableQtd,
+      'borrowedQtd': borrowedQtd,
+      'maintenanceQtd': maintenanceQtd,
     };
   }
 
@@ -42,6 +58,10 @@ class Category {
     Map<String, dynamic>? orthopedicBank,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? imageUrl,
+    int? availableQtd,
+    int? borrowedQtd,
+    int? maintenanceQtd,
   }) {
     return Category(
       id: id ?? this.id,
@@ -49,6 +69,10 @@ class Category {
       orthopedicBank: orthopedicBank ?? this.orthopedicBank,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      imageUrl: imageUrl ?? this.imageUrl,
+      availableQtd: availableQtd ?? this.availableQtd,
+      borrowedQtd: borrowedQtd ?? this.borrowedQtd,
+      maintenanceQtd: maintenanceQtd ?? this.maintenanceQtd,
     );
   }
 

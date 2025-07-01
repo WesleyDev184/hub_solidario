@@ -7,7 +7,6 @@ class User {
   final String name;
   final String email;
   final String phoneNumber;
-  final String orthopedicBankId;
   final OrthopedicBank?
   orthopedicBank; // Banco ortopédico relacionado (se disponível)
   final DateTime createdAt;
@@ -18,7 +17,6 @@ class User {
     required this.name,
     required this.email,
     required this.phoneNumber,
-    required this.orthopedicBankId,
     this.orthopedicBank,
     required this.createdAt,
     this.updatedAt,
@@ -39,7 +37,6 @@ class User {
       name: name ?? this.name,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      orthopedicBankId: orthopedicBankId ?? this.orthopedicBankId,
       orthopedicBank: orthopedicBank ?? this.orthopedicBank,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -52,7 +49,6 @@ class User {
       'name': name,
       'email': email,
       'phoneNumber': phoneNumber,
-      'orthopedicBankId': orthopedicBankId,
       'orthopedicBank': orthopedicBank?.toMap(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
@@ -65,7 +61,6 @@ class User {
       name: map['name'] ?? '',
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
-      orthopedicBankId: map['orthopedicBankId'] ?? '',
       orthopedicBank:
           map['orthopedicBank'] != null
               ? OrthopedicBank.fromMap(
@@ -80,7 +75,7 @@ class User {
 
   @override
   String toString() {
-    return 'User(id: $id, name: $name, email: $email, phoneNumber: $phoneNumber, orthopedicBankId: $orthopedicBankId, orthopedicBank: $orthopedicBank, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'User(id: $id, name: $name, email: $email, phoneNumber: $phoneNumber, orthopedicBank: $orthopedicBank, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -92,7 +87,6 @@ class User {
         other.name == name &&
         other.email == email &&
         other.phoneNumber == phoneNumber &&
-        other.orthopedicBankId == orthopedicBankId &&
         other.orthopedicBank == orthopedicBank &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
@@ -104,7 +98,6 @@ class User {
         name.hashCode ^
         email.hashCode ^
         phoneNumber.hashCode ^
-        orthopedicBankId.hashCode ^
         orthopedicBank.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;

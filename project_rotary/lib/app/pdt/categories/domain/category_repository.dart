@@ -18,6 +18,9 @@ abstract class CategoryRepository {
     required CreateCategoryDTO createCategoryDTO,
   });
   AsyncResult<List<Category>> getCategories();
+  AsyncResult<List<Category>> getCategoriesByOrthopedicBank({
+    required String orthopedicBankId,
+  });
   AsyncResult<Category> getCategoryById({required String id});
   AsyncResult<Category> updateCategory({
     required String id,

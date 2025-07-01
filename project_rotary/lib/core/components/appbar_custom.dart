@@ -323,7 +323,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                           subtitle: Text(
                                             orthopedicBank?.city ??
                                                 (user != null
-                                                    ? 'ID: ${user.orthopedicBankId}'
+                                                    ? 'ID: ${user.orthopedicBank!.id}'
                                                     : ''),
                                           ),
                                         ),

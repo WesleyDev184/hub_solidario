@@ -5,6 +5,7 @@ import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart'
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_category_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/delete_category_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_all_categories_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/get_categories_by_orthopedic_bank_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_category_by_id_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/update_category_usecase.dart';
 
@@ -14,6 +15,8 @@ import 'package:project_rotary/app/pdt/categories/domain/usecases/update_categor
 class CategoryController extends ChangeNotifier {
   final CreateCategoryUseCase _createCategoryUseCase;
   final GetAllCategoriesUseCase _getAllCategoriesUseCase;
+  final GetCategoriesByOrthopedicBankUseCase
+  _getCategoriesByOrthopedicBankUseCase;
   final GetCategoryByIdUseCase _getCategoryByIdUseCase;
   final UpdateCategoryUseCase _updateCategoryUseCase;
   final DeleteCategoryUseCase _deleteCategoryUseCase;
@@ -21,11 +24,15 @@ class CategoryController extends ChangeNotifier {
   CategoryController({
     required CreateCategoryUseCase createCategoryUseCase,
     required GetAllCategoriesUseCase getAllCategoriesUseCase,
+    required GetCategoriesByOrthopedicBankUseCase
+    getCategoriesByOrthopedicBankUseCase,
     required GetCategoryByIdUseCase getCategoryByIdUseCase,
     required UpdateCategoryUseCase updateCategoryUseCase,
     required DeleteCategoryUseCase deleteCategoryUseCase,
   }) : _createCategoryUseCase = createCategoryUseCase,
        _getAllCategoriesUseCase = getAllCategoriesUseCase,
+       _getCategoriesByOrthopedicBankUseCase =
+           getCategoriesByOrthopedicBankUseCase,
        _getCategoryByIdUseCase = getCategoryByIdUseCase,
        _updateCategoryUseCase = updateCategoryUseCase,
        _deleteCategoryUseCase = deleteCategoryUseCase;
@@ -85,6 +92,31 @@ class CategoryController extends ChangeNotifier {
       },
       (error) {
         _setError('Erro ao buscar categorias: ${_extractErrorMessage(error)}');
+        _setLoading(false);
+      },
+    );
+  }
+
+  /// Busca categorias por banco ortopédico através da rota de estoque
+  Future<void> getCategoriesByOrthopedicBank({
+    required String orthopedicBankId,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    final result = await _getCategoriesByOrthopedicBankUseCase(
+      orthopedicBankId: orthopedicBankId,
+    );
+
+    result.fold(
+      (categoriesList) {
+        _categories = categoriesList;
+        _setLoading(false);
+      },
+      (error) {
+        _setError(
+          'Erro ao buscar categorias do banco: ${_extractErrorMessage(error)}',
+        );
         _setLoading(false);
       },
     );

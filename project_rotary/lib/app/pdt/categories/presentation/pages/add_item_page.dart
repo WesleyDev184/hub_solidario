@@ -55,8 +55,9 @@ class _AddItemPageState extends State<AddItemPage> {
   }
 
   String? _validateImageUrl(String? value) {
+    // URL da imagem é opcional
     if (value == null || value.trim().isEmpty) {
-      return 'URL da imagem é obrigatória';
+      return null; // Não é obrigatória
     }
     final uri = Uri.tryParse(value.trim());
     if (uri == null || !uri.hasAbsolutePath) {
@@ -70,29 +71,48 @@ class _AddItemPageState extends State<AddItemPage> {
       return;
     }
 
-    await itemController.createItem(
-      createItemDTO: CreateItemDTO(
-        categoryId: int.parse(widget.categoryId),
-        serialCode: int.parse(_serialCodeController.text.trim()),
-        stockId: widget.categoryId,
-        imageUrl: _imageUrlController.text.trim(),
-      ),
-    );
+    // Trata URL da imagem como opcional
+    final imageUrl = _imageUrlController.text.trim();
 
-    if (mounted) {
-      if (itemController.errorMessage == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Item criado com sucesso!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context, true);
-      } else {
+    try {
+      await itemController.createItem(
+        createItemDTO: CreateItemDTO(
+          serialCode: int.parse(_serialCodeController.text.trim()),
+          stockId: widget.categoryId, // categoryId é o stockId da API
+          imageUrl: imageUrl, // Pode ser vazia, será tratada no DTO
+        ),
+      );
+
+      if (mounted) {
+        if (itemController.errorMessage == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Item criado com sucesso!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Navigator.pop(context, true); // Retorna true para indicar sucesso
+        } else {
+          debugPrint('Erro ao criar item: ${itemController.errorMessage}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                itemController.errorMessage ?? 'Erro ao criar item',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(itemController.errorMessage ?? 'Erro ao criar item'),
+            content: Text('Erro inesperado: ${e.toString()}'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -152,11 +172,20 @@ class _AddItemPageState extends State<AddItemPage> {
               const SizedBox(height: 24),
 
               const Text(
-                'URL da Imagem *',
+                'URL da Imagem',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Campo opcional - deixe em branco se não tiver imagem',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
                 ),
               ),
               const SizedBox(height: 8),

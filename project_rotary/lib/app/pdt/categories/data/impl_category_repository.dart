@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:project_rotary/app/pdt/categories/data/item_service.dart';
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
@@ -10,6 +11,8 @@ import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart'
 import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/user.dart';
 import 'package:project_rotary/app/pdt/loans/domain/entities/loan.dart';
+import 'package:project_rotary/core/api/api_client.dart';
+import 'package:project_rotary/core/api/api_config.dart';
 import 'package:result_dart/result_dart.dart';
 
 // Mock data para bancos ortopédicos
@@ -22,50 +25,166 @@ final List<Map<String, dynamic>> orthopedicBanks = [
 ];
 
 class ImplCategoryRepository implements CategoryRepository {
+  final ApiClient _apiClient;
+  final ItemService _itemService;
+
+  ImplCategoryRepository({ApiClient? apiClient, ItemService? itemService})
+    : _apiClient = apiClient ?? ApiClient(),
+      _itemService = itemService ?? ItemService();
   @override
   AsyncResult<Category> createCategory({
     required CreateCategoryDTO createCategoryDTO,
   }) async {
     try {
-      // Simular delay de API
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Simular possível erro (10% de chance)
-      if (DateTime.now().millisecond % 10 == 0) {
-        return Failure(Exception('Erro no servidor. Tente novamente.'));
-      }
-
-      final selectedBank = orthopedicBanks.firstWhere(
-        (bank) => bank['id'] == createCategoryDTO.orthopedicBankId,
-        orElse: () => throw Exception('Banco ortopédico não encontrado'),
+      debugPrint(
+        'Criando categoria: ${createCategoryDTO.title} para banco: ${createCategoryDTO.orthopedicBankId}',
       );
 
-      // Simular validação no backend
-      if (createCategoryDTO.title.toLowerCase().contains('teste')) {
-        return Failure(Exception('Título não pode conter a palavra "teste"'));
+      // Validação local antes de enviar para API
+      if (!createCategoryDTO.isValid) {
+        return Failure(Exception('Dados inválidos para criação da categoria'));
       }
 
-      final categoryData = {
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'title': createCategoryDTO.title.trim(),
-        'orthopedicBank': selectedBank,
-        'createdAt': DateTime.now().toIso8601String(),
-      };
+      // Chamada para POST /stocks conforme documentação OpenAPI
+      final result = await _apiClient.post(ApiEndpoints.stocks, {
+        'title': createCategoryDTO.title,
+        'orthopedicBankId': createCategoryDTO.orthopedicBankId,
+      });
 
-      final category = Category.fromJson(categoryData);
+      return result.fold(
+        (data) {
+          debugPrint('Categoria criada com sucesso: $data');
 
-      debugPrint('Categoria criada com sucesso: ${category.title}');
-      return Success(category);
+          // Parse da resposta da API
+          final categoryData = data['data'] as Map<String, dynamic>? ?? data;
+
+          // Transformar resposta do stock em Category
+          final category = Category.fromJson({
+            'id': categoryData['id']?.toString() ?? '',
+            'title': categoryData['title'] ?? createCategoryDTO.title,
+            'orthopedicBank': {
+              'id': createCategoryDTO.orthopedicBankId,
+              'name':
+                  'Banco Ortopédico', // Nome será obtido em implementação futura
+            },
+            'createdAt':
+                categoryData['createdAt'] ?? DateTime.now().toIso8601String(),
+            'updatedAt': categoryData['updatedAt'],
+            'imageUrl': categoryData['imageUrl'] ?? 'assets/images/cr.jpg',
+            'availableQtd': categoryData['availableQtd'] ?? 0,
+            'borrowedQtd': categoryData['borrowedQtd'] ?? 0,
+            'maintenanceQtd': categoryData['maintenanceQtd'] ?? 0,
+          });
+
+          debugPrint(
+            'Categoria parseada: ${category.title} (ID: ${category.id})',
+          );
+          return Success(category);
+        },
+        (error) {
+          debugPrint('Erro ao criar categoria: $error');
+          return Failure(
+            Exception('Erro ao criar categoria: ${error.toString()}'),
+          );
+        },
+      );
     } catch (e) {
-      return Failure(Exception('Erro inesperado: ${e.toString()}'));
+      debugPrint('Erro inesperado ao criar categoria: $e');
+      return Failure(
+        Exception('Erro inesperado ao criar categoria: ${e.toString()}'),
+      );
     }
   }
 
   @override
   AsyncResult<List<Category>> getCategories() async {
-    await Future.delayed(const Duration(seconds: 1));
-    // Implementar busca de categorias
-    return Success([]);
+    try {
+      // Implementação mock mantida para compatibilidade
+      await Future.delayed(const Duration(seconds: 1));
+      return Success([]);
+    } catch (e) {
+      return Failure(Exception('Erro ao buscar categorias: ${e.toString()}'));
+    }
+  }
+
+  @override
+  AsyncResult<List<Category>> getCategoriesByOrthopedicBank({
+    required String orthopedicBankId,
+  }) async {
+    try {
+      debugPrint(
+        'Buscando categorias do estoque para orthopedicBankId: $orthopedicBankId',
+      );
+
+      // Chamada para GET /stocks/orthopedic-bank/{orthopedicBankId}
+      final result = await _apiClient.get(
+        ApiEndpoints.stocksByOrthopedicBank(orthopedicBankId),
+      );
+
+      return result.fold(
+        (data) {
+          debugPrint('Dados de estoque retornados: $data');
+
+          // Parse da lista de categorias do estoque
+          final stockData =
+              data['data'] as List<dynamic>? ?? data as List<dynamic>? ?? [];
+
+          final categories =
+              stockData.map((item) {
+                final stockItem = item as Map<String, dynamic>;
+
+                // Transformar dados de stock em Category
+                // Assumindo que o stock tem estrutura similar à categoria
+                return Category.fromJson({
+                  'id': stockItem['id']?.toString() ?? '',
+                  'title':
+                      stockItem['name'] ??
+                      stockItem['title'] ??
+                      'Categoria sem nome',
+                  'orthopedicBank': {
+                    'id': orthopedicBankId,
+                    'name': 'Banco Ortopédico',
+                  },
+                  'createdAt':
+                      stockItem['createdAt'] ??
+                      DateTime.now().toIso8601String(),
+                  // Adicionar campos extras que a página espera
+                  'imageUrl': stockItem['imageUrl'] ?? 'assets/images/cr.jpg',
+                  'availableQtd':
+                      stockItem['availableQuantity'] ??
+                      stockItem['availableQtd'] ??
+                      0,
+                  'borrowedQtd':
+                      stockItem['borrowedQuantity'] ??
+                      stockItem['borrowedQtd'] ??
+                      0,
+                  'maintenanceQtd':
+                      stockItem['maintenanceQuantity'] ??
+                      stockItem['maintenanceQtd'] ??
+                      0,
+                });
+              }).toList();
+
+          debugPrint('Categorias parseadas: ${categories.length} itens');
+          return Success(categories);
+        },
+        (error) {
+          debugPrint('Erro ao buscar categorias do estoque: $error');
+          return Failure(
+            Exception(
+              'Erro ao buscar categorias do estoque: ${error.toString()}',
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('Erro inesperado ao buscar categorias do estoque: $e');
+      return Failure(
+        Exception(
+          'Erro inesperado ao buscar categorias do estoque: ${e.toString()}',
+        ),
+      );
+    }
   }
 
   @override
@@ -117,25 +236,26 @@ class ImplCategoryRepository implements CategoryRepository {
   @override
   AsyncResult<Item> createItem({required CreateItemDTO createItemDTO}) async {
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      debugPrint('CategoryRepository: Criando item via API');
 
-      // Simular possível erro
-      if (DateTime.now().millisecond % 12 == 0) {
-        return Failure(Exception('Erro ao criar item'));
-      }
+      // Usa o método toJson() do DTO para garantir que campos vazios não sejam enviados
+      final itemData = createItemDTO.toJson();
+      debugPrint('CategoryRepository: Dados do item: $itemData');
 
-      final itemData = {
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'serialCode': createItemDTO.serialCode,
-        'stockId': createItemDTO.stockId,
-        'imageUrl': createItemDTO.imageUrl,
-        'status': 'Disponível',
-        'createdAt': DateTime.now().toIso8601String(),
-      };
+      final result = await _itemService.createItem(itemData);
 
-      final item = Item.fromJson(itemData);
-      return Success(item);
+      return result.fold(
+        (item) {
+          debugPrint('CategoryRepository: Item criado com sucesso');
+          return Success(item);
+        },
+        (error) {
+          debugPrint('CategoryRepository: Erro ao criar item: $error');
+          return Failure(error);
+        },
+      );
     } catch (e) {
+      debugPrint('CategoryRepository: Erro inesperado: $e');
       return Failure(Exception('Erro inesperado: ${e.toString()}'));
     }
   }

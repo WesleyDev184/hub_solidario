@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/auth/di/auth_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/select_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
-
-// Mock data para bancos ortopédicos
-final List<Map<String, dynamic>> orthopedicBanks = [
-  {"id": "1", "name": "Banco Ortopédico Central"},
-  {"id": "2", "name": "Banco Ortopédico Norte"},
-  {"id": "3", "name": "Banco Ortopédico Sul"},
-  {"id": "4", "name": "Banco Ortopédico Leste"},
-  {"id": "5", "name": "Banco Ortopédico Oeste"},
-];
 
 class NewCategoryPage extends StatefulWidget {
   const NewCategoryPage({super.key});
@@ -26,10 +18,84 @@ class NewCategoryPage extends StatefulWidget {
 class _NewCategoryPageState extends State<NewCategoryPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
+
+  // Controllers
   final categoryController =
       CategoryDependencyFactory.instance.categoryController;
+  final authController = AuthDependencyFactory.instance.authController;
 
   String? _selectedOrthopedicBankId;
+  List<Map<String, dynamic>> _orthopedicBanks = [];
+  bool _isLoadingBanks = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDataAndBanks();
+  }
+
+  /// Carrega dados do usuário logado e bancos ortopédicos
+  Future<void> _loadUserDataAndBanks() async {
+    setState(() => _isLoadingBanks = true);
+
+    try {
+      // Buscar usuário atual para pré-selecionar seu banco
+      final userResult = await authController.getCurrentUser();
+
+      if (userResult.isSuccess()) {
+        final user = userResult.getOrNull();
+        if (user != null && user.orthopedicBank != null) {
+          _selectedOrthopedicBankId = user.orthopedicBank!.id;
+
+          // Se o usuário tem um banco associado, usar apenas esse banco
+          _orthopedicBanks = [
+            {"id": user.orthopedicBank!.id, "name": user.orthopedicBank!.name},
+          ];
+        } else {
+          // Se não tem banco associado, buscar todos os bancos disponíveis
+          await _loadAllOrthopedicBanks();
+        }
+      } else {
+        // Em caso de erro, buscar todos os bancos
+        await _loadAllOrthopedicBanks();
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar dados do usuário: $e');
+      await _loadAllOrthopedicBanks();
+    }
+
+    setState(() => _isLoadingBanks = false);
+  }
+
+  /// Busca todos os bancos ortopédicos da API
+  Future<void> _loadAllOrthopedicBanks() async {
+    try {
+      final banksResult = await authController.getOrthopedicBanks();
+
+      if (banksResult.isSuccess()) {
+        final banks = banksResult.getOrNull();
+        if (banks != null) {
+          _orthopedicBanks =
+              banks.map((bank) => {"id": bank.id, "name": bank.name}).toList();
+        }
+      } else {
+        // Fallback para dados mock se a API falhar
+        _orthopedicBanks = [
+          {"id": "1", "name": "Banco Ortopédico Central"},
+          {"id": "2", "name": "Banco Ortopédico Norte"},
+          {"id": "3", "name": "Banco Ortopédico Sul"},
+        ];
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar bancos ortopédicos: $e');
+      // Fallback para dados mock
+      _orthopedicBanks = [
+        {"id": "1", "name": "Banco Ortopédico Central"},
+        {"id": "2", "name": "Banco Ortopédico Norte"},
+        {"id": "3", "name": "Banco Ortopédico Sul"},
+      ];
+    }
+  }
 
   @override
   void dispose() {
@@ -73,6 +139,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
           SnackBar(
             content: Text(categoryController.errorMessage!),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
           ),
         );
       } else {
@@ -81,9 +148,12 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
           const SnackBar(
             content: Text('Categoria criada com sucesso!'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
           ),
         );
-        Navigator.pop(context);
+
+        // Retornar com indicação de sucesso para recarregar a lista
+        Navigator.of(context).maybePop();
       }
     }
   }
@@ -148,24 +218,30 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              SelectField<String>(
-                value: _selectedOrthopedicBankId,
-                hint: 'Selecione um banco ortopédico',
-                icon: LucideIcons.building,
-                validator: _validateOrthopedicBank,
-                items:
-                    orthopedicBanks.map((bank) {
-                      return DropdownMenuItem<String>(
-                        value: bank['id'],
-                        child: Text(bank['name']),
-                      );
-                    }).toList(),
-                onChanged: (String? value) {
-                  setState(() {
-                    _selectedOrthopedicBankId = value;
-                  });
-                },
-              ),
+              _isLoadingBanks
+                  ? const Center(
+                    child: CircularProgressIndicator(
+                      color: CustomColors.primary,
+                    ),
+                  )
+                  : SelectField<String>(
+                    value: _selectedOrthopedicBankId,
+                    hint: 'Selecione um banco ortopédico',
+                    icon: LucideIcons.building,
+                    validator: _validateOrthopedicBank,
+                    items:
+                        _orthopedicBanks.map((bank) {
+                          return DropdownMenuItem<String>(
+                            value: bank['id'],
+                            child: Text(bank['name']),
+                          );
+                        }).toList(),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedOrthopedicBankId = value;
+                      });
+                    },
+                  ),
 
               const Spacer(),
 
@@ -177,7 +253,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                       onPressed:
                           categoryController.isLoading
                               ? null
-                              : () => Navigator.pop(context),
+                              : () => Navigator.of(context).maybePop(),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: Colors.grey[400]!),
@@ -200,6 +276,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                     child: ElevatedButton(
                       onPressed:
                           categoryController.isLoading ? null : _saveCategory,
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: CustomColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 16),

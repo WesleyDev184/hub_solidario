@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class Item {
   final String id;
   final int serialCode;
@@ -20,19 +22,58 @@ class Item {
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
-    return Item(
-      id: json['id'] as String,
-      serialCode: json['serialCode'] as int,
-      stockId: json['stockId'] as String,
-      imageUrl: json['imageUrl'] as String,
-      status: json['status'] as String,
-      categoryId: json['categoryId'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt:
-          json['updatedAt'] != null
-              ? DateTime.parse(json['updatedAt'] as String)
-              : null,
-    );
+    try {
+      // Extração do serialCode - API retorna como 'seriaCode' (sem 'l')
+      dynamic serialCodeValue =
+          json['serialCode'] ?? json['serial_code'] ?? json['seriaCode'];
+      int serialCode = 0;
+
+      if (serialCodeValue != null) {
+        if (serialCodeValue is int) {
+          serialCode = serialCodeValue;
+        } else if (serialCodeValue is double) {
+          serialCode = serialCodeValue.toInt();
+        } else if (serialCodeValue is String) {
+          serialCode = int.tryParse(serialCodeValue) ?? 0;
+        }
+      }
+
+      return Item(
+        id: json['id']?.toString() ?? '',
+        serialCode: serialCode,
+        stockId:
+            json['stockId']?.toString() ??
+            json['stock_id']?.toString() ??
+            '', // Campo obrigatório mas pode estar ausente
+        imageUrl:
+            json['imageUrl']?.toString() ??
+            json['image_url']?.toString() ??
+            '', // Campo opcional
+        status: json['status']?.toString() ?? 'AVAILABLE',
+        categoryId:
+            json['categoryId']?.toString() ??
+            json['category_id']?.toString() ??
+            '', // Campo obrigatório mas pode estar ausente
+        createdAt:
+            json['createdAt'] != null
+                ? DateTime.tryParse(json['createdAt'].toString()) ??
+                    DateTime.now()
+                : json['created_at'] != null
+                ? DateTime.tryParse(json['created_at'].toString()) ??
+                    DateTime.now()
+                : DateTime.now(),
+        updatedAt:
+            json['updatedAt'] != null
+                ? DateTime.tryParse(json['updatedAt'].toString())
+                : json['updated_at'] != null
+                ? DateTime.tryParse(json['updated_at'].toString())
+                : null,
+      );
+    } catch (e) {
+      debugPrint('Item.fromJson - Error: $e');
+      debugPrint('Item.fromJson - JSON was: $json');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {

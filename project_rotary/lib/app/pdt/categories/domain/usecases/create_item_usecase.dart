@@ -16,17 +16,15 @@ class CreateItemUseCase {
         return Failure(Exception('Dados do item são inválidos'));
       }
 
-      if (createItemDTO.categoryId <= 0) {
-        return Failure(Exception('ID da categoria é obrigatório'));
-      }
-
       if (createItemDTO.stockId.trim().isEmpty) {
         return Failure(Exception('ID do estoque é obrigatório'));
       }
 
-      if (createItemDTO.imageUrl.trim().isEmpty) {
-        return Failure(Exception('URL da imagem é obrigatória'));
+      if (createItemDTO.serialCode <= 0) {
+        return Failure(Exception('Código serial deve ser maior que zero'));
       }
+
+      // imageUrl não é mais obrigatória
 
       return await _repository.createItem(createItemDTO: createItemDTO);
     } catch (e) {
