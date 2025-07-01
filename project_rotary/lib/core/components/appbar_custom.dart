@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/auth/di/auth_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/info/presentation/pages/info_page.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -9,10 +10,93 @@ import 'package:project_rotary/core/theme/custom_colors.dart';
 const _primaryBg = CustomColors.white;
 const _primaryColor = CustomColors.textPrimary;
 
-class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
+class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
   const AppBarCustom({super.key, required this.title});
 
   final String title;
+
+  @override
+  State<AppBarCustom> createState() => _AppBarCustomState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class _AppBarCustomState extends State<AppBarCustom> {
+  final authController = AuthDependencyFactory.instance.authController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Carrega os dados do usuário atual e bancos ortopédicos
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      debugPrint('AppBar - Iniciando carregamento de dados do usuário...');
+
+      // Carrega os dados do usuário atual (que já inclui o banco ortopédico)
+      final userResult = await authController.getCurrentUser();
+      userResult.fold(
+        (user) => debugPrint(
+          'AppBar - Usuário carregado: ${user.name} (${user.email}), Banco: ${user.orthopedicBank?.name}',
+        ),
+        (error) => debugPrint('AppBar - Erro ao carregar usuário: $error'),
+      );
+
+      debugPrint('AppBar - Carregamento concluído');
+    } catch (e) {
+      debugPrint('AppBar - Erro geral ao carregar dados: $e');
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    // Mostra um dialog de confirmação
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirmar logout'),
+            content: const Text('Tem certeza que deseja sair?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Sair'),
+              ),
+            ],
+          ),
+    );
+
+    if (shouldLogout == true) {
+      final result = await authController.logout();
+
+      if (mounted) {
+        result.fold(
+          (success) {
+            // Logout bem-sucedido, navega para a tela de login
+            Navigator.of(
+              context,
+              rootNavigator: true,
+            ).pushNamedAndRemoveUntil('/', (route) => false);
+          },
+          (error) {
+            // Mostra erro se houver falha no logout
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Erro ao fazer logout: $error'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          },
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +134,7 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
                     ),
 
                 Text(
-                  title,
+                  widget.title,
                   style: TextStyle(
                     fontSize: 21,
                     color: _primaryColor,
@@ -98,77 +182,153 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
                                     ),
                                   ),
 
-                                  ListTile(
-                                    leading: Icon(
-                                      LucideIcons.idCard,
-                                      color: CustomColors.textPrimary,
-                                    ),
-                                    title: Text('John Doe'),
-                                  ),
+                                  AnimatedBuilder(
+                                    animation: authController,
+                                    builder: (context, child) {
+                                      final user = authController.currentUser;
+                                      final isLoading =
+                                          authController.isLoading;
+                                      final error = authController.error;
 
-                                  Divider(),
-                                  ListTile(
-                                    leading: Icon(
-                                      LucideIcons.mail,
-                                      color: CustomColors.textPrimary,
-                                    ),
-                                    title: Text('exemple@gmail.com'),
-                                  ),
+                                      // Debug: Log do estado atual
+                                      debugPrint(
+                                        'AppBar - User: ${user?.name}, Email: ${user?.email}',
+                                      );
+                                      debugPrint(
+                                        'AppBar - Loading: $isLoading, Error: $error',
+                                      );
 
-                                  Divider(),
-                                  ListTile(
-                                    leading: Icon(
-                                      LucideIcons.phone,
-                                      color: CustomColors.textPrimary,
-                                    ),
-                                    title: Text('(11) 99999-9999'),
+                                      // Se está carregando, mostra indicador
+                                      if (isLoading && user == null) {
+                                        return const Column(
+                                          children: [
+                                            ListTile(
+                                              leading:
+                                                  CircularProgressIndicator(),
+                                              title: Text(
+                                                'Carregando dados do usuário...',
+                                              ),
+                                            ),
+                                            Divider(),
+                                          ],
+                                        );
+                                      }
+
+                                      // Se houve erro e não há usuário, mostra erro
+                                      if (error != null && user == null) {
+                                        return Column(
+                                          children: [
+                                            ListTile(
+                                              leading: Icon(
+                                                Icons.error,
+                                                color: Colors.red,
+                                              ),
+                                              title: Text(
+                                                'Erro ao carregar dados',
+                                              ),
+                                              subtitle: Text(error),
+                                            ),
+                                            Divider(),
+                                          ],
+                                        );
+                                      }
+
+                                      // Mostra dados do usuário
+                                      return Column(
+                                        children: [
+                                          ListTile(
+                                            leading: Icon(
+                                              LucideIcons.idCard,
+                                              color: CustomColors.textPrimary,
+                                            ),
+                                            title: Text(
+                                              user?.name ??
+                                                  'Nome não disponível',
+                                            ),
+                                          ),
+
+                                          Divider(),
+                                          ListTile(
+                                            leading: Icon(
+                                              LucideIcons.mail,
+                                              color: CustomColors.textPrimary,
+                                            ),
+                                            title: Text(
+                                              user?.email ??
+                                                  'Email não disponível',
+                                            ),
+                                          ),
+
+                                          Divider(),
+                                          ListTile(
+                                            leading: Icon(
+                                              LucideIcons.phone,
+                                              color: CustomColors.textPrimary,
+                                            ),
+                                            title: Text(
+                                              user?.phoneNumber ??
+                                                  'Telefone não disponível',
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
 
                                   Spacer(),
 
-                                  Card(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: ListTile(
-                                      leading: Icon(
-                                        LucideIcons.building2,
-                                        color: CustomColors.primary,
-                                      ),
-                                      title: Text(
-                                        'Banco Ortopédico Exemplo', // Substitua pelo nome real do banco
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                  AnimatedBuilder(
+                                    animation: authController,
+                                    builder: (context, child) {
+                                      final user = authController.currentUser;
+                                      final orthopedicBank =
+                                          user?.orthopedicBank;
+
+                                      return Card(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
                                         ),
-                                      ),
-                                      subtitle: Text(
-                                        'Cidade Exemplo',
-                                      ), // Substitua pela cidade real
-                                    ),
+                                        elevation: 4,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: ListTile(
+                                          leading: Icon(
+                                            LucideIcons.building2,
+                                            color: CustomColors.primary,
+                                          ),
+                                          title: Text(
+                                            orthopedicBank?.name ??
+                                                'Banco não carregado',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            orthopedicBank?.city ??
+                                                (user != null
+                                                    ? 'ID: ${user.orthopedicBankId}'
+                                                    : ''),
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
 
                                   const SizedBox(height: 16),
 
-                                    Button(
+                                  Button(
                                     text: "Sair",
                                     icon: Icon(
                                       LucideIcons.logOut,
                                       color: CustomColors.white,
                                     ),
                                     backgroundColor: CustomColors.error,
-                                    onPressed: () {
-                                      Navigator.of(context, rootNavigator: true)
-                                        .pushNamedAndRemoveUntil(
-                                      '/',
-                                      (route) => false,
-                                      );
-                                    },
-                                    ),
+                                    onPressed: _handleLogout,
+                                  ),
 
                                   Padding(
                                     padding: const EdgeInsets.only(
@@ -214,7 +374,4 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

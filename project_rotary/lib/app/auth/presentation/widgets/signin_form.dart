@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/auth/data/impl_auth_repository.dart';
+import 'package:project_rotary/app/auth/di/auth_dependency_factory.dart';
 import 'package:project_rotary/app/auth/domain/dto/signin_dto.dart';
-import 'package:project_rotary/app/auth/presentation/controller/auth_controller.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/password_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -15,7 +14,7 @@ class SingInForm extends StatefulWidget {
 }
 
 class _SingInFormState extends State<SingInForm> {
-  final authController = AuthController(ImplAuthRepository());
+  final authController = AuthDependencyFactory.instance.authController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
 
@@ -153,7 +152,7 @@ class _SingInFormState extends State<SingInForm> {
 
                   if (context.mounted) {
                     result.fold(
-                      (success) {
+                      (authData) {
                         Navigator.pushNamedAndRemoveUntil(
                           context,
                           '/layout',

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/auth/data/impl_auth_repository.dart';
+import 'package:project_rotary/app/auth/di/auth_dependency_factory.dart';
 import 'package:project_rotary/app/auth/domain/dto/signup_dto.dart';
-import 'package:project_rotary/app/auth/presentation/controller/auth_controller.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/password_field.dart';
+import 'package:project_rotary/core/components/select_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -15,13 +15,15 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<SignUpForm> {
-  final authController = AuthController(ImplAuthRepository());
+  final authController = AuthDependencyFactory.instance.authController;
 
   late TextEditingController nameController;
   late TextEditingController phoneController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
   late TextEditingController confirmPasswordController;
+
+  String? selectedOrthopedicBankId;
 
   @override
   void initState() {
@@ -31,6 +33,9 @@ class _SignUpFormState extends State<SignUpForm> {
     emailController = TextEditingController();
     passwordController = TextEditingController();
     confirmPasswordController = TextEditingController();
+
+    // Carrega os bancos ortopédicos disponíveis
+    authController.getOrthopedicBanks();
   }
 
   @override
@@ -155,6 +160,69 @@ class _SignUpFormState extends State<SignUpForm> {
 
               const SizedBox(height: 16),
 
+              // Campo Banco Ortopédico
+              const Text(
+                'Banco Ortopédico *',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 6),
+              AnimatedBuilder(
+                animation: authController,
+                builder: (context, child) {
+                  if (authController.isLoading &&
+                      authController.orthopedicBanks.isEmpty) {
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          SizedBox(width: 12),
+                          Text('Carregando bancos ortopédicos...'),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return SelectField<String>(
+                    value: selectedOrthopedicBankId,
+                    hint: 'Selecione um banco ortopédico',
+                    icon: LucideIcons.building2,
+                    items:
+                        authController.orthopedicBanks.map((bank) {
+                          return DropdownMenuItem<String>(
+                            value: bank.id,
+                            child: Text('${bank.name} - ${bank.city}'),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedOrthopedicBankId = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Selecione um banco ortopédico';
+                      }
+                      return null;
+                    },
+                  );
+                },
+              ),
+
+              const SizedBox(height: 16),
+
               // Campo Senha
               const Text(
                 'Senha *',
@@ -192,19 +260,31 @@ class _SignUpFormState extends State<SignUpForm> {
               // Botão principal
               ElevatedButton(
                 onPressed: () async {
+                  // Valida se um banco ortopédico foi selecionado
+                  if (selectedOrthopedicBankId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Selecione um banco ortopédico'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+
                   final result = await authController.signup(
                     signUpDTO: SignUpDTO(
                       email: emailController.text,
                       password: passwordController.text,
                       confirmPassword: confirmPasswordController.text,
                       name: nameController.text,
-                      phone: phoneController.text,
+                      phoneNumber: phoneController.text,
+                      orthopedicBankId: selectedOrthopedicBankId!,
                     ),
                   );
 
                   if (context.mounted) {
                     result.fold(
-                      (success) {
+                      (user) {
                         Navigator.pushNamedAndRemoveUntil(
                           context,
                           '/layout',
