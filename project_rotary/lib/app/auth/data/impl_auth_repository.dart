@@ -11,7 +11,6 @@ import 'package:project_rotary/core/api/api_config.dart';
 import 'package:result_dart/result_dart.dart';
 
 /// Implementação do repositório de autenticação.
-/// Segue o padrão Clean Architecture e faz chamadas reais para a API Rotary.
 class ImplAuthRepository implements AuthRepository {
   final ApiClient _apiClient;
 
@@ -206,15 +205,6 @@ class ImplAuthRepository implements AuthRepository {
           _currentAuthData != null &&
           !_currentAuthData!.isExpired) {
         return Success(_currentUser!);
-      }
-
-      // Se já está fazendo uma requisição, aguarda
-      if (_isLoadingUser) {
-        // Aguarda um pouco e tenta novamente
-        await Future.delayed(Duration(milliseconds: 100));
-        if (_currentUser != null) {
-          return Success(_currentUser!);
-        }
       }
 
       _isLoadingUser = true;
