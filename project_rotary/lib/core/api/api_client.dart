@@ -12,6 +12,9 @@ class ApiClient {
   String? _apiKey;
   String? _accessToken;
 
+  /// Callback para logout automático em caso de erro 401
+  Function()? _onUnauthorized;
+
   ApiClient({http.Client? client}) : _client = client ?? http.Client();
 
   /// Define a API Key para autenticação
@@ -27,6 +30,11 @@ class ApiClient {
   /// Remove o token de acesso
   void clearAccessToken() {
     _accessToken = null;
+  }
+
+  /// Define o callback para logout automático em caso de erro 401
+  void setOnUnauthorizedCallback(Function()? callback) {
+    _onUnauthorized = callback;
   }
 
   /// Headers para requisições
@@ -200,6 +208,12 @@ class ApiClient {
       }
     } catch (e) {
       errorMessage = _getStatusCodeMessage(response.statusCode);
+    }
+
+    // Se for erro 401 (não autorizado), executa logout automático
+    if (response.statusCode == 401 && _onUnauthorized != null) {
+      debugPrint('Erro 401 detectado - executando logout automático');
+      _onUnauthorized!();
     }
 
     return Failure(HttpException(errorMessage, uri: response.request?.url));

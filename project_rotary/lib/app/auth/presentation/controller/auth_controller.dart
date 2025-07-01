@@ -350,4 +350,14 @@ class AuthController extends ChangeNotifier {
     _setLoading(false);
     return result;
   }
+
+  /// Força logout por questão de segurança (chamado pelo ApiClient em caso de erro 401)
+  void forceLogout() {
+    debugPrint('AuthController - Força logout por questão de segurança');
+    _setAuthData(null);
+    _setCurrentUser(null);
+    _isFetchingUser = false;
+    _setError('Sua sessão expirou. Por favor, faça login novamente.');
+    notifyListeners();
+  }
 }

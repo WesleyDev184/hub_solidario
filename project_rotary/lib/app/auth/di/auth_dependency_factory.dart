@@ -116,6 +116,14 @@ class AuthDependencyFactory {
       validateTokenUseCase: validateTokenUseCase,
       getOrthopedicBanksUseCase: getOrthopedicBanksUseCase,
     );
+
+    // Configura callback para logout automático
+    if (_authRepository is ImplAuthRepository) {
+      (_authRepository as ImplAuthRepository).setOnAutoLogoutCallback(
+        () => _authController?.forceLogout(),
+      );
+    }
+
     return _authController!;
   }
 

@@ -20,10 +20,21 @@ class ImplAuthRepository implements AuthRepository {
   static bool _isLoadingUser =
       false; // Flag para evitar múltiplas requisições simultâneas
 
+  // Callback para notificar o controller sobre logout automático
+  Function()? _onAutoLogout;
+
   ImplAuthRepository({ApiClient? apiClient})
     : _apiClient = apiClient ?? ApiClient() {
     // Carrega dados salvos na inicialização
     _loadSavedAuthData();
+
+    // Configura callback para logout automático em caso de erro 401
+    _apiClient.setOnUnauthorizedCallback(_handleUnauthorizedError);
+  }
+
+  /// Define callback para ser chamado quando houver logout automático
+  void setOnAutoLogoutCallback(Function()? callback) {
+    _onAutoLogout = callback;
   }
 
   /// Carrega dados de autenticação salvos localmente
@@ -46,6 +57,31 @@ class ImplAuthRepository implements AuthRepository {
       }
     } catch (e) {
       debugPrint('Erro ao carregar dados salvos: $e');
+    }
+  }
+
+  /// Trata erro 401 (não autorizado) realizando logout automático
+  Future<void> _handleUnauthorizedError() async {
+    debugPrint(
+      'Erro 401 detectado - realizando logout automático por segurança',
+    );
+
+    try {
+      // Limpa os dados locais imediatamente
+      _currentUser = null;
+      _currentAuthData = null;
+      _isLoadingUser = false;
+      _apiClient.clearAccessToken();
+      await AuthStorage.clearAuthData();
+
+      // Notifica o controller sobre o logout automático
+      if (_onAutoLogout != null) {
+        _onAutoLogout!();
+      }
+
+      debugPrint('Dados do usuário removidos por questão de segurança');
+    } catch (e) {
+      debugPrint('Erro ao limpar dados durante logout automático: $e');
     }
   }
 
