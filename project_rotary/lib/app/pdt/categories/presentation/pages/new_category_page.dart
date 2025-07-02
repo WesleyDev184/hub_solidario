@@ -153,7 +153,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
         );
 
         // Retornar com indicação de sucesso para recarregar a lista
-        Navigator.of(context).maybePop();
+        Navigator.pop(context, true);
       }
     }
   }
@@ -253,7 +253,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                       onPressed:
                           categoryController.isLoading
                               ? null
-                              : () => Navigator.of(context).maybePop(),
+                              : () => Navigator.pop(context, false),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: Colors.grey[400]!),

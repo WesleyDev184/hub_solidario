@@ -66,9 +66,8 @@ class _CategoryPageState extends State<CategoryPage> {
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return ActionMenuCategory(
-          onCreatePressed: () {
-            Navigator.push(
-              context,
+          onCreatePressed: () async {
+            final result = await Navigator.of(context).push<bool>(
               MaterialPageRoute(
                 builder:
                     (context) => AddItemPage(
@@ -76,7 +75,12 @@ class _CategoryPageState extends State<CategoryPage> {
                       categoryTitle: widget.categoryTitle,
                     ),
               ),
-            ).then((_) => _refreshItems()); // Recarrega após adicionar item
+            );
+
+            if (result == true) {
+              // Recarrega os itens após adicionar um novo item
+              _refreshItems();
+            }
           },
           onEditPressed: () {
             Navigator.push(
@@ -108,8 +112,8 @@ class _CategoryPageState extends State<CategoryPage> {
               ),
             );
           },
-          onBorrowPressed: () {
-            Navigator.push(
+          onBorrowPressed: () async {
+            final result = await Navigator.push<bool>(
               context,
               MaterialPageRoute(
                 builder:
@@ -118,7 +122,12 @@ class _CategoryPageState extends State<CategoryPage> {
                       categoryTitle: widget.categoryTitle,
                     ),
               ),
-            ).then((_) => _refreshItems()); // Recarrega após criar empréstimo
+            );
+
+            if (result == true) {
+              // Recarrega os itens após criar um empréstimo
+              _refreshItems();
+            }
           },
         );
       },
