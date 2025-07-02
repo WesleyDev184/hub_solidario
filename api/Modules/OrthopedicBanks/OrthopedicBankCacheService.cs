@@ -25,5 +25,6 @@ public static class OrthopedicBankCacheService
   {
     await cache.RemoveAsync(Keys.OrthopedicBankById(orthopedicBankId), ct);
     await cache.RemoveAsync(Keys.AllOrthopedicBanks, ct);
+    await cache.RemoveByTagAsync($"user-{orthopedicBankId}", ct);
   }
 }

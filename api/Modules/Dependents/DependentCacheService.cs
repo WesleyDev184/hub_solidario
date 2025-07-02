@@ -1,3 +1,4 @@
+using api.Modules.Applicants;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace api.Modules.Dependents;
@@ -21,9 +22,14 @@ public static class DependentCacheService
   /// <summary>
   /// Invalida o cache de um dependent específico
   /// </summary>
-  public static async Task InvalidateDependentCache(HybridCache cache, Guid dependentId, CancellationToken ct = default)
+  public static async Task InvalidateDependentCache(HybridCache cache, Guid dependentId, Guid? applicantId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.DependentById(dependentId), ct);
-    await cache.RemoveAsync(Keys.AllDependents, ct);
+    await InvalidateAllDependentCaches(cache, ct);
+    if (applicantId.HasValue)
+    {
+      await ApplicantCacheService.InvalidateApplicantCacheByDependent(cache, applicantId.Value, ct);
+    }
   }
+
 }

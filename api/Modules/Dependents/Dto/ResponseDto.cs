@@ -36,7 +36,7 @@ public record ResponseDependentDeleteDTO(
   [property: SwaggerSchema(Description = "HTTP status code of the response")]
   HttpStatusCode Status,
   [property: SwaggerSchema(Description = "Unique identifier of the Applicant is relation", Format = "uuid")]
-  Guid? Id,
+  Guid? ApplicantId,
   [property: SwaggerSchema(Description = "Additional message information", Nullable = true)]
   string? Message
 );

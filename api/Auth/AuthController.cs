@@ -219,7 +219,8 @@ namespace api.Auth
               Expiration = TimeSpan.FromDays(2),
               LocalCacheExpiration = TimeSpan.FromMinutes(5)
             },
-            cancellationToken: ct);
+            cancellationToken: ct,
+            tags: [$"user-{user.OrthopedicBankId}"]);
 
           return Results.Ok(new ResponseControllerUserDTO(
             true,

@@ -156,7 +156,8 @@ public static class StockController
             Expiration = TimeSpan.FromDays(2),
             LocalCacheExpiration = TimeSpan.FromMinutes(1)
           },
-          cancellationToken: ct);
+          cancellationToken: ct,
+          tags: ["stocks"]);
 
         return Results.Ok(new ResponseControllerStockListDTO(
           cachedResponse.Status == HttpStatusCode.OK,
