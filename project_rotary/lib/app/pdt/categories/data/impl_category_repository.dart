@@ -1,14 +1,10 @@
 import 'package:flutter/widgets.dart';
-import 'package:project_rotary/app/pdt/categories/data/item_service.dart';
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/dto/update_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
-import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/user.dart';
 import 'package:project_rotary/app/pdt/loans/domain/entities/loan.dart';
 import 'package:project_rotary/core/api/api_client.dart';
@@ -26,11 +22,9 @@ final List<Map<String, dynamic>> orthopedicBanks = [
 
 class ImplCategoryRepository implements CategoryRepository {
   final ApiClient _apiClient;
-  final ItemService _itemService;
 
-  ImplCategoryRepository({ApiClient? apiClient, ItemService? itemService})
-    : _apiClient = apiClient ?? ApiClient(),
-      _itemService = itemService ?? ItemService();
+  ImplCategoryRepository({ApiClient? apiClient})
+    : _apiClient = apiClient ?? ApiClient();
   @override
   AsyncResult<Category> createCategory({
     required CreateCategoryDTO createCategoryDTO,
@@ -365,61 +359,6 @@ class ImplCategoryRepository implements CategoryRepository {
   }
 
   @override
-  AsyncResult<Item> createItem({required CreateItemDTO createItemDTO}) async {
-    try {
-      debugPrint('CategoryRepository: Criando item via API');
-
-      // Usa o método toJson() do DTO para garantir que campos vazios não sejam enviados
-      final itemData = createItemDTO.toJson();
-      debugPrint('CategoryRepository: Dados do item: $itemData');
-
-      final result = await _itemService.createItem(itemData);
-
-      return result.fold(
-        (item) {
-          debugPrint('CategoryRepository: Item criado com sucesso');
-          return Success(item);
-        },
-        (error) {
-          debugPrint('CategoryRepository: Erro ao criar item: $error');
-          return Failure(error);
-        },
-      );
-    } catch (e) {
-      debugPrint('CategoryRepository: Erro inesperado: $e');
-      return Failure(Exception('Erro inesperado: ${e.toString()}'));
-    }
-  }
-
-  @override
-  AsyncResult<List<Item>> getItemsByCategory({
-    required String categoryId,
-  }) async {
-    try {
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      // Mock items para a categoria
-      final mockItems = List.generate(5, (index) {
-        final statuses = ['Disponível', 'Em manutenção', 'Emprestado'];
-        return {
-          'id': '${categoryId}_item_${index + 1}',
-          'serialCode': 10000 + index,
-          'stockId': categoryId,
-          'imageUrl': 'https://example.com/item${index + 1}.png',
-          'status': statuses[index % statuses.length],
-          'createdAt':
-              DateTime.now().subtract(Duration(days: index)).toIso8601String(),
-        };
-      });
-
-      final items = mockItems.map((data) => Item.fromJson(data)).toList();
-      return Success(items);
-    } catch (e) {
-      return Failure(Exception('Erro ao buscar itens: ${e.toString()}'));
-    }
-  }
-
-  @override
   AsyncResult<List<User>> getUsers() async {
     try {
       await Future.delayed(const Duration(milliseconds: 500));
@@ -557,74 +496,6 @@ class ImplCategoryRepository implements CategoryRepository {
 
       final loan = Loan.fromJson(loanData);
       return Success(loan);
-    } catch (e) {
-      return Failure(Exception('Erro inesperado: ${e.toString()}'));
-    }
-  }
-
-  @override
-  AsyncResult<Item> getItemById({required String id}) async {
-    try {
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Mock item data
-      final itemData = {
-        'id': id,
-        'serialCode': 12345,
-        'stockId': 'STOCK_001',
-        'imageUrl': 'https://example.com/item.png',
-        'status': 'Disponível',
-        'createdAt': DateTime.now().toIso8601String(),
-      };
-
-      final item = Item.fromJson(itemData);
-      return Success(item);
-    } catch (e) {
-      return Failure(Exception('Erro ao buscar item: ${e.toString()}'));
-    }
-  }
-
-  @override
-  AsyncResult<Item> updateItem({
-    required String id,
-    required UpdateItemDTO updateItemDTO,
-  }) async {
-    try {
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Simular possível erro
-      if (DateTime.now().millisecond % 12 == 0) {
-        return Failure(Exception('Erro ao atualizar item'));
-      }
-
-      final itemData = {
-        'id': id,
-        'serialCode': updateItemDTO.serialCode ?? 12345,
-        'stockId': updateItemDTO.stockId ?? 'STOCK_001',
-        'imageUrl': updateItemDTO.imageUrl ?? 'https://example.com/item.png',
-        'status': 'Disponível',
-        'createdAt':
-            DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
-      };
-
-      final item = Item.fromJson(itemData);
-      return Success(item);
-    } catch (e) {
-      return Failure(Exception('Erro inesperado: ${e.toString()}'));
-    }
-  }
-
-  @override
-  AsyncResult<String> deleteItem({required String id}) async {
-    try {
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      // Simular possível erro
-      if (DateTime.now().millisecond % 15 == 0) {
-        return Failure(Exception('Erro ao deletar item'));
-      }
-
-      return Success('Item deletado com sucesso');
     } catch (e) {
       return Failure(Exception('Erro inesperado: ${e.toString()}'));
     }

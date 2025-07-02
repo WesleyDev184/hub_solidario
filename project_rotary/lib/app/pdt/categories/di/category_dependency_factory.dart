@@ -1,5 +1,4 @@
 import 'package:project_rotary/app/pdt/categories/data/impl_category_repository.dart';
-import 'package:project_rotary/app/pdt/categories/data/item_service.dart';
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_category_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_item_usecase.dart';
@@ -45,7 +44,7 @@ class CategoryDependencyFactory {
   CategoryRepository? _categoryRepository;
 
   CategoryRepository get categoryRepository {
-    _categoryRepository ??= ImplCategoryRepository(itemService: ItemService());
+    _categoryRepository ??= ImplCategoryRepository();
     return _categoryRepository!;
   }
 
@@ -113,29 +112,27 @@ class CategoryDependencyFactory {
   DeleteItemUseCase? _deleteItemUseCase;
 
   CreateItemUseCase get createItemUseCase {
-    _createItemUseCase ??= CreateItemUseCase(repository: categoryRepository);
+    _createItemUseCase ??= CreateItemUseCase();
     return _createItemUseCase!;
   }
 
   GetItemsByCategoryUseCase get getItemsByCategoryUseCase {
-    _getItemsByCategoryUseCase ??= GetItemsByCategoryUseCase(
-      repository: categoryRepository,
-    );
+    _getItemsByCategoryUseCase ??= GetItemsByCategoryUseCase();
     return _getItemsByCategoryUseCase!;
   }
 
   GetItemByIdUseCase get getItemByIdUseCase {
-    _getItemByIdUseCase ??= GetItemByIdUseCase(repository: categoryRepository);
+    _getItemByIdUseCase ??= GetItemByIdUseCase();
     return _getItemByIdUseCase!;
   }
 
   UpdateItemUseCase get updateItemUseCase {
-    _updateItemUseCase ??= UpdateItemUseCase(repository: categoryRepository);
+    _updateItemUseCase ??= UpdateItemUseCase();
     return _updateItemUseCase!;
   }
 
   DeleteItemUseCase get deleteItemUseCase {
-    _deleteItemUseCase ??= DeleteItemUseCase(repository: categoryRepository);
+    _deleteItemUseCase ??= DeleteItemUseCase();
     return _deleteItemUseCase!;
   }
 

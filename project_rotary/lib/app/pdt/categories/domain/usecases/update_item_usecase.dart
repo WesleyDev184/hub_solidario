@@ -1,4 +1,4 @@
-import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/data/item_service.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:result_dart/result_dart.dart';
@@ -7,10 +7,10 @@ import 'package:result_dart/result_dart.dart';
 /// Implementa o padrão Clean Architecture separando a lógica de negócio
 /// da infraestrutura.
 class UpdateItemUseCase {
-  final CategoryRepository _repository;
+  final ItemService _itemService;
 
-  UpdateItemUseCase({required CategoryRepository repository})
-    : _repository = repository;
+  UpdateItemUseCase({ItemService? itemService})
+    : _itemService = itemService ?? ItemService();
 
   /// Executa a atualização de um item.
   ///
@@ -38,11 +38,8 @@ class UpdateItemUseCase {
         return Failure(Exception('Dados de atualização inválidos'));
       }
 
-      // Executa a operação no repositório
-      final result = await _repository.updateItem(
-        id: id,
-        updateItemDTO: updateItemDTO,
-      );
+      // Executa a operação no service
+      final result = await _itemService.updateItem(id, updateItemDTO.toJson());
 
       return result;
     } catch (e) {

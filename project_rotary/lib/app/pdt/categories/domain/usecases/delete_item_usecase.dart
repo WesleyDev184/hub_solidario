@@ -1,14 +1,14 @@
-import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/data/item_service.dart';
 import 'package:result_dart/result_dart.dart';
 
 /// Use case para deletar um item.
 /// Implementa o padrão Clean Architecture separando a lógica de negócio
 /// da infraestrutura.
 class DeleteItemUseCase {
-  final CategoryRepository _repository;
+  final ItemService _itemService;
 
-  DeleteItemUseCase({required CategoryRepository repository})
-    : _repository = repository;
+  DeleteItemUseCase({ItemService? itemService})
+    : _itemService = itemService ?? ItemService();
 
   /// Executa a exclusão de um item.
   ///
@@ -22,10 +22,13 @@ class DeleteItemUseCase {
         return Failure(Exception('ID do item não pode estar vazio'));
       }
 
-      // Executa a operação no repositório
-      final result = await _repository.deleteItem(id: id);
+      // Executa a operação no service
+      final result = await _itemService.deleteItem(id);
 
-      return result;
+      return result.fold(
+        (success) => Success('Item deletado com sucesso'),
+        (error) => Failure(error),
+      );
     } catch (e) {
       return Failure(
         Exception('Erro inesperado ao deletar item: ${e.toString()}'),

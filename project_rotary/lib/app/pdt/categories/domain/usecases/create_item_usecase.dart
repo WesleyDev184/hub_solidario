@@ -1,13 +1,13 @@
-import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/data/item_service.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:result_dart/result_dart.dart';
 
 class CreateItemUseCase {
-  final CategoryRepository _repository;
+  final ItemService _itemService;
 
-  CreateItemUseCase({required CategoryRepository repository})
-    : _repository = repository;
+  CreateItemUseCase({ItemService? itemService})
+    : _itemService = itemService ?? ItemService();
 
   AsyncResult<Item> call({required CreateItemDTO createItemDTO}) async {
     try {
@@ -26,7 +26,7 @@ class CreateItemUseCase {
 
       // imageUrl não é mais obrigatória
 
-      return await _repository.createItem(createItemDTO: createItemDTO);
+      return await _itemService.createItem(createItemDTO.toJson());
     } catch (e) {
       return Failure(Exception('Erro ao criar item: $e'));
     }

@@ -1,4 +1,4 @@
-import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/data/item_service.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:result_dart/result_dart.dart';
 
@@ -6,10 +6,10 @@ import 'package:result_dart/result_dart.dart';
 /// Implementa o padrão Clean Architecture separando a lógica de negócio
 /// da infraestrutura.
 class GetItemByIdUseCase {
-  final CategoryRepository _repository;
+  final ItemService _itemService;
 
-  GetItemByIdUseCase({required CategoryRepository repository})
-    : _repository = repository;
+  GetItemByIdUseCase({ItemService? itemService})
+    : _itemService = itemService ?? ItemService();
 
   /// Executa a busca de um item por ID.
   ///
@@ -23,8 +23,8 @@ class GetItemByIdUseCase {
         return Failure(Exception('ID do item não pode estar vazio'));
       }
 
-      // Executa a operação no repositório
-      final result = await _repository.getItemById(id: id);
+      // Executa a operação no service
+      final result = await _itemService.getItemById(id);
 
       return result;
     } catch (e) {

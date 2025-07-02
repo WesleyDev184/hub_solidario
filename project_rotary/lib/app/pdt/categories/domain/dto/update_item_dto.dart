@@ -15,9 +15,11 @@ class UpdateItemDTO {
     final Map<String, dynamic> data = {};
 
     if (categoryId != null) data['categoryId'] = categoryId;
-    if (serialCode != null) data['serialCode'] = serialCode;
+    if (serialCode != null)
+      data['seriaCode'] = serialCode; // API espera 'seriaCode'
     if (stockId != null) data['stockId'] = stockId;
-    if (imageUrl != null) data['imageUrl'] = imageUrl;
+    if (imageUrl != null && imageUrl!.trim().isNotEmpty)
+      data['imageUrl'] = imageUrl;
 
     return data;
   }

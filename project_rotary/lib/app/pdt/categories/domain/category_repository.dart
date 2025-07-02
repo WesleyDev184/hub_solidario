@@ -1,17 +1,14 @@
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/dto/update_item_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
-import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/user.dart';
 import 'package:project_rotary/app/pdt/loans/domain/entities/loan.dart';
 import 'package:result_dart/result_dart.dart';
 
 /// Interface do repositório para gerenciar operações relacionadas a categorias,
-/// itens, empréstimos e usuários. Seguindo o padrão de Clean Architecture.
+/// empréstimos e usuários. Seguindo o padrão de Clean Architecture.
 abstract class CategoryRepository {
   // Category operations
   AsyncResult<Category> createCategory({
@@ -27,16 +24,6 @@ abstract class CategoryRepository {
     required UpdateCategoryDTO updateCategoryDTO,
   });
   AsyncResult<String> deleteCategory({required String id});
-
-  // Item operations
-  AsyncResult<Item> createItem({required CreateItemDTO createItemDTO});
-  AsyncResult<List<Item>> getItemsByCategory({required String categoryId});
-  AsyncResult<Item> getItemById({required String id});
-  AsyncResult<Item> updateItem({
-    required String id,
-    required UpdateItemDTO updateItemDTO,
-  });
-  AsyncResult<String> deleteItem({required String id});
 
   // User operations
   AsyncResult<List<User>> getUsers();
