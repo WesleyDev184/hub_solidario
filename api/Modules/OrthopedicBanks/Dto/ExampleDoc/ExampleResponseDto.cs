@@ -144,10 +144,12 @@ namespace api.Modules.OrthopedicBanks.Dto.ExampleDoc
             new ResponseEntityStockDTO(
               Id: Guid.NewGuid(),
               Title: "Existing Stock Title",
+              ImageUrl: "https://example.com/image.jpg",
               MaintenanceQtd: 5,
               AvailableQtd: 10,
               BorrowedQtd: 2,
               TotalQtd: 17,
+              OrthopedicBankId: Guid.NewGuid(),
               null,
               null,
               DateTime.UtcNow)

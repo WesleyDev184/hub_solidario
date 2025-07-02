@@ -6,6 +6,8 @@ using Swashbuckle.AspNetCore.Annotations;
 public record RequestCreateStockDto(
   [SwaggerParameter(Description = "Title of the stock", Required = true)]
   string Title,
+  [SwaggerParameter(Description = "Image URL of the stock", Required = true)]
+  string ImageUrl,
   [SwaggerParameter(Description = "ID of the orthopedic bank to which the stock belongs", Required = true)]
   Guid OrthopedicBankId
 );
@@ -13,6 +15,8 @@ public record RequestCreateStockDto(
 public record RequestUpdateStockDto(
   [SwaggerParameter(Description = "Updated title of the stock", Required = false)]
   string? Title,
+  [SwaggerParameter(Description = "Image URL of the stock", Required = false)]
+  string? ImageUrl,
   [SwaggerParameter(Description = "Quantity for maintenance", Required = false)]
   int? MaintenanceQtd,
   [SwaggerParameter(Description = "Quantity available", Required = false)]

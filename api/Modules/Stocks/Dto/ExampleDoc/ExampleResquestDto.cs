@@ -8,6 +8,7 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
     {
       return new RequestCreateStockDto(
         Title: "New Stock Title",
+        ImageUrl: "https://example.com/image.jpg",
         OrthopedicBankId: Guid.NewGuid()
       );
     }
@@ -19,6 +20,7 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
     {
       return new RequestUpdateStockDto(
         Title: "Updated Stock Title",
+        ImageUrl: "https://example.com/updated_image.jpg",
         MaintenanceQtd: 5,
         AvailableQtd: 10,
         BorrowedQtd: 2

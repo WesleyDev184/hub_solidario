@@ -45,6 +45,8 @@ public static class StockService
         $"Orthopedic bank with ID '{request.OrthopedicBankId}' not found.");
     }
 
+    // TODO: colocar a imagem no bucket S3 e salvar a URL aqui
+
     await using var transaction = await context.Database.BeginTransactionAsync(ct);
     try
     {
@@ -62,7 +64,7 @@ public static class StockService
       }
 
       // Create a new stock with initial quantities set to 0
-      var newStock = new Stock(request.Title, request.OrthopedicBankId);
+      var newStock = new Stock(request.Title, request.ImageUrl, request.OrthopedicBankId);
 
       context.Stocks.Add(newStock);
       await context.SaveChangesAsync(ct);
@@ -114,10 +116,12 @@ public static class StockService
       .Select(s => new ResponseEntityStockDTO(
         s.Id,
         s.Title,
+        s.ImageUrl,
         s.MaintenanceQtd,
         s.AvailableQtd,
         s.BorrowedQtd,
         s.TotalQtd,
+        s.OrthopedicBankId,
         null, // OrthopedicBank not included in list view for brevity/performance
         null, // Items not included in list view for brevity/performance
         s.CreatedAt))
@@ -155,10 +159,12 @@ public static class StockService
       .Select(s => new ResponseEntityStockDTO(
         s.Id,
         s.Title,
+        s.ImageUrl,
         s.MaintenanceQtd,
         s.AvailableQtd,
         s.BorrowedQtd,
         s.TotalQtd,
+        s.OrthopedicBankId,
         null, // OrthopedicBank not included in list view for brevity/performance
         null, // Items not included in list view for brevity/performance
         s.CreatedAt))
@@ -266,7 +272,7 @@ public static class StockService
   /// <summary>
   /// Deletes a stock record. This operation will fail if the stock has associated items.
   /// </summary>
-  public static async Task<ResponseStockDTO> DeleteStock(
+  public static async Task<ResponseStockDeleteDTO> DeleteStock(
     Guid id,
     ApiDbContext context,
     CancellationToken ct)
@@ -281,14 +287,14 @@ public static class StockService
       if (stock == null)
       {
         await transaction.RollbackAsync(ct);
-        return new ResponseStockDTO(HttpStatusCode.NotFound, null, $"Stock with ID '{id}' not found.");
+        return new ResponseStockDeleteDTO(HttpStatusCode.NotFound, null, $"Stock with ID '{id}' not found.");
       }
 
       // Business rule: Prevent deletion if there are associated items
       if (stock.Items != null && stock.Items.Count != 0)
       {
         await transaction.RollbackAsync(ct);
-        return new ResponseStockDTO(
+        return new ResponseStockDeleteDTO(
           HttpStatusCode.BadRequest,
           null,
           $"Stock with ID '{id}' cannot be deleted because it has associated items. Please delete or reassign items first.");
@@ -299,13 +305,13 @@ public static class StockService
       await transaction.CommitAsync(ct);
 
       // 204 No Content is standard for successful DELETE operations where no content is returned
-      return new ResponseStockDTO(HttpStatusCode.OK, null, "Stock deleted successfully.");
+      return new ResponseStockDeleteDTO(HttpStatusCode.OK, stock.OrthopedicBankId, "Stock deleted successfully.");
     }
     catch (Exception ex)
     {
       await transaction.RollbackAsync(ct);
       Console.WriteLine($"Error deleting stock: {ex.Message} - {ex.InnerException?.Message}");
-      return new ResponseStockDTO(HttpStatusCode.InternalServerError, null,
+      return new ResponseStockDeleteDTO(HttpStatusCode.InternalServerError, null,
         "An unexpected error occurred while deleting the stock.");
     }
   }
@@ -321,10 +327,12 @@ public static class StockService
     return new ResponseEntityStockDTO(
       stock.Id,
       stock.Title,
+      stock.ImageUrl,
       stock.MaintenanceQtd,
       stock.AvailableQtd,
       stock.BorrowedQtd,
       stock.TotalQtd,
+      stock.OrthopedicBankId,
       orthopedicBank == null
         ? null
         : new ResponseEntityOrthopedicBankDTO(
@@ -336,7 +344,6 @@ public static class StockService
       items?.Select(i => new ResponseEntityItemDTO(
         i.Id,
         i.SeriaCode,
-        i.ImageUrl,
         i.Status.ToString(),
         i.StockId,
         i.CreatedAt)).ToArray(),

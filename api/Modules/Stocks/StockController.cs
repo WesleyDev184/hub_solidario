@@ -67,7 +67,7 @@ public static class StockController
         // Invalidar cache após criação bem-sucedida
         if (response.Status == HttpStatusCode.Created)
         {
-          await StockCacheService.InvalidateAllStockCaches(cache, ct);
+          await StockCacheService.InvalidateStockCache(cache, response.Data!.Id, response.Data.OrthopedicBankId, ct);
         }
 
         return response.Status switch
@@ -214,7 +214,7 @@ public static class StockController
         // Invalidar cache após atualização bem-sucedida
         if (response.Status == HttpStatusCode.OK)
         {
-          await StockCacheService.InvalidateStockCache(cache, id, ct);
+          await StockCacheService.InvalidateStockCache(cache, id, response.Data!.OrthopedicBankId, ct);
         }
 
         return response.Status switch
@@ -270,7 +270,7 @@ public static class StockController
         // Invalidar cache após exclusão bem-sucedida
         if (response.Status == HttpStatusCode.OK)
         {
-          await StockCacheService.InvalidateStockCache(cache, id, ct);
+          await StockCacheService.InvalidateStockCache(cache, id, response.OrthopedicBankId, ct);
         }
 
         return response.Status switch

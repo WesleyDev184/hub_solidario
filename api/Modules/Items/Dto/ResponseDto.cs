@@ -9,8 +9,6 @@ public record ResponseEntityItemDTO(
   Guid Id,
   [property: SwaggerSchema(Description = "Serial code of the item", Format = "int32")]
   int SeriaCode,
-  [property: SwaggerSchema(Description = "Image URL for the item", Format = "uri")]
-  string ImageUrl,
   [property: SwaggerSchema(Description = "Status of the item", Format = "string")]
   string Status,
   [property: SwaggerSchema(Description = "Unique identifier of the stock associated with the item", Format = "uuid")]

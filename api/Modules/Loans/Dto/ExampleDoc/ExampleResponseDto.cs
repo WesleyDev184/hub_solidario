@@ -24,7 +24,6 @@ namespace api.Modules.Loans.Dto.ExampleDoc
           Item: new ResponseEntityItemDTO(
             Id: Guid.NewGuid(),
             SeriaCode: 12345,
-            ImageUrl: "https://example.com/item-image.png",
             Status: "Available",
             StockId: Guid.NewGuid(),
             CreatedAt: DateTime.UtcNow
@@ -71,7 +70,6 @@ namespace api.Modules.Loans.Dto.ExampleDoc
           Item: new ResponseEntityItemDTO(
             Id: Guid.NewGuid(),
             SeriaCode: 12345,
-            ImageUrl: "https://example.com/item-image.png",
             Status: "Available",
             StockId: Guid.NewGuid(),
             CreatedAt: DateTime.UtcNow
@@ -209,7 +207,6 @@ namespace api.Modules.Loans.Dto.ExampleDoc
           Item: new ResponseEntityItemDTO(
             Id: Guid.NewGuid(),
             SeriaCode: 12345,
-            ImageUrl: "https://example.com/item-image.png",
             Status: "Available",
             StockId: Guid.NewGuid(),
             CreatedAt: DateTime.UtcNow

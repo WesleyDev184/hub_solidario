@@ -22,10 +22,13 @@ public static class StockCacheService
   /// <summary>
   /// Invalida o cache de um stock específico
   /// </summary>
-  public static async Task InvalidateStockCache(HybridCache cache, Guid stockId, CancellationToken ct = default)
+  public static async Task InvalidateStockCache(HybridCache cache, Guid stockId, Guid? orthopedicBankId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.StockById(stockId), ct);
-    await cache.RemoveAsync(Keys.AllStocks, ct);
+    await InvalidateAllStockCaches(cache, ct);
+
+    if (orthopedicBankId.HasValue)
+      await InvalidateOrthopedicBankStockCaches(cache, orthopedicBankId.Value, ct);
   }
 
   /// <summary>
@@ -34,6 +37,5 @@ public static class StockCacheService
   public static async Task InvalidateOrthopedicBankStockCaches(HybridCache cache, Guid orthopedicBankId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.StocksByOrthopedicBank(orthopedicBankId), ct);
-    await cache.RemoveAsync(Keys.AllStocks, ct);
   }
 }

@@ -14,11 +14,13 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
         Success: true,
         Data: new ResponseEntityStockDTO(
             Id: Guid.NewGuid(),
+            ImageUrl: "https://example.com/image.jpg",
             Title: "Existing Stock Title",
             MaintenanceQtd: 5,
             AvailableQtd: 10,
             BorrowedQtd: 2,
             TotalQtd: 17,
+            OrthopedicBankId: Guid.NewGuid(),
             OrthopedicBank: null,
             Items: null,
             CreatedAt: DateTime.UtcNow
@@ -37,11 +39,13 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
         Success: false,
         Data: new ResponseEntityStockDTO(
             Id: Guid.NewGuid(),
+            ImageUrl: "https://example.com/image.jpg",
             Title: "Existing Stock Title",
             MaintenanceQtd: 5,
             AvailableQtd: 10,
             BorrowedQtd: 2,
             TotalQtd: 17,
+            OrthopedicBankId: Guid.NewGuid(),
             OrthopedicBank: null,
             Items: null,
             CreatedAt: DateTime.UtcNow
@@ -86,11 +90,13 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
         Success: true,
         Data: new ResponseEntityStockDTO(
           Id: Guid.NewGuid(),
+          ImageUrl: "https://example.com/image.jpg",
           Title: "Existing Stock Title",
           MaintenanceQtd: 5,
           AvailableQtd: 10,
           BorrowedQtd: 2,
           TotalQtd: 17,
+          OrthopedicBankId: Guid.NewGuid(),
           OrthopedicBank: new ResponseEntityOrthopedicBankDTO(
             Id: Guid.NewGuid(),
             Name: "Orthopedic Bank Name",
@@ -106,8 +112,6 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
               Guid.NewGuid(),
               SeriaCode:
               23344556,
-              ImageUrl:
-              "https://example.com/image1.jpg",
               Status:
               ItemStatus.AVAILABLE.ToString(),
               StockId:
@@ -118,7 +122,6 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
             new ResponseEntityItemDTO(
               Id: Guid.NewGuid(),
               SeriaCode: 23344557,
-              ImageUrl: "https://example.com/image1.jpg",
               Status: ItemStatus.MAINTENANCE.ToString(),
               StockId: Guid.NewGuid(),
               CreatedAt: DateTime.UtcNow
@@ -171,10 +174,12 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
           new ResponseEntityStockDTO(
             Id: Guid.NewGuid(),
             Title: "Existing Stock Title",
+            ImageUrl: "https://example.com/image.jpg",
             MaintenanceQtd: 5,
             AvailableQtd: 10,
             BorrowedQtd: 2,
             TotalQtd: 17,
+            OrthopedicBankId: Guid.NewGuid(),
             OrthopedicBank: null,
             Items: null,
             CreatedAt: DateTime.UtcNow

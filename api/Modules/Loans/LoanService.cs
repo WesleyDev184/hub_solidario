@@ -412,7 +412,6 @@ public static class LoanService
         : new ResponseEntityItemDTO(
           item.Id,
           item.SeriaCode,
-          item.ImageUrl,
           item.Status.ToString(),
           item.StockId,
           item.CreatedAt

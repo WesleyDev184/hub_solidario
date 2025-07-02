@@ -11,8 +11,7 @@ namespace api.Modules.Items.Dto.ExampleDoc
     {
       return new RequestCreateItemDto(
         SeriaCode: 12345,
-        StockId: Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-        ImageUrl: "https://example.com/item-image.png"
+        StockId: Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
       );
     }
   }
@@ -23,7 +22,6 @@ namespace api.Modules.Items.Dto.ExampleDoc
     {
       return new RequestUpdateItemDto(
         SeriaCode: 54321,
-        ImageUrl: "https://example.com/new-item-image.png",
         Status: ItemStatus.UNAVAILABLE // Exemplo: ajuste conforme os valores definidos no seu enum
       );
     }

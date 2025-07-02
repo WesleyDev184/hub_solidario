@@ -53,7 +53,7 @@ namespace api.Modules.Items
             $"Item with seria code '{request.SeriaCode}' already exists.");
         }
 
-        Item newItem = new(request.SeriaCode, request.ImageUrl, ItemStatus.AVAILABLE, request.StockId);
+        Item newItem = new(request.SeriaCode, ItemStatus.AVAILABLE, request.StockId);
 
         context.Items.Add(newItem);
 
@@ -164,12 +164,6 @@ namespace api.Modules.Items
           }
 
           item.SetSeriaCode(request.SeriaCode.Value);
-        }
-
-        // Image URL update
-        if (!string.IsNullOrWhiteSpace(request.ImageUrl))
-        {
-          item.SetImageUrl(request.ImageUrl);
         }
 
         // Store old status before potential update
@@ -305,7 +299,6 @@ namespace api.Modules.Items
       return new ResponseEntityItemDTO(
         item.Id,
         item.SeriaCode,
-        item.ImageUrl,
         item.Status.ToString(),
         item.StockId,
         item.CreatedAt

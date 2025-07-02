@@ -221,10 +221,12 @@ public static class OrthopedicBankService
       orthopedicBank.Stocks.Select(s => new ResponseEntityStockDTO(
         s.Id,
         s.Title,
+        s.ImageUrl,
         s.MaintenanceQtd,
         s.AvailableQtd,
         s.BorrowedQtd,
         s.TotalQtd,
+        s.OrthopedicBankId,
         null,
         null,
         s.CreatedAt
