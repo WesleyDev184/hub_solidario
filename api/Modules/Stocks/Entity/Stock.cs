@@ -34,6 +34,11 @@ public class Stock
     Title = title;
   }
 
+  public void SetImageUrl(string imageUrl)
+  {
+    ImageUrl = imageUrl;
+  }
+
   public void SetMaintenanceQtd(int qtd)
   {
     MaintenanceQtd = qtd;

@@ -6,6 +6,7 @@ using api.Modules.OrthopedicBanks.Dto;
 using api.Modules.OrthopedicBanks.Entity;
 using api.Modules.Stocks.Dto;
 using api.Modules.Stocks.Entity;
+using api.Services.S3;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Modules.Stocks;
@@ -18,6 +19,7 @@ public static class StockService
   public static async Task<ResponseStockDTO> CreateStock(
     RequestCreateStockDto request,
     ApiDbContext context,
+    IFileStorageService fileStorageService,
     CancellationToken ct)
   {
     if (request == null)
@@ -45,7 +47,29 @@ public static class StockService
         $"Orthopedic bank with ID '{request.OrthopedicBankId}' not found.");
     }
 
-    // TODO: colocar a imagem no bucket S3 e salvar a URL aqui
+    string? imageUrl = null;
+
+    // Verifica se um arquivo foi enviado na requisição
+    if (request.ImageFile != null && request.ImageFile.Length > 0)
+    {
+      try
+      {
+        // Abre o stream do arquivo enviado
+        await using var stream = request.ImageFile.OpenReadStream();
+
+        // USA O NOSSO SERVIÇO GENÉRICO para fazer o upload
+        imageUrl = await fileStorageService.UploadFileAsync(
+            stream,
+            request.ImageFile.FileName,
+            request.ImageFile.ContentType
+        );
+      }
+      catch (Exception ex)
+      {
+        // Se o upload falhar, retorna um erro.
+        return new ResponseStockDTO(HttpStatusCode.InternalServerError, null, $"Erro ao fazer upload da imagem: {ex.Message}");
+      }
+    }
 
     await using var transaction = await context.Database.BeginTransactionAsync(ct);
     try
@@ -64,7 +88,7 @@ public static class StockService
       }
 
       // Create a new stock with initial quantities set to 0
-      var newStock = new Stock(request.Title, request.ImageUrl, request.OrthopedicBankId);
+      var newStock = new Stock(request.Title, imageUrl ?? string.Empty, request.OrthopedicBankId);
 
       context.Stocks.Add(newStock);
       await context.SaveChangesAsync(ct);
@@ -72,10 +96,15 @@ public static class StockService
 
       return new ResponseStockDTO(HttpStatusCode.Created, MapToResponseEntityStockDto(newStock, null, null), "Stock created successfully.");
     }
-    catch (Exception ex)
+    catch
     {
       await transaction.RollbackAsync(ct);
-      Console.WriteLine($"Error creating stock: {ex.Message} - {ex.InnerException?.Message}");
+      if (!string.IsNullOrEmpty(imageUrl))
+      {
+        // Extrai o nome do arquivo da URL para deletar
+        var fileName = imageUrl.Split('/').Last();
+        await fileStorageService.DeleteFileAsync(fileName);
+      }
       return new ResponseStockDTO(HttpStatusCode.InternalServerError, null,
         "An unexpected error occurred while creating the stock.");
     }
@@ -184,12 +213,16 @@ public static class StockService
     Guid id,
     RequestUpdateStockDto request,
     ApiDbContext context,
+    IFileStorageService fileStorageService,
     CancellationToken ct)
   {
     if (request == null)
     {
       return new ResponseStockDTO(HttpStatusCode.BadRequest, null, "Invalid request data provided.");
     }
+
+    string? newImageUrl = null;
+    string? oldImageUrl = null;
 
     await using var transaction = await context.Database.BeginTransactionAsync(ct);
     try
@@ -203,6 +236,31 @@ public static class StockService
         return new ResponseStockDTO(HttpStatusCode.NotFound, null, $"Stock with ID '{id}' not found.");
       }
 
+      // Store the old image URL for cleanup if needed
+      oldImageUrl = stock.ImageUrl;
+
+      // Handle image upload if a new file is provided
+      if (request.ImageFile != null && request.ImageFile.Length > 0)
+      {
+        try
+        {
+          // Abre o stream do arquivo enviado
+          await using var stream = request.ImageFile.OpenReadStream();
+
+          // USA O NOSSO SERVIÇO GENÉRICO para fazer o upload
+          newImageUrl = await fileStorageService.UploadFileAsync(
+              stream,
+              request.ImageFile.FileName,
+              request.ImageFile.ContentType
+          );
+        }
+        catch (Exception ex)
+        {
+          await transaction.RollbackAsync(ct);
+          return new ResponseStockDTO(HttpStatusCode.InternalServerError, null, $"Erro ao fazer upload da imagem: {ex.Message}");
+        }
+      }
+
       // Only update if the request property is not null/empty AND different from current value
       if (!string.IsNullOrWhiteSpace(request.Title) && request.Title != stock.Title)
       {
@@ -213,6 +271,12 @@ public static class StockService
         if (existingStockWithSameTitle)
         {
           await transaction.RollbackAsync(ct);
+          // If we uploaded a new image, delete it since we're rolling back
+          if (!string.IsNullOrEmpty(newImageUrl))
+          {
+            var fileName = newImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
           return new ResponseStockDTO(HttpStatusCode.Conflict, null,
             $"Stock with title '{request.Title}' already exists.");
         }
@@ -220,11 +284,23 @@ public static class StockService
         stock.SetTitle(request.Title);
       }
 
+      // Update image URL if a new image was uploaded
+      if (!string.IsNullOrEmpty(newImageUrl))
+      {
+        stock.SetImageUrl(newImageUrl);
+      }
+
       if (request.MaintenanceQtd.HasValue)
       {
         if (request.MaintenanceQtd.Value < 0)
         {
           await transaction.RollbackAsync(ct);
+          // If we uploaded a new image, delete it since we're rolling back
+          if (!string.IsNullOrEmpty(newImageUrl))
+          {
+            var fileName = newImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
           return new ResponseStockDTO(HttpStatusCode.BadRequest, null, "Maintenance quantity cannot be negative.");
         }
 
@@ -236,6 +312,12 @@ public static class StockService
         if (request.AvailableQtd.Value < 0)
         {
           await transaction.RollbackAsync(ct);
+          // If we uploaded a new image, delete it since we're rolling back
+          if (!string.IsNullOrEmpty(newImageUrl))
+          {
+            var fileName = newImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
           return new ResponseStockDTO(HttpStatusCode.BadRequest, null, "Available quantity cannot be negative.");
         }
 
@@ -247,6 +329,12 @@ public static class StockService
         if (request.BorrowedQtd.Value < 0)
         {
           await transaction.RollbackAsync(ct);
+          // If we uploaded a new image, delete it since we're rolling back
+          if (!string.IsNullOrEmpty(newImageUrl))
+          {
+            var fileName = newImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
           return new ResponseStockDTO(HttpStatusCode.BadRequest, null, "Borrowed quantity cannot be negative.");
         }
 
@@ -258,11 +346,41 @@ public static class StockService
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
 
+      // Delete the old image if a new one was uploaded successfully
+      if (!string.IsNullOrEmpty(newImageUrl) && !string.IsNullOrEmpty(oldImageUrl))
+      {
+        try
+        {
+          var oldFileName = oldImageUrl.Split('/').Last();
+          await fileStorageService.DeleteFileAsync(oldFileName);
+        }
+        catch (Exception ex)
+        {
+          // Log the error but don't fail the update operation
+          Console.WriteLine($"Warning: Failed to delete old image file: {ex.Message}");
+        }
+      }
+
       return new ResponseStockDTO(HttpStatusCode.OK, MapToResponseEntityStockDto(stock, null, null), "Stock updated successfully.");
     }
     catch (Exception ex)
     {
       await transaction.RollbackAsync(ct);
+
+      // If we uploaded a new image, delete it since we're rolling back
+      if (!string.IsNullOrEmpty(newImageUrl))
+      {
+        try
+        {
+          var fileName = newImageUrl.Split('/').Last();
+          await fileStorageService.DeleteFileAsync(fileName);
+        }
+        catch (Exception deleteEx)
+        {
+          Console.WriteLine($"Error deleting uploaded image during rollback: {deleteEx.Message}");
+        }
+      }
+
       Console.WriteLine($"Error updating stock: {ex.Message} - {ex.InnerException?.Message}");
       return new ResponseStockDTO(HttpStatusCode.InternalServerError, null,
         "An unexpected error occurred while updating the stock.");
@@ -275,13 +393,13 @@ public static class StockService
   public static async Task<ResponseStockDeleteDTO> DeleteStock(
     Guid id,
     ApiDbContext context,
+    IFileStorageService fileStorageService,
     CancellationToken ct)
   {
     await using var transaction = await context.Database.BeginTransactionAsync(ct);
     try
     {
       var stock = await context.Stocks
-        .Include(s => s.Items) // Eager load items to check for existence
         .SingleOrDefaultAsync(s => s.Id == id, ct);
 
       if (stock == null)
@@ -300,9 +418,27 @@ public static class StockService
           $"Stock with ID '{id}' cannot be deleted because it has associated items. Please delete or reassign items first.");
       }
 
+      // Store the image URL for deletion after successful database removal
+      var imageUrl = stock.ImageUrl;
+
       context.Stocks.Remove(stock);
       await context.SaveChangesAsync(ct);
       await transaction.CommitAsync(ct);
+
+      // Delete the associated image file if it exists
+      if (!string.IsNullOrEmpty(imageUrl))
+      {
+        try
+        {
+          var fileName = imageUrl.Split('/').Last();
+          await fileStorageService.DeleteFileAsync(fileName);
+        }
+        catch (Exception ex)
+        {
+          // Log the error but don't fail the delete operation
+          Console.WriteLine($"Warning: Failed to delete image file after stock deletion: {ex.Message}");
+        }
+      }
 
       // 204 No Content is standard for successful DELETE operations where no content is returned
       return new ResponseStockDeleteDTO(HttpStatusCode.OK, stock.OrthopedicBankId, "Stock deleted successfully.");

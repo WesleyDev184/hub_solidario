@@ -2,6 +2,8 @@ using System.Net;
 using api.DB;
 using api.Modules.Stocks.Dto;
 using api.Modules.Stocks.Dto.ExampleDoc;
+using api.Services.S3;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 using Swashbuckle.AspNetCore.Annotations;
@@ -20,7 +22,7 @@ public static class StockController
       [
         SwaggerOperation(
           Summary = "Create a new stock",
-          Description = "Creates a new stock in the system.")
+          Description = "Creates a new stock in the system. This endpoint accepts form-data with the following fields: Title (required), OrthopedicBankId (required), and ImageFile (optional).")
       ]
     [SwaggerResponse(
         StatusCodes.Status201Created,
@@ -57,12 +59,18 @@ public static class StockController
         StatusCodes.Status404NotFound,
         typeof(ExampleResponseStockOrthopedicBankNotFoundDTO))]
     [SwaggerRequestExample(
-        typeof(RequestCreateStockDto),
-        typeof(ExampleRequestCreateStockDto))]
-    async (RequestCreateStockDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
-
+        typeof(RequestCreateStockFormDto),
+        typeof(ExampleRequestCreateStockFormDto))]
+    async ([FromForm] RequestCreateStockFormDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
       {
-        var response = await StockService.CreateStock(request, context, ct);
+        // Converter o form DTO para o DTO original
+        var request = new RequestCreateStockDto(
+          formRequest.Title,
+          formRequest.ImageFile,
+          formRequest.OrthopedicBankId
+        );
+
+        var response = await StockService.CreateStock(request, context, fileStorageService, ct);
 
         // Invalidar cache após criação bem-sucedida
         if (response.Status == HttpStatusCode.Created)
@@ -81,7 +89,7 @@ public static class StockController
           _ => Results.Created($"/stocks/{response.Data?.Id}",
             new ResponseControllerStockDTO(response.Status == HttpStatusCode.Created, response.Data, response.Message))
         };
-      });
+      }).DisableAntiforgery();
 
     stockGroup.MapGet("/{id:guid}",
       [SwaggerOperation(
@@ -169,7 +177,7 @@ public static class StockController
     stockGroup.MapPatch("/{id:guid}",
       [SwaggerOperation(
         Summary = "Update a stock",
-        Description = "Updates an existing stock in the system.")
+        Description = "Updates an existing stock in the system. This endpoint accepts form-data with the following optional fields: Title, ImageFile, MaintenanceQtd, AvailableQtd, and BorrowedQtd.")
       ]
     [SwaggerResponse(
         StatusCodes.Status200OK,
@@ -206,11 +214,20 @@ public static class StockController
         StatusCodes.Status409Conflict,
         typeof(ExampleResponseConflictStockDTO))]
     [SwaggerRequestExample(
-        typeof(RequestUpdateStockDto),
-        typeof(ExampleRequestUpdateStockDto))]
-    async (Guid id, RequestUpdateStockDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+        typeof(RequestUpdateStockFormDto),
+        typeof(ExampleRequestUpdateStockFormDto))]
+    async (Guid id, [FromForm] RequestUpdateStockFormDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
       {
-        var response = await StockService.UpdateStock(id, request, context, ct);
+        // Converter o form DTO para o DTO original
+        var request = new RequestUpdateStockDto(
+          formRequest.Title,
+          formRequest.ImageFile,
+          formRequest.MaintenanceQtd,
+          formRequest.AvailableQtd,
+          formRequest.BorrowedQtd
+        );
+
+        var response = await StockService.UpdateStock(id, request, context, fileStorageService, ct);
 
         // Invalidar cache após atualização bem-sucedida
         if (response.Status == HttpStatusCode.OK)
@@ -229,7 +246,7 @@ public static class StockController
           _ => Results.Ok(new ResponseControllerStockDTO(response.Status == HttpStatusCode.OK, response.Data,
             response.Message))
         };
-      });
+      }).DisableAntiforgery();
 
     stockGroup.MapDelete("/{id:guid}",
       [
@@ -263,10 +280,10 @@ public static class StockController
     [SwaggerResponseExample(
         StatusCodes.Status500InternalServerError,
         typeof(ExampleResponseInternalServerErrorStockDTO))]
-    async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+    async (Guid id, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
 
       {
-        var response = await StockService.DeleteStock(id, context, ct);
+        var response = await StockService.DeleteStock(id, context, fileStorageService, ct);
 
         // Invalidar cache após exclusão bem-sucedida
         if (response.Status == HttpStatusCode.OK)
