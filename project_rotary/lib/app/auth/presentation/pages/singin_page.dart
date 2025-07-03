@@ -23,10 +23,22 @@ class SingInPage extends StatelessWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Stack(
+        body: Column(
           children: [
-            const Positioned(top: 100, left: 0, right: 0, child: HeaderLogo()),
-            Positioned(bottom: 0, left: 0, right: 0, child: SingInForm()),
+            // Header fixo com logo
+            Container(
+              height: 220,
+              width: double.infinity,
+              padding: const EdgeInsets.only(top: 70),
+              child: const HeaderLogo(),
+            ),
+            // Formulário fixo no fundo
+            Expanded(
+              child: Container(
+                alignment: Alignment.bottomCenter,
+                child: SingInForm(),
+              ),
+            ),
           ],
         ),
       ),

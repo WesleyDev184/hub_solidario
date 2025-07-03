@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Hybrid;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Modules.Loans;
 
@@ -58,10 +59,10 @@ public static class LoanController
     [SwaggerRequestExample(
           typeof(RequestCreateLoanDto),
           typeof(ExampleRequestCreateLoanDto))]
-    async (RequestCreateLoanDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+    async (RequestCreateLoanDto request, UserManager<User> userManager, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
 
         {
-          var res = await LoanService.CreateLoan(request, context, ct);
+          var res = await LoanService.CreateLoan(request, context, userManager, ct);
 
           // Invalidar cache após criação bem-sucedida
           if (res.Status == HttpStatusCode.Created)
@@ -108,7 +109,11 @@ public static class LoanController
           // Tentar obter do cache primeiro
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
-            async cancel => await LoanService.GetLoan(id, context, userManager, cancel),
+            async cancel =>
+            {
+              var result = await LoanService.GetLoan(id, context, userManager, cancel);
+              return result;
+            },
             options: new HybridCacheEntryOptions
             {
               Expiration = TimeSpan.FromMinutes(30),
@@ -156,7 +161,9 @@ public static class LoanController
               Expiration = TimeSpan.FromDays(1),
               LocalCacheExpiration = TimeSpan.FromMinutes(1)
             },
-            cancellationToken: ct);
+            cancellationToken: ct,
+            tags: new[] { "loans" }
+            );
 
           return Results.Ok(new ResponseControllerLoanListDTO(
             cachedResponse.Status == HttpStatusCode.OK,
@@ -202,10 +209,10 @@ public static class LoanController
     [SwaggerRequestExample(
           typeof(RequestUpdateLoanDto),
           typeof(ExampleRequestUpdateLoanDto))]
-    async (Guid id, RequestUpdateLoanDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+    async (Guid id, RequestUpdateLoanDto request, ApiDbContext context, UserManager<User> userManager, HybridCache cache, CancellationToken ct) =>
 
         {
-          var res = await LoanService.UpdateLoan(id, request, context, ct);
+          var res = await LoanService.UpdateLoan(id, request, context, userManager, ct);
 
           // Invalidar cache após atualização bem-sucedida
           if (res.Status == HttpStatusCode.OK)

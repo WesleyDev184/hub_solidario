@@ -8,6 +8,7 @@ public class Stock
 {
   public Guid Id { get; init; }
   public string Title { get; private set; }
+  public string ImageUrl { get; private set; }
   public int MaintenanceQtd { get; private set; } = 0;
   public int AvailableQtd { get; private set; } = 0;
   public int BorrowedQtd { get; private set; } = 0;
@@ -20,16 +21,22 @@ public class Stock
   public ICollection<Item> Items { get; init; } = [];
   public OrthopedicBank OrthopedicBank { get; init; } = null!;
 
-  public Stock(string title, Guid orthopedicBankId)
+  public Stock(string title, string imageUrl, Guid orthopedicBankId)
   {
     Id = Guid.NewGuid();
     Title = title;
+    ImageUrl = imageUrl;
     OrthopedicBankId = orthopedicBankId;
   }
 
   public void SetTitle(string title)
   {
     Title = title;
+  }
+
+  public void SetImageUrl(string imageUrl)
+  {
+    ImageUrl = imageUrl;
   }
 
   public void SetMaintenanceQtd(int qtd)

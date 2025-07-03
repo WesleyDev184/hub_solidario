@@ -24,6 +24,12 @@ public static class ApplicantCacheService
   public static async Task InvalidateApplicantCache(HybridCache cache, Guid applicantId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.ApplicantById(applicantId), ct);
-    await cache.RemoveAsync(Keys.AllApplicants, ct);
+    await cache.RemoveByTagAsync("loans", ct);
+    await InvalidateAllApplicantCaches(cache, ct);
+  }
+
+  public static async Task InvalidateApplicantCacheByDependent(HybridCache cache, Guid applicantId, CancellationToken ct = default)
+  {
+    await cache.RemoveAsync(Keys.ApplicantById(applicantId), ct);
   }
 }

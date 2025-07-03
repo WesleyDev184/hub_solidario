@@ -1,0 +1,4022 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Rotary API",
+    "description": "API for Rotary Club orthosis loan management system.",
+    "version": "v1.4"
+  },
+  "paths": {
+    "/applicants": {
+      "post": {
+        "tags": [
+          "Applicants"
+        ],
+        "summary": "Create a new applicant",
+        "description": "Creates a new applicant in the system.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreateApplicantDto"
+              },
+              "example": {
+                "name": "John Doe",
+                "cpf": "12345678901",
+                "email": "john.doe@example.com",
+                "phoneNumber": "11999999999",
+                "address": "123 Main St, City",
+                "isBeneficiary": true
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Applicant created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Applicant created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Bad Request Error message"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Applicant already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Conflict Error message"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Internal Server Error message"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Applicants"
+        ],
+        "summary": "Get all applicants",
+        "description": "Retrieves a list of all applicants in the system.",
+        "responses": {
+          "200": {
+            "description": "Applicants retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "name": "John Doe",
+                      "cpf": "12345678901",
+                      "email": "john.doe@example.com",
+                      "phoneNumber": "11999999999",
+                      "address": "123 Main St, City",
+                      "isBeneficiary": true,
+                      "beneficiaryQtd": 1,
+                      "createdAt": "2025-07-01T00:06:50.2452298Z",
+                      "dependents": null
+                    }
+                  ],
+                  "message": "Applicants retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/applicants/{id}": {
+      "get": {
+        "tags": [
+          "Applicants"
+        ],
+        "summary": "Get an applicant by ID",
+        "description": "Retrieves an applicant from the system by their unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Applicant retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "name": "John Doe",
+                    "cpf": "12345678901",
+                    "email": "john.doe@example.com",
+                    "phoneNumber": "11999999999",
+                    "address": "123 Main St, City",
+                    "isBeneficiary": true,
+                    "beneficiaryQtd": 1,
+                    "createdAt": "2025-07-01T00:06:50.2493001Z",
+                    "dependents": [
+                      {
+                        "id": "11111111-1111-1111-1111-111111111111",
+                        "name": "Jane Doe",
+                        "cpf": "10987654321",
+                        "email": "ex@example.com",
+                        "phoneNumber": "11999999998",
+                        "address": "456 Elm St, City",
+                        "applicantId": "00000000-0000-0000-0000-000000000000",
+                        "createdAt": "2025-07-01T00:06:50.2493021+00:00"
+                      }
+                    ]
+                  },
+                  "message": "Applicant retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Applicant not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Applicant not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Applicants"
+        ],
+        "summary": "Update an applicant",
+        "description": "Updates an existing applicant's information in the system.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUpdateApplicantDto"
+              },
+              "example": {
+                "name": "John Doe Updated",
+                "cpf": "12345678901",
+                "email": "john.updated@example.com",
+                "phoneNumber": "11888888888",
+                "address": "456 Another St, City",
+                "isBeneficiary": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Applicant updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Applicant updated successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Bad Request Error message"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Applicant not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Applicant not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict occurred while updating the applicant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Conflict Error message"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Internal Server Error message"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Applicants"
+        ],
+        "summary": "Delete an applicant",
+        "description": "Deletes an existing applicant from the system by their unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Applicant deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Applicant deleted successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Applicant not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Applicant not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerApplicantsDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Internal Server Error message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "User Login",
+        "description": "Logs in a user with email and password. Returns an access token if successful.",
+        "parameters": [
+          {
+            "name": "useCookies",
+            "in": "query",
+            "description": "Set to true to use persistent cookies for authentication. Mutually exclusive with useSessionCookies.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "useSessionCookies",
+            "in": "query",
+            "description": "Set to true to use session-only cookies for authentication. Mutually exclusive with useCookies.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestLoginUserDto"
+              },
+              "example": {
+                "email": "Doe@exemple.com",
+                "password": "12345678"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResponse"
+                },
+                "example": {
+                  "tokenType": "Bearer",
+                  "accessToken": "ThisIsAnExampleAccessToken",
+                  "expiresIn": 3600,
+                  "refreshToken": "ThisIsAnExampleRefreshToken"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials or lockout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                },
+                "example": {
+                  "type": "https://example.com/errors/login-error",
+                  "title": "Login Error",
+                  "status": 401,
+                  "detail": "Invalid email or password."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "User Logout",
+        "description": "Logs out the currently authenticated user. Invalidates the access token and removes the session.",
+        "responses": {
+          "200": {
+            "description": "Logout successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "User logged out successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Create User",
+        "description": "Creates a new user with the provided details. Returns the created user ID if successful.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreateUserDto"
+              },
+              "example": {
+                "name": "John Doe",
+                "email": "Doe@exemple.com",
+                "password": "12345678",
+                "phoneNumber": "11999999999",
+                "orthopedicBankId": "00000000-0000-0000-0000-000000000000"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "User created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Error message"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get Current User",
+        "description": "Retrieves the currently authenticated user details.",
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "name": "John Doe",
+                    "email": "Doe@exemple.com",
+                    "phoneNumber": "11999999999",
+                    "orthopedicBank": {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "name": "Orthopedic Bank Name",
+                      "city": "Orthopedic Bank Description",
+                      "stocks": null,
+                      "createdAt": "2025-07-01T00:06:50.2800634Z"
+                    },
+                    "createdAt": "2025-07-01T00:06:50.2800642Z"
+                  },
+                  "message": "User retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "User not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Update User",
+        "description": "Updates the details of the currently authenticated user.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUpdateUserDto"
+              },
+              "example": {
+                "name": "John Doe",
+                "email": "Doe@exemple.com",
+                "password": "12345678",
+                "phoneNumber": "11999999999"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "User updated successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Conflict Error message"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "User not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get All Users",
+        "description": "Retrieves a list of all users in the system.",
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "name": "John Doe",
+                      "email": "Doe@Exemple.com",
+                      "phoneNumber": "11999999999",
+                      "orthopedicBank": null,
+                      "createdAt": "2025-07-01T00:06:50.2867326Z"
+                    }
+                  ],
+                  "message": "Users retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No users found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserListDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "UserS not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get User by ID",
+        "description": "Retrieves a user by their ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "name": "John Doe",
+                    "email": "Doe@exemple.com",
+                    "phoneNumber": "11999999999",
+                    "orthopedicBank": {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "name": "Orthopedic Bank Name",
+                      "city": "Orthopedic Bank Description",
+                      "stocks": null,
+                      "createdAt": "2025-07-01T00:06:50.2897288Z"
+                    },
+                    "createdAt": "2025-07-01T00:06:50.2897293Z"
+                  },
+                  "message": "User retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "User not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Delete User",
+        "description": "Deletes a user by their ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "User deleted successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error deleting user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Error message"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "User not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/orthopedic-bank/{orthopedicBankId}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get users by orthopedic bank",
+        "description": "Retrieves all users for a specific orthopedic bank.",
+        "parameters": [
+          {
+            "name": "orthopedicBankId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "name": "John Doe",
+                      "email": "Doe@Exemple.com",
+                      "phoneNumber": "11999999999",
+                      "orthopedicBank": null,
+                      "createdAt": "2025-07-01T00:06:50.2925894Z"
+                    }
+                  ],
+                  "message": "Users retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orthopedic bank not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerUserListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "00000000-0000-0000-0000-000000000000",
+                      "name": "John Doe",
+                      "email": "Doe@Exemple.com",
+                      "phoneNumber": "11999999999",
+                      "orthopedicBank": null,
+                      "createdAt": "2025-07-01T00:06:50.29262Z"
+                    }
+                  ],
+                  "message": "Users retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dependents": {
+      "post": {
+        "tags": [
+          "Dependents"
+        ],
+        "summary": "Create a new dependent",
+        "description": "Creates a new dependent in the system.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreateDependentDto"
+              },
+              "example": {
+                "name": "Jane Doe",
+                "cpf": "10987654321",
+                "email": "jane.doe@example.com",
+                "phoneNumber": "11888888888",
+                "address": "456 Secondary St, City",
+                "applicantId": "11111111-1111-1111-1111-111111111111"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Dependent created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "ed903dae-0306-4a93-aae9-06d2fa80f2ca",
+                    "name": "Jane Doe",
+                    "cpf": "10987654321",
+                    "email": "jane.doe@example.com",
+                    "phoneNumber": "11888888888",
+                    "address": "456 Secondary St, City",
+                    "applicantId": "11111111-1111-1111-1111-111111111111",
+                    "createdAt": "2025-07-01T00:06:50.2989581Z"
+                  },
+                  "message": "Dependent created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Bad request error occurred"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Applicant not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Applicant not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Dependent already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Conflict error occurred"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Internal server error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Dependents"
+        ],
+        "summary": "Get all dependents",
+        "description": "Retrieves a list of all dependents in the system.",
+        "responses": {
+          "200": {
+            "description": "Dependents retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "eb0710d3-5c36-40fd-a6e5-70e9718c67c5",
+                      "name": "Jane Doe",
+                      "cpf": "10987654321",
+                      "email": "jane.doe@example.com",
+                      "phoneNumber": "11888888888",
+                      "address": "456 Secondary St, City",
+                      "applicantId": "11111111-1111-1111-1111-111111111111",
+                      "createdAt": "2025-07-01T00:06:50.300374Z"
+                    }
+                  ],
+                  "message": "Dependents retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dependents/{id}": {
+      "get": {
+        "tags": [
+          "Dependents"
+        ],
+        "summary": "Get a dependent by ID",
+        "description": "Retrieves a dependent from the system by its unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dependent retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "437b907f-4197-4212-9a0b-b789de4a5a92",
+                    "name": "Jane Doe",
+                    "cpf": "10987654321",
+                    "email": "jane.doe@example.com",
+                    "phoneNumber": "11888888888",
+                    "address": "456 Secondary St, City",
+                    "applicantId": "11111111-1111-1111-1111-111111111111",
+                    "createdAt": "2025-07-01T00:06:50.3031939Z"
+                  },
+                  "message": "Dependent retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dependent not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Dependent not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Dependents"
+        ],
+        "summary": "Update a dependent",
+        "description": "Updates an existing dependent in the system.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUpdateDependentDto"
+              },
+              "example": {
+                "name": "Jane Doe Updated",
+                "cpf": "10987654321",
+                "email": "jane.updated@example.com",
+                "phoneNumber": "11777777777",
+                "address": "789 Tertiary Ave, City"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dependent updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "66030f35-733e-4a4e-9545-f04867cf3594",
+                    "name": "Jane Doe Updated",
+                    "cpf": "10987654321",
+                    "email": "jane.updated@example.com",
+                    "phoneNumber": "11777777777",
+                    "address": "789 Tertiary Ave, City",
+                    "applicantId": "11111111-1111-1111-1111-111111111111",
+                    "createdAt": "2025-07-01T00:06:50.3071002Z"
+                  },
+                  "message": "Dependent updated successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Bad request error occurred"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dependent not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Dependent or Applicant not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Conflict error occurred"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Internal server error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Dependents"
+        ],
+        "summary": "Delete a dependent",
+        "description": "Deletes a dependent from the system by its unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dependent deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Dependent deleted successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dependent not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Dependent not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerDependentDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Internal server error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/items": {
+      "post": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Create a new item",
+        "description": "Creates a new item in the system.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreateItemDto"
+              },
+              "example": {
+                "seriaCode": 12345,
+                "stockId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                "imageUrl": "https://example.com/item-image.png"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Item created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Item created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Invalid request data"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stock not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExampleResponseItemStockNotFoundDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Item not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Item already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Conflict: Item already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Get all items",
+        "description": "Retrieves a list of all items in the system.",
+        "responses": {
+          "200": {
+            "description": "Items retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "c3c744c8-0cd4-4a28-b443-70a54884f27b",
+                      "seriaCode": 12345,
+                      "imageUrl": "https://example.com/item-image.png",
+                      "status": "Available",
+                      "createdAt": "2025-07-01T00:06:50.3140942Z"
+                    }
+                  ],
+                  "message": "Items retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/items/{id}": {
+      "get": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Get an item by ID",
+        "description": "Retrieves an item from the system by its unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "bbc48a40-2824-47e3-8673-3f48f8e6815b",
+                    "seriaCode": 12345,
+                    "imageUrl": "https://example.com/item-image.png",
+                    "status": "Available",
+                    "createdAt": "2025-07-01T00:06:50.3176866Z"
+                  },
+                  "message": "Item retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Item not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Update an existing item",
+        "description": "Updates the details of an existing item in the system.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUpdateItemDto"
+              },
+              "example": {
+                "seriaCode": 54321,
+                "imageUrl": "https://example.com/new-item-image.png",
+                "status": "UNAVAILABLE"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Item updated successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Invalid request data"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Item not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Item already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Conflict: Item already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Delete an item",
+        "description": "Deletes an item from the system by its unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Item deleted successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Item not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans": {
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Create a new loan",
+        "description": "Creates a new loan in the system.",
+        "operationId": "CreateLoan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreateLoanDto"
+              },
+              "example": {
+                "applicantId": "11111111-1111-1111-1111-111111111111",
+                "responsibleId": "22222222-2222-2222-2222-222222222222",
+                "itemId": "33333333-3333-3333-3333-333333333333",
+                "reason": "Loaning item for temporary use"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Loan created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Loan created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An error occurred while processing your request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item or Applicant not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Item or Applicant not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Item is not available for loan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Item is not available for loan"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occurred while processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An error occurred while processing your request"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Get all loans",
+        "description": "Retrieves a list of all loans in the system.",
+        "operationId": "GetLoans",
+        "responses": {
+          "200": {
+            "description": "Loans retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "f7d6e63b-1526-4266-bdd5-3a726e0e544d",
+                      "returnDate": "2025-07-08T00:06:50.3341686Z",
+                      "reason": "Loaning item for temporary use",
+                      "isActive": true,
+                      "item": 12345,
+                      "applicant": "John Doe",
+                      "responsible": "Jane Smith",
+                      "createdAt": "2025-07-01T00:06:50.3341718Z"
+                    }
+                  ],
+                  "message": "Loans retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans/{id}": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Get a loan by ID",
+        "description": "Retrieves a loan from the system by its unique identifier.",
+        "operationId": "GetLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "e5f382bd-18c1-4529-846d-877577ecd3a0",
+                    "returnDate": "2025-07-08T00:06:50.3394716Z",
+                    "reason": "Loaning item for temporary use",
+                    "isActive": true,
+                    "item": {
+                      "id": "8ec9666e-0870-427a-a331-7afe0648d5a3",
+                      "seriaCode": 12345,
+                      "imageUrl": "https://example.com/item-image.png",
+                      "status": "Available",
+                      "createdAt": "2025-07-01T00:06:50.3394775Z"
+                    },
+                    "applicant": {
+                      "id": "91f35987-d076-4380-84a2-3bf5e2c3b727",
+                      "name": "John Doe",
+                      "cpf": "12345678901",
+                      "email": "john.doe@example.com",
+                      "phoneNumber": "11999999999",
+                      "address": "123 Main St",
+                      "isBeneficiary": true,
+                      "beneficiaryQtd": 1,
+                      "createdAt": "2025-07-01T00:06:50.3394813Z",
+                      "dependents": null
+                    },
+                    "responsible": {
+                      "id": "347cc8d3-de1e-4908-a8f1-afae293ed499",
+                      "name": "Jane Smith",
+                      "email": "jane.smith@example.com",
+                      "phoneNumber": "11888888888",
+                      "orthopedicBank": null,
+                      "createdAt": "2025-07-01T00:06:50.3394845Z"
+                    },
+                    "createdAt": "2025-07-01T00:06:50.3394856Z"
+                  },
+                  "message": "Loan retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Loan not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Loan not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Update an existing loan",
+        "description": "Updates the details of an existing loan in the system.",
+        "operationId": "UpdateLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUpdateLoanDto"
+              },
+              "example": {
+                "reason": "Updated loan reason",
+                "isActive": true
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Loan updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Loan updated successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An error occurred while processing your request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Loan not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Loan not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occurred while processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An error occurred while processing your request"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Delete a loan",
+        "description": "Deletes a loan from the system by its unique identifier.",
+        "operationId": "DeleteLoan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Loan deleted successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Loan not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Loan not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occurred while processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerLoanDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An error occurred while processing your request"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orthopedic-banks": {
+      "post": {
+        "tags": [
+          "Orthopedic Banks"
+        ],
+        "summary": "Create a new orthopedic bank",
+        "description": "Creates a new orthopedic bank in the system.",
+        "operationId": "CreateOrthopedicBank",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreateOrthopedicBankDto"
+              },
+              "example": {
+                "name": "Rotary Orthopedic Center",
+                "city": "Cuiabá - MT"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Orthopedic bank created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Orthopedic bank created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Invalid request data"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Orthopedic bank already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An orthopedic bank with this name already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occurred while processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Orthopedic Banks"
+        ],
+        "summary": "Get all orthopedic banks",
+        "description": "Retrieves a list of all orthopedic banks in the system.",
+        "operationId": "GetOrthopedicBanks",
+        "responses": {
+          "200": {
+            "description": "Orthopedic banks retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "ae5a3a81-d1bb-40a2-b1c2-60b7cb35583e",
+                      "name": "Central Orthopedic Bank",
+                      "city": "São Paulo",
+                      "stocks": null,
+                      "createdAt": "2025-07-01T00:06:50.3653975Z"
+                    }
+                  ],
+                  "message": "Orthopedic banks retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orthopedic-banks/{id}": {
+      "get": {
+        "tags": [
+          "Orthopedic Banks"
+        ],
+        "summary": "Get an orthopedic bank by ID",
+        "description": "Retrieves an orthopedic bank from the system by its unique identifier.",
+        "operationId": "GetOrthopedicBank",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orthopedic bank retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "4b0eaf8c-f625-4b1f-ab9a-24b7ec2e3230",
+                    "name": "Central Orthopedic Bank",
+                    "city": "São Paulo",
+                    "stocks": [
+                      {
+                        "id": "84342f99-445b-4f59-b8e8-bb560038cb2e",
+                        "title": "Existing Stock Title",
+                        "maintenanceQtd": 5,
+                        "availableQtd": 10,
+                        "borrowedQtd": 2,
+                        "totalQtd": 17,
+                        "orthopedicBank": null,
+                        "items": null,
+                        "createdAt": "2025-07-01T00:06:50.3682928Z"
+                      }
+                    ],
+                    "createdAt": "2025-07-01T00:06:50.3682931Z"
+                  },
+                  "message": "Orthopedic bank retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orthopedic bank not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Orthopedic bank not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Orthopedic Banks"
+        ],
+        "summary": "Update an orthopedic bank",
+        "description": "Updates an existing orthopedic bank in the system.",
+        "operationId": "UpdateOrthopedicBank",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUpdateOrthopedicBankDto"
+              },
+              "example": {
+                "name": "Updated Orthopedic Center",
+                "city": "Barra do Garças - MT"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Orthopedic bank updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Orthopedic bank updated successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Invalid request data"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orthopedic bank not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Orthopedic bank not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Orthopedic bank already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An orthopedic bank with this name already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occurred while processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Orthopedic Banks"
+        ],
+        "summary": "Delete an orthopedic bank",
+        "description": "Deletes an existing orthopedic bank from the system.",
+        "operationId": "DeleteOrthopedicBank",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orthopedic bank deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Orthopedic bank deleted successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Orthopedic bank cannot be deleted because it has associated stock/items.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Invalid request data"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orthopedic bank not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerOrthopedicBankDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Orthopedic bank not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stocks": {
+      "post": {
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Create a new stock",
+        "description": "Creates a new stock in the system.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreateStockDto"
+              },
+              "example": {
+                "title": "New Stock Title",
+                "orthopedicBankId": "56bb6349-ce75-42b2-baab-c223081e4af9"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Stock created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Stock created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Invalid request data"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orthopedic bank with ID not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Orthopedic Bank with is Id not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stock already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Stock with name already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Get all stocks",
+        "description": "Retrieves all stocks from the system.",
+        "responses": {
+          "200": {
+            "description": "Stocks retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "ae73c0d9-bc08-4f47-8718-193f151624a8",
+                      "title": "Existing Stock Title",
+                      "maintenanceQtd": 5,
+                      "availableQtd": 10,
+                      "borrowedQtd": 2,
+                      "totalQtd": 17,
+                      "orthopedicBank": null,
+                      "items": null,
+                      "createdAt": "2025-07-01T00:06:50.3827291Z"
+                    }
+                  ],
+                  "message": "Stocks retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stocks/{id}": {
+      "get": {
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Get a stock by ID",
+        "description": "Retrieves a stock from the system by its unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "id": "bb30e87a-138b-4e7c-a62f-6549a141ec94",
+                    "title": "Existing Stock Title",
+                    "maintenanceQtd": 5,
+                    "availableQtd": 10,
+                    "borrowedQtd": 2,
+                    "totalQtd": 17,
+                    "orthopedicBank": {
+                      "id": "702c381c-ca4f-4086-9e8e-776da6543b83",
+                      "name": "Orthopedic Bank Name",
+                      "city": "Barra do Garças - MT",
+                      "stocks": null,
+                      "createdAt": "2025-07-01T00:06:50.3856255Z"
+                    },
+                    "items": [
+                      {
+                        "id": "189df9c3-375e-42ae-8dfb-b1896c8f6949",
+                        "seriaCode": 23344556,
+                        "imageUrl": "https://example.com/image1.jpg",
+                        "status": "AVAILABLE",
+                        "createdAt": "2025-07-01T00:06:50.3856447Z"
+                      },
+                      {
+                        "id": "d6d1f424-6319-4f00-875d-7be85d0eff5c",
+                        "seriaCode": 23344557,
+                        "imageUrl": "https://example.com/image1.jpg",
+                        "status": "MAINTENANCE",
+                        "createdAt": "2025-07-01T00:06:50.3856475Z"
+                      }
+                    ],
+                    "createdAt": "2025-07-01T00:06:50.3856476Z"
+                  },
+                  "message": "Stock retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stock not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Stock not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Update a stock",
+        "description": "Updates an existing stock in the system.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUpdateStockDto"
+              },
+              "example": {
+                "title": "Updated Stock Title",
+                "maintenanceQtd": 5,
+                "availableQtd": 10,
+                "borrowedQtd": 2
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Stock updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Stock updated successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Invalid request data"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stock not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Stock not found"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stock already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Stock with name already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Delete a stock",
+        "description": "Deletes an existing stock from the system.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": true,
+                  "data": null,
+                  "message": "Stock deleted successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Invalid request data"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stock not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "Stock not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockDTO"
+                },
+                "example": {
+                  "success": false,
+                  "data": null,
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stocks/orthopedic-bank/{orthopedicBankId}": {
+      "get": {
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Get stocks by orthopedic bank",
+        "description": "Retrieves all stocks for a specific orthopedic bank.",
+        "parameters": [
+          {
+            "name": "orthopedicBankId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stocks retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "0befc42d-dc1d-4d0c-b8e3-d8cf9442173a",
+                      "title": "Existing Stock Title",
+                      "maintenanceQtd": 5,
+                      "availableQtd": 10,
+                      "borrowedQtd": 2,
+                      "totalQtd": 17,
+                      "orthopedicBank": null,
+                      "items": null,
+                      "createdAt": "2025-07-01T00:06:50.3937619Z"
+                    }
+                  ],
+                  "message": "Stocks retrieved successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orthopedic bank not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerStockListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "eecff698-7937-4518-b235-d1880171743c",
+                      "title": "Existing Stock Title",
+                      "maintenanceQtd": 5,
+                      "availableQtd": 10,
+                      "borrowedQtd": 2,
+                      "totalQtd": 17,
+                      "orthopedicBank": null,
+                      "items": null,
+                      "createdAt": "2025-07-01T00:06:50.3937976Z"
+                    }
+                  ],
+                  "message": "Stocks retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccessTokenResponse": {
+        "required": [
+          "accessToken",
+          "expiresIn",
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "tokenType": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "accessToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExampleResponseItemStockNotFoundDTO": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ItemStatus": {
+        "enum": [
+          "MAINTENANCE (The item is under maintenance and cannot be used.)",
+          "AVAILABLE (The item is available for use.)",
+          "UNAVAILABLE (The item is currently unavailable for use.)",
+          "LOST (The item has been lost and cannot be recovered.)",
+          "DONATED (The item has been donated and is no longer part of the inventory.)"
+        ],
+        "type": "string"
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": {}
+      },
+      "RequestCreateApplicantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "isBeneficiary": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestCreateDependentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "applicantId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestCreateItemDto": {
+        "type": "object",
+        "properties": {
+          "seriaCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stockId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestCreateLoanDto": {
+        "type": "object",
+        "properties": {
+          "applicantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "responsibleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestCreateOrthopedicBankDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestCreateStockDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "orthopedicBankId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestCreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "orthopedicBankId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestLoginUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestUpdateApplicantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "isBeneficiary": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestUpdateDependentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestUpdateItemDto": {
+        "type": "object",
+        "properties": {
+          "seriaCode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestUpdateLoanDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestUpdateOrthopedicBankDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestUpdateStockDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "maintenanceQtd": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "availableQtd": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "borrowedQtd": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestUpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerApplicantsDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ResponseEntityApplicantsDTO"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerApplicantsListDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count of applicants returned in the response",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityApplicantsDTO"
+            },
+            "description": "List of applicant data",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerDependentDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ResponseEntityDependentDTO"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerDependentListDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count of dependents returned",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityDependentDTO"
+            },
+            "description": "List of dependent data if the operation was successful",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerItemDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ResponseEntityItemDTO"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerItemListDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count of items returned",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityItemDTO"
+            },
+            "description": "List of item data if the operation was successful",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerLoanDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ResponseEntityLoanDTO"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerLoanListDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count of loans returned",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityLoanListDTO"
+            },
+            "description": "List of loan data if the operation was successful",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerOrthopedicBankDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ResponseEntityOrthopedicBankDTO"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerOrthopedicBankListDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count of orthopedic banks returned",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityOrthopedicBankDTO"
+            },
+            "description": "List of orthopedic bank data if the operation was successful",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerStockDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ResponseEntityStockDTO"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerStockListDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count of stocks returned",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityStockDTO"
+            },
+            "description": "List of stock data if the operation was successful",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerUserDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ResponseEntityUserDTO"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseControllerUserListDTO": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates whether the operation was successful"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Count of users returned in the response",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityUserDTO"
+            },
+            "description": "List of user data if the operation was successful",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Message providing additional information about the operation",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseEntityApplicantsDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the applicant",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the applicant",
+            "format": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "description": "CPF of the applicant",
+            "format": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the applicant",
+            "format": "email",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "Phone number of the applicant",
+            "format": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "description": "Address of the applicant",
+            "format": "string",
+            "nullable": true
+          },
+          "isBeneficiary": {
+            "type": "boolean",
+            "description": "Indicator if the applicant is a beneficiary",
+            "format": "boolean"
+          },
+          "beneficiaryQtd": {
+            "type": "integer",
+            "description": "Quantity of beneficiaries",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the applicant",
+            "format": "date-time"
+          },
+          "dependents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityDependentDTO"
+            },
+            "description": "Array of dependents associated with the applicant",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseEntityDependentDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the dependent",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the dependent",
+            "format": "string",
+            "nullable": true
+          },
+          "cpf": {
+            "type": "string",
+            "description": "CPF of the dependent",
+            "format": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the dependent",
+            "format": "email",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "Phone number of the dependent",
+            "format": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "description": "Address of the dependent",
+            "format": "string",
+            "nullable": true
+          },
+          "applicantId": {
+            "type": "string",
+            "description": "Identifier of the associated applicant",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the dependent",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseEntityItemDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the item",
+            "format": "uuid"
+          },
+          "seriaCode": {
+            "type": "integer",
+            "description": "Serial code of the item",
+            "format": "int32"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Image URL for the item",
+            "format": "uri",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the item",
+            "format": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the item",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseEntityLoanDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the loan",
+            "format": "uuid"
+          },
+          "returnDate": {
+            "type": "string",
+            "description": "Return date of the loan",
+            "format": "date-time",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the loan",
+            "format": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Indicates whether the loan is active",
+            "format": "boolean"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ResponseEntityItemDTO"
+          },
+          "applicant": {
+            "$ref": "#/components/schemas/ResponseEntityApplicantsDTO"
+          },
+          "responsible": {
+            "$ref": "#/components/schemas/ResponseEntityUserDTO"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the loan",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseEntityLoanListDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the loan",
+            "format": "uuid"
+          },
+          "returnDate": {
+            "type": "string",
+            "description": "Return date of the loan",
+            "format": "date-time",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the loan",
+            "format": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Indicates whether the loan is active",
+            "format": "boolean"
+          },
+          "item": {
+            "type": "integer",
+            "description": "Identifier of the item being loaned",
+            "format": "int32",
+            "nullable": true
+          },
+          "applicant": {
+            "type": "string",
+            "description": "Name of the applicant",
+            "format": "string",
+            "nullable": true
+          },
+          "responsible": {
+            "type": "string",
+            "description": "Name of the responsible user",
+            "format": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the loan",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseEntityOrthopedicBankDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the orthopedic bank",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the orthopedic bank",
+            "format": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "description": "City of the orthopedic bank",
+            "format": "string",
+            "nullable": true
+          },
+          "stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityStockDTO"
+            },
+            "description": "List of orthopedic bank stocks",
+            "format": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the orthopedic bank",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseEntityStockDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the stock",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the stock",
+            "format": "string",
+            "nullable": true
+          },
+          "maintenanceQtd": {
+            "type": "integer",
+            "description": "Quantity for maintenance",
+            "format": "int32"
+          },
+          "availableQtd": {
+            "type": "integer",
+            "description": "Quantity available",
+            "format": "int32"
+          },
+          "borrowedQtd": {
+            "type": "integer",
+            "description": "Quantity borrowed",
+            "format": "int32"
+          },
+          "totalQtd": {
+            "type": "integer",
+            "description": "Total quantity",
+            "format": "int32"
+          },
+          "orthopedicBank": {
+            "$ref": "#/components/schemas/ResponseEntityOrthopedicBankDTO"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseEntityItemDTO"
+            },
+            "description": "Items associated with the stock",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the stock",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResponseEntityUserDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the user",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the user",
+            "format": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the user",
+            "format": "email",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "Phone number of the user",
+            "format": "string",
+            "nullable": true
+          },
+          "orthopedicBank": {
+            "$ref": "#/components/schemas/ResponseEntityOrthopedicBankDTO"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the user",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "description": "API Key needed to access the endpoints. ApiKey: X-Api-Key",
+        "name": "x-api-key",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKey": []
+    }
+  ]
+}

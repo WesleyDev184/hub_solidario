@@ -212,7 +212,7 @@ namespace api.Modules.Dependents
     /// <summary>
     /// Deletes a dependent from the database and decrements the associated applicant's beneficiary count.
     /// </summary>
-    public static async Task<ResponseDependentDTO> DeleteDependent(
+    public static async Task<ResponseDependentDeleteDTO> DeleteDependent(
       Guid id,
       ApiDbContext context,
       CancellationToken ct)
@@ -220,15 +220,13 @@ namespace api.Modules.Dependents
       await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(ct);
       try
       {
-        Dependent? dependent = await context.Dependents.SingleOrDefaultAsync(d => d.Id == id, ct);
+        var dependent = await context.Dependents.SingleOrDefaultAsync(d => d.Id == id, ct);
 
         if (dependent == null)
         {
           await transaction.RollbackAsync(ct);
-          return new ResponseDependentDTO(HttpStatusCode.NotFound, null, $"Dependent with ID '{id}' not found.");
+          return new ResponseDependentDeleteDTO(HttpStatusCode.NotFound, null, $"Dependent with ID '{id}' not found.");
         }
-
-        context.Dependents.Remove(dependent);
 
         // Decrement the beneficiary count for the associated applicant
         Applicant? applicant = await context.Applicants
@@ -237,16 +235,17 @@ namespace api.Modules.Dependents
         // Only decrement if the applicant is found to avoid NullReferenceException
         applicant?.SetBeneficiaryQtd(applicant.BeneficiaryQtd - 1);
 
+        context.Dependents.Remove(dependent);
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
         // 204 No Content is standard for successful DELETE operations where no content is returned
-        return new ResponseDependentDTO(HttpStatusCode.OK, null, "Dependent deleted successfully.");
+        return new ResponseDependentDeleteDTO(HttpStatusCode.OK, dependent.ApplicantId, "Dependent deleted successfully.");
       }
       catch
       {
         await transaction.RollbackAsync(ct);
-        return new ResponseDependentDTO(HttpStatusCode.InternalServerError, null,
+        return new ResponseDependentDeleteDTO(HttpStatusCode.InternalServerError, null,
           "An unexpected error occurred while deleting the dependent.");
       }
     }

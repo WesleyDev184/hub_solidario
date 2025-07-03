@@ -8,6 +8,8 @@ class BeneficiaryCard extends StatelessWidget {
   final String? imageUrl;
   final String name;
   final String cpf;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const BeneficiaryCard({
     super.key,
@@ -15,6 +17,8 @@ class BeneficiaryCard extends StatelessWidget {
     required this.imageUrl,
     required this.name,
     required this.cpf,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -53,12 +57,12 @@ class BeneficiaryCard extends StatelessWidget {
               ),
             ),
             IconButton(
-              onPressed: () {},
-              icon: Icon(LucideIcons.trash, color: Colors.red),
+              onPressed: onEdit,
+              icon: Icon(LucideIcons.pen, color: Colors.amber),
             ),
             IconButton(
-              onPressed: () {},
-              icon: Icon(LucideIcons.pen, color: Colors.amber),
+              onPressed: onDelete,
+              icon: Icon(LucideIcons.trash, color: Colors.red),
             ),
           ],
         ),

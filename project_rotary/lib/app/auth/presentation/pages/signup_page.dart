@@ -23,10 +23,38 @@ class SignUpPage extends StatelessWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            const Positioned(top: 70, left: 0, right: 0, child: HeaderLogo()),
-            Positioned(bottom: 0, left: 0, right: 0, child: SignUpForm()),
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              expandedHeight: 200,
+              collapsedHeight: 120,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  padding: const EdgeInsets.only(top: 70),
+                  child: const HeaderLogo(),
+                ),
+                collapseMode: CollapseMode.parallax,
+              ),
+              pinned: true,
+              floating: false,
+              automaticallyImplyLeading: false,
+              stretch: true,
+              stretchTriggerOffset: 150.0,
+            ),
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Column(
+                children: [
+                  Expanded(
+                    child:
+                        Container(), // Espaço flexível para empurrar o form para baixo
+                  ),
+                  SignUpForm(),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -23,8 +23,11 @@ class InputField extends StatelessWidget {
       obscureText: obscureText,
       validator: validator,
       decoration: InputDecoration(
-        labelText: hint, 
-        suffixIcon: Icon(icon)
+        labelText: hint,
+        suffixIcon: Icon(icon),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
       ),
     );
   }

@@ -9,10 +9,10 @@ public record ResponseEntityItemDTO(
   Guid Id,
   [property: SwaggerSchema(Description = "Serial code of the item", Format = "int32")]
   int SeriaCode,
-  [property: SwaggerSchema(Description = "Image URL for the item", Format = "uri")]
-  string ImageUrl,
   [property: SwaggerSchema(Description = "Status of the item", Format = "string")]
   string Status,
+  [property: SwaggerSchema(Description = "Unique identifier of the stock associated with the item", Format = "uuid")]
+  Guid StockId,
   [property: SwaggerSchema(Description = "Creation date of the item", Format = "date-time")]
   DateTime CreatedAt
 );
@@ -22,6 +22,15 @@ public record ResponseItemDTO(
   HttpStatusCode Status,
   [property: SwaggerSchema(Description = "Item data", Nullable = true)]
   ResponseEntityItemDTO? Data,
+  [property: SwaggerSchema(Description = "Additional message information", Nullable = true)]
+  string? Message
+);
+
+public record ResponseItemDeleteDTO(
+  [property: SwaggerSchema(Description = "HTTP status code of the response")]
+  HttpStatusCode Status,
+  [property: SwaggerSchema(Description = "Unique identifier of the Stock", Format = "uuid", Nullable = true)]
+  Guid? Id,
   [property: SwaggerSchema(Description = "Additional message information", Nullable = true)]
   string? Message
 );

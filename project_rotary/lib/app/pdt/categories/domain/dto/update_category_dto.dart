@@ -4,7 +4,7 @@ class UpdateCategoryDTO {
   final int? availableQtd;
   final int? borrowedQtd;
 
-  UpdateCategoryDTO({
+  const UpdateCategoryDTO({
     this.title,
     this.maintenanceQtd,
     this.availableQtd,
@@ -20,5 +20,16 @@ class UpdateCategoryDTO {
     if (borrowedQtd != null) json['borrowedQtd'] = borrowedQtd;
 
     return json;
+  }
+
+  bool get isEmpty =>
+      title == null &&
+      maintenanceQtd == null &&
+      availableQtd == null &&
+      borrowedQtd == null;
+
+  @override
+  String toString() {
+    return 'UpdateCategoryDTO(${toJson()})';
   }
 }

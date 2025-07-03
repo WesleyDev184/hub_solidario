@@ -122,10 +122,6 @@ namespace api.Migrations.app
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("SeriaCode")
                         .HasColumnType("integer");
 
@@ -224,6 +220,10 @@ namespace api.Migrations.app
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("MaintenanceQtd")
                         .HasColumnType("integer");

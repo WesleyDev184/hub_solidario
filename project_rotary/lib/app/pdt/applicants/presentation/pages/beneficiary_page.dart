@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/delete_beneficiary_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/pages/edit_beneficiary_page.dart';
+import 'package:project_rotary/app/pdt/applicants/presentation/widgets/action_menu_beneficiary.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/avatar.dart';
 import 'package:project_rotary/core/components/info_row.dart';
@@ -11,6 +14,7 @@ class BeneficiaryPage extends StatelessWidget {
   final String? imageUrl;
   final String cpf;
   final String phone;
+  final String email;
   final String? address;
 
   const BeneficiaryPage({
@@ -20,8 +24,48 @@ class BeneficiaryPage extends StatelessWidget {
     this.imageUrl,
     required this.cpf,
     required this.phone,
+    required this.email,
     this.address,
   });
+
+  void _showActionsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return ActionMenuBeneficiary(
+          onEditPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder:
+                    (context) => EditBeneficiaryPage(
+                      beneficiaryId: beneficiaryId,
+                      currentName: name,
+                      currentCpf: cpf,
+                      currentEmail: email,
+                      currentPhoneNumber: phone,
+                      currentAddress: address,
+                    ),
+              ),
+            );
+          },
+          onDeletePressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder:
+                    (context) => DeleteBeneficiaryPage(
+                      beneficiaryId: beneficiaryId,
+                      beneficiaryName: name,
+                      beneficiaryCpf: cpf,
+                      beneficiaryEmail: email,
+                    ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,26 +95,6 @@ class BeneficiaryPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        LucideIcons.trash,
-                        color: CustomColors.error,
-                      ),
-                      onPressed: () {},
-                    ),
-                    const SizedBox(width: 16),
-                    IconButton(
-                      icon: const Icon(
-                        LucideIcons.pen,
-                        color: CustomColors.warning,
-                      ),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -79,6 +103,8 @@ class BeneficiaryPage extends StatelessWidget {
             InfoRow(icon: LucideIcons.idCard, label: cpf),
             const SizedBox(height: 5),
             InfoRow(icon: LucideIcons.phone, label: phone),
+            const SizedBox(height: 5),
+            InfoRow(icon: LucideIcons.mail, label: email),
 
             const SizedBox(height: 24),
             const Text(
@@ -108,6 +134,11 @@ class BeneficiaryPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showActionsMenu(context),
+        backgroundColor: CustomColors.primary,
+        child: const Icon(LucideIcons.menu, color: CustomColors.white),
       ),
     );
   }

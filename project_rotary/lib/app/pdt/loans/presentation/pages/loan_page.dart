@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/categories/presentation/pages/new_category_page.dart';
+import 'package:project_rotary/app/pdt/loans/presentation/pages/edit_loan_page.dart';
+import 'package:project_rotary/app/pdt/loans/presentation/pages/finalize_loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/presentation/widgets/action_menu_loan.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -35,9 +36,30 @@ class LoanPage extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return ActionMenuLoan(
-          onBorrowPressed: () {
+          onEditPressed: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const NewCategoryPage()),
+              MaterialPageRoute(
+                builder:
+                    (context) => EditLoanPage(
+                      loanId: loanId,
+                      currentReason: loanReason,
+                      currentIsActive: loanStatus.toLowerCase() == 'ativo',
+                      currentReturnDate: loanReturnDate,
+                    ),
+              ),
+            );
+          },
+          onFinishPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder:
+                    (context) => FinalizeLoanPage(
+                      loanId: loanId,
+                      loanSerialCode: loanSerialCode,
+                      loanApplicant: loanApplicant,
+                      loanDate: loanDate,
+                    ),
+              ),
             );
           },
         );

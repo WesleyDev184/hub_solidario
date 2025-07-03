@@ -65,7 +65,7 @@ namespace api.Modules.Applicants
             HttpStatusCode.InternalServerError => Results.Json(
               new ResponseControllerApplicantsDTO(false, null, response.Message), statusCode: (int)response.Status),
             _ => Results.Created($"/applicants/{response.Data?.Id}",
-              new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.Created, response.Data,
+              new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.Created, null,
                 response.Message))
           };
         }).RequireAuthorization();
@@ -207,7 +207,7 @@ namespace api.Modules.Applicants
               false, null, response.Message)),
             HttpStatusCode.NotFound => Results.NotFound(new ResponseControllerApplicantsDTO(
               false, null, response.Message)),
-            _ => Results.Ok(new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.OK, response.Data,
+            _ => Results.Ok(new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.OK, null,
               response.Message))
           };
         }).RequireAuthorization();
@@ -236,7 +236,7 @@ namespace api.Modules.Applicants
           StatusCodes.Status500InternalServerError, typeof(ExampleResponseInternalServerErrorApplicantDTO))]
       async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          ResponseApplicantsDTO response = await ApplicantService.DeleteApplicant(id, context, ct);
+          var response = await ApplicantService.DeleteApplicant(id, context, ct);
 
           // Invalidar cache após exclusão bem-sucedida
           if (response.Status == HttpStatusCode.OK)

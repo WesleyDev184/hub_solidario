@@ -62,7 +62,7 @@ namespace api.Modules.Dependents
           // Invalidar cache após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
-            await DependentCacheService.InvalidateAllDependentCaches(cache, ct);
+            await DependentCacheService.InvalidateDependentCache(cache, response.Data!.Id, response.Data.ApplicantId, ct);
           }
 
           return response.Status switch
@@ -213,7 +213,7 @@ namespace api.Modules.Dependents
           // Invalidar cache após atualização bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await DependentCacheService.InvalidateDependentCache(cache, id, ct);
+            await DependentCacheService.InvalidateDependentCache(cache, id, response.Data!.ApplicantId, ct);
           }
 
           return response.Status switch
@@ -259,12 +259,12 @@ namespace api.Modules.Dependents
           typeof(ExampleResponseInternalServerErrorDependentDTO))]
       async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
         {
-          ResponseDependentDTO response = await DependentService.DeleteDependent(id, context, ct);
+          var response = await DependentService.DeleteDependent(id, context, ct);
 
           // Invalidar cache após exclusão bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await DependentCacheService.InvalidateDependentCache(cache, id, ct);
+            await DependentCacheService.InvalidateDependentCache(cache, id, response.ApplicantId, ct);
           }
 
           return response.Status switch

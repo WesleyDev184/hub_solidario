@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/categories/data/impl_category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/item.dart';
-import 'package:project_rotary/app/pdt/categories/presentation/controller/category_controller.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/item.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/controller/item_controller.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/controller/loan_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/select_field.dart';
@@ -26,7 +27,8 @@ class CreateLoanPage extends StatefulWidget {
 class _CreateLoanPageState extends State<CreateLoanPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _reasonController = TextEditingController();
-  final categoryController = CategoryController(ImplCategoryRepository());
+  late final LoanController loanController;
+  late final ItemController itemController;
 
   String? _selectedItemId;
   String? _selectedApplicantId;
@@ -35,6 +37,8 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
   @override
   void initState() {
     super.initState();
+    loanController = CategoryDependencyFactory.instance.loanController;
+    itemController = CategoryDependencyFactory.instance.itemController;
     _loadData();
   }
 
@@ -46,9 +50,9 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
 
   Future<void> _loadData() async {
     await Future.wait([
-      categoryController.getItemsByCategory(categoryId: widget.categoryId),
-      categoryController.getApplicants(),
-      categoryController.getResponsibles(),
+      itemController.getItemsByCategory(categoryId: widget.categoryId),
+      loanController.getApplicants(),
+      loanController.getResponsibles(),
     ]);
   }
 
@@ -70,7 +74,7 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
   }
 
   List<Item> get _availableItems {
-    return categoryController.items
+    return itemController.items
         .where((item) => item.status == 'Disponível')
         .toList();
   }
@@ -80,7 +84,7 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
       return;
     }
 
-    final result = await categoryController.createLoan(
+    await loanController.createLoan(
       createLoanDTO: CreateLoanDTO(
         applicantId: _selectedApplicantId!,
         responsibleId: _selectedResponsibleId!,
@@ -90,27 +94,24 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
     );
 
     if (mounted) {
-      result.fold(
-        (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Empréstimo criado com sucesso!'),
-              backgroundColor: Colors.green,
+      if (loanController.errorMessage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Empréstimo criado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              loanController.errorMessage ?? 'Erro ao criar empréstimo',
             ),
-          );
-          Navigator.pop(context, true);
-        },
-        (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                categoryController.error ?? 'Erro ao criar empréstimo',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-      );
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -149,7 +150,7 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
               const SizedBox(height: 32),
 
               ListenableBuilder(
-                listenable: categoryController,
+                listenable: loanController,
                 builder: (context, child) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -206,21 +207,21 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
                       SelectField<String>(
                         value: _selectedApplicantId,
                         hint:
-                            categoryController.applicants.isEmpty
+                            loanController.applicants.isEmpty
                                 ? 'Carregando solicitantes...'
                                 : 'Selecione um solicitante',
                         icon: LucideIcons.user,
                         validator:
                             (value) => _validateSelection(value, 'solicitante'),
                         items:
-                            categoryController.applicants.map((user) {
+                            loanController.applicants.map((user) {
                               return DropdownMenuItem<String>(
                                 value: user.id,
                                 child: Text('${user.name} (${user.email})'),
                               );
                             }).toList(),
                         onChanged:
-                            categoryController.applicants.isEmpty
+                            loanController.applicants.isEmpty
                                 ? null
                                 : (String? value) {
                                   setState(() {
@@ -244,21 +245,21 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
                       SelectField<String>(
                         value: _selectedResponsibleId,
                         hint:
-                            categoryController.responsibles.isEmpty
+                            loanController.responsibles.isEmpty
                                 ? 'Carregando responsáveis...'
                                 : 'Selecione um responsável',
                         icon: LucideIcons.userCheck,
                         validator:
                             (value) => _validateSelection(value, 'responsável'),
                         items:
-                            categoryController.responsibles.map((user) {
+                            loanController.responsibles.map((user) {
                               return DropdownMenuItem<String>(
                                 value: user.id,
                                 child: Text('${user.name} (${user.role})'),
                               );
                             }).toList(),
                         onChanged:
-                            categoryController.responsibles.isEmpty
+                            loanController.responsibles.isEmpty
                                 ? null
                                 : (String? value) {
                                   setState(() {
@@ -297,7 +298,7 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed:
-                          categoryController.isLoading
+                          loanController.isLoading
                               ? null
                               : () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
@@ -320,11 +321,11 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ListenableBuilder(
-                      listenable: categoryController,
+                      listenable: loanController,
                       builder: (context, child) {
                         return ElevatedButton(
                           onPressed:
-                              categoryController.isLoading ? null : _createLoan,
+                              loanController.isLoading ? null : _createLoan,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: CustomColors.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -334,7 +335,7 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
                             elevation: 0,
                           ),
                           child:
-                              categoryController.isLoading
+                              loanController.isLoading
                                   ? const SizedBox(
                                     height: 20,
                                     width: 20,

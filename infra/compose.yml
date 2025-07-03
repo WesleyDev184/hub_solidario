@@ -32,8 +32,7 @@ services:
       - "traefik.http.routers.traefik-dashboard.service=api@internal"
       - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
       - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver"
-
-      # - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth@file" # Descomente para ativar autenticação
+      - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth@file" # Descomente para ativar autenticação
 
   watchtower:
     image: containrrr/watchtower
@@ -76,6 +75,37 @@ services:
     deploy:
       replicas: 1
 
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-02-03T21-03-04Z-cpuv1
+    command: server /data --console-address ":9001"
+    restart: always
+    networks:
+      - proxy
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+      MINIO_BROWSER_REDIRECT_URL: "https://minio-console.bovisoft.com"
+      MINIO_SERVER_URL: "https://s3.bovisoft.com"
+    volumes:
+      - minio-data:/data
+    labels:
+      - "traefik.enable=true"
+      # MinIO API
+      - "traefik.http.routers.minio-api.rule=Host(`s3.bovisoft.com`)"
+      - "traefik.http.services.minio-api.loadbalancer.server.port=9000"
+      - "traefik.http.routers.minio-api.service=minio-api"
+      - "traefik.http.routers.minio-api.entrypoints=websecure"
+      - "traefik.http.routers.minio-api.tls.certresolver=myresolver"
+      # MinIO Console
+      - "traefik.http.routers.minio-console.rule=Host(`minio-console.bovisoft.com`)"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+      - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.routers.minio-console.entrypoints=websecure"
+      - "traefik.http.routers.minio-console.tls.certresolver=myresolver"
+
   api:
     image: ghcr.io/wesleydev184/rotary:main
     restart: always
@@ -94,6 +124,7 @@ services:
       DB_URL: "Host=db;Port=5432;Database=rotarydb;Username=postgres;Password=postgres"
       API_KEY: "your_api_key_here"
       REDIS_URL: "redis:6379"
+      RUN_MIGRATIONS: "true"
     depends_on:
       db:
         condition: service_healthy
@@ -101,6 +132,7 @@ services:
 volumes:
   postgres-data:
   letsencrypt:
+  minio-data:
 
 networks:
   proxy:

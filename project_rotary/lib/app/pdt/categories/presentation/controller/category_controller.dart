@@ -1,284 +1,246 @@
 import 'package:flutter/material.dart';
-import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/category.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/item.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/loan.dart';
-import 'package:project_rotary/app/pdt/categories/domain/models/user.dart';
-import 'package:result_dart/result_dart.dart';
+import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/create_category_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/delete_category_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/get_all_categories_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/get_categories_by_orthopedic_bank_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/get_category_by_id_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/update_category_usecase.dart';
 
+/// Controller reativo para gerenciar o estado de categorias.
+/// Implementa o padrão Clean Architecture usando Use Cases.
+/// Baseado no mesmo padrão implementado no ApplicantController.
 class CategoryController extends ChangeNotifier {
-  final CategoryRepository _categoryRepository;
+  final CreateCategoryUseCase _createCategoryUseCase;
+  final GetAllCategoriesUseCase _getAllCategoriesUseCase;
+  final GetCategoriesByOrthopedicBankUseCase
+  _getCategoriesByOrthopedicBankUseCase;
+  final GetCategoryByIdUseCase _getCategoryByIdUseCase;
+  final UpdateCategoryUseCase _updateCategoryUseCase;
+  final DeleteCategoryUseCase _deleteCategoryUseCase;
 
-  CategoryController(this._categoryRepository);
+  CategoryController({
+    required CreateCategoryUseCase createCategoryUseCase,
+    required GetAllCategoriesUseCase getAllCategoriesUseCase,
+    required GetCategoriesByOrthopedicBankUseCase
+    getCategoriesByOrthopedicBankUseCase,
+    required GetCategoryByIdUseCase getCategoryByIdUseCase,
+    required UpdateCategoryUseCase updateCategoryUseCase,
+    required DeleteCategoryUseCase deleteCategoryUseCase,
+  }) : _createCategoryUseCase = createCategoryUseCase,
+       _getAllCategoriesUseCase = getAllCategoriesUseCase,
+       _getCategoriesByOrthopedicBankUseCase =
+           getCategoriesByOrthopedicBankUseCase,
+       _getCategoryByIdUseCase = getCategoryByIdUseCase,
+       _updateCategoryUseCase = updateCategoryUseCase,
+       _deleteCategoryUseCase = deleteCategoryUseCase;
 
-  bool isLoading = false;
-  String? error;
-  List<Category> categories = [];
-  List<Item> items = [];
-  List<User> users = [];
-  List<User> applicants = [];
-  List<User> responsibles = [];
+  // ========================================
+  // ESTADO
+  // ========================================
 
-  AsyncResult<Category> createCategory({
+  bool _isLoading = false;
+  String? _errorMessage;
+  List<Category> _categories = [];
+  Category? _selectedCategory;
+
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  List<Category> get categories => List.unmodifiable(_categories);
+  Category? get selectedCategory => _selectedCategory;
+
+  // ========================================
+  // OPERAÇÕES CRUD
+  // ========================================
+
+  /// Cria uma nova categoria
+  Future<void> createCategory({
     required CreateCategoryDTO createCategoryDTO,
   }) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+    _setLoading(true);
+    _clearError();
 
-    final result = await _categoryRepository.createCategory(
+    final result = await _createCategoryUseCase(
       createCategoryDTO: createCategoryDTO,
     );
 
     result.fold(
-      (success) {
-        // Adicionar a nova categoria à lista local
-        categories.add(success);
+      (category) {
+        _categories.add(category);
+        _setLoading(false);
       },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
+      (error) {
+        _setError('Erro ao criar categoria: ${_extractErrorMessage(error)}');
+        _setLoading(false);
       },
     );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
   }
 
-  AsyncResult<List<Category>> getCategories() async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+  /// Busca todas as categorias
+  Future<void> getCategories() async {
+    _setLoading(true);
+    _clearError();
 
-    final result = await _categoryRepository.getCategories();
+    final result = await _getAllCategoriesUseCase();
 
     result.fold(
-      (success) {
-        categories = success;
+      (categoriesList) {
+        _categories = categoriesList;
+        _setLoading(false);
       },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
+      (error) {
+        _setError('Erro ao buscar categorias: ${_extractErrorMessage(error)}');
+        _setLoading(false);
       },
     );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
   }
 
-  AsyncResult<String> deleteCategory({required String id}) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+  /// Busca categorias por banco ortopédico através da rota de estoque
+  Future<void> getCategoriesByOrthopedicBank({
+    required String orthopedicBankId,
+  }) async {
+    _setLoading(true);
+    _clearError();
 
-    final result = await _categoryRepository.deleteCategory(id: id);
+    final result = await _getCategoriesByOrthopedicBankUseCase(
+      orthopedicBankId: orthopedicBankId,
+    );
 
     result.fold(
-      (success) {
-        // Remover a categoria da lista local
-        categories.removeWhere((category) => category.id == id);
+      (categoriesList) {
+        _categories = categoriesList;
+        _setLoading(false);
       },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
+      (error) {
+        _setError(
+          'Erro ao buscar categorias do banco: ${_extractErrorMessage(error)}',
+        );
+        _setLoading(false);
       },
     );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
   }
 
-  AsyncResult<Category> updateCategory({
+  /// Busca uma categoria por ID
+  Future<void> getCategoryById({required String id}) async {
+    _setLoading(true);
+    _clearError();
+
+    final result = await _getCategoryByIdUseCase(id: id);
+
+    result.fold(
+      (category) {
+        _selectedCategory = category;
+        _setLoading(false);
+      },
+      (error) {
+        _setError('Erro ao buscar categoria: ${_extractErrorMessage(error)}');
+        _setLoading(false);
+      },
+    );
+  }
+
+  /// Atualiza uma categoria existente
+  Future<void> updateCategory({
     required String id,
     required UpdateCategoryDTO updateCategoryDTO,
   }) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+    _setLoading(true);
+    _clearError();
 
-    final result = await _categoryRepository.updateCategory(
+    final result = await _updateCategoryUseCase(
       id: id,
       updateCategoryDTO: updateCategoryDTO,
     );
 
     result.fold(
-      (success) {
-        // Atualizar categoria na lista local
-        final index = categories.indexWhere((category) => category.id == id);
+      (updatedCategory) {
+        final index = _categories.indexWhere((category) => category.id == id);
         if (index != -1) {
-          categories[index] = success;
+          _categories[index] = updatedCategory;
         }
+
+        if (_selectedCategory?.id == id) {
+          _selectedCategory = updatedCategory;
+        }
+
+        _setLoading(false);
       },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
-      },
-    );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
-  }
-
-  AsyncResult<Item> createItem({required CreateItemDTO createItemDTO}) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
-
-    final result = await _categoryRepository.createItem(
-      createItemDTO: createItemDTO,
-    );
-
-    result.fold(
-      (success) {
-        items.add(success);
-      },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
-      },
-    );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
-  }
-
-  AsyncResult<List<Item>> getItemsByCategory({
-    required String categoryId,
-  }) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
-
-    final result = await _categoryRepository.getItemsByCategory(
-      categoryId: categoryId,
-    );
-
-    result.fold(
-      (success) {
-        items = success;
-      },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
-      },
-    );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
-  }
-
-  AsyncResult<List<User>> getUsers() async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
-
-    final result = await _categoryRepository.getUsers();
-
-    result.fold(
-      (success) {
-        users = success;
-      },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
-      },
-    );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
-  }
-
-  AsyncResult<List<User>> getApplicants() async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
-
-    final result = await _categoryRepository.getApplicants();
-
-    result.fold(
-      (success) {
-        applicants = success;
-      },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
-      },
-    );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
-  }
-
-  AsyncResult<List<User>> getResponsibles() async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
-
-    final result = await _categoryRepository.getResponsibles();
-
-    result.fold(
-      (success) {
-        responsibles = success;
-      },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
-      },
-    );
-
-    isLoading = false;
-    notifyListeners();
-
-    return result;
-  }
-
-  AsyncResult<Loan> createLoan({required CreateLoanDTO createLoanDTO}) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
-
-    final result = await _categoryRepository.createLoan(
-      createLoanDTO: createLoanDTO,
-    );
-
-    result.fold(
-      (success) {
-        // Atualizar status do item emprestado
-        final itemIndex = items.indexWhere(
-          (item) => item.id == createLoanDTO.itemId,
+      (error) {
+        _setError(
+          'Erro ao atualizar categoria: ${_extractErrorMessage(error)}',
         );
-        if (itemIndex != -1) {
-          // Criar novo item com status atualizado
-          final updatedItem = Item(
-            id: items[itemIndex].id,
-            serialCode: items[itemIndex].serialCode,
-            stockId: items[itemIndex].stockId,
-            imageUrl: items[itemIndex].imageUrl,
-            status: 'Emprestado',
-            createdAt: items[itemIndex].createdAt,
-          );
-          items[itemIndex] = updatedItem;
-        }
-      },
-      (failure) {
-        error = failure.toString().replaceFirst('Exception: ', '');
+        _setLoading(false);
       },
     );
+  }
 
-    isLoading = false;
+  /// Deleta uma categoria
+  Future<void> deleteCategory({required String id}) async {
+    _setLoading(true);
+    _clearError();
+
+    final result = await _deleteCategoryUseCase(id: id);
+
+    result.fold(
+      (message) {
+        _categories.removeWhere((category) => category.id == id);
+
+        if (_selectedCategory?.id == id) {
+          _selectedCategory = null;
+        }
+
+        _setLoading(false);
+      },
+      (error) {
+        _setError('Erro ao deletar categoria: ${_extractErrorMessage(error)}');
+        _setLoading(false);
+      },
+    );
+  }
+
+  // ========================================
+  // MÉTODOS AUXILIARES
+  // ========================================
+
+  /// Limpa o erro atual
+  void clearError() {
+    _clearError();
+  }
+
+  /// Limpa a categoria selecionada
+  void clearSelectedCategory() {
+    _selectedCategory = null;
     notifyListeners();
+  }
 
-    return result;
+  /// Recarrega a lista de categorias
+  Future<void> refresh() async {
+    await getCategories();
+  }
+
+  // ========================================
+  // MÉTODOS PRIVADOS
+  // ========================================
+
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setError(String error) {
+    _errorMessage = error;
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  String _extractErrorMessage(Object error) {
+    return error.toString().replaceFirst('Exception: ', '');
   }
 }

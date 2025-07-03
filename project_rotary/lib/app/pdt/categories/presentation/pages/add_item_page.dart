@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/categories/data/impl_category_repository.dart';
+import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_item_dto.dart';
-import 'package:project_rotary/app/pdt/categories/presentation/controller/category_controller.dart';
+import 'package:project_rotary/app/pdt/categories/presentation/controller/item_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -25,7 +25,13 @@ class _AddItemPageState extends State<AddItemPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _serialCodeController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
-  final categoryController = CategoryController(ImplCategoryRepository());
+  late final ItemController itemController;
+
+  @override
+  void initState() {
+    super.initState();
+    itemController = CategoryDependencyFactory.instance.itemController;
+  }
 
   @override
   void dispose() {
@@ -49,8 +55,9 @@ class _AddItemPageState extends State<AddItemPage> {
   }
 
   String? _validateImageUrl(String? value) {
+    // URL da imagem é opcional
     if (value == null || value.trim().isEmpty) {
-      return 'URL da imagem é obrigatória';
+      return null; // Não é obrigatória
     }
     final uri = Uri.tryParse(value.trim());
     if (uri == null || !uri.hasAbsolutePath) {
@@ -64,34 +71,51 @@ class _AddItemPageState extends State<AddItemPage> {
       return;
     }
 
-    final result = await categoryController.createItem(
-      createItemDTO: CreateItemDTO(
-        serialCode: int.parse(_serialCodeController.text.trim()),
-        stockId: widget.categoryId,
-        imageUrl: _imageUrlController.text.trim(),
-      ),
-    );
+    // Trata URL da imagem como opcional
+    final imageUrl = _imageUrlController.text.trim();
 
-    if (mounted) {
-      result.fold(
-        (success) {
+    try {
+      await itemController.createItem(
+        createItemDTO: CreateItemDTO(
+          serialCode: int.parse(_serialCodeController.text.trim()),
+          stockId: widget.categoryId, // categoryId é o stockId da API
+          imageUrl: imageUrl, // Pode ser vazia, será tratada no DTO
+        ),
+      );
+
+      if (mounted) {
+        if (itemController.errorMessage == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Item criado com sucesso!'),
               backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
             ),
           );
-          Navigator.pop(context, true);
-        },
-        (error) {
+          Navigator.pop(context, true); // Retorna true para indicar sucesso
+        } else {
+          debugPrint('Erro ao criar item: ${itemController.errorMessage}');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(categoryController.error ?? 'Erro ao criar item'),
+              content: Text(
+                itemController.errorMessage ?? 'Erro ao criar item',
+              ),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
             ),
           );
-        },
-      );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro inesperado: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -148,11 +172,20 @@ class _AddItemPageState extends State<AddItemPage> {
               const SizedBox(height: 24),
 
               const Text(
-                'URL da Imagem *',
+                'URL da Imagem',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Campo opcional - deixe em branco se não tiver imagem',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
                 ),
               ),
               const SizedBox(height: 8),
@@ -170,7 +203,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed:
-                          categoryController.isLoading
+                          itemController.isLoading
                               ? null
                               : () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
@@ -193,11 +226,11 @@ class _AddItemPageState extends State<AddItemPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ListenableBuilder(
-                      listenable: categoryController,
+                      listenable: itemController,
                       builder: (context, child) {
                         return ElevatedButton(
                           onPressed:
-                              categoryController.isLoading ? null : _saveItem,
+                              itemController.isLoading ? null : _saveItem,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: CustomColors.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -207,7 +240,7 @@ class _AddItemPageState extends State<AddItemPage> {
                             elevation: 0,
                           ),
                           child:
-                              categoryController.isLoading
+                              itemController.isLoading
                                   ? const SizedBox(
                                     height: 20,
                                     width: 20,

@@ -25,5 +25,7 @@ public static class ItemCacheService
   {
     await cache.RemoveAsync(Keys.ItemById(itemId), ct);
     await cache.RemoveAsync(Keys.AllItems, ct);
+    await cache.RemoveByTagAsync("loans", ct);
+    await cache.RemoveByTagAsync("stocks", ct);
   }
 }

@@ -16,7 +16,40 @@ namespace api.Modules.Loans.Dto.ExampleDoc
     {
       return new ResponseControllerLoanDTO(
         Success: true,
-        null,
+        Data: new ResponseEntityLoanDTO(
+          Id: Guid.NewGuid(),
+          ReturnDate: DateTime.UtcNow.AddDays(7),
+          Reason: "Loaning item for temporary use",
+          IsActive: true,
+          Item: new ResponseEntityItemDTO(
+            Id: Guid.NewGuid(),
+            SeriaCode: 12345,
+            Status: "Available",
+            StockId: Guid.NewGuid(),
+            CreatedAt: DateTime.UtcNow
+          ),
+          Applicant: new ResponseEntityApplicantsDTO(
+            Id: Guid.NewGuid(),
+            Name: "John Doe",
+            CPF: "12345678901",
+            Email: "john.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "123 Main St",
+            IsBeneficiary: true,
+            BeneficiaryQtd: 1,
+            CreatedAt: DateTime.UtcNow,
+            Dependents: null
+          ),
+          Responsible: new ResponseEntityUserDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Smith",
+            Email: "jane.smith@example.com",
+            PhoneNumber: "11888888888",
+            OrthopedicBank: null,
+            CreatedAt: DateTime.UtcNow
+          ),
+          CreatedAt: DateTime.UtcNow
+        ),
         Message: "Loan created successfully"
       );
     }
@@ -29,7 +62,40 @@ namespace api.Modules.Loans.Dto.ExampleDoc
     {
       return new ResponseControllerLoanDTO(
         Success: true,
-        Data: null,
+        Data: new ResponseEntityLoanDTO(
+          Id: Guid.NewGuid(),
+          ReturnDate: DateTime.UtcNow.AddDays(7),
+          Reason: "Loaning item for temporary use",
+          IsActive: true,
+          Item: new ResponseEntityItemDTO(
+            Id: Guid.NewGuid(),
+            SeriaCode: 12345,
+            Status: "Available",
+            StockId: Guid.NewGuid(),
+            CreatedAt: DateTime.UtcNow
+          ),
+          Applicant: new ResponseEntityApplicantsDTO(
+            Id: Guid.NewGuid(),
+            Name: "John Doe",
+            CPF: "12345678901",
+            Email: "john.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "123 Main St",
+            IsBeneficiary: true,
+            BeneficiaryQtd: 1,
+            CreatedAt: DateTime.UtcNow,
+            Dependents: null
+          ),
+          Responsible: new ResponseEntityUserDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Smith",
+            Email: "jane.smith@example.com",
+            PhoneNumber: "11888888888",
+            OrthopedicBank: null,
+            CreatedAt: DateTime.UtcNow
+          ),
+          CreatedAt: DateTime.UtcNow
+        ),
         Message: "Loan updated successfully"
       );
     }
@@ -141,8 +207,8 @@ namespace api.Modules.Loans.Dto.ExampleDoc
           Item: new ResponseEntityItemDTO(
             Id: Guid.NewGuid(),
             SeriaCode: 12345,
-            ImageUrl: "https://example.com/item-image.png",
             Status: "Available",
+            StockId: Guid.NewGuid(),
             CreatedAt: DateTime.UtcNow
           ),
           Applicant: new ResponseEntityApplicantsDTO(

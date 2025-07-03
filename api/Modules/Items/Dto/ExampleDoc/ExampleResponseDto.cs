@@ -9,7 +9,13 @@ namespace api.Modules.Items.Dto.ExampleDoc
     {
       return new ResponseControllerItemDTO(
         Success: true,
-        Data: null,
+        Data: new ResponseEntityItemDTO(
+            Id: Guid.NewGuid(),
+            SeriaCode: 12345,
+            Status: "Available",
+            StockId: Guid.NewGuid(),
+            CreatedAt: DateTime.UtcNow
+          ),
         Message: "Item created successfully"
       );
     }
@@ -22,7 +28,13 @@ namespace api.Modules.Items.Dto.ExampleDoc
     {
       return new ResponseControllerItemDTO(
         Success: true,
-        Data: null,
+        Data: new ResponseEntityItemDTO(
+            Id: Guid.NewGuid(),
+            SeriaCode: 12345,
+            Status: "Available",
+            StockId: Guid.NewGuid(),
+            CreatedAt: DateTime.UtcNow
+          ),
         Message: "Item updated successfully"
       );
     }
@@ -79,8 +91,8 @@ namespace api.Modules.Items.Dto.ExampleDoc
           new ResponseEntityItemDTO(
             Id: Guid.NewGuid(),
             SeriaCode: 12345,
-            ImageUrl: "https://example.com/item-image.png",
             Status: "Available",
+            StockId:Guid.NewGuid(),
             CreatedAt: DateTime.UtcNow
           )
         ],
@@ -99,8 +111,8 @@ namespace api.Modules.Items.Dto.ExampleDoc
         Data: new ResponseEntityItemDTO(
           Id: Guid.NewGuid(),
           SeriaCode: 12345,
-          ImageUrl: "https://example.com/item-image.png",
           Status: "Available",
+          StockId: Guid.NewGuid(),
           CreatedAt: DateTime.UtcNow
         ),
         Message: "Item retrieved successfully"

@@ -11,6 +11,8 @@ public record ResponseEntityStockDTO(
   Guid Id,
   [property: SwaggerSchema(Description = "Title of the stock", Format = "string")]
   string Title,
+  [property: SwaggerSchema(Description = "Image URL of the stock", Format = "string")]
+  string ImageUrl,
   [property: SwaggerSchema(Description = "Quantity for maintenance", Format = "int32")]
   int MaintenanceQtd,
   [property: SwaggerSchema(Description = "Quantity available", Format = "int32")]
@@ -19,6 +21,8 @@ public record ResponseEntityStockDTO(
   int BorrowedQtd,
   [property: SwaggerSchema(Description = "Total quantity", Format = "int32")]
   int TotalQtd,
+  [property: SwaggerSchema(Description = "Unique identifier of the orthopedic bank", Format = "uuid", Nullable = true)]
+  Guid? OrthopedicBankId,
   [property: SwaggerSchema(Description = "Orthopedic bank", Nullable = true)]
   ResponseEntityOrthopedicBankDTO? OrthopedicBank,
   [property: SwaggerSchema(Description = "Items associated with the stock", Nullable = true)]
@@ -32,6 +36,15 @@ public record ResponseStockDTO(
   HttpStatusCode Status,
   [property: SwaggerSchema(Description = "Stock data", Nullable = true)]
   ResponseEntityStockDTO? Data,
+  [property: SwaggerSchema(Description = "Additional message", Nullable = true)]
+  string? Message
+);
+
+public record ResponseStockDeleteDTO(
+  [property: SwaggerSchema(Description = "HTTP status code of the response")]
+  HttpStatusCode Status,
+  [property: SwaggerSchema(Description = "Unique identifier of the orthopedic bank", Format = "uuid", Nullable = true)]
+  Guid? OrthopedicBankId,
   [property: SwaggerSchema(Description = "Additional message", Nullable = true)]
   string? Message
 );

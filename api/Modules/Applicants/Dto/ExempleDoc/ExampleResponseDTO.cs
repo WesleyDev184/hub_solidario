@@ -10,7 +10,18 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
     {
       return new ResponseControllerApplicantsDTO(
         Success: true,
-        Data: null,
+        Data: new ResponseEntityApplicantsDTO(
+            Id: Guid.Parse("00000000-0000-0000-0000-000000000000"),
+            Name: "John Doe",
+            CPF: "12345678901",
+            Email: "john.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "123 Main St, City",
+            IsBeneficiary: true,
+            BeneficiaryQtd: 1,
+            CreatedAt: DateTime.UtcNow,
+            Dependents: null
+          ),
         Message: "Applicant created successfully"
       );
     }
@@ -23,7 +34,29 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
     {
       return new ResponseControllerApplicantsDTO(
         Success: true,
-        Data: null,
+        Data: new ResponseEntityApplicantsDTO(
+          Id: Guid.Parse("00000000-0000-0000-0000-000000000000"),
+          Name: "John Doe",
+          CPF: "12345678901",
+          Email: "john.doe@example.com",
+          PhoneNumber: "11999999999",
+          Address: "123 Main St, City",
+          IsBeneficiary: true,
+          BeneficiaryQtd: 1,
+          CreatedAt: DateTime.UtcNow,
+          Dependents:
+          [
+            new ResponseEntityDependentDTO(
+              Id: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+              Name: "Jane Doe",
+              CPF: "10987654321",
+              Email: "ex@example.com",
+              PhoneNumber: "11999999998",
+              Address: "456 Elm St, City",
+              Guid.Parse("00000000-0000-0000-0000-000000000000"),
+              CreatedAt: DateTime.Now)
+          ]
+        ),
         Message: "Applicant updated successfully"
       );
     }

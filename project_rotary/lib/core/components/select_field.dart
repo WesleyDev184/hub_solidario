@@ -26,6 +26,9 @@ class SelectField<T> extends StatelessWidget {
       decoration: InputDecoration(
         labelText: hint,
         suffixIcon: Icon(icon),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
       ),
       items: items,
       onChanged: onChanged,

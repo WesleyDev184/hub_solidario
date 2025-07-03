@@ -1,8 +1,10 @@
+using Amazon.Runtime;
+using Amazon.S3;
 using api.Auth.Entity;
 using api.DB;
+using api.Services.S3;
 using api.Swagger;
 using DotNetEnv;
-using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -23,6 +25,47 @@ namespace api.Extensions
       builder.AddDatabase();
       builder.AddApplicationServices();
       builder.AddCorsPolicy();
+      builder.ConfigureS3();
+    }
+
+    private static void ConfigureS3(this WebApplicationBuilder builder)
+    {
+      var s3Config = new S3Config
+      {
+        ServiceURL = Env.GetString("S3_SERVICE_URL"),
+        BucketName = Env.GetString("S3_DEFAULT_BUCKET"),
+        AccessKey = Env.GetString("S3_ACCESS_KEY"),
+        SecretKey = Env.GetString("S3_SECRET_KEY")
+      };
+
+      // 3. (Opcional mas recomendado) Valida se todas as variáveis foram carregadas
+      if (string.IsNullOrEmpty(s3Config.ServiceURL) ||
+          string.IsNullOrEmpty(s3Config.BucketName) ||
+          string.IsNullOrEmpty(s3Config.AccessKey) ||
+          string.IsNullOrEmpty(s3Config.SecretKey))
+      {
+        throw new InvalidOperationException("Uma ou mais configurações do S3 não foram encontradas no arquivo .env. Verifique o arquivo e reinicie a aplicação.");
+      }
+
+      // Registra a configuração usando IOptions pattern
+      builder.Services.Configure<S3Config>(options =>
+      {
+        options.ServiceURL = s3Config.ServiceURL;
+        options.BucketName = s3Config.BucketName;
+        options.AccessKey = s3Config.AccessKey;
+        options.SecretKey = s3Config.SecretKey;
+      });
+
+      var credentials = new BasicAWSCredentials(s3Config.AccessKey, s3Config.SecretKey);
+      var config = new AmazonS3Config
+      {
+        ServiceURL = s3Config.ServiceURL,
+        ForcePathStyle = true
+      };
+      builder.Services.AddSingleton<IAmazonS3>(new AmazonS3Client(credentials, config));
+
+      // 3. Registra nosso serviço genérico
+      builder.Services.AddScoped<IFileStorageService, S3FileStorageService>();
     }
 
     private static void AddCaching(this WebApplicationBuilder builder)
