@@ -41,7 +41,18 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "name": "John Doe",
+                    "cpf": "12345678901",
+                    "email": "john.doe@example.com",
+                    "phoneNumber": "11999999999",
+                    "address": "123 Main St, City",
+                    "isBeneficiary": true,
+                    "beneficiaryQtd": 1,
+                    "createdAt": "2025-07-04T19:12:25.5544828Z",
+                    "dependents": null
+                  },
                   "message": "Applicant created successfully"
                 }
               }
@@ -121,7 +132,7 @@
                       "address": "123 Main St, City",
                       "isBeneficiary": true,
                       "beneficiaryQtd": 1,
-                      "createdAt": "2025-07-01T00:06:50.2452298Z",
+                      "createdAt": "2025-07-04T19:12:25.5655121Z",
                       "dependents": null
                     }
                   ],
@@ -170,7 +181,7 @@
                     "address": "123 Main St, City",
                     "isBeneficiary": true,
                     "beneficiaryQtd": 1,
-                    "createdAt": "2025-07-01T00:06:50.2493001Z",
+                    "createdAt": "2025-07-04T19:12:25.5687277Z",
                     "dependents": [
                       {
                         "id": "11111111-1111-1111-1111-111111111111",
@@ -180,7 +191,7 @@
                         "phoneNumber": "11999999998",
                         "address": "456 Elm St, City",
                         "applicantId": "00000000-0000-0000-0000-000000000000",
-                        "createdAt": "2025-07-01T00:06:50.2493021+00:00"
+                        "createdAt": "2025-07-04T19:12:25.5687305+00:00"
                       }
                     ]
                   },
@@ -250,7 +261,29 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "name": "John Doe",
+                    "cpf": "12345678901",
+                    "email": "john.doe@example.com",
+                    "phoneNumber": "11999999999",
+                    "address": "123 Main St, City",
+                    "isBeneficiary": true,
+                    "beneficiaryQtd": 1,
+                    "createdAt": "2025-07-04T19:12:25.5759188Z",
+                    "dependents": [
+                      {
+                        "id": "11111111-1111-1111-1111-111111111111",
+                        "name": "Jane Doe",
+                        "cpf": "10987654321",
+                        "email": "ex@example.com",
+                        "phoneNumber": "11999999998",
+                        "address": "456 Elm St, City",
+                        "applicantId": "00000000-0000-0000-0000-000000000000",
+                        "createdAt": "2025-07-04T19:12:25.5759216+00:00"
+                      }
+                    ]
+                  },
                   "message": "Applicant updated successfully"
                 }
               }
@@ -570,9 +603,9 @@
                       "name": "Orthopedic Bank Name",
                       "city": "Orthopedic Bank Description",
                       "stocks": null,
-                      "createdAt": "2025-07-01T00:06:50.2800634Z"
+                      "createdAt": "2025-07-04T19:12:25.5969864Z"
                     },
-                    "createdAt": "2025-07-01T00:06:50.2800642Z"
+                    "createdAt": "2025-07-04T19:12:25.5969901Z"
                   },
                   "message": "User retrieved successfully"
                 }
@@ -692,7 +725,7 @@
                       "email": "Doe@Exemple.com",
                       "phoneNumber": "11999999999",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-01T00:06:50.2867326Z"
+                      "createdAt": "2025-07-04T19:12:25.6054034Z"
                     }
                   ],
                   "message": "Users retrieved successfully"
@@ -756,9 +789,9 @@
                       "name": "Orthopedic Bank Name",
                       "city": "Orthopedic Bank Description",
                       "stocks": null,
-                      "createdAt": "2025-07-01T00:06:50.2897288Z"
+                      "createdAt": "2025-07-04T19:12:25.60904Z"
                     },
-                    "createdAt": "2025-07-01T00:06:50.2897293Z"
+                    "createdAt": "2025-07-04T19:12:25.6090408Z"
                   },
                   "message": "User retrieved successfully"
                 }
@@ -884,7 +917,7 @@
                       "email": "Doe@Exemple.com",
                       "phoneNumber": "11999999999",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-01T00:06:50.2925894Z"
+                      "createdAt": "2025-07-04T19:12:25.6131755Z"
                     }
                   ],
                   "message": "Users retrieved successfully"
@@ -909,7 +942,7 @@
                       "email": "Doe@Exemple.com",
                       "phoneNumber": "11999999999",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-01T00:06:50.29262Z"
+                      "createdAt": "2025-07-04T19:12:25.6132119Z"
                     }
                   ],
                   "message": "Users retrieved successfully"
@@ -956,14 +989,14 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "ed903dae-0306-4a93-aae9-06d2fa80f2ca",
+                    "id": "6d3ce8ca-3762-48eb-9bb6-652c5a89ff7b",
                     "name": "Jane Doe",
                     "cpf": "10987654321",
                     "email": "jane.doe@example.com",
                     "phoneNumber": "11888888888",
                     "address": "456 Secondary St, City",
                     "applicantId": "11111111-1111-1111-1111-111111111111",
-                    "createdAt": "2025-07-01T00:06:50.2989581Z"
+                    "createdAt": "2025-07-04T19:12:25.6199386Z"
                   },
                   "message": "Dependent created successfully"
                 }
@@ -1051,14 +1084,14 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "eb0710d3-5c36-40fd-a6e5-70e9718c67c5",
+                      "id": "581250a9-fcf5-40e9-8b3c-69bdeef6aee9",
                       "name": "Jane Doe",
                       "cpf": "10987654321",
                       "email": "jane.doe@example.com",
                       "phoneNumber": "11888888888",
                       "address": "456 Secondary St, City",
                       "applicantId": "11111111-1111-1111-1111-111111111111",
-                      "createdAt": "2025-07-01T00:06:50.300374Z"
+                      "createdAt": "2025-07-04T19:12:25.6218486Z"
                     }
                   ],
                   "message": "Dependents retrieved successfully"
@@ -1098,14 +1131,14 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "437b907f-4197-4212-9a0b-b789de4a5a92",
+                    "id": "28bb4f7a-57c2-4711-8dcd-7e2795dc5868",
                     "name": "Jane Doe",
                     "cpf": "10987654321",
                     "email": "jane.doe@example.com",
                     "phoneNumber": "11888888888",
                     "address": "456 Secondary St, City",
                     "applicantId": "11111111-1111-1111-1111-111111111111",
-                    "createdAt": "2025-07-01T00:06:50.3031939Z"
+                    "createdAt": "2025-07-04T19:12:25.6322561Z"
                   },
                   "message": "Dependent retrieved successfully"
                 }
@@ -1174,14 +1207,14 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "66030f35-733e-4a4e-9545-f04867cf3594",
+                    "id": "d7c78df6-8a55-4f32-9422-98853066cdd7",
                     "name": "Jane Doe Updated",
                     "cpf": "10987654321",
                     "email": "jane.updated@example.com",
                     "phoneNumber": "11777777777",
                     "address": "789 Tertiary Ave, City",
                     "applicantId": "11111111-1111-1111-1111-111111111111",
-                    "createdAt": "2025-07-01T00:06:50.3071002Z"
+                    "createdAt": "2025-07-04T19:12:25.6380216Z"
                   },
                   "message": "Dependent updated successfully"
                 }
@@ -1331,8 +1364,7 @@
               },
               "example": {
                 "seriaCode": 12345,
-                "stockId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                "imageUrl": "https://example.com/item-image.png"
+                "stockId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
               }
             }
           },
@@ -1348,7 +1380,13 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "8cbcbb5b-da40-458d-a255-9ffbd8d9fe43",
+                    "seriaCode": 12345,
+                    "status": "Available",
+                    "stockId": "0653b1e6-ac90-4659-a90b-65c942d422e4",
+                    "createdAt": "2025-07-04T19:12:25.6450608Z"
+                  },
                   "message": "Item created successfully"
                 }
               }
@@ -1435,11 +1473,11 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "c3c744c8-0cd4-4a28-b443-70a54884f27b",
+                      "id": "02c34a90-cf07-4bc0-9e79-5b5b5cba0758",
                       "seriaCode": 12345,
-                      "imageUrl": "https://example.com/item-image.png",
                       "status": "Available",
-                      "createdAt": "2025-07-01T00:06:50.3140942Z"
+                      "stockId": "695693e4-d818-490b-bc72-3f9909469ba1",
+                      "createdAt": "2025-07-04T19:12:25.647099Z"
                     }
                   ],
                   "message": "Items retrieved successfully"
@@ -1479,11 +1517,11 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "bbc48a40-2824-47e3-8673-3f48f8e6815b",
+                    "id": "e6a7eaba-1413-4a75-957b-d61d4661c878",
                     "seriaCode": 12345,
-                    "imageUrl": "https://example.com/item-image.png",
                     "status": "Available",
-                    "createdAt": "2025-07-01T00:06:50.3176866Z"
+                    "stockId": "bc47bb9a-6637-4611-b83a-00a7425d1cda",
+                    "createdAt": "2025-07-04T19:12:25.6498294Z"
                   },
                   "message": "Item retrieved successfully"
                 }
@@ -1532,7 +1570,6 @@
               },
               "example": {
                 "seriaCode": 54321,
-                "imageUrl": "https://example.com/new-item-image.png",
                 "status": "UNAVAILABLE"
               }
             }
@@ -1549,7 +1586,13 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "e339e27c-5643-496c-8353-d122e02ffa62",
+                    "seriaCode": 12345,
+                    "status": "Available",
+                    "stockId": "dae1e445-f3e8-406e-b5e2-b579d881b660",
+                    "createdAt": "2025-07-04T19:12:25.655231Z"
+                  },
                   "message": "Item updated successfully"
                 }
               }
@@ -1717,7 +1760,40 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "d174393e-f930-4b66-b495-4ed8d214bf6c",
+                    "returnDate": "2025-07-11T19:12:25.6647159Z",
+                    "reason": "Loaning item for temporary use",
+                    "isActive": true,
+                    "item": {
+                      "id": "42522340-bb8d-4df4-8f75-de138f5bacec",
+                      "seriaCode": 12345,
+                      "status": "Available",
+                      "stockId": "20e73104-06dc-4898-baae-3e8badd5724b",
+                      "createdAt": "2025-07-04T19:12:25.6647272Z"
+                    },
+                    "applicant": {
+                      "id": "a1a01bdd-aedf-4964-9339-a11221dc55cb",
+                      "name": "John Doe",
+                      "cpf": "12345678901",
+                      "email": "john.doe@example.com",
+                      "phoneNumber": "11999999999",
+                      "address": "123 Main St",
+                      "isBeneficiary": true,
+                      "beneficiaryQtd": 1,
+                      "createdAt": "2025-07-04T19:12:25.66473Z",
+                      "dependents": null
+                    },
+                    "responsible": {
+                      "id": "76999e61-f942-4030-8887-1ddf7fe2ab24",
+                      "name": "Jane Smith",
+                      "email": "jane.smith@example.com",
+                      "phoneNumber": "11888888888",
+                      "orthopedicBank": null,
+                      "createdAt": "2025-07-04T19:12:25.664732Z"
+                    },
+                    "createdAt": "2025-07-04T19:12:25.6647334Z"
+                  },
                   "message": "Loan created successfully"
                 }
               }
@@ -1805,14 +1881,14 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "f7d6e63b-1526-4266-bdd5-3a726e0e544d",
-                      "returnDate": "2025-07-08T00:06:50.3341686Z",
+                      "id": "f8ebcd1b-5f4f-403c-919e-27b9e4a5a0c4",
+                      "returnDate": "2025-07-11T19:12:25.6681166Z",
                       "reason": "Loaning item for temporary use",
                       "isActive": true,
                       "item": 12345,
                       "applicant": "John Doe",
                       "responsible": "Jane Smith",
-                      "createdAt": "2025-07-01T00:06:50.3341718Z"
+                      "createdAt": "2025-07-04T19:12:25.6681207Z"
                     }
                   ],
                   "message": "Loans retrieved successfully"
@@ -1853,19 +1929,19 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "e5f382bd-18c1-4529-846d-877577ecd3a0",
-                    "returnDate": "2025-07-08T00:06:50.3394716Z",
+                    "id": "5ae9f2b5-8f69-46aa-8f5a-e598f70da2dc",
+                    "returnDate": "2025-07-11T19:12:25.6731923Z",
                     "reason": "Loaning item for temporary use",
                     "isActive": true,
                     "item": {
-                      "id": "8ec9666e-0870-427a-a331-7afe0648d5a3",
+                      "id": "f416d91a-4c65-4d87-b3a9-0fff817adbf4",
                       "seriaCode": 12345,
-                      "imageUrl": "https://example.com/item-image.png",
                       "status": "Available",
-                      "createdAt": "2025-07-01T00:06:50.3394775Z"
+                      "stockId": "aac21cbb-833b-4186-974b-0c39980c8d1f",
+                      "createdAt": "2025-07-04T19:12:25.6731984Z"
                     },
                     "applicant": {
-                      "id": "91f35987-d076-4380-84a2-3bf5e2c3b727",
+                      "id": "5b84ce95-91fd-40b7-b2d3-fda37f4939de",
                       "name": "John Doe",
                       "cpf": "12345678901",
                       "email": "john.doe@example.com",
@@ -1873,18 +1949,18 @@
                       "address": "123 Main St",
                       "isBeneficiary": true,
                       "beneficiaryQtd": 1,
-                      "createdAt": "2025-07-01T00:06:50.3394813Z",
+                      "createdAt": "2025-07-04T19:12:25.673201Z",
                       "dependents": null
                     },
                     "responsible": {
-                      "id": "347cc8d3-de1e-4908-a8f1-afae293ed499",
+                      "id": "e95e3a0b-5630-4ea5-a903-27fff7e20808",
                       "name": "Jane Smith",
                       "email": "jane.smith@example.com",
                       "phoneNumber": "11888888888",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-01T00:06:50.3394845Z"
+                      "createdAt": "2025-07-04T19:12:25.673203Z"
                     },
-                    "createdAt": "2025-07-01T00:06:50.3394856Z"
+                    "createdAt": "2025-07-04T19:12:25.6732041Z"
                   },
                   "message": "Loan retrieved successfully"
                 }
@@ -1950,7 +2026,40 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "aa827d94-38a4-4a08-bf1b-36ae7a294654",
+                    "returnDate": "2025-07-11T19:12:25.6774751Z",
+                    "reason": "Loaning item for temporary use",
+                    "isActive": true,
+                    "item": {
+                      "id": "b3ad7b8e-d746-4620-89f3-3c3f8bbed20e",
+                      "seriaCode": 12345,
+                      "status": "Available",
+                      "stockId": "d86311ec-7f8c-496e-8296-66d8eb75e7c4",
+                      "createdAt": "2025-07-04T19:12:25.6774826Z"
+                    },
+                    "applicant": {
+                      "id": "a68d3377-a1f9-4042-b27a-271e3828dc90",
+                      "name": "John Doe",
+                      "cpf": "12345678901",
+                      "email": "john.doe@example.com",
+                      "phoneNumber": "11999999999",
+                      "address": "123 Main St",
+                      "isBeneficiary": true,
+                      "beneficiaryQtd": 1,
+                      "createdAt": "2025-07-04T19:12:25.6774855Z",
+                      "dependents": null
+                    },
+                    "responsible": {
+                      "id": "573fc24a-39d7-4681-b350-66183ca4ebdb",
+                      "name": "Jane Smith",
+                      "email": "jane.smith@example.com",
+                      "phoneNumber": "11888888888",
+                      "orthopedicBank": null,
+                      "createdAt": "2025-07-04T19:12:25.6774878Z"
+                    },
+                    "createdAt": "2025-07-04T19:12:25.677489Z"
+                  },
                   "message": "Loan updated successfully"
                 }
               }
@@ -2102,7 +2211,13 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "27238e58-a107-4819-b5e8-71975c8d8765",
+                    "name": "Central Orthopedic Bank",
+                    "city": "São Paulo",
+                    "stocks": null,
+                    "createdAt": "2025-07-04T19:12:25.6856766Z"
+                  },
                   "message": "Orthopedic bank created successfully"
                 }
               }
@@ -2175,11 +2290,11 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "ae5a3a81-d1bb-40a2-b1c2-60b7cb35583e",
+                      "id": "887f2732-956e-41b0-a21e-cd905968f579",
                       "name": "Central Orthopedic Bank",
                       "city": "São Paulo",
                       "stocks": null,
-                      "createdAt": "2025-07-01T00:06:50.3653975Z"
+                      "createdAt": "2025-07-04T19:12:25.6874126Z"
                     }
                   ],
                   "message": "Orthopedic banks retrieved successfully"
@@ -2220,23 +2335,25 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "4b0eaf8c-f625-4b1f-ab9a-24b7ec2e3230",
+                    "id": "676ebf76-2cd3-41f9-9ab4-9203e35d49e9",
                     "name": "Central Orthopedic Bank",
                     "city": "São Paulo",
                     "stocks": [
                       {
-                        "id": "84342f99-445b-4f59-b8e8-bb560038cb2e",
+                        "id": "282e30ad-62df-40d4-a0af-6776e9755c1c",
                         "title": "Existing Stock Title",
+                        "imageUrl": "https://example.com/image.jpg",
                         "maintenanceQtd": 5,
                         "availableQtd": 10,
                         "borrowedQtd": 2,
                         "totalQtd": 17,
+                        "orthopedicBankId": "bcd5d6b4-a9c9-4228-bf46-ca50da6f5d0f",
                         "orthopedicBank": null,
                         "items": null,
-                        "createdAt": "2025-07-01T00:06:50.3682928Z"
+                        "createdAt": "2025-07-04T19:12:25.6915635Z"
                       }
                     ],
-                    "createdAt": "2025-07-01T00:06:50.3682931Z"
+                    "createdAt": "2025-07-04T19:12:25.6915654Z"
                   },
                   "message": "Orthopedic bank retrieved successfully"
                 }
@@ -2302,7 +2419,13 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "0c6fb463-0a24-4f91-ba81-0c3b3292e5fd",
+                    "name": "Central Orthopedic Bank",
+                    "city": "São Paulo",
+                    "stocks": null,
+                    "createdAt": "2025-07-04T19:12:25.7001159Z"
+                  },
                   "message": "Orthopedic bank updated successfully"
                 }
               }
@@ -2443,20 +2566,30 @@
           "Stocks"
         ],
         "summary": "Create a new stock",
-        "description": "Creates a new stock in the system.",
+        "description": "Creates a new stock in the system. This endpoint accepts form-data with the following fields: Title (required), OrthopedicBankId (required), and ImageFile (optional).",
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/RequestCreateStockDto"
+                "$ref": "#/components/schemas/RequestCreateStockFormDto"
               },
               "example": {
-                "title": "New Stock Title",
-                "orthopedicBankId": "56bb6349-ce75-42b2-baab-c223081e4af9"
+                "title": "Cadeira de Rodas Dobrável",
+                "imageFile": null,
+                "orthopedicBankId": "12345678-1234-1234-1234-123456789012"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCreateStockFormDto"
+              },
+              "example": {
+                "title": "Cadeira de Rodas Dobrável",
+                "imageFile": null,
+                "orthopedicBankId": "12345678-1234-1234-1234-123456789012"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -2468,7 +2601,19 @@
                 },
                 "example": {
                   "success": true,
-                  "data": null,
+                  "data": {
+                    "id": "fcb391e5-8ab8-40f4-8480-ff23d4365591",
+                    "title": "Existing Stock Title",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "maintenanceQtd": 5,
+                    "availableQtd": 10,
+                    "borrowedQtd": 2,
+                    "totalQtd": 17,
+                    "orthopedicBankId": "bf52d380-f969-4fb9-b9bc-cf1b965874c4",
+                    "orthopedicBank": null,
+                    "items": null,
+                    "createdAt": "2025-07-04T19:12:25.7150813Z"
+                  },
                   "message": "Stock created successfully"
                 }
               }
@@ -2513,7 +2658,19 @@
                 },
                 "example": {
                   "success": false,
-                  "data": null,
+                  "data": {
+                    "id": "73bc5527-89a2-4895-8ef7-a462f5766706",
+                    "title": "Existing Stock Title",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "maintenanceQtd": 5,
+                    "availableQtd": 10,
+                    "borrowedQtd": 2,
+                    "totalQtd": 17,
+                    "orthopedicBankId": "4e420a14-6c05-4f39-bdb4-2cc5542921c4",
+                    "orthopedicBank": null,
+                    "items": null,
+                    "createdAt": "2025-07-04T19:12:25.7165847Z"
+                  },
                   "message": "Stock with name already exists"
                 }
               }
@@ -2555,15 +2712,17 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "ae73c0d9-bc08-4f47-8718-193f151624a8",
+                      "id": "b53ea037-7544-4043-84cd-e86a0da844f4",
                       "title": "Existing Stock Title",
+                      "imageUrl": "https://example.com/image.jpg",
                       "maintenanceQtd": 5,
                       "availableQtd": 10,
                       "borrowedQtd": 2,
                       "totalQtd": 17,
+                      "orthopedicBankId": "e25ad3bd-e50e-43f1-ba4f-c6ada82bbb11",
                       "orthopedicBank": null,
                       "items": null,
-                      "createdAt": "2025-07-01T00:06:50.3827291Z"
+                      "createdAt": "2025-07-04T19:12:25.7191546Z"
                     }
                   ],
                   "message": "Stocks retrieved successfully"
@@ -2603,36 +2762,38 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "bb30e87a-138b-4e7c-a62f-6549a141ec94",
+                    "id": "adbe49a5-e185-470e-bf11-14b4d5e383e6",
                     "title": "Existing Stock Title",
+                    "imageUrl": "https://example.com/image.jpg",
                     "maintenanceQtd": 5,
                     "availableQtd": 10,
                     "borrowedQtd": 2,
                     "totalQtd": 17,
+                    "orthopedicBankId": "34ac26c9-1cf3-4b81-9fcd-7635e0122e22",
                     "orthopedicBank": {
-                      "id": "702c381c-ca4f-4086-9e8e-776da6543b83",
+                      "id": "3fdc974f-070b-4807-a857-b07e8621ca07",
                       "name": "Orthopedic Bank Name",
                       "city": "Barra do Garças - MT",
                       "stocks": null,
-                      "createdAt": "2025-07-01T00:06:50.3856255Z"
+                      "createdAt": "2025-07-04T19:12:25.7232143Z"
                     },
                     "items": [
                       {
-                        "id": "189df9c3-375e-42ae-8dfb-b1896c8f6949",
+                        "id": "afca20a3-8e97-4af4-b71c-547da47fdbd0",
                         "seriaCode": 23344556,
-                        "imageUrl": "https://example.com/image1.jpg",
                         "status": "AVAILABLE",
-                        "createdAt": "2025-07-01T00:06:50.3856447Z"
+                        "stockId": "50c2610f-a03b-40a2-b99e-974ef98724a0",
+                        "createdAt": "2025-07-04T19:12:25.7232222Z"
                       },
                       {
-                        "id": "d6d1f424-6319-4f00-875d-7be85d0eff5c",
+                        "id": "45381ddc-feda-4097-8eef-f94ea4500dd8",
                         "seriaCode": 23344557,
-                        "imageUrl": "https://example.com/image1.jpg",
                         "status": "MAINTENANCE",
-                        "createdAt": "2025-07-01T00:06:50.3856475Z"
+                        "stockId": "94c2faff-951a-4ae1-b03d-3c06c597ab20",
+                        "createdAt": "2025-07-04T19:12:25.7232267Z"
                       }
                     ],
-                    "createdAt": "2025-07-01T00:06:50.3856476Z"
+                    "createdAt": "2025-07-04T19:12:25.723227Z"
                   },
                   "message": "Stock retrieved successfully"
                 }
@@ -2661,7 +2822,7 @@
           "Stocks"
         ],
         "summary": "Update a stock",
-        "description": "Updates an existing stock in the system.",
+        "description": "Updates an existing stock in the system. This endpoint accepts form-data with the following optional fields: Title, ImageFile, MaintenanceQtd, AvailableQtd, and BorrowedQtd.",
         "parameters": [
           {
             "name": "id",
@@ -2675,19 +2836,31 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/RequestUpdateStockDto"
+                "$ref": "#/components/schemas/RequestUpdateStockFormDto"
               },
               "example": {
-                "title": "Updated Stock Title",
-                "maintenanceQtd": 5,
-                "availableQtd": 10,
-                "borrowedQtd": 2
+                "title": "Cadeira de Rodas Dobrável - Atualizada",
+                "imageFile": null,
+                "maintenanceQtd": 2,
+                "availableQtd": 8,
+                "borrowedQtd": 5
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUpdateStockFormDto"
+              },
+              "example": {
+                "title": "Cadeira de Rodas Dobrável - Atualizada",
+                "imageFile": null,
+                "maintenanceQtd": 2,
+                "availableQtd": 8,
+                "borrowedQtd": 5
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -2744,7 +2917,19 @@
                 },
                 "example": {
                   "success": false,
-                  "data": null,
+                  "data": {
+                    "id": "448b1b40-5a3a-440b-9ef3-57fe64a666d1",
+                    "title": "Existing Stock Title",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "maintenanceQtd": 5,
+                    "availableQtd": 10,
+                    "borrowedQtd": 2,
+                    "totalQtd": 17,
+                    "orthopedicBankId": "bd84dbd1-bddb-4376-af16-2e2eb06f9875",
+                    "orthopedicBank": null,
+                    "items": null,
+                    "createdAt": "2025-07-04T19:12:25.7450099Z"
+                  },
                   "message": "Stock with name already exists"
                 }
               }
@@ -2879,15 +3064,17 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "0befc42d-dc1d-4d0c-b8e3-d8cf9442173a",
+                      "id": "c9a90016-77bc-49af-ba9e-615a556085f8",
                       "title": "Existing Stock Title",
+                      "imageUrl": "https://example.com/image.jpg",
                       "maintenanceQtd": 5,
                       "availableQtd": 10,
                       "borrowedQtd": 2,
                       "totalQtd": 17,
+                      "orthopedicBankId": "3ab05bb5-2dfc-4a38-93d0-26633adcdcc7",
                       "orthopedicBank": null,
                       "items": null,
-                      "createdAt": "2025-07-01T00:06:50.3937619Z"
+                      "createdAt": "2025-07-04T19:12:25.7517754Z"
                     }
                   ],
                   "message": "Stocks retrieved successfully"
@@ -2907,15 +3094,17 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "eecff698-7937-4518-b235-d1880171743c",
+                      "id": "e5093938-7554-40b5-8e74-90e7fb9332ab",
                       "title": "Existing Stock Title",
+                      "imageUrl": "https://example.com/image.jpg",
                       "maintenanceQtd": 5,
                       "availableQtd": 10,
                       "borrowedQtd": 2,
                       "totalQtd": 17,
+                      "orthopedicBankId": "8dcde257-f865-4e69-b29a-876d4222bab9",
                       "orthopedicBank": null,
                       "items": null,
-                      "createdAt": "2025-07-01T00:06:50.3937976Z"
+                      "createdAt": "2025-07-04T19:12:25.7518461Z"
                     }
                   ],
                   "message": "Stocks retrieved successfully"
@@ -3067,10 +3256,6 @@
           "stockId": {
             "type": "string",
             "format": "uuid"
-          },
-          "imageUrl": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3111,11 +3296,20 @@
         },
         "additionalProperties": false
       },
-      "RequestCreateStockDto": {
+      "RequestCreateStockFormDto": {
+        "required": [
+          "orthopedicBankId",
+          "title"
+        ],
         "type": "object",
         "properties": {
           "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "imageFile": {
             "type": "string",
+            "format": "binary",
             "nullable": true
           },
           "orthopedicBankId": {
@@ -3229,10 +3423,6 @@
             "format": "int32",
             "nullable": true
           },
-          "imageUrl": {
-            "type": "string",
-            "nullable": true
-          },
           "status": {
             "$ref": "#/components/schemas/ItemStatus"
           }
@@ -3267,11 +3457,16 @@
         },
         "additionalProperties": false
       },
-      "RequestUpdateStockDto": {
+      "RequestUpdateStockFormDto": {
         "type": "object",
         "properties": {
           "title": {
             "type": "string",
+            "nullable": true
+          },
+          "imageFile": {
+            "type": "string",
+            "format": "binary",
             "nullable": true
           },
           "maintenanceQtd": {
@@ -3764,17 +3959,16 @@
             "description": "Serial code of the item",
             "format": "int32"
           },
-          "imageUrl": {
-            "type": "string",
-            "description": "Image URL for the item",
-            "format": "uri",
-            "nullable": true
-          },
           "status": {
             "type": "string",
             "description": "Status of the item",
             "format": "string",
             "nullable": true
+          },
+          "stockId": {
+            "type": "string",
+            "description": "Unique identifier of the stock associated with the item",
+            "format": "uuid"
           },
           "createdAt": {
             "type": "string",
@@ -3928,6 +4122,12 @@
             "format": "string",
             "nullable": true
           },
+          "imageUrl": {
+            "type": "string",
+            "description": "Image URL of the stock",
+            "format": "string",
+            "nullable": true
+          },
           "maintenanceQtd": {
             "type": "integer",
             "description": "Quantity for maintenance",
@@ -3947,6 +4147,12 @@
             "type": "integer",
             "description": "Total quantity",
             "format": "int32"
+          },
+          "orthopedicBankId": {
+            "type": "string",
+            "description": "Unique identifier of the orthopedic bank",
+            "format": "uuid",
+            "nullable": true
           },
           "orthopedicBank": {
             "$ref": "#/components/schemas/ResponseEntityOrthopedicBankDTO"

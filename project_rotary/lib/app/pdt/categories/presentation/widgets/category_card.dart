@@ -20,6 +20,53 @@ class CategoryCard extends StatelessWidget {
     required this.inMaintenance,
   });
 
+  Widget _buildImage() {
+    // Verifica se é uma URL web (começa com http:// ou https://)
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade200,
+            child: Icon(LucideIcons.image, color: Colors.grey, size: 48),
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            color: Colors.grey.shade100,
+            child: Center(
+              child: CircularProgressIndicator(
+                value:
+                    loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      // É um asset local
+      return Image.asset(
+        imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade200,
+            child: Icon(LucideIcons.image, color: Colors.grey, size: 48),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -34,7 +81,7 @@ class CategoryCard extends StatelessWidget {
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
               ),
-              child: Image.asset(imageUrl, fit: BoxFit.cover),
+              child: _buildImage(),
             ),
           ),
           Padding(
