@@ -62,7 +62,7 @@ class ApiClient {
     String endpoint, {
     bool useAuth = false,
     Map<String, String>? queryParams,
-  }) async {
+  ) async {
     try {
       final uri = _buildUri(endpoint, queryParams);
 
@@ -190,27 +190,6 @@ class ApiClient {
     }
   }
 
-  /// Realiza uma requisição DELETE
-  AsyncResult<Map<String, dynamic>> delete(
-    String endpoint, {
-    bool useAuth = true,
-  }) async {
-    try {
-      final uri = _buildUri(endpoint);
-
-      debugPrint('DELETE $uri');
-
-      final response = await _client.delete(
-        uri,
-        headers: _getHeaders(useAuth: useAuth),
-      );
-
-      return _handleResponse(response);
-    } catch (e) {
-      return Failure(Exception('Erro na requisição DELETE: ${e.toString()}'));
-    }
-  }
-
   /// Realiza uma requisição POST com multipart/form-data
   AsyncResult<Map<String, dynamic>> postMultipart(
     String endpoint,
@@ -271,6 +250,27 @@ class ApiClient {
       return Failure(
         Exception('Erro na requisição POST Multipart: ${e.toString()}'),
       );
+    }
+  }
+
+  /// Realiza uma requisição DELETE
+  AsyncResult<Map<String, dynamic>> delete(
+    String endpoint, {
+    bool useAuth = true,
+  }) async {
+    try {
+      final uri = _buildUri(endpoint);
+
+      debugPrint('DELETE $uri');
+
+      final response = await _client.delete(
+        uri,
+        headers: _getHeaders(useAuth: useAuth),
+      );
+
+      return _handleResponse(response);
+    } catch (e) {
+      return Failure(Exception('Erro na requisição DELETE: ${e.toString()}'));
     }
   }
 

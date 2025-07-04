@@ -1,45 +1,30 @@
 class CreateItemDTO {
-  final int serialCode; // Agora é serial code apenas
+  final int serialCode; // Código serial do item
   final String stockId; // UUID da categoria/stock
-  final String imageUrl; // URL opcional da imagem
 
-  CreateItemDTO({
-    required this.serialCode,
-    required this.stockId,
-    this.imageUrl = '', // Padrão vazio
-  });
+  CreateItemDTO({required this.serialCode, required this.stockId});
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = {
+    return {
       'seriaCode': serialCode, // API espera 'seriaCode' (sem 'l')
       'stockId': stockId,
     };
-
-    // Só adiciona imageUrl se não estiver vazia
-    if (imageUrl.trim().isNotEmpty) {
-      json['imageUrl'] = imageUrl;
-    }
-
-    return json;
   }
 
   /// Verifica se o DTO contém dados válidos
   bool get isValid => serialCode > 0 && stockId.trim().isNotEmpty;
-  // imageUrl não é mais obrigatória
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is CreateItemDTO &&
           serialCode == other.serialCode &&
-          stockId == other.stockId &&
-          imageUrl == other.imageUrl;
+          stockId == other.stockId;
 
   @override
-  int get hashCode =>
-      serialCode.hashCode ^ stockId.hashCode ^ imageUrl.hashCode;
+  int get hashCode => serialCode.hashCode ^ stockId.hashCode;
 
   @override
   String toString() =>
-      'CreateItemDTO(serialCode: $serialCode, stockId: $stockId, imageUrl: $imageUrl)';
+      'CreateItemDTO(serialCode: $serialCode, stockId: $stockId)';
 }

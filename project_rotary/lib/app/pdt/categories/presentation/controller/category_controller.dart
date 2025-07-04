@@ -1,40 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_form_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_form_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_category_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/create_category_with_form_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/delete_category_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_all_categories_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_categories_by_orthopedic_bank_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_category_by_id_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/update_category_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/update_category_with_form_usecase.dart';
 
 /// Controller reativo para gerenciar o estado de categorias.
 /// Implementa o padrão Clean Architecture usando Use Cases.
 /// Baseado no mesmo padrão implementado no ApplicantController.
 class CategoryController extends ChangeNotifier {
   final CreateCategoryUseCase _createCategoryUseCase;
+  final CreateCategoryWithFormUseCase _createCategoryWithFormUseCase;
   final GetAllCategoriesUseCase _getAllCategoriesUseCase;
   final GetCategoriesByOrthopedicBankUseCase
   _getCategoriesByOrthopedicBankUseCase;
   final GetCategoryByIdUseCase _getCategoryByIdUseCase;
   final UpdateCategoryUseCase _updateCategoryUseCase;
+  final UpdateCategoryWithFormUseCase _updateCategoryWithFormUseCase;
   final DeleteCategoryUseCase _deleteCategoryUseCase;
 
   CategoryController({
     required CreateCategoryUseCase createCategoryUseCase,
+    required CreateCategoryWithFormUseCase createCategoryWithFormUseCase,
     required GetAllCategoriesUseCase getAllCategoriesUseCase,
     required GetCategoriesByOrthopedicBankUseCase
     getCategoriesByOrthopedicBankUseCase,
     required GetCategoryByIdUseCase getCategoryByIdUseCase,
     required UpdateCategoryUseCase updateCategoryUseCase,
+    required UpdateCategoryWithFormUseCase updateCategoryWithFormUseCase,
     required DeleteCategoryUseCase deleteCategoryUseCase,
   }) : _createCategoryUseCase = createCategoryUseCase,
+       _createCategoryWithFormUseCase = createCategoryWithFormUseCase,
        _getAllCategoriesUseCase = getAllCategoriesUseCase,
        _getCategoriesByOrthopedicBankUseCase =
            getCategoriesByOrthopedicBankUseCase,
        _getCategoryByIdUseCase = getCategoryByIdUseCase,
        _updateCategoryUseCase = updateCategoryUseCase,
+       _updateCategoryWithFormUseCase = updateCategoryWithFormUseCase,
        _deleteCategoryUseCase = deleteCategoryUseCase;
 
   // ========================================
@@ -64,6 +74,29 @@ class CategoryController extends ChangeNotifier {
 
     final result = await _createCategoryUseCase(
       createCategoryDTO: createCategoryDTO,
+    );
+
+    result.fold(
+      (category) {
+        _categories.add(category);
+        _setLoading(false);
+      },
+      (error) {
+        _setError('Erro ao criar categoria: ${_extractErrorMessage(error)}');
+        _setLoading(false);
+      },
+    );
+  }
+
+  /// Cria uma nova categoria com form (incluindo imagem)
+  Future<void> createCategoryWithForm({
+    required CreateCategoryFormDTO createCategoryFormDTO,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    final result = await _createCategoryWithFormUseCase(
+      createCategoryFormDTO: createCategoryFormDTO,
     );
 
     result.fold(
@@ -152,6 +185,41 @@ class CategoryController extends ChangeNotifier {
     final result = await _updateCategoryUseCase(
       id: id,
       updateCategoryDTO: updateCategoryDTO,
+    );
+
+    result.fold(
+      (updatedCategory) {
+        final index = _categories.indexWhere((category) => category.id == id);
+        if (index != -1) {
+          _categories[index] = updatedCategory;
+        }
+
+        if (_selectedCategory?.id == id) {
+          _selectedCategory = updatedCategory;
+        }
+
+        _setLoading(false);
+      },
+      (error) {
+        _setError(
+          'Erro ao atualizar categoria: ${_extractErrorMessage(error)}',
+        );
+        _setLoading(false);
+      },
+    );
+  }
+
+  /// Atualiza uma categoria com multipart/form-data (incluindo imagem)
+  Future<void> updateCategoryWithForm({
+    required String id,
+    required UpdateCategoryFormDTO updateCategoryFormDTO,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    final result = await _updateCategoryWithFormUseCase(
+      id: id,
+      updateCategoryFormDTO: updateCategoryFormDTO,
     );
 
     result.fold(

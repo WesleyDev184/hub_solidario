@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_form_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_form_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/user.dart';
@@ -359,6 +361,111 @@ class ImplCategoryRepository implements CategoryRepository {
   }
 
   @override
+  AsyncResult<Category> updateCategoryWithForm({
+    required String id,
+    required UpdateCategoryFormDTO updateCategoryFormDTO,
+  }) async {
+    try {
+      debugPrint('CategoryRepository: Atualizando categoria $id com form-data');
+
+      // Verifica se há dados para atualizar
+      if (updateCategoryFormDTO.isEmpty) {
+        return Failure(Exception('Nenhum dado para atualizar'));
+      }
+
+      final formData = updateCategoryFormDTO.toFormData();
+      debugPrint('CategoryRepository: Dados de formulário: $formData');
+
+      // Chama PATCH /stocks/{id} com multipart/form-data
+      final result = await _apiClient.patchMultipart(
+        ApiEndpoints.stockById(id),
+        formData,
+        file: updateCategoryFormDTO.imageFile,
+        bytes: updateCategoryFormDTO.imageBytes,
+        fileName: updateCategoryFormDTO.fileName,
+        useAuth: true,
+      );
+
+      return result.fold(
+        (data) {
+          debugPrint(
+            'CategoryRepository: Categoria atualizada com sucesso (form-data): $data',
+          );
+
+          // A API pode retornar data: null em caso de sucesso
+          if (data['success'] == true) {
+            // Se há dados retornados, usar eles; senão criar categoria mock com dados atualizados
+            if (data['data'] != null) {
+              final categoryData = data['data'] as Map<String, dynamic>;
+
+              // Transformar resposta do stock em Category
+              final category = Category.fromJson({
+                'id': categoryData['id']?.toString() ?? id,
+                'title': categoryData['title'] ?? 'Categoria Atualizada',
+                'orthopedicBank': {
+                  'id': categoryData['orthopedicBank']?['id'] ?? '',
+                  'name':
+                      categoryData['orthopedicBank']?['name'] ??
+                      'Banco Ortopédico',
+                },
+                'createdAt':
+                    categoryData['createdAt'] ??
+                    DateTime.now().toIso8601String(),
+                'updatedAt':
+                    categoryData['updatedAt'] ??
+                    DateTime.now().toIso8601String(),
+                'imageUrl': categoryData['imageUrl'] ?? 'assets/images/cr.jpg',
+                'availableQtd': categoryData['availableQtd'] ?? 0,
+                'borrowedQtd': categoryData['borrowedQtd'] ?? 0,
+                'maintenanceQtd': categoryData['maintenanceQtd'] ?? 0,
+              });
+
+              return Success(category);
+            } else {
+              // API retornou sucesso mas sem dados - criar categoria temporária
+              debugPrint(
+                'CategoryRepository: Categoria atualizada (sem dados retornados)',
+              );
+              final tempCategory = Category.fromJson({
+                'id': id,
+                'title': updateCategoryFormDTO.title ?? 'Categoria Atualizada',
+                'orthopedicBank': {'id': '', 'name': 'Banco Ortopédico'},
+                'createdAt':
+                    DateTime.now()
+                        .subtract(const Duration(days: 5))
+                        .toIso8601String(),
+                'updatedAt': DateTime.now().toIso8601String(),
+                'imageUrl': 'assets/images/cr.jpg',
+                'availableQtd': updateCategoryFormDTO.availableQtd ?? 0,
+                'borrowedQtd': updateCategoryFormDTO.borrowedQtd ?? 0,
+                'maintenanceQtd': updateCategoryFormDTO.maintenanceQtd ?? 0,
+              });
+
+              return Success(tempCategory);
+            }
+          } else {
+            debugPrint(
+              'CategoryRepository: Erro ao atualizar categoria: $data',
+            );
+            return Failure(
+              Exception(data['message'] ?? 'Erro ao atualizar categoria'),
+            );
+          }
+        },
+        (error) {
+          debugPrint('CategoryRepository: Erro na requisição: $error');
+          return Failure(
+            Exception('Erro ao atualizar categoria: ${error.toString()}'),
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('CategoryRepository: Erro inesperado: $e');
+      return Failure(Exception('Erro inesperado: ${e.toString()}'));
+    }
+  }
+
+  @override
   AsyncResult<List<User>> getUsers() async {
     try {
       await Future.delayed(const Duration(milliseconds: 500));
@@ -674,6 +781,77 @@ class ImplCategoryRepository implements CategoryRepository {
     } catch (e) {
       return Failure(
         Exception('Erro ao buscar empréstimos do item: ${e.toString()}'),
+      );
+    }
+  }
+
+  @override
+  AsyncResult<Category> createCategoryWithForm({
+    required CreateCategoryFormDTO createCategoryFormDTO,
+  }) async {
+    try {
+      debugPrint(
+        'Criando categoria com form: ${createCategoryFormDTO.title} para banco: ${createCategoryFormDTO.orthopedicBankId}',
+      );
+
+      // Validação local antes de enviar para API
+      if (!createCategoryFormDTO.isValid) {
+        return Failure(Exception('Dados inválidos para criação da categoria'));
+      }
+
+      final formData = createCategoryFormDTO.toFormData();
+      debugPrint('Dados de formulário: $formData');
+
+      // Chamada para POST /stocks com multipart/form-data
+      final result = await _apiClient.postMultipart(
+        ApiEndpoints.stocks,
+        formData,
+        file: createCategoryFormDTO.imageFile,
+        bytes: createCategoryFormDTO.imageBytes,
+        fileName: createCategoryFormDTO.fileName,
+        useAuth: true,
+      );
+
+      return result.fold(
+        (data) {
+          debugPrint('Categoria criada com sucesso (form-data): $data');
+
+          // Parse da resposta da API
+          final categoryData = data['data'] as Map<String, dynamic>? ?? data;
+
+          // Transformar resposta do stock em Category
+          final category = Category.fromJson({
+            'id': categoryData['id']?.toString() ?? '',
+            'title': categoryData['title'] ?? createCategoryFormDTO.title,
+            'orthopedicBank': {
+              'id': createCategoryFormDTO.orthopedicBankId,
+              'name': 'Banco Ortopédico',
+            },
+            'createdAt':
+                categoryData['createdAt'] ?? DateTime.now().toIso8601String(),
+            'updatedAt': categoryData['updatedAt'],
+            'imageUrl': categoryData['imageUrl'] ?? 'assets/images/cr.jpg',
+            'availableQtd': categoryData['availableQtd'] ?? 0,
+            'borrowedQtd': categoryData['borrowedQtd'] ?? 0,
+            'maintenanceQtd': categoryData['maintenanceQtd'] ?? 0,
+          });
+
+          debugPrint(
+            'Categoria parseada: ${category.title} (ID: ${category.id})',
+          );
+          return Success(category);
+        },
+        (error) {
+          debugPrint('Erro ao criar categoria: $error');
+          return Failure(
+            Exception('Erro ao criar categoria: ${error.toString()}'),
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('Erro inesperado ao criar categoria: $e');
+      return Failure(
+        Exception('Erro inesperado ao criar categoria: ${e.toString()}'),
       );
     }
   }
