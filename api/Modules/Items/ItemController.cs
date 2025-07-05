@@ -188,10 +188,9 @@ namespace api.Modules.Items
 
       itemGroup.MapGet("/stock/{id:guid}",
         [SwaggerOperation(
-          Summary = "Update stock for an item",
-          Description = "Updates the stock quantity for an existing item in the system.")
+          Summary = "Get items by stock ID",
+          Description = "Retrieves a list of items associated with a specific stock ID.")
         ]
-
       [SwaggerResponse(
           StatusCodes.Status200OK,
           "Stock updated successfully.",
