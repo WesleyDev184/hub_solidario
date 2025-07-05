@@ -65,7 +65,7 @@ namespace api.Modules.Items
           // Invalidar cache após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
-            await ItemCacheService.InvalidateAllItemCaches(cache, ct);
+            await ItemCacheService.InvalidateItemCache(cache, response.Data!.Id, response.Data.StockId, ct);
           }
 
           switch (response.Status)
@@ -186,6 +186,49 @@ namespace api.Modules.Items
             cachedResponse.Message));
         });
 
+      itemGroup.MapGet("/stock/{id:guid}",
+        [SwaggerOperation(
+          Summary = "Update stock for an item",
+          Description = "Updates the stock quantity for an existing item in the system.")
+        ]
+
+      [SwaggerResponse(
+          StatusCodes.Status200OK,
+          "Stock updated successfully.",
+          typeof(ResponseControllerItemListDTO))]
+      [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseGetAllItemDTO))]
+      async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+        {
+          var cacheKey = ItemCacheService.Keys.ItemStockById(id);
+
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel => await ItemService.GetItemsByStock(id, context, cancel),
+            options: new HybridCacheEntryOptions
+            {
+              Expiration = TimeSpan.FromMinutes(3),
+              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+            },
+            cancellationToken: ct);
+
+          if (cachedResponse.Status == HttpStatusCode.NotFound)
+          {
+            return Results.NotFound(new ResponseControllerItemDTO(
+              false,
+              null,
+              cachedResponse.Message));
+          }
+
+          return Results.Ok(new ResponseControllerItemListDTO(
+            cachedResponse.Status == HttpStatusCode.OK,
+            cachedResponse.Count,
+            cachedResponse.Data,
+            cachedResponse.Message));
+        });
+
       itemGroup.MapPatch("/{id:guid}",
         [SwaggerOperation(
           Summary = "Update an existing item",
@@ -235,7 +278,7 @@ namespace api.Modules.Items
           // Invalidar cache após atualização bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await ItemCacheService.InvalidateItemCache(cache, id, ct: ct);
+            await ItemCacheService.InvalidateItemCache(cache, id, response.Data!.StockId, ct: ct);
           }
 
           return response.Status switch
@@ -284,7 +327,7 @@ namespace api.Modules.Items
           // Invalidar cache após exclusão bem-sucedida
           if (response.Status == HttpStatusCode.OK)
           {
-            await ItemCacheService.InvalidateItemCache(cache, id, ct);
+            await ItemCacheService.InvalidateItemCache(cache, id, response.Id, ct);
           }
 
           return response.Status switch

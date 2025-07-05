@@ -8,6 +8,7 @@ public static class ItemCacheService
   {
     public const string AllItems = "items-all";
     public static string ItemById(Guid id) => $"item-{id}";
+    public static string ItemStockById(Guid id) => $"item-stock-{id}";
   }
 
   /// <summary>
@@ -21,11 +22,13 @@ public static class ItemCacheService
   /// <summary>
   /// Invalida o cache de um item específico
   /// </summary>
-  public static async Task InvalidateItemCache(HybridCache cache, Guid itemId, CancellationToken ct = default)
+  public static async Task InvalidateItemCache(HybridCache cache, Guid itemId, Guid? StockId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.ItemById(itemId), ct);
-    await cache.RemoveAsync(Keys.AllItems, ct);
+    await InvalidateAllItemCaches(cache, ct);
     await cache.RemoveByTagAsync("loans", ct);
     await cache.RemoveByTagAsync("stocks", ct);
+    if (StockId.HasValue)
+      await cache.RemoveAsync(Keys.ItemStockById(StockId.Value), ct);
   }
 }
