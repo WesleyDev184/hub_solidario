@@ -1,9 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
-import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_form_dto.dart';
 import 'package:project_rotary/app/pdt/categories/presentation/controller/category_controller.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
+import 'package:project_rotary/core/components/image_uploader.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
@@ -34,6 +39,11 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
   final TextEditingController _maintenanceController = TextEditingController();
   final TextEditingController _borrowedController = TextEditingController();
   late final CategoryController categoryController;
+
+  // Campos para upload de imagem
+  File? _selectedImageFile;
+  Uint8List? _selectedImageBytes;
+  String? _imageFileName;
 
   @override
   void initState() {
@@ -77,7 +87,25 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
             widget.currentAvailable ||
         int.tryParse(_maintenanceController.text.trim()) !=
             widget.currentInMaintenance ||
-        int.tryParse(_borrowedController.text.trim()) != widget.currentInUse;
+        int.tryParse(_borrowedController.text.trim()) != widget.currentInUse ||
+        _selectedImageFile != null ||
+        _selectedImageBytes != null;
+  }
+
+  void _onImageSelected(File? file, Uint8List? bytes) {
+    setState(() {
+      _selectedImageFile = file;
+      _selectedImageBytes = bytes;
+      _imageFileName = file != null ? file.path.split('/').last : 'image.jpg';
+    });
+  }
+
+  void _onImageRemoved() {
+    setState(() {
+      _selectedImageFile = null;
+      _selectedImageBytes = null;
+      _imageFileName = null;
+    });
   }
 
   Future<void> _updateCategory() async {
@@ -96,7 +124,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
     }
 
     // Construir DTO apenas com campos alterados
-    final updateDTO = UpdateCategoryDTO(
+    final updateDTO = UpdateCategoryFormDTO(
       title:
           _titleController.text.trim() != widget.currentTitle
               ? _titleController.text.trim()
@@ -115,11 +143,14 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
           int.tryParse(_borrowedController.text.trim()) != widget.currentInUse
               ? int.tryParse(_borrowedController.text.trim())
               : null,
+      imageFile: _selectedImageFile,
+      imageBytes: _selectedImageBytes,
+      fileName: _imageFileName,
     );
 
-    await categoryController.updateCategory(
+    await categoryController.updateCategoryWithForm(
       id: widget.categoryId,
-      updateCategoryDTO: updateDTO,
+      updateCategoryFormDTO: updateDTO,
     );
 
     if (mounted) {
@@ -242,6 +273,33 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 hint: 'Quantidade emprestada',
                 icon: LucideIcons.userCheck,
                 validator: _validateNumber,
+              ),
+
+              const SizedBox(height: 24),
+
+              const Text(
+                'Imagem da Categoria',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Selecione uma nova imagem ou mantenha a atual',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ImageUploader(
+                height: 150,
+                hint: 'Toque para selecionar uma nova imagem',
+                onImageSelected: _onImageSelected,
+                onImageRemoved: _onImageRemoved,
               ),
 
               const Spacer(),

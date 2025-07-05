@@ -31,6 +31,59 @@ class LoanCard extends StatelessWidget {
     required this.reason,
   });
 
+  Widget _buildImage() {
+    // Verifica se é uma URL web (começa com http:// ou https://)
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return Image.network(
+        imageUrl,
+        width: 120,
+        height: 130,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: 120,
+            height: 130,
+            color: Colors.grey.shade200,
+            child: Icon(LucideIcons.image, color: Colors.grey, size: 48),
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            width: 120,
+            height: 130,
+            color: Colors.grey.shade100,
+            child: Center(
+              child: CircularProgressIndicator(
+                value:
+                    loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      // É um asset local
+      return Image.asset(
+        imageUrl,
+        width: 120,
+        height: 130,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: 120,
+            height: 130,
+            color: Colors.grey.shade200,
+            child: Icon(LucideIcons.image, color: Colors.grey, size: 48),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final serialCodeText = "Empréstimo do item: $serialCode"; // Variável criada
@@ -49,12 +102,7 @@ class LoanCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    imageUrl,
-                    width: 120,
-                    height: 130,
-                    fit: BoxFit.cover,
-                  ),
+                  child: _buildImage(),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

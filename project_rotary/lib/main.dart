@@ -5,6 +5,7 @@ import 'package:project_rotary/app/auth/presentation/pages/forgot_password_page.
 import 'package:project_rotary/app/auth/presentation/pages/signup_page.dart';
 import 'package:project_rotary/app/auth/presentation/pages/singin_page.dart';
 import 'package:project_rotary/app/pdt/layout.dart';
+import 'package:project_rotary/test_image_uploader_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => SignUpPage(),
         '/forgot-password': (context) => ForgotPasswordPage(),
         '/layout': (context) => Layout(),
+        '/test-image': (context) => const ImageUploaderTestPage(),
       },
     );
   }

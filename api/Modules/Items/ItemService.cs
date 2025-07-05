@@ -111,6 +111,19 @@ namespace api.Modules.Items
       return new ResponseItemListDTO(HttpStatusCode.OK, items.Count, items, "Items retrieved successfully.");
     }
 
+    public static async Task<ResponseItemListDTO> GetItemsByStock(
+      Guid stockId,
+      ApiDbContext context,
+      CancellationToken ct)
+    {
+      List<ResponseEntityItemDTO> items = await context.Items.AsNoTracking()
+        .Where(i => i.StockId == stockId)
+        .Select(i => MapToResponseEntityItemDto(i))
+        .ToListAsync(ct);
+
+      return new ResponseItemListDTO(HttpStatusCode.OK, items.Count, items, "Items retrieved successfully.");
+    }
+
     /// <summary>
     /// Updates an existing item and its associated stock quantity if the status changes.
     /// </summary>

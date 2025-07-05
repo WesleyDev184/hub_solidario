@@ -120,11 +120,8 @@ services:
       - "traefik.http.services.api.loadbalancer.server.port=5001"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=myresolver"
-    environment:
-      DB_URL: "Host=db;Port=5432;Database=rotarydb;Username=postgres;Password=postgres"
-      API_KEY: "your_api_key_here"
-      REDIS_URL: "redis:6379"
-      RUN_MIGRATIONS: "true"
+    env_file:
+      - ./.env.api
     depends_on:
       db:
         condition: service_healthy

@@ -24,7 +24,6 @@ class AddItemPage extends StatefulWidget {
 class _AddItemPageState extends State<AddItemPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _serialCodeController = TextEditingController();
-  final TextEditingController _imageUrlController = TextEditingController();
   late final ItemController itemController;
 
   @override
@@ -36,7 +35,6 @@ class _AddItemPageState extends State<AddItemPage> {
   @override
   void dispose() {
     _serialCodeController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -54,32 +52,16 @@ class _AddItemPageState extends State<AddItemPage> {
     return null;
   }
 
-  String? _validateImageUrl(String? value) {
-    // URL da imagem é opcional
-    if (value == null || value.trim().isEmpty) {
-      return null; // Não é obrigatória
-    }
-    final uri = Uri.tryParse(value.trim());
-    if (uri == null || !uri.hasAbsolutePath) {
-      return 'URL da imagem inválida';
-    }
-    return null;
-  }
-
   Future<void> _saveItem() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    // Trata URL da imagem como opcional
-    final imageUrl = _imageUrlController.text.trim();
 
     try {
       await itemController.createItem(
         createItemDTO: CreateItemDTO(
           serialCode: int.parse(_serialCodeController.text.trim()),
           stockId: widget.categoryId, // categoryId é o stockId da API
-          imageUrl: imageUrl, // Pode ser vazia, será tratada no DTO
         ),
       );
 
@@ -167,33 +149,6 @@ class _AddItemPageState extends State<AddItemPage> {
                 hint: 'Digite o código serial do item',
                 icon: LucideIcons.hash,
                 validator: _validateSerialCode,
-              ),
-
-              const SizedBox(height: 24),
-
-              const Text(
-                'URL da Imagem',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Campo opcional - deixe em branco se não tiver imagem',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              const SizedBox(height: 8),
-              InputField(
-                controller: _imageUrlController,
-                hint: 'https://example.com/image.jpg',
-                icon: LucideIcons.image,
-                validator: _validateImageUrl,
               ),
 
               const Spacer(),

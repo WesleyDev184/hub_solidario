@@ -1,6 +1,8 @@
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_form_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/create_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/update_category_form_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/dto/update_loan_dto.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/category.dart';
 import 'package:project_rotary/app/pdt/categories/domain/entities/user.dart';
@@ -14,6 +16,9 @@ abstract class CategoryRepository {
   AsyncResult<Category> createCategory({
     required CreateCategoryDTO createCategoryDTO,
   });
+  AsyncResult<Category> createCategoryWithForm({
+    required CreateCategoryFormDTO createCategoryFormDTO,
+  });
   AsyncResult<List<Category>> getCategories();
   AsyncResult<List<Category>> getCategoriesByOrthopedicBank({
     required String orthopedicBankId,
@@ -22,6 +27,10 @@ abstract class CategoryRepository {
   AsyncResult<Category> updateCategory({
     required String id,
     required UpdateCategoryDTO updateCategoryDTO,
+  });
+  AsyncResult<Category> updateCategoryWithForm({
+    required String id,
+    required UpdateCategoryFormDTO updateCategoryFormDTO,
   });
   AsyncResult<String> deleteCategory({required String id});
 

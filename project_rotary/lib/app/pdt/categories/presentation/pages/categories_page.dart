@@ -219,6 +219,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                               inMaintenance:
                                                   category['maintenanceQtd'],
                                               inUse: category['borrowedQtd'],
+                                              imageUrl: category["imageUrl"],
                                             ),
                                       ),
                                     );

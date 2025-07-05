@@ -1,9 +1,13 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/auth/di/auth_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/categories/di/category_dependency_factory.dart';
-import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_dto.dart';
+import 'package:project_rotary/app/pdt/categories/domain/dto/create_category_form_dto.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
+import 'package:project_rotary/core/components/image_uploader.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/select_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -27,6 +31,12 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
   String? _selectedOrthopedicBankId;
   List<Map<String, dynamic>> _orthopedicBanks = [];
   bool _isLoadingBanks = false;
+
+  // Campos para upload de imagem obrigatória
+  File? _selectedImageFile;
+  Uint8List? _selectedImageBytes;
+  String? _imageFileName;
+  bool _hasSelectedImage = false;
 
   @override
   void initState() {
@@ -120,15 +130,48 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
     return null;
   }
 
+  void _onImageSelected(File? file, Uint8List? bytes) {
+    setState(() {
+      _selectedImageFile = file;
+      _selectedImageBytes = bytes;
+      _imageFileName = file != null ? file.path.split('/').last : 'image.jpg';
+      _hasSelectedImage = true;
+    });
+  }
+
+  void _onImageRemoved() {
+    setState(() {
+      _selectedImageFile = null;
+      _selectedImageBytes = null;
+      _imageFileName = null;
+      _hasSelectedImage = false;
+    });
+  }
+
   Future<void> _saveCategory() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    await categoryController.createCategory(
-      createCategoryDTO: CreateCategoryDTO(
+    // Validação da imagem obrigatória
+    if (!_hasSelectedImage) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, selecione uma imagem para a categoria'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    await categoryController.createCategoryWithForm(
+      createCategoryFormDTO: CreateCategoryFormDTO(
         title: _titleController.text.trim(),
         orthopedicBankId: _selectedOrthopedicBankId!,
+        imageFile: _selectedImageFile,
+        imageBytes: _selectedImageBytes,
+        fileName: _imageFileName,
       ),
     );
 
@@ -242,6 +285,26 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                       });
                     },
                   ),
+
+              const SizedBox(height: 24),
+
+              // Campo Imagem
+              const Text(
+                'Imagem *',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ImageUploader(
+                onImageSelected: _onImageSelected,
+                onImageRemoved: _onImageRemoved,
+                hint: 'Selecione uma imagem para a categoria',
+                isRequired: true,
+                height: 200,
+              ),
 
               const Spacer(),
 

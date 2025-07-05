@@ -1,6 +1,7 @@
 import 'package:project_rotary/app/pdt/categories/data/impl_category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/category_repository.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_category_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/create_category_with_form_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_item_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/create_loan_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/delete_category_usecase.dart';
@@ -18,6 +19,7 @@ import 'package:project_rotary/app/pdt/categories/domain/usecases/get_loan_by_id
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_loans_by_applicant_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/get_responsibles_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/update_category_usecase.dart';
+import 'package:project_rotary/app/pdt/categories/domain/usecases/update_category_with_form_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/update_item_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/domain/usecases/update_loan_usecase.dart';
 import 'package:project_rotary/app/pdt/categories/presentation/controller/category_controller.dart';
@@ -53,10 +55,12 @@ class CategoryDependencyFactory {
   // ========================================
 
   CreateCategoryUseCase? _createCategoryUseCase;
+  CreateCategoryWithFormUseCase? _createCategoryWithFormUseCase;
   GetAllCategoriesUseCase? _getAllCategoriesUseCase;
   GetCategoriesByOrthopedicBankUseCase? _getCategoriesByOrthopedicBankUseCase;
   GetCategoryByIdUseCase? _getCategoryByIdUseCase;
   UpdateCategoryUseCase? _updateCategoryUseCase;
+  UpdateCategoryWithFormUseCase? _updateCategoryWithFormUseCase;
   DeleteCategoryUseCase? _deleteCategoryUseCase;
 
   CreateCategoryUseCase get createCategoryUseCase {
@@ -64,6 +68,13 @@ class CategoryDependencyFactory {
       repository: categoryRepository,
     );
     return _createCategoryUseCase!;
+  }
+
+  CreateCategoryWithFormUseCase get createCategoryWithFormUseCase {
+    _createCategoryWithFormUseCase ??= CreateCategoryWithFormUseCase(
+      categoryRepository: categoryRepository,
+    );
+    return _createCategoryWithFormUseCase!;
   }
 
   GetAllCategoriesUseCase get getAllCategoriesUseCase {
@@ -92,6 +103,13 @@ class CategoryDependencyFactory {
       repository: categoryRepository,
     );
     return _updateCategoryUseCase!;
+  }
+
+  UpdateCategoryWithFormUseCase get updateCategoryWithFormUseCase {
+    _updateCategoryWithFormUseCase ??= UpdateCategoryWithFormUseCase(
+      categoryRepository: categoryRepository,
+    );
+    return _updateCategoryWithFormUseCase!;
   }
 
   DeleteCategoryUseCase get deleteCategoryUseCase {
@@ -217,11 +235,13 @@ class CategoryDependencyFactory {
   CategoryController get categoryController {
     _categoryController ??= CategoryController(
       createCategoryUseCase: createCategoryUseCase,
+      createCategoryWithFormUseCase: createCategoryWithFormUseCase,
       getAllCategoriesUseCase: getAllCategoriesUseCase,
       getCategoriesByOrthopedicBankUseCase:
           getCategoriesByOrthopedicBankUseCase,
       getCategoryByIdUseCase: getCategoryByIdUseCase,
       updateCategoryUseCase: updateCategoryUseCase,
+      updateCategoryWithFormUseCase: updateCategoryWithFormUseCase,
       deleteCategoryUseCase: deleteCategoryUseCase,
     );
     return _categoryController!;
@@ -261,6 +281,7 @@ class CategoryDependencyFactory {
     _instance = null;
     _categoryRepository = null;
     _createCategoryUseCase = null;
+    _createCategoryWithFormUseCase = null;
     _getAllCategoriesUseCase = null;
     _getCategoryByIdUseCase = null;
     _updateCategoryUseCase = null;

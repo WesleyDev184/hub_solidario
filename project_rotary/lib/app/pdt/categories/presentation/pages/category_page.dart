@@ -16,6 +16,7 @@ class CategoryPage extends StatefulWidget {
   final int available;
   final int inMaintenance;
   final int inUse;
+  final String? imageUrl;
 
   const CategoryPage({
     super.key,
@@ -24,6 +25,7 @@ class CategoryPage extends StatefulWidget {
     required this.available,
     required this.inMaintenance,
     required this.inUse,
+    this.imageUrl,
   });
 
   @override
@@ -58,6 +60,52 @@ class _CategoryPageState extends State<CategoryPage> {
 
   Future<void> _refreshItems() async {
     await _itemsController.loadAllItems();
+  }
+
+  Widget _buildImage() {
+    if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
+      // Verifica se é uma URL de rede (http/https)
+      if (widget.imageUrl!.startsWith('http://') ||
+          widget.imageUrl!.startsWith('https://')) {
+        return Image.network(
+          widget.imageUrl!,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Se falhar ao carregar a imagem de rede, usa a imagem padrão
+            return Image.asset('assets/images/cr.jpg', fit: BoxFit.cover);
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              color: CustomColors.white,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: CustomColors.primary,
+                  value:
+                      loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                ),
+              ),
+            );
+          },
+        );
+      } else {
+        // Se não é uma URL de rede, trata como asset
+        return Image.asset(
+          widget.imageUrl!,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Se falhar ao carregar o asset, usa a imagem padrão
+            return Image.asset('assets/images/cr.jpg', fit: BoxFit.cover);
+          },
+        );
+      }
+    } else {
+      // Se imageUrl é null ou vazio, usa a imagem padrão
+      return Image.asset('assets/images/cr.jpg', fit: BoxFit.cover);
+    }
   }
 
   void _showActionsMenu(BuildContext context) {
@@ -149,12 +197,7 @@ class _CategoryPageState extends State<CategoryPage> {
                 pinned: true,
                 automaticallyImplyLeading: false,
                 backgroundColor: CustomColors.white,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Image.asset(
-                    'assets/images/cr.jpg',
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                flexibleSpace: FlexibleSpaceBar(background: _buildImage()),
               ),
             ],
           ),
