@@ -65,7 +65,7 @@ namespace api.Modules.Applicants
             HttpStatusCode.InternalServerError => Results.Json(
               new ResponseControllerApplicantsDTO(false, null, response.Message), statusCode: (int)response.Status),
             _ => Results.Created($"/applicants/{response.Data?.Id}",
-              new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.Created, null,
+              new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.Created, response.Data,
                 response.Message))
           };
         }).RequireAuthorization();
