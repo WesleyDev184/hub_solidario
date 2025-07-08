@@ -322,14 +322,18 @@ class LoanFilters {
     if (itemId != null) params['itemId'] = itemId!;
     if (isActive != null) params['isActive'] = isActive.toString();
     if (reason != null && reason!.isNotEmpty) params['reason'] = reason!;
-    if (createdAfter != null)
+    if (createdAfter != null) {
       params['createdAfter'] = createdAfter!.toIso8601String();
-    if (createdBefore != null)
+    }
+    if (createdBefore != null) {
       params['createdBefore'] = createdBefore!.toIso8601String();
-    if (returnAfter != null)
+    }
+    if (returnAfter != null) {
       params['returnAfter'] = returnAfter!.toIso8601String();
-    if (returnBefore != null)
+    }
+    if (returnBefore != null) {
       params['returnBefore'] = returnBefore!.toIso8601String();
+    }
     if (isOverdue != null) params['isOverdue'] = isOverdue.toString();
 
     return params;

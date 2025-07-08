@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/rendering.dart';
 import 'package:project_rotary/core/api/loans/models/loans_models.dart';
 
 /// Serviço de cache para loans
@@ -33,7 +34,7 @@ class LoansCacheService {
 
   /// Inicializa o serviço de cache
   Future<void> initialize() async {
-    print('LoansCacheService: Inicializando serviço de cache');
+    debugPrint('LoansCacheService: Inicializando serviço de cache');
     clearAll();
   }
 
@@ -42,10 +43,12 @@ class LoansCacheService {
   /// Obtém a lista de loans do cache
   List<Loan>? get loans {
     if (_loans == null || _isLoansExpired()) {
-      print('LoansCacheService: Cache de loans expirado ou vazio');
+      debugPrint('LoansCacheService: Cache de loans expirado ou vazio');
       return null;
     }
-    print('LoansCacheService: Retornando ${_loans!.length} loans do cache');
+    debugPrint(
+      'LoansCacheService: Retornando ${_loans!.length} loans do cache',
+    );
     return List.unmodifiable(_loans!);
   }
 
@@ -61,7 +64,7 @@ class LoansCacheService {
       }
     }
 
-    print(
+    debugPrint(
       'LoansCacheService: Cache de loans atualizado com ${loans?.length ?? 0} itens',
     );
   }
@@ -80,18 +83,18 @@ class LoansCacheService {
     final timestamp = _loansCacheTimestamp[loanId];
 
     if (loan == null || timestamp == null) {
-      print('LoansCacheService: Loan $loanId não encontrado no cache');
+      debugPrint('LoansCacheService: Loan $loanId não encontrado no cache');
       return null;
     }
 
     if (DateTime.now().difference(timestamp) > _cacheDuration) {
       _loansCache.remove(loanId);
       _loansCacheTimestamp.remove(loanId);
-      print('LoansCacheService: Cache do loan $loanId expirado');
+      debugPrint('LoansCacheService: Cache do loan $loanId expirado');
       return null;
     }
 
-    print('LoansCacheService: Loan $loanId encontrado no cache');
+    debugPrint('LoansCacheService: Loan $loanId encontrado no cache');
     return loan;
   }
 
@@ -118,13 +121,13 @@ class LoansCacheService {
     // Limpa caches relacionados
     _clearRelatedCaches(loan);
 
-    print('LoansCacheService: Loan ${loan.id} adicionado ao cache');
+    debugPrint('LoansCacheService: Loan ${loan.id} adicionado ao cache');
   }
 
   /// Atualiza um loan no cache
   void updateLoan(Loan loan) {
     addLoan(loan); // Mesma lógica da adição
-    print('LoansCacheService: Loan ${loan.id} atualizado no cache');
+    debugPrint('LoansCacheService: Loan ${loan.id} atualizado no cache');
   }
 
   /// Remove um loan do cache
@@ -142,7 +145,7 @@ class LoansCacheService {
       _clearRelatedCaches(loan);
     }
 
-    print('LoansCacheService: Loan $loanId removido do cache');
+    debugPrint('LoansCacheService: Loan $loanId removido do cache');
   }
 
   // === CACHE POR APPLICANT ===
@@ -153,7 +156,7 @@ class LoansCacheService {
     final timestamp = _loansByApplicantTimestamp[applicantId];
 
     if (loans == null || timestamp == null) {
-      print(
+      debugPrint(
         'LoansCacheService: Loans para applicant $applicantId não encontrados no cache',
       );
       return null;
@@ -162,13 +165,13 @@ class LoansCacheService {
     if (DateTime.now().difference(timestamp) > _cacheDuration) {
       _loansByApplicantCache.remove(applicantId);
       _loansByApplicantTimestamp.remove(applicantId);
-      print(
+      debugPrint(
         'LoansCacheService: Cache de loans para applicant $applicantId expirado',
       );
       return null;
     }
 
-    print(
+    debugPrint(
       'LoansCacheService: ${loans.length} loans para applicant $applicantId encontrados no cache',
     );
     return List.unmodifiable(loans);
@@ -184,7 +187,7 @@ class LoansCacheService {
       _setCachedLoan(loan);
     }
 
-    print(
+    debugPrint(
       'LoansCacheService: Cache de loans para applicant $applicantId atualizado com ${loans.length} itens',
     );
   }
@@ -289,42 +292,42 @@ class LoansCacheService {
     _loansByResponsibleCache.clear();
     _loansByResponsibleTimestamp.clear();
 
-    print('LoansCacheService: Todo o cache foi limpo');
+    debugPrint('LoansCacheService: Todo o cache foi limpo');
   }
 
   /// Limpa cache de loans gerais
   void clearLoans() {
     _loans = null;
     _loansLastUpdated = null;
-    print('LoansCacheService: Cache de loans limpo');
+    debugPrint('LoansCacheService: Cache de loans limpo');
   }
 
   /// Limpa cache individual
   void clearIndividualCache() {
     _loansCache.clear();
     _loansCacheTimestamp.clear();
-    print('LoansCacheService: Cache individual limpo');
+    debugPrint('LoansCacheService: Cache individual limpo');
   }
 
   /// Limpa cache por applicant
   void clearApplicantCache() {
     _loansByApplicantCache.clear();
     _loansByApplicantTimestamp.clear();
-    print('LoansCacheService: Cache por applicant limpo');
+    debugPrint('LoansCacheService: Cache por applicant limpo');
   }
 
   /// Limpa cache por item
   void clearItemCache() {
     _loansByItemCache.clear();
     _loansByItemTimestamp.clear();
-    print('LoansCacheService: Cache por item limpo');
+    debugPrint('LoansCacheService: Cache por item limpo');
   }
 
   /// Limpa cache por responsible
   void clearResponsibleCache() {
     _loansByResponsibleCache.clear();
     _loansByResponsibleTimestamp.clear();
-    print('LoansCacheService: Cache por responsible limpo');
+    debugPrint('LoansCacheService: Cache por responsible limpo');
   }
 
   /// Status do cache para debug

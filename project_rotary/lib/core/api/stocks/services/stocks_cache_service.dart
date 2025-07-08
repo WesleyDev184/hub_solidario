@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:project_rotary/core/api/stocks/models/stocks_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,7 +42,7 @@ class StocksCacheService {
       await _prefs!.setString(_stocksKey, jsonString);
       await _prefs!.setString(_lastUpdateKey, DateTime.now().toIso8601String());
     } catch (e) {
-      print('Erro ao salvar stocks no cache: $e');
+      debugPrint('Erro ao salvar stocks no cache: $e');
     }
   }
 
@@ -58,7 +59,7 @@ class StocksCacheService {
           .map((json) => Stock.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('Erro ao recuperar stocks do cache: $e');
+      debugPrint('Erro ao recuperar stocks do cache: $e');
       return null;
     }
   }
@@ -83,7 +84,9 @@ class StocksCacheService {
         DateTime.now().toIso8601String(),
       );
     } catch (e) {
-      print('Erro ao salvar stocks do banco $orthopedicBankId no cache: $e');
+      debugPrint(
+        'Erro ao salvar stocks do banco $orthopedicBankId no cache: $e',
+      );
     }
   }
 
@@ -113,7 +116,9 @@ class StocksCacheService {
           .map((json) => Stock.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('Erro ao recuperar stocks do banco $orthopedicBankId do cache: $e');
+      debugPrint(
+        'Erro ao recuperar stocks do banco $orthopedicBankId do cache: $e',
+      );
       return null;
     }
   }
@@ -132,7 +137,7 @@ class StocksCacheService {
         DateTime.now().toIso8601String(),
       );
     } catch (e) {
-      print('Erro ao salvar stock ${stock.id} no cache: $e');
+      debugPrint('Erro ao salvar stock ${stock.id} no cache: $e');
     }
   }
 
@@ -158,7 +163,7 @@ class StocksCacheService {
       final stockJson = jsonDecode(jsonString) as Map<String, dynamic>;
       return Stock.fromJson(stockJson);
     } catch (e) {
-      print('Erro ao recuperar stock $stockId do cache: $e');
+      debugPrint('Erro ao recuperar stock $stockId do cache: $e');
       return null;
     }
   }
@@ -172,7 +177,7 @@ class StocksCacheService {
       await _prefs!.remove(key);
       await _prefs!.remove('${key}_update');
     } catch (e) {
-      print('Erro ao remover stock $stockId do cache: $e');
+      debugPrint('Erro ao remover stock $stockId do cache: $e');
     }
   }
 
@@ -194,7 +199,7 @@ class StocksCacheService {
         await _prefs!.remove(key);
       }
     } catch (e) {
-      print('Erro ao limpar cache de stocks: $e');
+      debugPrint('Erro ao limpar cache de stocks: $e');
     }
   }
 
@@ -206,7 +211,7 @@ class StocksCacheService {
       await _prefs!.remove('$_stocksByBankPrefix$orthopedicBankId');
       await _prefs!.remove('${_lastUpdateKey}_bank_$orthopedicBankId');
     } catch (e) {
-      print('Erro ao limpar cache do banco $orthopedicBankId: $e');
+      debugPrint('Erro ao limpar cache do banco $orthopedicBankId: $e');
     }
   }
 

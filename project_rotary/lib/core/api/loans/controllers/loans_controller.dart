@@ -279,7 +279,7 @@ class LoansController {
 
   /// Carrega loans ativos
   AsyncResult<List<Loan>> loadActiveLoans({bool forceRefresh = false}) async {
-    final filters = LoanFilwters(isActive: true);
+    final filters = LoanFilters(isActive: true);
     return loadLoans(forceRefresh: forceRefresh, filters: filters);
   }
 
@@ -382,8 +382,9 @@ class LoansController {
     return _loans.where((loan) {
       if (isActive != null && loan.isActive != isActive) return false;
       if (applicantId != null && loan.applicantId != applicantId) return false;
-      if (responsibleId != null && loan.responsibleId != responsibleId)
+      if (responsibleId != null && loan.responsibleId != responsibleId) {
         return false;
+      }
       if (itemId != null && loan.itemId != itemId) return false;
       if (isOverdue != null && loan.isOverdue != isOverdue) return false;
 

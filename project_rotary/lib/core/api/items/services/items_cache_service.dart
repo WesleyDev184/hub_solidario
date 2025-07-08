@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:project_rotary/core/api/items/models/items_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,7 +42,7 @@ class ItemsCacheService {
       await _prefs!.setString(_itemsKey, jsonString);
       await _prefs!.setString(_lastUpdateKey, DateTime.now().toIso8601String());
     } catch (e) {
-      print('Erro ao salvar items no cache: $e');
+      debugPrint('Erro ao salvar items no cache: $e');
     }
   }
 
@@ -58,7 +59,7 @@ class ItemsCacheService {
           .map((json) => Item.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('Erro ao recuperar items do cache: $e');
+      debugPrint('Erro ao recuperar items do cache: $e');
       return null;
     }
   }
@@ -77,7 +78,7 @@ class ItemsCacheService {
         DateTime.now().toIso8601String(),
       );
     } catch (e) {
-      print('Erro ao salvar items do stock $stockId no cache: $e');
+      debugPrint('Erro ao salvar items do stock $stockId no cache: $e');
     }
   }
 
@@ -105,7 +106,7 @@ class ItemsCacheService {
           .map((json) => Item.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('Erro ao recuperar items do stock $stockId do cache: $e');
+      debugPrint('Erro ao recuperar items do stock $stockId do cache: $e');
       return null;
     }
   }
@@ -124,7 +125,7 @@ class ItemsCacheService {
         DateTime.now().toIso8601String(),
       );
     } catch (e) {
-      print('Erro ao salvar item ${item.id} no cache: $e');
+      debugPrint('Erro ao salvar item ${item.id} no cache: $e');
     }
   }
 
@@ -150,7 +151,7 @@ class ItemsCacheService {
       final itemJson = jsonDecode(jsonString) as Map<String, dynamic>;
       return Item.fromJson(itemJson);
     } catch (e) {
-      print('Erro ao recuperar item $itemId do cache: $e');
+      debugPrint('Erro ao recuperar item $itemId do cache: $e');
       return null;
     }
   }
@@ -164,7 +165,7 @@ class ItemsCacheService {
       await _prefs!.remove(key);
       await _prefs!.remove('${key}_update');
     } catch (e) {
-      print('Erro ao remover item $itemId do cache: $e');
+      debugPrint('Erro ao remover item $itemId do cache: $e');
     }
   }
 
@@ -186,7 +187,7 @@ class ItemsCacheService {
         await _prefs!.remove(key);
       }
     } catch (e) {
-      print('Erro ao limpar cache de items: $e');
+      debugPrint('Erro ao limpar cache de items: $e');
     }
   }
 
@@ -198,7 +199,7 @@ class ItemsCacheService {
       await _prefs!.remove('$_itemsByStockPrefix$stockId');
       await _prefs!.remove('${_lastUpdateKey}_stock_$stockId');
     } catch (e) {
-      print('Erro ao limpar cache do stock $stockId: $e');
+      debugPrint('Erro ao limpar cache do stock $stockId: $e');
     }
   }
 
@@ -237,7 +238,7 @@ class ItemsCacheService {
         await _prefs!.remove(_lastUpdateKey);
       }
     } catch (e) {
-      print('Erro ao limpar cache por filtros: $e');
+      debugPrint('Erro ao limpar cache por filtros: $e');
     }
   }
 
@@ -254,7 +255,7 @@ class ItemsCacheService {
       // Invalida cache do stock específico
       await clearStockCache(item.stockId);
     } catch (e) {
-      print('Erro ao atualizar cache após modificação: $e');
+      debugPrint('Erro ao atualizar cache após modificação: $e');
     }
   }
 }
