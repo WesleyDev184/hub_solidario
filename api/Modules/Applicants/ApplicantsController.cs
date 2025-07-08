@@ -207,7 +207,7 @@ namespace api.Modules.Applicants
               false, null, response.Message)),
             HttpStatusCode.NotFound => Results.NotFound(new ResponseControllerApplicantsDTO(
               false, null, response.Message)),
-            _ => Results.Ok(new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.OK, null,
+            _ => Results.Ok(new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.OK, response.Data,
               response.Message))
           };
         }).RequireAuthorization();
