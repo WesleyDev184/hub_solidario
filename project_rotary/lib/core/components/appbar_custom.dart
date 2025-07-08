@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/auth/di/auth_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/info/presentation/pages/info_page.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -23,8 +22,9 @@ class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppBarCustomState extends State<AppBarCustom> {
-  final authController = AuthDependencyFactory.instance.authController;
   bool _hasLoadedUserData = false;
+  String _userName = "Usuário";
+  String _userRole = "Admin";
 
   @override
   void initState() {

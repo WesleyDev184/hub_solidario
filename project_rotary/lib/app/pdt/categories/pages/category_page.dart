@@ -3,8 +3,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/categories/pages/add_item_page.dart';
 import 'package:project_rotary/app/pdt/categories/pages/delete_category_page.dart';
 import 'package:project_rotary/app/pdt/categories/pages/edit_category_page.dart';
-import 'package:project_rotary/app/pdt/categories/widgets/action_menu_category.dart';
-import 'package:project_rotary/app/pdt/categories/widgets/category_items_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
