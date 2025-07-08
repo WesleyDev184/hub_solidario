@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicants/presentation/pages/applicants_page.dart';
-import 'package:project_rotary/app/pdt/categories/presentation/pages/categories_page.dart';
-import 'package:project_rotary/app/pdt/loans/presentation/pages/loans_page.dart';
+import 'package:project_rotary/app/pdt/applicants/pages/applicants_page.dart';
+import 'package:project_rotary/app/pdt/categories/pages/categories_page.dart';
+import 'package:project_rotary/app/pdt/loans/pages/loans_page.dart';
 import 'package:project_rotary/core/components/background_wrapper.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 

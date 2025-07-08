@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_rotary/app/auth/di/auth_dependency_factory.dart';
-import 'package:project_rotary/app/auth/presentation/pages/singin_page.dart';
+import 'package:project_rotary/app/auth/pages/singin_page.dart';
 
 /// Widget que monitora o estado de autenticação e redireciona automaticamente
 /// para a tela de login quando o usuário é deslogado por questão de segurança
