@@ -136,6 +136,7 @@ class BeneficiaryPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "beneficiary_detail_fab",
         onPressed: () => _showActionsMenu(context),
         backgroundColor: CustomColors.primary,
         child: const Icon(LucideIcons.menu, color: CustomColors.white),

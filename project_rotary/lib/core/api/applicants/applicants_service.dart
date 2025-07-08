@@ -37,9 +37,15 @@ class ApplicantsService {
   /// Garante que o serviço está inicializado
   static Future<void> ensureInitialized() async {
     if (!_isInitialized) {
-      throw Exception(
-        'ApplicantsService não foi inicializado. Chame ApplicantsService.initialize() primeiro.',
-      );
+      // Tenta reinicializar automaticamente se possível
+      try {
+        final apiClient = ApiClient();
+        await initialize(apiClient: apiClient);
+      } catch (e) {
+        throw Exception(
+          'ApplicantsService não foi inicializado. Chame ApplicantsService.initialize() primeiro. Erro: $e',
+        );
+      }
     }
   }
 

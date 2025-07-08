@@ -5,20 +5,36 @@ import 'package:project_rotary/app/auth/pages/signup_page.dart';
 import 'package:project_rotary/app/auth/pages/singin_page.dart';
 import 'package:project_rotary/app/pdt/layout.dart';
 import 'package:project_rotary/core/api/api_client.dart';
+import 'package:project_rotary/core/api/applicants/applicants_service.dart';
 import 'package:project_rotary/core/api/auth/auth_service.dart';
 import 'package:project_rotary/core/components/auth_guard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Inicializa o ApiClient
+  final apiClient = ApiClient();
+
   // Inicializa o serviço de autenticação
   try {
-    final apiClient = ApiClient();
     await AuthService.initialize(apiClient: apiClient);
     debugPrint('AuthService inicializado com sucesso');
   } catch (e) {
     debugPrint('Erro ao inicializar AuthService: $e');
+    // Continue mesmo se houver erro no AuthService
   }
+
+  // Inicializa o serviço de aplicantes
+  try {
+    await ApplicantsService.initialize(apiClient: apiClient);
+    debugPrint('ApplicantsService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar ApplicantsService: $e');
+    // Continue mesmo se houver erro no ApplicantsService
+  }
+
+  // Pequeno delay para garantir que tudo foi inicializado
+  await Future.delayed(const Duration(milliseconds: 100));
 
   runApp(const MyApp());
 }

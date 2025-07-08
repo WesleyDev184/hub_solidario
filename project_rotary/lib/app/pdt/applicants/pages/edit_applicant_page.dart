@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/applicants/applicants_service.dart';
+import 'package:project_rotary/core/api/applicants/models/applicants_models.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -124,23 +126,62 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
       _isLoading = true;
     });
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 2));
+    final request = UpdateApplicantRequest(
+      name:
+          _nameController.text.trim().isNotEmpty
+              ? _nameController.text.trim()
+              : null,
+      cpf:
+          _cpfController.text.trim().isNotEmpty
+              ? _cpfController.text.trim()
+              : null,
+      email:
+          _emailController.text.trim().isNotEmpty
+              ? _emailController.text.trim()
+              : null,
+      phoneNumber:
+          _phoneController.text.trim().isNotEmpty
+              ? _phoneController.text.trim()
+              : null,
+      address:
+          _addressController.text.trim().isNotEmpty
+              ? _addressController.text.trim()
+              : null,
+      isBeneficiary:
+          _isBeneficiary != widget.currentIsBeneficiary ? _isBeneficiary : null,
+    );
 
-    setState(() {
-      _isLoading = false;
-    });
+    final result = await ApplicantsService.updateApplicant(
+      widget.applicantId,
+      request,
+    );
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${_nameController.text.trim()} atualizado com sucesso!',
-          ),
-          backgroundColor: Colors.green,
-        ),
+      setState(() {
+        _isLoading = false;
+      });
+
+      result.fold(
+        (updatedApplicant) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${_nameController.text.trim()} atualizado com sucesso!',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context, true);
+        },
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao atualizar solicitante: $failure'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
       );
-      Navigator.pop(context, true);
     }
   }
 

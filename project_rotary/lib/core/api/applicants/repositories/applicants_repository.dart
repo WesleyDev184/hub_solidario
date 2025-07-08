@@ -93,7 +93,10 @@ class ApplicantsRepository {
       return result.fold((data) {
         try {
           if (data['success'] == true && data['data'] != null) {
-            return Success(data['data'] as String);
+            // A API retorna o objeto completo do applicant, extrair o ID
+            final applicantData = data['data'] as Map<String, dynamic>;
+            final applicantId = applicantData['id'] as String;
+            return Success(applicantId);
           } else {
             return Failure(
               Exception(data['message'] ?? 'Erro ao criar candidato'),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/applicants/applicants_service.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
@@ -84,21 +85,32 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
       _isLoading = true;
     });
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isLoading = false;
-    });
+    final result = await ApplicantsService.deleteApplicant(widget.applicantId);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${widget.applicantName} excluído com sucesso!'),
-          backgroundColor: CustomColors.success,
-        ),
+      setState(() {
+        _isLoading = false;
+      });
+
+      result.fold(
+        (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${widget.applicantName} excluído com sucesso!'),
+              backgroundColor: CustomColors.success,
+            ),
+          );
+          Navigator.pop(context, true);
+        },
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao excluir solicitante: $failure'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
       );
-      Navigator.pop(context, true);
     }
   }
 
