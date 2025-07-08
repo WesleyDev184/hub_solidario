@@ -28,6 +28,7 @@ class _SignUpFormState extends State<SignUpForm> {
   String? selectedOrthopedicBankId;
   List<DropdownMenuItem<String>> orthopedicBankItems = [];
   bool isLoadingBanks = false;
+  bool hasErrorLoadingBanks = false;
 
   // Métodos de validação
   String? _validateName(String? value) {
@@ -111,6 +112,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
     setState(() {
       isLoadingBanks = true;
+      hasErrorLoadingBanks = false;
     });
 
     try {
@@ -122,10 +124,11 @@ class _SignUpFormState extends State<SignUpForm> {
           final apiClient = ApiClient();
           await OrthopedicBanksService.initialize(apiClient: apiClient);
         } catch (e) {
-          // Se falhar na inicialização, usa dados padrão
+          // Se falhar na inicialização, marca como erro
           setState(() {
-            _setDefaultBanks();
+            _setErrorState();
             isLoadingBanks = false;
+            hasErrorLoadingBanks = true;
           });
           return;
         }
@@ -147,51 +150,42 @@ class _SignUpFormState extends State<SignUpForm> {
                     );
                   }).toList();
               isLoadingBanks = false;
+              hasErrorLoadingBanks = false;
             });
           },
           (error) {
             setState(() {
-              _setDefaultBanks();
+              _setErrorState();
               isLoadingBanks = false;
+              hasErrorLoadingBanks = true;
             });
           },
         );
       } else {
         setState(() {
-          _setDefaultBanks();
+          _setErrorState();
           isLoadingBanks = false;
+          hasErrorLoadingBanks = true;
         });
       }
     } catch (e) {
       setState(() {
-        _setDefaultBanks();
+        _setErrorState();
         isLoadingBanks = false;
+        hasErrorLoadingBanks = true;
       });
     }
   }
 
-  // Método para definir bancos padrão
-  void _setDefaultBanks() {
+  // Método para definir estado de erro
+  void _setErrorState() {
     orthopedicBankItems = [
-      const DropdownMenuItem<String>(
-        value: '1',
-        child: Text('Banco Ortopédico Central - São Paulo'),
-      ),
-      const DropdownMenuItem<String>(
-        value: '2',
-        child: Text('Instituto de Ortopedia - Rio de Janeiro'),
-      ),
-      const DropdownMenuItem<String>(
-        value: '3',
-        child: Text('Centro Ortopédico Belo Horizonte - Belo Horizonte'),
-      ),
-      const DropdownMenuItem<String>(
-        value: '4',
-        child: Text('Clínica Ortopédica Norte - Brasília'),
-      ),
-      const DropdownMenuItem<String>(
-        value: '5',
-        child: Text('Hospital Ortopédico Sul - Porto Alegre'),
+      DropdownMenuItem<String>(
+        value: null,
+        child: Text(
+          'Erro ao carregar bancos ortopédicos',
+          style: TextStyle(color: Colors.red[400], fontStyle: FontStyle.italic),
+        ),
       ),
     ];
   }
@@ -338,11 +332,13 @@ class _SignUpFormState extends State<SignUpForm> {
                   hint:
                       isLoadingBanks
                           ? 'Carregando bancos ortopédicos...'
+                          : hasErrorLoadingBanks
+                          ? 'Erro ao carregar dados'
                           : 'Selecione um banco ortopédico',
                   icon: LucideIcons.building2,
                   items: orthopedicBankItems,
                   onChanged:
-                      isLoadingBanks
+                      (isLoadingBanks || hasErrorLoadingBanks)
                           ? null
                           : (value) {
                             setState(() {
@@ -350,12 +346,57 @@ class _SignUpFormState extends State<SignUpForm> {
                             });
                           },
                   validator: (value) {
+                    if (hasErrorLoadingBanks) {
+                      return 'Não foi possível carregar os bancos ortopédicos. Tente novamente.';
+                    }
                     if (value == null || value.isEmpty) {
                       return 'Selecione um banco ortopédico';
                     }
                     return null;
                   },
                 ),
+
+                // Botão para tentar carregar novamente em caso de erro
+                if (hasErrorLoadingBanks) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 16,
+                        color: Colors.red[400],
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Falha ao carregar bancos ortopédicos',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.red[400],
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _loadOrthopedicBanks,
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          'Tentar novamente',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
 
                 const SizedBox(height: 16),
 
