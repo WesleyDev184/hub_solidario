@@ -28,7 +28,6 @@ class _AppBarCustomState extends State<AppBarCustom> {
   final String _userPhone = "(11) 99999-9999";
   final String _bankName = "Banco Ortopédico Central";
   final String _bankCity = "São Paulo - SP";
-  final String _bankId = "001";
 
   Future<void> _handleLogout() async {
     // Mostra um dialog de confirmação

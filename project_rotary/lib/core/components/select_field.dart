@@ -23,6 +23,7 @@ class SelectField<T> extends StatelessWidget {
     return DropdownButtonFormField<T>(
       value: value,
       validator: validator,
+      isExpanded: true, // This allows the dropdown to expand to full width
       decoration: InputDecoration(
         labelText: hint,
         suffixIcon: Icon(icon),
@@ -30,8 +31,30 @@ class SelectField<T> extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
       ),
-      items: items,
+      items:
+          items.map((item) {
+            // Wrap the child in a flexible container to handle overflow
+            return DropdownMenuItem<T>(
+              value: item.value,
+              child: SizedBox(
+                width: double.infinity,
+                child: _wrapWithOverflowHandling(item.child),
+              ),
+            );
+          }).toList(),
       onChanged: onChanged,
     );
+  }
+
+  Widget _wrapWithOverflowHandling(Widget child) {
+    if (child is Text) {
+      return Text(
+        child.data ?? '',
+        style: child.style,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      );
+    }
+    return child;
   }
 }

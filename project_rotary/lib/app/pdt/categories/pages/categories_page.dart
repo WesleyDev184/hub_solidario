@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/categories/pages/category_page.dart';
 import 'package:project_rotary/app/pdt/categories/pages/new_category_page.dart';
 import 'package:project_rotary/app/pdt/categories/widgets/action_menu_categories.dart';
+import 'package:project_rotary/app/pdt/categories/widgets/category_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -221,34 +222,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                   ),
                                 );
                               },
-                              child: Card(
-                                elevation: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        category["title"],
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Disponível: ${category["availableQtd"]}',
-                                      ),
-                                      Text(
-                                        'Em uso: ${category["borrowedQtd"]}',
-                                      ),
-                                      Text(
-                                        'Manutenção: ${category["maintenanceQtd"]}',
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                              child: CategoryCard(
+                                id: category["id"],
+                                imageUrl: category["imageUrl"],
+                                title: category["title"],
+                                available: category["availableQtd"],
+                                inUse: category["borrowedQtd"],
+                                inMaintenance: category["maintenanceQtd"],
                               ),
                             ),
                           ),

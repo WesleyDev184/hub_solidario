@@ -23,12 +23,6 @@ class SingInPage extends StatelessWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.pushNamed(context, '/test-image'),
-          backgroundColor: Colors.orange,
-          child: const Icon(Icons.camera_alt, color: Colors.white),
-          tooltip: 'Testar Image Uploader',
-        ),
         body: Column(
           children: [
             // Header fixo com logo
