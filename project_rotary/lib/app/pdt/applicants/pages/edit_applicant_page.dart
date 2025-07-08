@@ -171,7 +171,7 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context, true);
+          Navigator.pop(context, updatedApplicant);
         },
         (failure) {
           ScaffoldMessenger.of(context).showSnackBar(

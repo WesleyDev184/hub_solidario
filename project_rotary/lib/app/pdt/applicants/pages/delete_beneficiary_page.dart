@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/applicants/applicants_service.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 
 class DeleteBeneficiaryPage extends StatefulWidget {
-  final String beneficiaryId;
-  final String beneficiaryName;
-  final String beneficiaryCpf;
-  final String beneficiaryEmail;
+  final String dependentId;
+  final String dependentName;
+  final String dependentCpf;
+  final String dependentEmail;
+  final String applicantName;
 
   const DeleteBeneficiaryPage({
     super.key,
-    required this.beneficiaryId,
-    required this.beneficiaryName,
-    required this.beneficiaryCpf,
-    required this.beneficiaryEmail,
+    required this.dependentId,
+    required this.dependentName,
+    required this.dependentCpf,
+    required this.dependentEmail,
+    required this.applicantName,
   });
 
   @override
@@ -28,21 +31,32 @@ class _DeleteBeneficiaryPageState extends State<DeleteBeneficiaryPage> {
       _isLoading = true;
     });
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isLoading = false;
-    });
+    final result = await ApplicantsService.deleteDependent(widget.dependentId);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${widget.beneficiaryName} deletado com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
+      setState(() {
+        _isLoading = false;
+      });
+
+      result.fold(
+        (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${widget.dependentName} excluído com sucesso!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context, true);
+        },
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao excluir beneficiário: $failure'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
       );
-      Navigator.pop(context, true);
     }
   }
 
@@ -122,7 +136,7 @@ class _DeleteBeneficiaryPageState extends State<DeleteBeneficiaryPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    widget.beneficiaryName,
+                    widget.dependentName,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -133,13 +147,13 @@ class _DeleteBeneficiaryPageState extends State<DeleteBeneficiaryPage> {
                   _buildInfoRow(
                     LucideIcons.creditCard,
                     'CPF:',
-                    widget.beneficiaryCpf,
+                    widget.dependentCpf,
                   ),
                   const SizedBox(height: 8),
                   _buildInfoRow(
                     LucideIcons.mail,
                     'Email:',
-                    widget.beneficiaryEmail,
+                    widget.dependentEmail,
                   ),
                 ],
               ),

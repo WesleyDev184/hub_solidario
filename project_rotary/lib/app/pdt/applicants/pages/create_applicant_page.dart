@@ -127,134 +127,209 @@ class _CreateApplicantPageState extends State<CreateApplicantPage> {
     return Scaffold(
       appBar: const AppBarCustom(title: "Criar Solicitante"),
       backgroundColor: Colors.transparent,
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 16),
-
-              // Nome
-              InputField(
-                controller: _nameController,
-                hint: "Nome completo",
-                icon: LucideIcons.user,
-                validator: _validateName,
-              ),
-              const SizedBox(height: 16),
-
-              // CPF
-              InputField(
-                controller: _cpfController,
-                hint: "CPF",
-                icon: Icons.badge,
-                validator: _validateCPF,
-              ),
-              const SizedBox(height: 16),
-
-              // Email
-              InputField(
-                controller: _emailController,
-                hint: "Email",
-                icon: LucideIcons.mail,
-                validator: _validateEmail,
-              ),
-              const SizedBox(height: 16),
-
-              // Telefone
-              InputField(
-                controller: _phoneController,
-                hint: "Telefone",
-                icon: LucideIcons.phone,
-                validator: _validatePhone,
-              ),
-              const SizedBox(height: 16),
-
-              // Endereço
-              InputField(
-                controller: _addressController,
-                hint: "Endereço (opcional)",
-                icon: Icons.location_on,
-              ),
               const SizedBox(height: 24),
 
-              // Status de beneficiário
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Status',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Icon(
-                          _isBeneficiary
-                              ? Icons.check_circle
-                              : Icons.circle_outlined,
-                          color:
-                              _isBeneficiary
-                                  ? CustomColors.primary
-                                  : Colors.grey,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Beneficiário',
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                'Marque se este solicitante já é um beneficiário',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey[600]),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Switch(
-                          value: _isBeneficiary,
-                          onChanged: (value) {
-                            setState(() {
-                              _isBeneficiary = value;
-                            });
-                          },
-                          activeColor: CustomColors.primary,
-                        ),
-                      ],
-                    ),
-                  ],
+              const Text(
+                'Criar Solicitante',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                'Preencha os dados do novo solicitante',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              ),
+
               const SizedBox(height: 32),
 
-              // Botões
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Nome
+                      const Text(
+                        'Nome',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _nameController,
+                        hint: 'Digite o nome completo',
+                        icon: LucideIcons.user,
+                        validator: _validateName,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // CPF
+                      const Text(
+                        'CPF',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _cpfController,
+                        hint: 'Digite o CPF',
+                        icon: LucideIcons.creditCard,
+                        validator: _validateCPF,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Email
+                      const Text(
+                        'Email',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _emailController,
+                        hint: 'Digite o email',
+                        icon: LucideIcons.mail,
+                        validator: _validateEmail,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Telefone
+                      const Text(
+                        'Telefone',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _phoneController,
+                        hint: 'Digite o telefone',
+                        icon: LucideIcons.phone,
+                        validator: _validatePhone,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Endereço
+                      const Text(
+                        'Endereço',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _addressController,
+                        hint: 'Digite o endereço (opcional)',
+                        icon: LucideIcons.mapPin,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Status de Beneficiário
+                      const Text(
+                        'Status',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: SwitchListTile(
+                          title: Text(
+                            _isBeneficiary
+                                ? 'É Beneficiário'
+                                : 'Não é Beneficiário',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          subtitle: Text(
+                            _isBeneficiary
+                                ? 'Esta pessoa é beneficiária'
+                                : 'Esta pessoa não é beneficiária',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          value: _isBeneficiary,
+                          onChanged:
+                              _isLoading
+                                  ? null
+                                  : (value) {
+                                    setState(() {
+                                      _isBeneficiary = value;
+                                    });
+                                  },
+                          activeColor: CustomColors.primary,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+              ),
+
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed:
-                          _isLoading ? null : () => Navigator.of(context).pop(),
+                          _isLoading ? null : () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: Colors.grey[400]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Text('Cancelar'),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -263,8 +338,11 @@ class _CreateApplicantPageState extends State<CreateApplicantPage> {
                       onPressed: _isLoading ? null : _createApplicant,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: CustomColors.primary,
-                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
                       ),
                       child:
                           _isLoading
@@ -278,12 +356,20 @@ class _CreateApplicantPageState extends State<CreateApplicantPage> {
                                   ),
                                 ),
                               )
-                              : const Text('Criar'),
+                              : const Text(
+                                'Criar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+
+              const SizedBox(height: 24),
             ],
           ),
         ),

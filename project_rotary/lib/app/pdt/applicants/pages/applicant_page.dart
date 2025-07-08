@@ -53,22 +53,31 @@ class _ApplicantPageState extends State<ApplicantPage> {
     _loadApplicantData();
   }
 
-  Future<void> _loadApplicantData() async {
+  Future<void> _loadApplicantData({bool forceRefresh = false}) async {
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
 
-    // Load applicant details
+    // Load applicant details (que já inclui os dependentes)
     final applicantResult = await ApplicantsService.getApplicant(
       widget.applicantId,
+      forceRefresh: forceRefresh,
     );
 
     applicantResult.fold(
       (loadedApplicant) {
+        // Use os dependentes que já vêm com o applicant
+        final applicantDependents = loadedApplicant.dependents ?? [];
+        // Filter dependents to ensure we only show ones for this applicant
+        final filteredDependents =
+            applicantDependents
+                .where((dep) => dep.applicantId == widget.applicantId)
+                .toList();
+
         setState(() {
           applicant = loadedApplicant;
-          dependents = loadedApplicant.dependents ?? [];
+          dependents = filteredDependents;
           isLoading = false;
         });
       },
@@ -98,7 +107,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
               ),
             );
             if (result == true) {
-              _loadApplicantData();
+              _loadApplicantData(forceRefresh: true);
+              // Força refresh do cache para atualizar a listagem
+              await ApplicantsService.refreshApplicants();
             }
           },
           onEditPressed: () async {
@@ -116,11 +127,21 @@ class _ApplicantPageState extends State<ApplicantPage> {
                     ),
               ),
             );
-            if (result == true) {
-              _loadApplicantData();
+            if (result is Applicant) {
+              // Atualiza dados localmente na ApplicantPage
+              setState(() {
+                applicant = result;
+              });
+              // Força refresh do cache para atualizar a listagem
+              await ApplicantsService.refreshApplicants();
+            } else if (result == true) {
+              _loadApplicantData(forceRefresh: true);
+              // Força refresh do cache para atualizar a listagem
+              await ApplicantsService.refreshApplicants();
             }
           },
           onDeletePressed: () async {
+            // Depois navega para a página de delete
             final result = await Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
@@ -132,7 +153,12 @@ class _ApplicantPageState extends State<ApplicantPage> {
                     ),
               ),
             );
-            if (result == true) {
+
+            // Se o delete foi bem-sucedido
+            if (result == true && context.mounted) {
+              // Força refresh do cache para atualizar a listagem
+              await ApplicantsService.refreshApplicants();
+              // Volta para a listagem
               Navigator.of(context).pop(true);
             }
           },
@@ -172,6 +198,20 @@ class _ApplicantPageState extends State<ApplicantPage> {
               ElevatedButton(
                 onPressed: _loadApplicantData,
                 child: const Text('Tentar novamente'),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () async {
+                  // Limpa todo o cache
+                  await ApplicantsService.clearCache();
+                  // Recarrega os dados
+                  _loadApplicantData(forceRefresh: true);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Cache limpo com sucesso!')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                child: const Text('Limpar Cache'),
               ),
             ],
           ),
@@ -346,11 +386,14 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                           phone: dependent.phoneNumber ?? '',
                                           email: dependent.email ?? '',
                                           address: dependent.address,
+                                          applicantName: widget.name,
                                         ),
                                   ),
                                 );
                                 if (result == true) {
-                                  _loadApplicantData();
+                                  _loadApplicantData(forceRefresh: true);
+                                  // Força refresh do cache para atualizar a listagem
+                                  await ApplicantsService.refreshApplicants();
                                 }
                               },
                               child: BeneficiaryCard(
@@ -365,18 +408,21 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                     MaterialPageRoute(
                                       builder:
                                           (context) => EditBeneficiaryPage(
-                                            beneficiaryId: dependent.id,
+                                            dependentId: dependent.id,
                                             currentName: dependent.name ?? '',
                                             currentCpf: dependent.cpf ?? '',
                                             currentEmail: dependent.email ?? '',
                                             currentPhoneNumber:
                                                 dependent.phoneNumber ?? '',
                                             currentAddress: dependent.address,
+                                            applicantName: widget.name,
                                           ),
                                     ),
                                   );
                                   if (result == true) {
-                                    _loadApplicantData();
+                                    _loadApplicantData(forceRefresh: true);
+                                    // Força refresh do cache para atualizar a listagem
+                                    await ApplicantsService.refreshApplicants();
                                   }
                                 },
                                 onDelete: () async {
@@ -386,17 +432,19 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                     MaterialPageRoute(
                                       builder:
                                           (context) => DeleteBeneficiaryPage(
-                                            beneficiaryId: dependent.id,
-                                            beneficiaryName:
-                                                dependent.name ?? '',
-                                            beneficiaryCpf: dependent.cpf ?? '',
-                                            beneficiaryEmail:
+                                            dependentId: dependent.id,
+                                            dependentName: dependent.name ?? '',
+                                            dependentCpf: dependent.cpf ?? '',
+                                            dependentEmail:
                                                 dependent.email ?? '',
+                                            applicantName: widget.name,
                                           ),
                                     ),
                                   );
                                   if (result == true) {
-                                    _loadApplicantData();
+                                    _loadApplicantData(forceRefresh: true);
+                                    // Força refresh do cache para atualizar a listagem
+                                    await ApplicantsService.refreshApplicants();
                                   }
                                 },
                               ),

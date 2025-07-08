@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/applicants/applicants_service.dart';
+import 'package:project_rotary/core/api/applicants/models/applicants_models.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/text_area_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class EditBeneficiaryPage extends StatefulWidget {
-  final String beneficiaryId;
+  final String dependentId;
   final String currentName;
   final String currentCpf;
   final String currentEmail;
   final String currentPhoneNumber;
   final String? currentAddress;
+  final String applicantName;
 
   const EditBeneficiaryPage({
     super.key,
-    required this.beneficiaryId,
+    required this.dependentId,
     required this.currentName,
     required this.currentCpf,
     required this.currentEmail,
     required this.currentPhoneNumber,
     this.currentAddress,
+    required this.applicantName,
   });
 
   @override
@@ -59,7 +63,7 @@ class _EditBeneficiaryPageState extends State<EditBeneficiaryPage> {
     super.dispose();
   }
 
-  void _updateBeneficiary() async {
+  Future<void> _updateBeneficiary() async {
     if (!_formKey.currentState!.validate()) return;
 
     // Verifica se há mudanças para enviar
@@ -84,21 +88,60 @@ class _EditBeneficiaryPageState extends State<EditBeneficiaryPage> {
       _isLoading = true;
     });
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 2));
+    final request = UpdateDependentRequest(
+      name:
+          _nameController.text.trim().isNotEmpty
+              ? _nameController.text.trim()
+              : null,
+      cpf:
+          _cpfController.text.trim().isNotEmpty
+              ? _cpfController.text.trim()
+              : null,
+      email:
+          _emailController.text.trim().isNotEmpty
+              ? _emailController.text.trim()
+              : null,
+      phoneNumber:
+          _phoneController.text.trim().isNotEmpty
+              ? _phoneController.text.trim()
+              : null,
+      address:
+          _addressController.text.trim().isNotEmpty
+              ? _addressController.text.trim()
+              : null,
+    );
 
-    setState(() {
-      _isLoading = false;
-    });
+    final result = await ApplicantsService.updateDependent(
+      widget.dependentId,
+      request,
+    );
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Beneficiário atualizado com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
+      setState(() {
+        _isLoading = false;
+      });
+
+      result.fold(
+        (updatedDependent) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${_nameController.text.trim()} atualizado com sucesso!',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context, updatedDependent);
+        },
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao atualizar beneficiário: $failure'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
       );
-      Navigator.pop(context, true);
     }
   }
 

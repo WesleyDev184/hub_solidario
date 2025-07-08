@@ -32,14 +32,16 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
     _loadApplicants();
   }
 
-  Future<void> _loadApplicants() async {
+  Future<void> _loadApplicants({bool forceRefresh = false}) async {
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
 
     try {
-      final result = await ApplicantsService.getApplicants();
+      final result = await ApplicantsService.getApplicants(
+        forceRefresh: forceRefresh,
+      );
 
       result.fold(
         (loadedApplicants) {
@@ -84,6 +86,31 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
     });
   }
 
+  void _updateApplicantInList(Applicant updatedApplicant) {
+    setState(() {
+      // Atualiza na lista principal
+      final index = applicants.indexWhere((a) => a.id == updatedApplicant.id);
+      if (index != -1) {
+        applicants[index] = updatedApplicant;
+      }
+
+      // Atualiza na lista filtrada
+      final filteredIndex = filteredApplicants.indexWhere(
+        (a) => a.id == updatedApplicant.id,
+      );
+      if (filteredIndex != -1) {
+        filteredApplicants[filteredIndex] = updatedApplicant;
+      }
+    });
+  }
+
+  void _removeApplicantFromList(String applicantId) {
+    setState(() {
+      applicants.removeWhere((a) => a.id == applicantId);
+      filteredApplicants.removeWhere((a) => a.id == applicantId);
+    });
+  }
+
   @override
   void dispose() {
     searchController.removeListener(filterApplicants);
@@ -103,7 +130,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
             MaterialPageRoute(builder: (_) => const CreateApplicantPage()),
           );
           if (result == true) {
-            _loadApplicants();
+            _loadApplicants(forceRefresh: true);
           }
         },
         child: const Icon(LucideIcons.plus),
@@ -148,7 +175,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _loadApplicants,
+              onPressed: () => _loadApplicants(forceRefresh: true),
               child: const Text('Tentar novamente'),
             ),
           ],
@@ -207,8 +234,9 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                             ),
                       ),
                     );
+                    // Recarrega com dados do cache atualizado (que foi renovado pelo service)
                     if (result == true) {
-                      _loadApplicants();
+                      _loadApplicants(forceRefresh: true);
                     }
                   },
                   child: Padding(
@@ -235,8 +263,12 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                                 ),
                           ),
                         );
-                        if (result == true) {
-                          _loadApplicants();
+                        if (result is Applicant) {
+                          // Atualiza o applicant específico na lista
+                          _updateApplicantInList(result);
+                        } else if (result == true) {
+                          // Fallback: recarrega toda a lista
+                          _loadApplicants(forceRefresh: true);
                         }
                       },
                       onDelete: () async {
@@ -252,7 +284,8 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                           ),
                         );
                         if (result == true) {
-                          _loadApplicants();
+                          // Remove o applicant da lista local
+                          _removeApplicantFromList(applicant.id);
                         }
                       },
                     ),

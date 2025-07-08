@@ -16,6 +16,7 @@ class BeneficiaryPage extends StatelessWidget {
   final String phone;
   final String email;
   final String? address;
+  final String applicantName;
 
   const BeneficiaryPage({
     super.key,
@@ -26,6 +27,7 @@ class BeneficiaryPage extends StatelessWidget {
     required this.phone,
     required this.email,
     this.address,
+    required this.applicantName,
   });
 
   void _showActionsMenu(BuildContext context) {
@@ -39,12 +41,13 @@ class BeneficiaryPage extends StatelessWidget {
               MaterialPageRoute(
                 builder:
                     (context) => EditBeneficiaryPage(
-                      beneficiaryId: beneficiaryId,
+                      dependentId: beneficiaryId,
                       currentName: name,
                       currentCpf: cpf,
                       currentEmail: email,
                       currentPhoneNumber: phone,
                       currentAddress: address,
+                      applicantName: applicantName,
                     ),
               ),
             );
@@ -54,10 +57,11 @@ class BeneficiaryPage extends StatelessWidget {
               MaterialPageRoute(
                 builder:
                     (context) => DeleteBeneficiaryPage(
-                      beneficiaryId: beneficiaryId,
-                      beneficiaryName: name,
-                      beneficiaryCpf: cpf,
-                      beneficiaryEmail: email,
+                      dependentId: beneficiaryId,
+                      dependentName: name,
+                      dependentCpf: cpf,
+                      dependentEmail: email,
+                      applicantName: applicantName,
                     ),
               ),
             );

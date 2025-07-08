@@ -267,7 +267,8 @@ class ApplicantsRepository {
       return result.fold((data) {
         try {
           if (data['success'] == true && data['data'] != null) {
-            return Success(data['data'] as String);
+            final dependentData = data['data'] as Map<String, dynamic>;
+            return Success(dependentData['id'] as String);
           } else {
             return Failure(
               Exception(data['message'] ?? 'Erro ao criar dependente'),

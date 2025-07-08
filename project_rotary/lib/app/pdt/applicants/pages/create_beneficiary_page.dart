@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/applicants/applicants_service.dart';
+import 'package:project_rotary/core/api/applicants/models/applicants_models.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/text_area_field.dart';
@@ -44,31 +46,105 @@ class _CreateBeneficiaryPageState extends State<CreateBeneficiaryPage> {
     super.dispose();
   }
 
-  void _createBeneficiary() async {
+  Future<void> _createBeneficiary() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
     });
 
-    // Simula criação do beneficiário
-    await Future.delayed(const Duration(seconds: 2));
+    final request = CreateDependentRequest(
+      name: _nameController.text.trim(),
+      cpf: _cpfController.text.trim(),
+      email: _emailController.text.trim(),
+      phoneNumber: _phoneController.text.trim(),
+      address: _addressController.text.trim(),
+      applicantId: widget.applicantId,
+    );
 
-    setState(() {
-      _isLoading = false;
-    });
+    final result = await ApplicantsService.createDependent(request);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Beneficiário ${_nameController.text.trim()} criado com sucesso!',
-          ),
-          backgroundColor: Colors.green,
-        ),
+      setState(() {
+        _isLoading = false;
+      });
+
+      result.fold(
+        (dependentId) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Beneficiário ${_nameController.text.trim()} criado com sucesso!',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context, true);
+        },
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao criar beneficiário: $failure'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
       );
-      Navigator.pop(context, true);
     }
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Nome é obrigatório';
+    }
+    if (value.trim().length < 2) {
+      return 'Nome deve ter pelo menos 2 caracteres';
+    }
+    return null;
+  }
+
+  String? _validateCPF(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'CPF é obrigatório';
+    }
+    // Remover pontuação para validação
+    final cpf = value.replaceAll(RegExp(r'[^\d]'), '');
+    if (cpf.length != 11) {
+      return 'CPF deve ter 11 dígitos';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Email é obrigatório';
+    }
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value.trim())) {
+      return 'Email inválido';
+    }
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Telefone é obrigatório';
+    }
+    final phone = value.replaceAll(RegExp(r'[^\d]'), '');
+    if (phone.length < 10 || phone.length > 11) {
+      return 'Telefone deve ter 10 ou 11 dígitos';
+    }
+    return null;
+  }
+
+  String? _validateAddress(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Endereço é obrigatório';
+    }
+    if (value.trim().length < 10) {
+      return 'Endereço deve ser mais detalhado';
+    }
+    return null;
   }
 
   @override
@@ -76,13 +152,29 @@ class _CreateBeneficiaryPageState extends State<CreateBeneficiaryPage> {
     return Scaffold(
       appBar: AppBarCustom(title: "Criar Beneficiário"),
       backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 24),
+
+              const Text(
+                'Criar Beneficiário',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Adicione um novo beneficiário para ${widget.applicantName}',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              ),
+
               const SizedBox(height: 24),
 
               // Info section
@@ -96,34 +188,35 @@ class _CreateBeneficiaryPageState extends State<CreateBeneficiaryPage> {
                     width: 1,
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          LucideIcons.userPlus,
-                          color: CustomColors.primary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Novo beneficiário para:',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
+                    Icon(
+                      LucideIcons.userPlus,
+                      color: CustomColors.primary,
+                      size: 20,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.applicantName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Solicitante:',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          Text(
+                            widget.applicantName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -132,107 +225,111 @@ class _CreateBeneficiaryPageState extends State<CreateBeneficiaryPage> {
 
               const SizedBox(height: 32),
 
-              // Form fields
-              Text(
-                'Dados do Beneficiário',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: CustomColors.primary,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Nome
+                      const Text(
+                        'Nome',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _nameController,
+                        hint: 'Digite o nome completo',
+                        icon: LucideIcons.user,
+                        validator: _validateName,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // CPF
+                      const Text(
+                        'CPF',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _cpfController,
+                        hint: 'Digite o CPF',
+                        icon: LucideIcons.creditCard,
+                        validator: _validateCPF,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Email
+                      const Text(
+                        'Email',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _emailController,
+                        hint: 'Digite o email',
+                        icon: LucideIcons.mail,
+                        validator: _validateEmail,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Telefone
+                      const Text(
+                        'Telefone',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _phoneController,
+                        hint: 'Digite o telefone',
+                        icon: LucideIcons.phone,
+                        validator: _validatePhone,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Endereço
+                      const Text(
+                        'Endereço',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextAreaField(
+                        controller: _addressController,
+                        hint: 'Digite o endereço completo',
+                        icon: LucideIcons.mapPin,
+                        maxLines: 3,
+                        validator: _validateAddress,
+                      ),
+
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 20),
-
-              InputField(
-                controller: _nameController,
-                hint: 'Nome completo',
-                icon: LucideIcons.user,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Nome é obrigatório';
-                  }
-                  if (value.trim().length < 3) {
-                    return 'Nome deve ter pelo menos 3 caracteres';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              InputField(
-                controller: _cpfController,
-                hint: 'CPF',
-                icon: LucideIcons.creditCard,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'CPF é obrigatório';
-                  }
-                  if (value.trim().length < 11) {
-                    return 'CPF deve ter 11 dígitos';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              InputField(
-                controller: _emailController,
-                hint: 'E-mail',
-                icon: LucideIcons.mail,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'E-mail é obrigatório';
-                  }
-                  if (!RegExp(
-                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                  ).hasMatch(value)) {
-                    return 'E-mail inválido';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              InputField(
-                controller: _phoneController,
-                hint: 'Telefone',
-                icon: LucideIcons.phone,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Telefone é obrigatório';
-                  }
-                  if (value.trim().length < 10) {
-                    return 'Telefone deve ter pelo menos 10 dígitos';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              TextAreaField(
-                controller: _addressController,
-                hint: 'Endereço completo',
-                icon: LucideIcons.mapPin,
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Endereço é obrigatório';
-                  }
-                  if (value.trim().length < 10) {
-                    return 'Endereço deve ser mais detalhado';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 32),
-
-              // Action buttons
               Row(
                 children: [
                   Expanded(
