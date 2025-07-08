@@ -22,47 +22,13 @@ class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppBarCustomState extends State<AppBarCustom> {
-  bool _hasLoadedUserData = false;
-  String _userName = "Usuário";
-  String _userRole = "Admin";
-
-  @override
-  void initState() {
-    super.initState();
-    // Carrega os dados do usuário atual apenas uma vez
-    _loadUserDataOnce();
-  }
-
-  Future<void> _loadUserDataOnce() async {
-    // Evita múltiplas chamadas se já carregou ou já tem usuário em cache
-    if (_hasLoadedUserData || authController.currentUser != null) {
-      return;
-    }
-
-    // Evita também se já está carregando
-    if (authController.isLoading) {
-      return;
-    }
-
-    _hasLoadedUserData = true;
-
-    try {
-      debugPrint('AppBar - Iniciando carregamento de dados do usuário...');
-
-      // Carrega os dados do usuário atual (que já inclui o banco ortopédico)
-      final userResult = await authController.getCurrentUser();
-      userResult.fold(
-        (user) => debugPrint(
-          'AppBar - Usuário carregado: ${user.name} (${user.email}), Banco: ${user.orthopedicBank?.name}',
-        ),
-        (error) => debugPrint('AppBar - Erro ao carregar usuário: $error'),
-      );
-
-      debugPrint('AppBar - Carregamento concluído');
-    } catch (e) {
-      debugPrint('AppBar - Erro geral ao carregar dados: $e');
-    }
-  }
+  // Dados mocados do usuário
+  final String _userName = "João Silva";
+  final String _userEmail = "joao.silva@rotary.org";
+  final String _userPhone = "(11) 99999-9999";
+  final String _bankName = "Banco Ortopédico Central";
+  final String _bankCity = "São Paulo - SP";
+  final String _bankId = "001";
 
   Future<void> _handleLogout() async {
     // Mostra um dialog de confirmação
@@ -85,29 +51,12 @@ class _AppBarCustomState extends State<AppBarCustom> {
           ),
     );
 
-    if (shouldLogout == true) {
-      final result = await authController.logout();
-
-      if (mounted) {
-        result.fold(
-          (success) {
-            // Logout bem-sucedido, navega para a tela de login
-            Navigator.of(
-              context,
-              rootNavigator: true,
-            ).pushNamedAndRemoveUntil('/', (route) => false);
-          },
-          (error) {
-            // Mostra erro se houver falha no logout
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Erro ao fazer logout: $error'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          },
-        );
-      }
+    if (shouldLogout == true && mounted) {
+      // Simula logout e navega para a tela de login
+      Navigator.of(
+        context,
+        rootNavigator: true,
+      ).pushNamedAndRemoveUntil('/', (route) => false);
     }
   }
 
@@ -195,140 +144,62 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                     ),
                                   ),
 
-                                  AnimatedBuilder(
-                                    animation: authController,
-                                    builder: (context, child) {
-                                      final user = authController.currentUser;
-                                      final isLoading =
-                                          authController.isLoading;
-                                      final error = authController.error;
+                                  // Seção de dados do usuário com dados mocados
+                                  Column(
+                                    children: [
+                                      ListTile(
+                                        leading: Icon(
+                                          LucideIcons.idCard,
+                                          color: CustomColors.textPrimary,
+                                        ),
+                                        title: Text(_userName),
+                                      ),
 
-                                      // Debug: Log do estado atual
-                                      debugPrint(
-                                        'AppBar - User: ${user?.name}, Email: ${user?.email}',
-                                      );
-                                      debugPrint(
-                                        'AppBar - Loading: $isLoading, Error: $error',
-                                      );
+                                      Divider(),
+                                      ListTile(
+                                        leading: Icon(
+                                          LucideIcons.mail,
+                                          color: CustomColors.textPrimary,
+                                        ),
+                                        title: Text(_userEmail),
+                                      ),
 
-                                      // Se está carregando, mostra indicador
-                                      if (isLoading && user == null) {
-                                        return const Column(
-                                          children: [
-                                            ListTile(
-                                              leading:
-                                                  CircularProgressIndicator(),
-                                              title: Text(
-                                                'Carregando dados do usuário...',
-                                              ),
-                                            ),
-                                            Divider(),
-                                          ],
-                                        );
-                                      }
-
-                                      // Se houve erro e não há usuário, mostra erro
-                                      if (error != null && user == null) {
-                                        return Column(
-                                          children: [
-                                            ListTile(
-                                              leading: Icon(
-                                                Icons.error,
-                                                color: Colors.red,
-                                              ),
-                                              title: Text(
-                                                'Erro ao carregar dados',
-                                              ),
-                                              subtitle: Text(error),
-                                            ),
-                                            Divider(),
-                                          ],
-                                        );
-                                      }
-
-                                      // Mostra dados do usuário
-                                      return Column(
-                                        children: [
-                                          ListTile(
-                                            leading: Icon(
-                                              LucideIcons.idCard,
-                                              color: CustomColors.textPrimary,
-                                            ),
-                                            title: Text(
-                                              user?.name ??
-                                                  'Nome não disponível',
-                                            ),
-                                          ),
-
-                                          Divider(),
-                                          ListTile(
-                                            leading: Icon(
-                                              LucideIcons.mail,
-                                              color: CustomColors.textPrimary,
-                                            ),
-                                            title: Text(
-                                              user?.email ??
-                                                  'Email não disponível',
-                                            ),
-                                          ),
-
-                                          Divider(),
-                                          ListTile(
-                                            leading: Icon(
-                                              LucideIcons.phone,
-                                              color: CustomColors.textPrimary,
-                                            ),
-                                            title: Text(
-                                              user?.phoneNumber ??
-                                                  'Telefone não disponível',
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
+                                      Divider(),
+                                      ListTile(
+                                        leading: Icon(
+                                          LucideIcons.phone,
+                                          color: CustomColors.textPrimary,
+                                        ),
+                                        title: Text(_userPhone),
+                                      ),
+                                    ],
                                   ),
 
                                   Spacer(),
 
-                                  AnimatedBuilder(
-                                    animation: authController,
-                                    builder: (context, child) {
-                                      final user = authController.currentUser;
-                                      final orthopedicBank =
-                                          user?.orthopedicBank;
-
-                                      return Card(
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 8,
+                                  // Seção do banco ortopédico com dados mocados
+                                  Card(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ListTile(
+                                      leading: Icon(
+                                        LucideIcons.building2,
+                                        color: CustomColors.primary,
+                                      ),
+                                      title: Text(
+                                        _bankName,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: ListTile(
-                                          leading: Icon(
-                                            LucideIcons.building2,
-                                            color: CustomColors.primary,
-                                          ),
-                                          title: Text(
-                                            orthopedicBank?.name ??
-                                                'Banco não carregado',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          subtitle: Text(
-                                            orthopedicBank?.city ??
-                                                (user != null
-                                                    ? 'ID: ${user.orthopedicBank!.id}'
-                                                    : ''),
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                      ),
+                                      subtitle: Text(_bankCity),
+                                    ),
                                   ),
 
                                   const SizedBox(height: 16),

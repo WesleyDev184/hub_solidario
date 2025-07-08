@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/categories/pages/add_item_page.dart';
+import 'package:project_rotary/app/pdt/categories/pages/create_loan_page.dart';
 import 'package:project_rotary/app/pdt/categories/pages/delete_category_page.dart';
 import 'package:project_rotary/app/pdt/categories/pages/edit_category_page.dart';
+import 'package:project_rotary/app/pdt/categories/widgets/action_menu_category.dart';
+import 'package:project_rotary/app/pdt/categories/widgets/category_items_card.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
@@ -207,6 +210,18 @@ class _CategoryPageState extends State<CategoryPage> {
               ),
             );
           },
+          onBorrowPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => CreateLoanPage(
+                      categoryId: widget.categoryId,
+                      categoryTitle: widget.categoryTitle,
+                    ),
+              ),
+            );
+          },
         );
       },
     );
@@ -221,7 +236,7 @@ class _CategoryPageState extends State<CategoryPage> {
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              expandedHeight: 250.0,
+              expandedHeight: 260.0,
               floating: false,
               pinned: false,
               automaticallyImplyLeading: false,
@@ -231,9 +246,9 @@ class _CategoryPageState extends State<CategoryPage> {
           ];
         },
         body: DraggableScrollableSheet(
-          initialChildSize: 0.69,
-          minChildSize: 0.68,
-          maxChildSize: 1.0,
+          initialChildSize: 0.99,
+          minChildSize: 0.99,
+          maxChildSize: 0.99,
           builder: (context, scrollController) {
             return Container(
               padding: const EdgeInsets.all(16.0),
