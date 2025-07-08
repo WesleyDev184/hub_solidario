@@ -396,6 +396,61 @@ class AuthRepository {
     }
   }
 
+  /// Obtém todos os bancos ortopédicos
+  AsyncResult<List<OrthopedicBank>> getOrthopedicBanks() async {
+    try {
+      debugPrint('Getting orthopedic banks');
+
+      final result = await _apiClient.get('/orthopedic-banks', useAuth: false);
+
+      return result.fold(
+        (success) {
+          try {
+            final response = ControllerResponse<List<dynamic>>.fromJson(
+              success,
+              (json) => json as List<dynamic>,
+            );
+
+            if (response.success && response.data != null) {
+              final banks =
+                  response.data!
+                      .map(
+                        (bankJson) => OrthopedicBank.fromJson(
+                          bankJson as Map<String, dynamic>,
+                        ),
+                      )
+                      .toList();
+
+              debugPrint('Orthopedic banks retrieved: ${banks.length}');
+              return Success(banks);
+            } else {
+              debugPrint('Failed to get orthopedic banks: ${response.message}');
+              return Failure(
+                Exception(
+                  response.message ?? 'Bancos ortopédicos não encontrados',
+                ),
+              );
+            }
+          } catch (e) {
+            debugPrint('Error parsing orthopedic banks response: $e');
+            return Failure(
+              Exception('Erro ao processar dados dos bancos ortopédicos'),
+            );
+          }
+        },
+        (error) {
+          debugPrint('Get orthopedic banks failed: $error');
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      debugPrint('Get orthopedic banks error: $e');
+      return Failure(
+        Exception('Erro ao obter bancos ortopédicos: ${e.toString()}'),
+      );
+    }
+  }
+
   /// Carrega estado de autenticação do cache
   Future<AuthState> loadCachedAuthState() async {
     return await _cacheService.loadAuthState();

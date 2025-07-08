@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/auth/auth_service.dart';
+import 'package:project_rotary/core/api/auth/models/auth_models.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/password_field.dart';
 import 'package:project_rotary/core/components/select_field.dart';
@@ -22,6 +24,8 @@ class _SignUpFormState extends State<SignUpForm> {
   late TextEditingController confirmPasswordController;
 
   String? selectedOrthopedicBankId;
+  List<DropdownMenuItem<String>> orthopedicBankItems = [];
+  bool isLoadingBanks = false;
 
   // Métodos de validação
   String? _validateName(String? value) {
@@ -84,6 +88,121 @@ class _SignUpFormState extends State<SignUpForm> {
       return 'Senhas não coincidem';
     }
     return null;
+  } // Método para carregar bancos ortopédicos
+
+  Future<void> _loadOrthopedicBanks() async {
+    if (isLoadingBanks) return;
+
+    setState(() {
+      isLoadingBanks = true;
+    });
+
+    try {
+      final authController = AuthService.instance;
+      if (authController != null) {
+        // Buscar bancos ortopédicos da API
+        final result = await authController.getOrthopedicBanks();
+
+        result.fold(
+          (banks) {
+            setState(() {
+              orthopedicBankItems =
+                  banks.map((bank) {
+                    return DropdownMenuItem<String>(
+                      value: bank.id,
+                      child: Text('${bank.name} - ${bank.city}'),
+                    );
+                  }).toList();
+              isLoadingBanks = false;
+            });
+          },
+          (error) {
+            setState(() {
+              // Em caso de erro, usar dados padrão
+              orthopedicBankItems = [
+                const DropdownMenuItem<String>(
+                  value: '1',
+                  child: Text('Banco Ortopédico Central - São Paulo'),
+                ),
+                const DropdownMenuItem<String>(
+                  value: '2',
+                  child: Text('Instituto de Ortopedia - Rio de Janeiro'),
+                ),
+                const DropdownMenuItem<String>(
+                  value: '3',
+                  child: Text(
+                    'Centro Ortopédico Belo Horizonte - Belo Horizonte',
+                  ),
+                ),
+                const DropdownMenuItem<String>(
+                  value: '4',
+                  child: Text('Clínica Ortopédica Norte - Brasília'),
+                ),
+                const DropdownMenuItem<String>(
+                  value: '5',
+                  child: Text('Hospital Ortopédico Sul - Porto Alegre'),
+                ),
+              ];
+              isLoadingBanks = false;
+            });
+          },
+        );
+      } else {
+        setState(() {
+          // Sem AuthController, usar dados padrão
+          orthopedicBankItems = [
+            const DropdownMenuItem<String>(
+              value: '1',
+              child: Text('Banco Ortopédico Central - São Paulo'),
+            ),
+            const DropdownMenuItem<String>(
+              value: '2',
+              child: Text('Instituto de Ortopedia - Rio de Janeiro'),
+            ),
+            const DropdownMenuItem<String>(
+              value: '3',
+              child: Text('Centro Ortopédico Belo Horizonte - Belo Horizonte'),
+            ),
+            const DropdownMenuItem<String>(
+              value: '4',
+              child: Text('Clínica Ortopédica Norte - Brasília'),
+            ),
+            const DropdownMenuItem<String>(
+              value: '5',
+              child: Text('Hospital Ortopédico Sul - Porto Alegre'),
+            ),
+          ];
+          isLoadingBanks = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        // Em caso de erro, usar dados padrão
+        orthopedicBankItems = [
+          const DropdownMenuItem<String>(
+            value: '1',
+            child: Text('Banco Ortopédico Central - São Paulo'),
+          ),
+          const DropdownMenuItem<String>(
+            value: '2',
+            child: Text('Instituto de Ortopedia - Rio de Janeiro'),
+          ),
+          const DropdownMenuItem<String>(
+            value: '3',
+            child: Text('Centro Ortopédico Belo Horizonte - Belo Horizonte'),
+          ),
+          const DropdownMenuItem<String>(
+            value: '4',
+            child: Text('Clínica Ortopédica Norte - Brasília'),
+          ),
+          const DropdownMenuItem<String>(
+            value: '5',
+            child: Text('Hospital Ortopédico Sul - Porto Alegre'),
+          ),
+        ];
+        isLoadingBanks = false;
+      });
+    }
   }
 
   @override
@@ -94,6 +213,9 @@ class _SignUpFormState extends State<SignUpForm> {
     emailController = TextEditingController();
     passwordController = TextEditingController();
     confirmPasswordController = TextEditingController();
+
+    // Carrega os bancos ortopédicos ao iniciar o formulário
+    _loadOrthopedicBanks();
   }
 
   @override
@@ -235,37 +357,20 @@ class _SignUpFormState extends State<SignUpForm> {
                 const SizedBox(height: 6),
                 SelectField<String>(
                   value: selectedOrthopedicBankId,
-                  hint: 'Selecione um banco ortopédico',
+                  hint:
+                      isLoadingBanks
+                          ? 'Carregando bancos ortopédicos...'
+                          : 'Selecione um banco ortopédico',
                   icon: LucideIcons.building2,
-                  items: const [
-                    DropdownMenuItem<String>(
-                      value: '1',
-                      child: Text('Banco Ortopédico Central - São Paulo'),
-                    ),
-                    DropdownMenuItem<String>(
-                      value: '2',
-                      child: Text('Instituto de Ortopedia - Rio de Janeiro'),
-                    ),
-                    DropdownMenuItem<String>(
-                      value: '3',
-                      child: Text(
-                        'Centro Ortopédico Belo Horizonte - Belo Horizonte',
-                      ),
-                    ),
-                    DropdownMenuItem<String>(
-                      value: '4',
-                      child: Text('Clínica Ortopédica Norte - Brasília'),
-                    ),
-                    DropdownMenuItem<String>(
-                      value: '5',
-                      child: Text('Hospital Ortopédico Sul - Porto Alegre'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedOrthopedicBankId = value;
-                    });
-                  },
+                  items: orthopedicBankItems,
+                  onChanged:
+                      isLoadingBanks
+                          ? null
+                          : (value) {
+                            setState(() {
+                              selectedOrthopedicBankId = value;
+                            });
+                          },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Selecione um banco ortopédico';
@@ -319,12 +424,136 @@ class _SignUpFormState extends State<SignUpForm> {
 
                 // Botão principal
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/layout',
-                      (route) => false,
-                    );
+                  onPressed: () async {
+                    // Valida o formulário
+                    if (!_formKey.currentState!.validate()) {
+                      return;
+                    }
+
+                    // Valida se um banco ortopédico foi selecionado
+                    if (selectedOrthopedicBankId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Selecione um banco ortopédico'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Valida se as senhas coincidem
+                    if (passwordController.text !=
+                        confirmPasswordController.text) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('As senhas não coincidem'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    try {
+                      // Obtém a instância do AuthController
+                      final authController = AuthService.instance;
+                      if (authController == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Erro: Serviço de autenticação não inicializado',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Cria a requisição de criação de usuário
+                      final createUserRequest = CreateUserRequest(
+                        name: nameController.text.trim(),
+                        email: emailController.text.trim(),
+                        password: passwordController.text,
+                        phoneNumber: phoneController.text.trim(),
+                        orthopedicBankId: selectedOrthopedicBankId!,
+                      );
+
+                      // Cria o usuário
+                      final result = await authController.createUser(
+                        createUserRequest,
+                      );
+
+                      if (context.mounted) {
+                        result.fold(
+                          (success) {
+                            // Usuário criado com sucesso, agora faz login
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Conta criada com sucesso! Fazendo login...',
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+
+                            // Faz login automático após criar a conta
+                            authController
+                                .login(
+                                  emailController.text.trim(),
+                                  passwordController.text,
+                                )
+                                .then((loginResult) {
+                                  if (context.mounted) {
+                                    loginResult.fold(
+                                      (user) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          '/layout',
+                                          (route) => false,
+                                        );
+                                      },
+                                      (error) {
+                                        // Conta criada mas login falhou - vai para tela de login
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          '/signin',
+                                          (route) => false,
+                                        );
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Conta criada! Faça login para continuar.',
+                                            ),
+                                            backgroundColor: Colors.orange,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+                                });
+                          },
+                          (error) {
+                            // Erro na criação da conta
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(error.toString()),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          },
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Erro inesperado: ${e.toString()}'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: CustomColors.success,

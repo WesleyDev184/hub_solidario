@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/auth/auth_service.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/password_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -164,12 +165,78 @@ class _SingInFormState extends State<SingInForm> {
 
                 // Botão principal
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/layout',
-                      (route) => false,
-                    );
+                  onPressed: () async {
+                    // Valida o formulário
+                    if (!_formKey.currentState!.validate()) {
+                      return;
+                    }
+
+                    try {
+                      // Aguarda até que o AuthService esteja completamente inicializado
+                      while (!AuthService.isInitialized) {
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+
+                      // Obtém a instância do AuthController
+                      final authController = AuthService.instance;
+                      if (authController == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Erro: Serviço de autenticação não inicializado',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      debugPrint(
+                        'Tentando fazer login com email: ${emailController.text.trim()}',
+                      );
+
+                      // Realiza o login
+                      final result = await authController.login(
+                        emailController.text.trim(),
+                        passwordController.text,
+                      );
+
+                      if (context.mounted) {
+                        result.fold(
+                          (user) {
+                            // Login bem-sucedido
+                            debugPrint(
+                              'Login bem-sucedido para usuário: ${user.name}',
+                            );
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/layout',
+                              (route) => false,
+                            );
+                          },
+                          (error) {
+                            // Erro no login
+                            debugPrint('Erro no login: $error');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(error.toString()),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          },
+                        );
+                      }
+                    } catch (e) {
+                      debugPrint('Exceção durante login: $e');
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Erro inesperado: ${e.toString()}'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: CustomColors.success,

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:project_rotary/core/api/api_client.dart';
 
 import 'auth.dart';
@@ -7,56 +10,107 @@ class AuthService {
   static AuthController? _instance;
   static AuthRepository? _repository;
   static AuthCacheService? _cacheService;
+  static Completer<AuthController>? _initializationCompleter;
 
   /// Inicializa o serviço de autenticação
   static Future<AuthController> initialize({
     required ApiClient apiClient,
     String? apiKey,
   }) async {
-    if (_instance != null) {
-      return _instance!;
-    }
+    try {
+      debugPrint('AuthService.initialize: Starting initialization');
 
-    // Configura API Key se fornecida
-    if (apiKey != null) {
-      apiClient.setApiKey(apiKey);
-    }
-
-    // Cria cache service
-    _cacheService = await AuthCacheService.create();
-
-    // Cria repository
-    _repository = AuthRepository(
-      apiClient: apiClient,
-      cacheService: _cacheService!,
-    );
-
-    // Cria controller
-    _instance = AuthController(repository: _repository!);
-
-    // Configura callback de logout automático no ApiClient
-    apiClient.setOnUnauthorizedCallback(() {
-      _instance?.logout();
-    });
-
-    // Inicializa o controller (carrega estado do cache)
-    await _instance!.initialize();
-
-    // Configura token no ApiClient se já estiver autenticado
-    if (_instance!.isAuthenticated && _instance!.accessToken != null) {
-      apiClient.setAccessToken(_instance!.accessToken!);
-    }
-
-    // Configura sincronização automática de token
-    _instance!.addListener(() {
-      if (_instance!.isAuthenticated && _instance!.accessToken != null) {
-        apiClient.setAccessToken(_instance!.accessToken!);
-      } else {
-        apiClient.clearAccessToken();
+      // Se já está inicializando, espera a inicialização atual
+      if (_initializationCompleter != null) {
+        debugPrint(
+          'AuthService.initialize: Already initializing, waiting for completion',
+        );
+        return await _initializationCompleter!.future;
       }
-    });
 
-    return _instance!;
+      // Se já foi inicializado, retorna a instância existente
+      if (_instance != null) {
+        debugPrint(
+          'AuthService.initialize: Already initialized, returning existing instance',
+        );
+        return _instance!;
+      }
+
+      // Cria um completer para controlar a inicialização
+      _initializationCompleter = Completer<AuthController>();
+
+      try {
+        // Configura API Key se fornecida
+        if (apiKey != null) {
+          debugPrint('AuthService.initialize: Setting API key');
+          apiClient.setApiKey(apiKey);
+        }
+
+        // Cria cache service
+        debugPrint('AuthService.initialize: Creating cache service');
+        _cacheService = await AuthCacheService.create();
+
+        // Cria repository
+        debugPrint('AuthService.initialize: Creating repository');
+        _repository = AuthRepository(
+          apiClient: apiClient,
+          cacheService: _cacheService!,
+        );
+
+        // Cria controller
+        debugPrint('AuthService.initialize: Creating controller');
+        _instance = AuthController(repository: _repository!);
+
+        // Configura callback de logout automático no ApiClient
+        debugPrint('AuthService.initialize: Setting unauthorized callback');
+        apiClient.setOnUnauthorizedCallback(() {
+          debugPrint('ApiClient: Unauthorized callback triggered');
+          _instance?.logout();
+        });
+
+        // Configura sincronização automática de token ANTES da inicialização
+        debugPrint('AuthService.initialize: Setting up token sync listener');
+        _instance!.addListener(() {
+          if (_instance!.isAuthenticated && _instance!.accessToken != null) {
+            debugPrint('AuthController: Setting access token in ApiClient');
+            apiClient.setAccessToken(_instance!.accessToken!);
+          } else {
+            debugPrint('AuthController: Clearing access token from ApiClient');
+            apiClient.clearAccessToken();
+          }
+        });
+
+        // Inicializa o controller (carrega estado do cache)
+        debugPrint('AuthService.initialize: Initializing controller');
+        await _instance!.initialize();
+
+        // Configura token no ApiClient se já estiver autenticado (backup)
+        if (_instance!.isAuthenticated && _instance!.accessToken != null) {
+          debugPrint(
+            'AuthService.initialize: Setting access token in ApiClient (backup)',
+          );
+          apiClient.setAccessToken(_instance!.accessToken!);
+        }
+
+        debugPrint(
+          'AuthService.initialize: Initialization completed successfully',
+        );
+
+        // Completa a inicialização
+        _initializationCompleter!.complete(_instance!);
+        return _instance!;
+      } catch (e) {
+        // Em caso de erro, completa com erro
+        _initializationCompleter!.completeError(e);
+        rethrow;
+      } finally {
+        // Limpa o completer
+        _initializationCompleter = null;
+      }
+    } catch (e) {
+      debugPrint('AuthService.initialize: Error during initialization: $e');
+      rethrow;
+    }
   }
 
   /// Obtém a instância atual do AuthController

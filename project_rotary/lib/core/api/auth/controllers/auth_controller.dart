@@ -37,21 +37,34 @@ class AuthController extends ChangeNotifier {
     try {
       _setLoading(true);
 
-      debugPrint('Initializing AuthController');
+      debugPrint('AuthController.initialize: Starting initialization');
 
       // Carrega estado do cache
+      debugPrint('AuthController.initialize: Loading cached state');
       final cachedState = await _repository.loadCachedAuthState();
       _updateState(cachedState);
 
+      debugPrint(
+        'AuthController.initialize: Cached state loaded, authenticated: ${cachedState.isAuthenticated}',
+      );
+
       // Se há token válido, tenta buscar dados atuais do usuário
       if (cachedState.isAuthenticated && !cachedState.isTokenExpired) {
+        debugPrint(
+          'AuthController.initialize: Token is valid, refreshing user data',
+        );
         await _refreshCurrentUser();
       } else if (cachedState.token != null) {
+        debugPrint('AuthController.initialize: Token expired, clearing cache');
         // Token expirado, limpa cache
         await logout();
       }
+
+      debugPrint(
+        'AuthController.initialize: Initialization completed successfully',
+      );
     } catch (e) {
-      debugPrint('Error initializing AuthController: $e');
+      debugPrint('AuthController.initialize: Error during initialization: $e');
       _updateState(const AuthState(status: AuthStatus.unauthenticated));
     } finally {
       _setLoading(false);
@@ -63,33 +76,53 @@ class AuthController extends ChangeNotifier {
     try {
       _setLoading(true);
 
-      debugPrint('Starting login process for: $email');
+      debugPrint('AuthController.login: Starting login process for: $email');
+      debugPrint('AuthController.login: Current state: ${_state.status}');
 
       // Realiza login
+      debugPrint('AuthController.login: Calling repository.login');
       final loginResult = await _repository.login(email, password);
 
       return await loginResult.fold(
         (tokenResponse) async {
-          // Salva token no cache imediatamente
-          await _repository.saveAuthState(
-            AuthState(
-              status: AuthStatus.authenticated,
-              token: tokenResponse.accessToken,
-              refreshToken: tokenResponse.refreshToken,
-              tokenExpiry: DateTime.now().add(
-                Duration(seconds: tokenResponse.expiresIn),
-              ),
-            ),
+          debugPrint(
+            'AuthController.login: Login API call successful, token received',
           );
 
-          // Configura token no ApiClient
-          // Isso será feito através do dependency injection
+          // Configura token no ApiClient IMEDIATAMENTE para próximas requisições
+          debugPrint(
+            'AuthController.login: Setting token in ApiClient immediately',
+          );
+          notifyListeners(); // Isso irá disparar o listener que configura o token no ApiClient
+
+          // Força configuração do token manualmente também para garantir
+          final tempState = AuthState(
+            status: AuthStatus.authenticated,
+            token: tokenResponse.accessToken,
+            refreshToken: tokenResponse.refreshToken,
+            tokenExpiry: DateTime.now().add(
+              Duration(seconds: tokenResponse.expiresIn),
+            ),
+          );
+          _updateState(tempState);
+
+          // Salva token no cache
+          debugPrint('AuthController.login: Saving token to cache');
+          await _repository.saveAuthState(tempState);
+
+          // Aguarda um pouco para garantir que o token foi configurado
+          await Future.delayed(const Duration(milliseconds: 100));
 
           // Busca dados do usuário
+          debugPrint('AuthController.login: Fetching user data');
           final userResult = await _repository.getCurrentUser();
 
           return await userResult.fold(
             (user) async {
+              debugPrint(
+                'AuthController.login: User data fetched successfully',
+              );
+
               // Estado final com usuário completo
               final finalState = AuthState(
                 status: AuthStatus.authenticated,
@@ -104,10 +137,16 @@ class AuthController extends ChangeNotifier {
               _updateState(finalState);
               await _repository.saveAuthState(finalState);
 
-              debugPrint('Login successful for: ${user.email}');
+              debugPrint(
+                'AuthController.login: Login completed successfully for: ${user.email}',
+              );
               return Success(user);
             },
             (error) async {
+              debugPrint(
+                'AuthController.login: Failed to fetch user data: $error',
+              );
+
               // Falhou ao buscar usuário, mas login foi bem-sucedido
               // Mantém estado autenticado mas sem dados do usuário
               final partialState = AuthState(
@@ -123,20 +162,20 @@ class AuthController extends ChangeNotifier {
               await _repository.saveAuthState(partialState);
 
               debugPrint(
-                'Login successful but failed to get user data: $error',
+                'AuthController.login: Login successful but failed to get user data: $error',
               );
               return Failure(error);
             },
           );
         },
         (error) async {
-          debugPrint('Login failed: $error');
+          debugPrint('AuthController.login: Login API call failed: $error');
           _updateState(const AuthState(status: AuthStatus.unauthenticated));
           return Failure(error);
         },
       );
     } catch (e) {
-      debugPrint('Login error: $e');
+      debugPrint('AuthController.login: Exception during login: $e');
       _updateState(const AuthState(status: AuthStatus.unauthenticated));
       return Failure(Exception('Erro interno no login: ${e.toString()}'));
     } finally {
@@ -270,6 +309,11 @@ class AuthController extends ChangeNotifier {
     return await _repository.getUsersByOrthopedicBank(bankId);
   }
 
+  /// Obtém todos os bancos ortopédicos
+  AsyncResult<List<OrthopedicBank>> getOrthopedicBanks() async {
+    return await _repository.getOrthopedicBanks();
+  }
+
   /// Deleta usuário
   AsyncResult<bool> deleteUser(String id) async {
     return await _repository.deleteUser(id);
@@ -298,7 +342,15 @@ class AuthController extends ChangeNotifier {
   void _updateState(AuthState newState) {
     if (_state != newState) {
       _state = newState;
-      debugPrint('Auth state updated: ${newState.status}');
+      debugPrint(
+        'AuthController._updateState: Auth state updated: ${newState.status}',
+      );
+      debugPrint(
+        'AuthController._updateState: Has token: ${newState.token != null}',
+      );
+      debugPrint(
+        'AuthController._updateState: Has user: ${newState.user != null}',
+      );
       notifyListeners();
       _stateController?.add(newState);
     }

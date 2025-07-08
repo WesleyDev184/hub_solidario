@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/info/presentation/pages/info_page.dart';
+import 'package:project_rotary/core/api/auth/auth_service.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
@@ -22,13 +23,6 @@ class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppBarCustomState extends State<AppBarCustom> {
-  // Dados mocados do usuário
-  final String _userName = "João Silva";
-  final String _userEmail = "joao.silva@rotary.org";
-  final String _userPhone = "(11) 99999-9999";
-  final String _bankName = "Banco Ortopédico Central";
-  final String _bankCity = "São Paulo - SP";
-
   Future<void> _handleLogout() async {
     // Mostra um dialog de confirmação
     final shouldLogout = await showDialog<bool>(
@@ -51,11 +45,30 @@ class _AppBarCustomState extends State<AppBarCustom> {
     );
 
     if (shouldLogout == true && mounted) {
-      // Simula logout e navega para a tela de login
-      Navigator.of(
-        context,
-        rootNavigator: true,
-      ).pushNamedAndRemoveUntil('/', (route) => false);
+      try {
+        // Obtém a instância do AuthController
+        final authController = AuthService.instance;
+        if (authController != null) {
+          // Realiza o logout
+          await authController.logout();
+        }
+
+        // Navega para a tela de login
+        if (mounted) {
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).pushNamedAndRemoveUntil('/signin', (route) => false);
+        }
+      } catch (e) {
+        // Em caso de erro, ainda assim navega para a tela de login
+        if (mounted) {
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).pushNamedAndRemoveUntil('/signin', (route) => false);
+        }
+      }
     }
   }
 
@@ -143,62 +156,95 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                     ),
                                   ),
 
-                                  // Seção de dados do usuário com dados mocados
-                                  Column(
-                                    children: [
-                                      ListTile(
-                                        leading: Icon(
-                                          LucideIcons.idCard,
-                                          color: CustomColors.textPrimary,
-                                        ),
-                                        title: Text(_userName),
-                                      ),
+                                  // Seção de dados do usuário com dados reais
+                                  Builder(
+                                    builder: (context) {
+                                      final authController =
+                                          AuthService.instance;
+                                      final user = authController?.currentUser;
 
-                                      Divider(),
-                                      ListTile(
-                                        leading: Icon(
-                                          LucideIcons.mail,
-                                          color: CustomColors.textPrimary,
-                                        ),
-                                        title: Text(_userEmail),
-                                      ),
+                                      return Column(
+                                        children: [
+                                          ListTile(
+                                            leading: Icon(
+                                              LucideIcons.idCard,
+                                              color: CustomColors.textPrimary,
+                                            ),
+                                            title: Text(
+                                              user?.name ??
+                                                  'Nome não disponível',
+                                            ),
+                                          ),
 
-                                      Divider(),
-                                      ListTile(
-                                        leading: Icon(
-                                          LucideIcons.phone,
-                                          color: CustomColors.textPrimary,
-                                        ),
-                                        title: Text(_userPhone),
-                                      ),
-                                    ],
+                                          Divider(),
+                                          ListTile(
+                                            leading: Icon(
+                                              LucideIcons.mail,
+                                              color: CustomColors.textPrimary,
+                                            ),
+                                            title: Text(
+                                              user?.email ??
+                                                  'Email não disponível',
+                                            ),
+                                          ),
+
+                                          Divider(),
+                                          ListTile(
+                                            leading: Icon(
+                                              LucideIcons.phone,
+                                              color: CustomColors.textPrimary,
+                                            ),
+                                            title: Text(
+                                              user?.phoneNumber ??
+                                                  'Telefone não disponível',
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
 
                                   Spacer(),
 
-                                  // Seção do banco ortopédico com dados mocados
-                                  Card(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: ListTile(
-                                      leading: Icon(
-                                        LucideIcons.building2,
-                                        color: CustomColors.primary,
-                                      ),
-                                      title: Text(
-                                        _bankName,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                  // Seção do banco ortopédico com dados reais
+                                  Builder(
+                                    builder: (context) {
+                                      final authController =
+                                          AuthService.instance;
+                                      final user = authController?.currentUser;
+                                      final orthopedicBank =
+                                          user?.orthopedicBank;
+
+                                      return Card(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
                                         ),
-                                      ),
-                                      subtitle: Text(_bankCity),
-                                    ),
+                                        elevation: 4,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: ListTile(
+                                          leading: Icon(
+                                            LucideIcons.building2,
+                                            color: CustomColors.primary,
+                                          ),
+                                          title: Text(
+                                            orthopedicBank?.name ??
+                                                'Banco não disponível',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            orthopedicBank?.city ??
+                                                'Cidade não disponível',
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
 
                                   const SizedBox(height: 16),
