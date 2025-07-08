@@ -1,3 +1,5 @@
+import 'package:project_rotary/core/api/orthopedic_banks/models/orthopedic_banks_models.dart';
+
 /// Modelo para requisição de login
 class LoginRequest {
   final String email;
@@ -40,39 +42,6 @@ class AccessTokenResponse {
     'accessToken': accessToken,
     'expiresIn': expiresIn,
     'refreshToken': refreshToken,
-  };
-}
-
-/// Modelo para banco ortopédico
-class OrthopedicBank {
-  final String id;
-  final String name;
-  final String city;
-  final List<dynamic>? stocks;
-  final DateTime createdAt;
-
-  const OrthopedicBank({
-    required this.id,
-    required this.name,
-    required this.city,
-    this.stocks,
-    required this.createdAt,
-  });
-
-  factory OrthopedicBank.fromJson(Map<String, dynamic> json) => OrthopedicBank(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    city: json['city'] as String,
-    stocks: json['stocks'] as List<dynamic>?,
-    createdAt: DateTime.parse(json['createdAt'] as String),
-  );
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'city': city,
-    'stocks': stocks,
-    'createdAt': createdAt.toIso8601String(),
   };
 }
 

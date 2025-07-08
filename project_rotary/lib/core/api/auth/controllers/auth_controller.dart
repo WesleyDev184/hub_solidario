@@ -309,11 +309,6 @@ class AuthController extends ChangeNotifier {
     return await _repository.getUsersByOrthopedicBank(bankId);
   }
 
-  /// Obtém todos os bancos ortopédicos
-  AsyncResult<List<OrthopedicBank>> getOrthopedicBanks() async {
-    return await _repository.getOrthopedicBanks();
-  }
-
   /// Deleta usuário
   AsyncResult<bool> deleteUser(String id) async {
     return await _repository.deleteUser(id);

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/api_client.dart';
 import 'package:project_rotary/core/api/auth/auth_service.dart';
 import 'package:project_rotary/core/api/auth/models/auth_models.dart';
+import 'package:project_rotary/core/api/orthopedic_banks/orthopedic_banks_service.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/password_field.dart';
 import 'package:project_rotary/core/components/select_field.dart';
@@ -88,8 +90,22 @@ class _SignUpFormState extends State<SignUpForm> {
       return 'Senhas não coincidem';
     }
     return null;
-  } // Método para carregar bancos ortopédicos
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController();
+    phoneController = TextEditingController();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    confirmPasswordController = TextEditingController();
+
+    // Carrega os bancos ortopédicos ao iniciar o formulário
+    _loadOrthopedicBanks();
+  }
+
+  // Método para carregar bancos ortopédicos
   Future<void> _loadOrthopedicBanks() async {
     if (isLoadingBanks) return;
 
@@ -98,10 +114,27 @@ class _SignUpFormState extends State<SignUpForm> {
     });
 
     try {
-      final authController = AuthService.instance;
-      if (authController != null) {
+      // Verifica se o serviço está inicializado
+      if (!OrthopedicBanksService.isInitialized) {
+        // Se não estiver inicializado, tenta inicializar
+        try {
+          // Cria um ApiClient para o serviço
+          final apiClient = ApiClient();
+          await OrthopedicBanksService.initialize(apiClient: apiClient);
+        } catch (e) {
+          // Se falhar na inicialização, usa dados padrão
+          setState(() {
+            _setDefaultBanks();
+            isLoadingBanks = false;
+          });
+          return;
+        }
+      }
+
+      final orthopedicBanksController = OrthopedicBanksService.instance;
+      if (orthopedicBanksController != null) {
         // Buscar bancos ortopédicos da API
-        final result = await authController.getOrthopedicBanks();
+        final result = await orthopedicBanksController.loadOrthopedicBanks();
 
         result.fold(
           (banks) {
@@ -118,104 +151,49 @@ class _SignUpFormState extends State<SignUpForm> {
           },
           (error) {
             setState(() {
-              // Em caso de erro, usar dados padrão
-              orthopedicBankItems = [
-                const DropdownMenuItem<String>(
-                  value: '1',
-                  child: Text('Banco Ortopédico Central - São Paulo'),
-                ),
-                const DropdownMenuItem<String>(
-                  value: '2',
-                  child: Text('Instituto de Ortopedia - Rio de Janeiro'),
-                ),
-                const DropdownMenuItem<String>(
-                  value: '3',
-                  child: Text(
-                    'Centro Ortopédico Belo Horizonte - Belo Horizonte',
-                  ),
-                ),
-                const DropdownMenuItem<String>(
-                  value: '4',
-                  child: Text('Clínica Ortopédica Norte - Brasília'),
-                ),
-                const DropdownMenuItem<String>(
-                  value: '5',
-                  child: Text('Hospital Ortopédico Sul - Porto Alegre'),
-                ),
-              ];
+              _setDefaultBanks();
               isLoadingBanks = false;
             });
           },
         );
       } else {
         setState(() {
-          // Sem AuthController, usar dados padrão
-          orthopedicBankItems = [
-            const DropdownMenuItem<String>(
-              value: '1',
-              child: Text('Banco Ortopédico Central - São Paulo'),
-            ),
-            const DropdownMenuItem<String>(
-              value: '2',
-              child: Text('Instituto de Ortopedia - Rio de Janeiro'),
-            ),
-            const DropdownMenuItem<String>(
-              value: '3',
-              child: Text('Centro Ortopédico Belo Horizonte - Belo Horizonte'),
-            ),
-            const DropdownMenuItem<String>(
-              value: '4',
-              child: Text('Clínica Ortopédica Norte - Brasília'),
-            ),
-            const DropdownMenuItem<String>(
-              value: '5',
-              child: Text('Hospital Ortopédico Sul - Porto Alegre'),
-            ),
-          ];
+          _setDefaultBanks();
           isLoadingBanks = false;
         });
       }
     } catch (e) {
       setState(() {
-        // Em caso de erro, usar dados padrão
-        orthopedicBankItems = [
-          const DropdownMenuItem<String>(
-            value: '1',
-            child: Text('Banco Ortopédico Central - São Paulo'),
-          ),
-          const DropdownMenuItem<String>(
-            value: '2',
-            child: Text('Instituto de Ortopedia - Rio de Janeiro'),
-          ),
-          const DropdownMenuItem<String>(
-            value: '3',
-            child: Text('Centro Ortopédico Belo Horizonte - Belo Horizonte'),
-          ),
-          const DropdownMenuItem<String>(
-            value: '4',
-            child: Text('Clínica Ortopédica Norte - Brasília'),
-          ),
-          const DropdownMenuItem<String>(
-            value: '5',
-            child: Text('Hospital Ortopédico Sul - Porto Alegre'),
-          ),
-        ];
+        _setDefaultBanks();
         isLoadingBanks = false;
       });
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    nameController = TextEditingController();
-    phoneController = TextEditingController();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-    confirmPasswordController = TextEditingController();
-
-    // Carrega os bancos ortopédicos ao iniciar o formulário
-    _loadOrthopedicBanks();
+  // Método para definir bancos padrão
+  void _setDefaultBanks() {
+    orthopedicBankItems = [
+      const DropdownMenuItem<String>(
+        value: '1',
+        child: Text('Banco Ortopédico Central - São Paulo'),
+      ),
+      const DropdownMenuItem<String>(
+        value: '2',
+        child: Text('Instituto de Ortopedia - Rio de Janeiro'),
+      ),
+      const DropdownMenuItem<String>(
+        value: '3',
+        child: Text('Centro Ortopédico Belo Horizonte - Belo Horizonte'),
+      ),
+      const DropdownMenuItem<String>(
+        value: '4',
+        child: Text('Clínica Ortopédica Norte - Brasília'),
+      ),
+      const DropdownMenuItem<String>(
+        value: '5',
+        child: Text('Hospital Ortopédico Sul - Porto Alegre'),
+      ),
+    ];
   }
 
   @override
