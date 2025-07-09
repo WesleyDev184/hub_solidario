@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicants/pages/delete_beneficiary_page.dart';
-import 'package:project_rotary/app/pdt/applicants/pages/edit_beneficiary_page.dart';
-import 'package:project_rotary/app/pdt/applicants/widgets/action_menu_beneficiary.dart';
+import 'package:project_rotary/app/pdt/dependents/pages/delete_dependent_page.dart';
+import 'package:project_rotary/app/pdt/dependents/pages/edit_dependent_page.dart';
+import 'package:project_rotary/app/pdt/dependents/widgets/action_menu_dependent.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/avatar.dart';
 import 'package:project_rotary/core/components/info_row.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
-class BeneficiaryPage extends StatelessWidget {
-  final String beneficiaryId;
+class DependentPage extends StatelessWidget {
+  final String dependentId;
   final String name;
   final String? imageUrl;
   final String cpf;
@@ -18,9 +18,9 @@ class BeneficiaryPage extends StatelessWidget {
   final String? address;
   final String applicantName;
 
-  const BeneficiaryPage({
+  const DependentPage({
     super.key,
-    required this.beneficiaryId,
+    required this.dependentId,
     required this.name,
     this.imageUrl,
     required this.cpf,
@@ -35,13 +35,13 @@ class BeneficiaryPage extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return ActionMenuBeneficiary(
+        return ActionMenuDependent(
           onEditPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
-                    (context) => EditBeneficiaryPage(
-                      dependentId: beneficiaryId,
+                    (context) => EditDependentPage(
+                      dependentId: dependentId,
                       currentName: name,
                       currentCpf: cpf,
                       currentEmail: email,
@@ -56,8 +56,8 @@ class BeneficiaryPage extends StatelessWidget {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
-                    (context) => DeleteBeneficiaryPage(
-                      dependentId: beneficiaryId,
+                    (context) => DeleteDependentPage(
+                      dependentId: dependentId,
                       dependentName: name,
                       dependentCpf: cpf,
                       dependentEmail: email,
@@ -85,7 +85,6 @@ class BeneficiaryPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Avatar(imageUrl: imageUrl, size: 150),
-
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +120,7 @@ class BeneficiaryPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            InfoRow(icon: LucideIcons.house, label: 'Residencia de $name'),
+            InfoRow(icon: LucideIcons.house, label: 'Residência de $name'),
             Padding(
               padding: const EdgeInsets.only(left: 36),
               child: Column(
@@ -140,7 +139,7 @@ class BeneficiaryPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        heroTag: "beneficiary_detail_fab",
+        heroTag: "dependent_detail_fab",
         onPressed: () => _showActionsMenu(context),
         backgroundColor: CustomColors.primary,
         child: const Icon(LucideIcons.menu, color: CustomColors.white),

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/applicants/pages/beneficiary_page.dart';
-import 'package:project_rotary/app/pdt/applicants/pages/create_beneficiary_page.dart';
 import 'package:project_rotary/app/pdt/applicants/pages/delete_applicant_page.dart';
-import 'package:project_rotary/app/pdt/applicants/pages/delete_beneficiary_page.dart';
 import 'package:project_rotary/app/pdt/applicants/pages/edit_applicant_page.dart';
-import 'package:project_rotary/app/pdt/applicants/pages/edit_beneficiary_page.dart';
 import 'package:project_rotary/app/pdt/applicants/widgets/action_menu_applicant.dart';
-import 'package:project_rotary/app/pdt/applicants/widgets/beneficiary_card.dart';
+import 'package:project_rotary/app/pdt/dependents/pages/create_dependent_page.dart';
+import 'package:project_rotary/app/pdt/dependents/pages/delete_dependent_page.dart';
+import 'package:project_rotary/app/pdt/dependents/pages/dependent_page.dart';
+import 'package:project_rotary/app/pdt/dependents/pages/edit_dependent_page.dart';
+import 'package:project_rotary/app/pdt/dependents/widgets/dependent_card.dart';
 import 'package:project_rotary/core/api/applicants/applicants_service.dart';
 import 'package:project_rotary/core/api/applicants/models/applicants_models.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
@@ -78,7 +78,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
             final result = await Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
-                    (context) => CreateBeneficiaryPage(
+                    (context) => CreateDependentPage(
                       applicantId: widget.applicantId,
                       applicantName: applicant?.name ?? 'Solicitante',
                     ),
@@ -342,8 +342,8 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                 final result = await Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder:
-                                        (_) => BeneficiaryPage(
-                                          beneficiaryId: dependent.id,
+                                        (_) => DependentPage(
+                                          dependentId: dependent.id,
                                           name: dependent.name ?? '',
                                           imageUrl: 'assets/images/dog.jpg',
                                           cpf: dependent.cpf ?? '',
@@ -356,22 +356,20 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                   ),
                                 );
                                 if (result == true) {
-                                  _loadApplicantData(forceRefresh: true);
-                                  // Força refresh do cache para atualizar a listagem
+                                  _loadApplicantData();
                                 }
                               },
-                              child: BeneficiaryCard(
-                                id: dependent.id,
+                              child: DependentCard(
+                                dependent: dependent,
                                 imageUrl: 'assets/images/dog.jpg',
-                                name: dependent.name ?? 'Nome não informado',
-                                cpf: dependent.cpf ?? 'CPF não informado',
+                                applicantName: applicant?.name ?? 'Solicitante',
                                 onEdit: () async {
                                   final result = await Navigator.of(
                                     context,
                                   ).push(
                                     MaterialPageRoute(
                                       builder:
-                                          (context) => EditBeneficiaryPage(
+                                          (context) => EditDependentPage(
                                             dependentId: dependent.id,
                                             currentName: dependent.name ?? '',
                                             currentCpf: dependent.cpf ?? '',
@@ -386,8 +384,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                     ),
                                   );
                                   if (result == true) {
-                                    _loadApplicantData(forceRefresh: true);
-                                    // Força refresh do cache para atualizar a listagem
+                                    _loadApplicantData();
                                   }
                                 },
                                 onDelete: () async {
@@ -396,7 +393,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                   ).push(
                                     MaterialPageRoute(
                                       builder:
-                                          (context) => DeleteBeneficiaryPage(
+                                          (context) => DeleteDependentPage(
                                             dependentId: dependent.id,
                                             dependentName: dependent.name ?? '',
                                             dependentCpf: dependent.cpf ?? '',
@@ -409,7 +406,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                     ),
                                   );
                                   if (result == true) {
-                                    _loadApplicantData(forceRefresh: true);
+                                    _loadApplicantData();
                                     // Força refresh do cache para atualizar a listagem
                                   }
                                 },

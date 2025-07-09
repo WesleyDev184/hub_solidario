@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
-class ActionMenuBeneficiary extends StatelessWidget {
+class ActionMenuDependent extends StatelessWidget {
   final VoidCallback? onEditPressed;
   final VoidCallback? onDeletePressed;
   final String title;
 
-  const ActionMenuBeneficiary({
+  const ActionMenuDependent({
     super.key,
     this.onEditPressed,
     this.onDeletePressed,
@@ -48,8 +48,8 @@ class ActionMenuBeneficiary extends StatelessWidget {
           _buildActionItem(
             context,
             icon: LucideIcons.pen,
-            title: 'Editar beneficiário',
-            subtitle: "Edite os dados do beneficiário",
+            title: 'Editar dependente',
+            subtitle: "Edite os dados do dependente",
             color: CustomColors.warning,
             onTap: () {
               Navigator.pop(context);
@@ -59,8 +59,8 @@ class ActionMenuBeneficiary extends StatelessWidget {
           _buildActionItem(
             context,
             icon: LucideIcons.trash,
-            title: 'Deletar beneficiário',
-            subtitle: "Delete o beneficiário permanentemente",
+            title: 'Deletar dependente',
+            subtitle: "Delete o dependente permanentemente",
             color: CustomColors.error,
             onTap: () {
               Navigator.pop(context);
