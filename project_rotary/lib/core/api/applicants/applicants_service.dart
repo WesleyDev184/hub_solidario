@@ -365,18 +365,6 @@ class ApplicantsService {
     return _instance!.clearData();
   }
 
-  /// Força atualização do cache de applicants
-  static AsyncResult<List<Applicant>> refreshApplicants() async {
-    await ensureInitialized();
-    return _instance!.refreshApplicants();
-  }
-
-  /// Força atualização do cache de dependents
-  static AsyncResult<List<Dependent>> refreshDependents() async {
-    await ensureInitialized();
-    return _instance!.refreshDependents();
-  }
-
   // === GETTERS DE ESTADO ===
 
   /// Lista atual de applicants

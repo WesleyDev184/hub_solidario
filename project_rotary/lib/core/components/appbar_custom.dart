@@ -94,7 +94,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                     ? IconButton(
                       icon: Icon(LucideIcons.arrowLeft, color: _primaryColor),
                       onPressed: () {
-                        Navigator.of(context).maybePop();
+                        Navigator.of(context).pop(true);
                       },
                     )
                     : IconButton(
@@ -102,7 +102,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                       onPressed: () {
                         Navigator.of(
                           context,
-                        ).push(MaterialPageRoute(builder: (_) => InfoPage()));
+                        ).push(MaterialPageRoute(builder: (_) => InfoPage()));  
                       },
                       color: _primaryColor,
                     ),

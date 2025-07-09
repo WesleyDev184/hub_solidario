@@ -24,6 +24,13 @@ class Applicant {
     this.dependents,
   });
 
+  /// insere os dependentes na lista de dependentes
+  void addDependents(List<Dependent>? dependent) {
+    if (dependent == null) return;
+
+    dependents!.addAll(dependent);
+  }
+
   /// Cria instância a partir de JSON
   factory Applicant.fromJson(Map<String, dynamic> json) {
     return Applicant(

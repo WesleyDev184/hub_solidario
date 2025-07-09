@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/applicants/pages/applicants_page.dart';
 import 'package:project_rotary/core/api/applicants/applicants_service.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -100,7 +101,10 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
               backgroundColor: CustomColors.success,
             ),
           );
-          Navigator.pop(context, true);
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const ApplicantsPage()),
+            (route) => false,
+          );
         },
         (failure) {
           ScaffoldMessenger.of(context).showSnackBar(

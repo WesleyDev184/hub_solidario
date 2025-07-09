@@ -10,7 +10,9 @@ import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class CategoriesPage extends StatefulWidget {
-  const CategoriesPage({super.key});
+  final Function(VoidCallback)? onRefreshCallback;
+
+  const CategoriesPage({super.key, this.onRefreshCallback});
 
   @override
   State<CategoriesPage> createState() => _CategoriesPageState();
@@ -72,6 +74,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
   void initState() {
     super.initState();
     searchController.addListener(filterCategories);
+    _loadCategories();
+
+    // Registra o callback para recarregar a página
+    widget.onRefreshCallback?.call(_refreshPage);
+  }
+
+  void _refreshPage() {
     _loadCategories();
   }
 

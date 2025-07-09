@@ -53,16 +53,6 @@ class _ApplicantPageState extends State<ApplicantPage> {
         // Use os dependentes que já vêm com o applicant
         final applicantDependents = loadedApplicant.dependents ?? [];
 
-        // Debug: Verificar se os dependentes estão sendo carregados
-        print(
-          'DEBUG: Applicant ${loadedApplicant.id} loaded with ${applicantDependents.length} dependents',
-        );
-        for (final dep in applicantDependents) {
-          print(
-            'DEBUG: Dependent ${dep.id} - ${dep.name} - applicantId: ${dep.applicantId}',
-          );
-        }
-
         setState(() {
           applicant = loadedApplicant;
           dependents = applicantDependents;
@@ -96,8 +86,6 @@ class _ApplicantPageState extends State<ApplicantPage> {
             );
             if (result == true) {
               _loadApplicantData(forceRefresh: true);
-              // Força refresh do cache para atualizar a listagem
-              await ApplicantsService.refreshApplicants();
             }
           },
           onEditPressed: () async {
@@ -116,21 +104,15 @@ class _ApplicantPageState extends State<ApplicantPage> {
               ),
             );
             if (result is Applicant) {
-              // Atualiza dados localmente na ApplicantPage
               setState(() {
                 applicant = result;
               });
-              // Força refresh do cache para atualizar a listagem
-              await ApplicantsService.refreshApplicants();
             } else if (result == true) {
               _loadApplicantData(forceRefresh: true);
-              // Força refresh do cache para atualizar a listagem
-              await ApplicantsService.refreshApplicants();
             }
           },
           onDeletePressed: () async {
-            // Depois navega para a página de delete
-            final result = await Navigator.of(context).push(
+            await Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
                     (context) => DeleteApplicantPage(
@@ -141,14 +123,6 @@ class _ApplicantPageState extends State<ApplicantPage> {
                     ),
               ),
             );
-
-            // Se o delete foi bem-sucedido
-            if (result == true && context.mounted) {
-              // Força refresh do cache para atualizar a listagem
-              await ApplicantsService.refreshApplicants();
-              // Volta para a listagem
-              Navigator.of(context).pop(true);
-            }
           },
         );
       },
@@ -384,7 +358,6 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                 if (result == true) {
                                   _loadApplicantData(forceRefresh: true);
                                   // Força refresh do cache para atualizar a listagem
-                                  await ApplicantsService.refreshApplicants();
                                 }
                               },
                               child: BeneficiaryCard(
@@ -415,7 +388,6 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                   if (result == true) {
                                     _loadApplicantData(forceRefresh: true);
                                     // Força refresh do cache para atualizar a listagem
-                                    await ApplicantsService.refreshApplicants();
                                   }
                                 },
                                 onDelete: () async {
@@ -439,7 +411,6 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                   if (result == true) {
                                     _loadApplicantData(forceRefresh: true);
                                     // Força refresh do cache para atualizar a listagem
-                                    await ApplicantsService.refreshApplicants();
                                   }
                                 },
                               ),

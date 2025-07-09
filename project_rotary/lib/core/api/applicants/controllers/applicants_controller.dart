@@ -107,14 +107,6 @@ class ApplicantsController {
         if (cachedApplicant != null) {
           return Success(cachedApplicant);
         }
-
-        // Verifica na lista local
-        try {
-          final applicant = _applicants.firstWhere((a) => a.id == applicantId);
-          return Success(applicant);
-        } catch (e) {
-          // Continua para buscar na API
-        }
       }
 
       // Busca da API
@@ -545,15 +537,5 @@ class ApplicantsController {
     _error = null;
     _isLoading = false;
     await _cacheService.clearCache();
-  }
-
-  /// Força atualização dos dados
-  AsyncResult<List<Applicant>> refreshApplicants() async {
-    return loadApplicants(forceRefresh: true);
-  }
-
-  /// Força atualização dos dependents
-  AsyncResult<List<Dependent>> refreshDependents() async {
-    return loadDependents(forceRefresh: true);
   }
 }

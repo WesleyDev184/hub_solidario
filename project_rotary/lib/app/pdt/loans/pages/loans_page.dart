@@ -6,7 +6,9 @@ import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 
 class LoansPage extends StatefulWidget {
-  const LoansPage({super.key});
+  final Function(VoidCallback)? onRefreshCallback;
+
+  const LoansPage({super.key, this.onRefreshCallback});
 
   @override
   State<LoansPage> createState() => _LoansPageState();
@@ -56,6 +58,15 @@ class _LoansPageState extends State<LoansPage> {
     super.initState();
     searchController.addListener(filterLoans);
     filteredLoans = List.from(_mockLoans);
+
+    // Registra o callback para recarregar a página
+    widget.onRefreshCallback?.call(_refreshPage);
+  }
+
+  void _refreshPage() {
+    setState(() {
+      filteredLoans = List.from(_mockLoans);
+    });
   }
 
   void filterLoans() {

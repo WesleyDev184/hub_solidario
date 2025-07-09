@@ -77,16 +77,6 @@ class ApplicantsCacheService {
     final key = '$_applicantCachePrefix${applicant.id}';
     final json = applicant.toJson();
 
-    // Debug: Verificar se os dependentes estão no JSON
-    print(
-      'DEBUG: Caching applicant ${applicant.id} with ${applicant.dependents?.length ?? 0} dependents',
-    );
-    if (applicant.dependents != null) {
-      for (final dep in applicant.dependents!) {
-        print('DEBUG: Caching dependent ${dep.id} - ${dep.name}');
-      }
-    }
-
     await _prefs?.setString(key, jsonEncode(json));
     await _saveTimestamp(key);
   }
@@ -110,16 +100,6 @@ class ApplicantsCacheService {
     try {
       final applicantJson = jsonDecode(applicantStr) as Map<String, dynamic>;
       final applicant = Applicant.fromJson(applicantJson);
-
-      // Debug: Verificar se os dependentes estão sendo recuperados
-      print(
-        'DEBUG: Retrieved applicant ${applicant.id} from cache with ${applicant.dependents?.length ?? 0} dependents',
-      );
-      if (applicant.dependents != null) {
-        for (final dep in applicant.dependents!) {
-          print('DEBUG: Retrieved dependent ${dep.id} - ${dep.name}');
-        }
-      }
 
       return applicant;
     } catch (e) {
@@ -145,10 +125,24 @@ class ApplicantsCacheService {
 
   /// Atualiza um applicant no cache
   Future<void> updateCachedApplicant(Applicant applicant) async {
+    final cachedApplicant = await getCachedApplicant(applicant.id);
+
+    if (cachedApplicant != null && cachedApplicant.dependents != null) {
+      applicant.addDependents(cachedApplicant.dependents);
+    }
+
+    // Atualiza o cache do applicant
     await cacheApplicant(applicant);
 
-    // Invalida cache geral para forçar refresh
-    await _prefs?.remove('${_applicantsCacheKey}_timestamp');
+    // atualiza o cache da lista geral de applicants
+    final cachedApplicants = await getCachedApplicants();
+    if (cachedApplicants != null) {
+      final updatedApplicants =
+          cachedApplicants.map((cached) {
+            return cached.id == applicant.id ? applicant : cached;
+          }).toList();
+      await cacheApplicants(updatedApplicants);
+    }
   }
 
   // === CACHE DE DEPENDENTS ===

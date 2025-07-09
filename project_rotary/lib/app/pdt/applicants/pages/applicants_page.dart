@@ -12,7 +12,9 @@ import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 
 class ApplicantsPage extends StatefulWidget {
-  const ApplicantsPage({super.key});
+  final Function(VoidCallback)? onRefreshCallback;
+
+  const ApplicantsPage({super.key, this.onRefreshCallback});
 
   @override
   State<ApplicantsPage> createState() => _ApplicantsPageState();
@@ -29,6 +31,13 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
   void initState() {
     super.initState();
     searchController.addListener(filterApplicants);
+    _loadApplicants();
+
+    // Registra o callback para recarregar a página
+    widget.onRefreshCallback?.call(_refreshPage);
+  }
+
+  void _refreshPage() {
     _loadApplicants();
   }
 
@@ -90,6 +99,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
     setState(() {
       // Atualiza na lista principal
       final index = applicants.indexWhere((a) => a.id == updatedApplicant.id);
+
       if (index != -1) {
         applicants[index] = updatedApplicant;
       }
@@ -101,13 +111,6 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
       if (filteredIndex != -1) {
         filteredApplicants[filteredIndex] = updatedApplicant;
       }
-    });
-  }
-
-  void _removeApplicantFromList(String applicantId) {
-    setState(() {
-      applicants.removeWhere((a) => a.id == applicantId);
-      filteredApplicants.removeWhere((a) => a.id == applicantId);
     });
   }
 
@@ -227,7 +230,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                     );
                     // Recarrega com dados do cache atualizado (que foi renovado pelo service)
                     if (result == true) {
-                      _loadApplicants(forceRefresh: true);
+                      _loadApplicants();
                     }
                   },
                   child: Padding(
@@ -263,7 +266,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                         }
                       },
                       onDelete: () async {
-                        final result = await Navigator.of(context).push(
+                        await Navigator.of(context).push(
                           MaterialPageRoute(
                             builder:
                                 (context) => DeleteApplicantPage(
@@ -274,10 +277,6 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                                 ),
                           ),
                         );
-                        if (result == true) {
-                          // Remove o applicant da lista local
-                          _removeApplicantFromList(applicant.id);
-                        }
                       },
                     ),
                   ),
