@@ -64,6 +64,17 @@ class ApplicantsRepository {
             final applicant = Applicant.fromJson(
               data['data'] as Map<String, dynamic>,
             );
+
+            // Debug: Verificar se os dependentes estão vindo da API
+            print(
+              'DEBUG: API returned applicant ${applicant.id} with ${applicant.dependents?.length ?? 0} dependents',
+            );
+            if (applicant.dependents != null) {
+              for (final dep in applicant.dependents!) {
+                print('DEBUG: API dependent ${dep.id} - ${dep.name}');
+              }
+            }
+
             return Success(applicant);
           } else {
             return Failure(

@@ -222,16 +222,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                     final result = await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder:
-                            (_) => ApplicantPage(
-                              applicantId: applicant.id,
-                              name: applicant.name ?? '',
-                              imageUrl: 'assets/images/dog.jpg',
-                              cpf: applicant.cpf ?? '',
-                              phone: applicant.phoneNumber ?? '',
-                              email: applicant.email ?? '',
-                              address: applicant.address,
-                              beneficiaryStatus: applicant.isBeneficiary,
-                            ),
+                            (_) => ApplicantPage(applicantId: applicant.id),
                       ),
                     );
                     // Recarrega com dados do cache atualizado (que foi renovado pelo service)

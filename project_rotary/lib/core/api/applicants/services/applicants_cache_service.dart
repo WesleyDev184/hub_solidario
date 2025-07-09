@@ -75,7 +75,19 @@ class ApplicantsCacheService {
     await initialize();
 
     final key = '$_applicantCachePrefix${applicant.id}';
-    await _prefs?.setString(key, jsonEncode(applicant.toJson()));
+    final json = applicant.toJson();
+
+    // Debug: Verificar se os dependentes estão no JSON
+    print(
+      'DEBUG: Caching applicant ${applicant.id} with ${applicant.dependents?.length ?? 0} dependents',
+    );
+    if (applicant.dependents != null) {
+      for (final dep in applicant.dependents!) {
+        print('DEBUG: Caching dependent ${dep.id} - ${dep.name}');
+      }
+    }
+
+    await _prefs?.setString(key, jsonEncode(json));
     await _saveTimestamp(key);
   }
 
@@ -84,15 +96,34 @@ class ApplicantsCacheService {
     await initialize();
 
     final key = '$_applicantCachePrefix$applicantId';
-    if (!_isCacheValid(key)) return null;
+    if (!_isCacheValid(key)) {
+      print('DEBUG: Cache not valid for applicant $applicantId');
+      return null;
+    }
 
     final applicantStr = _prefs?.getString(key);
-    if (applicantStr == null) return null;
+    if (applicantStr == null) {
+      print('DEBUG: No cached data for applicant $applicantId');
+      return null;
+    }
 
     try {
       final applicantJson = jsonDecode(applicantStr) as Map<String, dynamic>;
-      return Applicant.fromJson(applicantJson);
+      final applicant = Applicant.fromJson(applicantJson);
+
+      // Debug: Verificar se os dependentes estão sendo recuperados
+      print(
+        'DEBUG: Retrieved applicant ${applicant.id} from cache with ${applicant.dependents?.length ?? 0} dependents',
+      );
+      if (applicant.dependents != null) {
+        for (final dep in applicant.dependents!) {
+          print('DEBUG: Retrieved dependent ${dep.id} - ${dep.name}');
+        }
+      }
+
+      return applicant;
     } catch (e) {
+      print('DEBUG: Error parsing cached applicant $applicantId: $e');
       return null;
     }
   }

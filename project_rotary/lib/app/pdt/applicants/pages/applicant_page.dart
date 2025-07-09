@@ -17,25 +17,8 @@ import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class ApplicantPage extends StatefulWidget {
   final String applicantId;
-  final String name;
-  final String? imageUrl;
-  final String cpf;
-  final String phone;
-  final String email;
-  final String? address;
-  final bool beneficiaryStatus;
 
-  const ApplicantPage({
-    super.key,
-    required this.applicantId,
-    required this.name,
-    this.imageUrl,
-    required this.cpf,
-    required this.phone,
-    required this.email,
-    this.address,
-    required this.beneficiaryStatus,
-  });
+  const ApplicantPage({super.key, required this.applicantId});
 
   @override
   State<ApplicantPage> createState() => _ApplicantPageState();
@@ -69,15 +52,20 @@ class _ApplicantPageState extends State<ApplicantPage> {
       (loadedApplicant) {
         // Use os dependentes que já vêm com o applicant
         final applicantDependents = loadedApplicant.dependents ?? [];
-        // Filter dependents to ensure we only show ones for this applicant
-        final filteredDependents =
-            applicantDependents
-                .where((dep) => dep.applicantId == widget.applicantId)
-                .toList();
+
+        // Debug: Verificar se os dependentes estão sendo carregados
+        print(
+          'DEBUG: Applicant ${loadedApplicant.id} loaded with ${applicantDependents.length} dependents',
+        );
+        for (final dep in applicantDependents) {
+          print(
+            'DEBUG: Dependent ${dep.id} - ${dep.name} - applicantId: ${dep.applicantId}',
+          );
+        }
 
         setState(() {
           applicant = loadedApplicant;
-          dependents = filteredDependents;
+          dependents = applicantDependents;
           isLoading = false;
         });
       },
@@ -102,7 +90,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                 builder:
                     (context) => CreateBeneficiaryPage(
                       applicantId: widget.applicantId,
-                      applicantName: widget.name,
+                      applicantName: applicant?.name ?? 'Solicitante',
                     ),
               ),
             );
@@ -118,12 +106,12 @@ class _ApplicantPageState extends State<ApplicantPage> {
                 builder:
                     (context) => EditApplicantPage(
                       applicantId: widget.applicantId,
-                      currentName: widget.name,
-                      currentCpf: widget.cpf,
-                      currentEmail: widget.email,
-                      currentPhoneNumber: widget.phone,
-                      currentAddress: widget.address,
-                      currentIsBeneficiary: widget.beneficiaryStatus,
+                      currentName: applicant?.name ?? '',
+                      currentCpf: applicant?.cpf ?? '',
+                      currentEmail: applicant?.email ?? '',
+                      currentPhoneNumber: applicant?.phoneNumber ?? '',
+                      currentAddress: applicant?.address,
+                      currentIsBeneficiary: applicant?.isBeneficiary ?? false,
                     ),
               ),
             );
@@ -147,9 +135,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
                 builder:
                     (context) => DeleteApplicantPage(
                       applicantId: widget.applicantId,
-                      applicantName: widget.name,
-                      applicantCpf: widget.cpf,
-                      applicantEmail: widget.email,
+                      applicantName: applicant?.name ?? 'Solicitante',
+                      applicantCpf: applicant?.cpf ?? '',
+                      applicantEmail: applicant?.email ?? '',
                     ),
               ),
             );
@@ -171,7 +159,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
-        appBar: AppBarCustom(title: widget.name),
+        appBar: AppBarCustom(title: 'Carregando...'),
         backgroundColor: Colors.transparent,
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -179,7 +167,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
 
     if (errorMessage != null) {
       return Scaffold(
-        appBar: AppBarCustom(title: widget.name),
+        appBar: AppBarCustom(title: 'Erro'),
         backgroundColor: Colors.transparent,
         body: Center(
           child: Column(
@@ -223,12 +211,12 @@ class _ApplicantPageState extends State<ApplicantPage> {
         applicant ??
         Applicant(
           id: widget.applicantId,
-          name: widget.name,
-          cpf: widget.cpf,
-          email: widget.email,
-          phoneNumber: widget.phone,
-          address: widget.address,
-          isBeneficiary: widget.beneficiaryStatus,
+          name: 'Nome não informado',
+          cpf: 'CPF não informado',
+          email: 'Email não informado',
+          phoneNumber: 'Telefone não informado',
+          address: null,
+          isBeneficiary: false,
           beneficiaryQtd: 0,
           createdAt: DateTime.now(),
         );
@@ -244,7 +232,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Avatar(imageUrl: widget.imageUrl, size: 150),
+                // TODO: Implementar a lógica de exibição da imagem do solicitante
+                // Exemplo de imagem estática
+                Avatar(imageUrl: 'assets/images/dog.jpg', size: 150),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -386,7 +376,8 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                           phone: dependent.phoneNumber ?? '',
                                           email: dependent.email ?? '',
                                           address: dependent.address,
-                                          applicantName: widget.name,
+                                          applicantName:
+                                              applicant?.name ?? 'Solicitante',
                                         ),
                                   ),
                                 );
@@ -415,7 +406,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                             currentPhoneNumber:
                                                 dependent.phoneNumber ?? '',
                                             currentAddress: dependent.address,
-                                            applicantName: widget.name,
+                                            applicantName:
+                                                applicant?.name ??
+                                                'Solicitante',
                                           ),
                                     ),
                                   );
@@ -437,7 +430,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                             dependentCpf: dependent.cpf ?? '',
                                             dependentEmail:
                                                 dependent.email ?? '',
-                                            applicantName: widget.name,
+                                            applicantName:
+                                                applicant?.name ??
+                                                'Solicitante',
                                           ),
                                     ),
                                   );
