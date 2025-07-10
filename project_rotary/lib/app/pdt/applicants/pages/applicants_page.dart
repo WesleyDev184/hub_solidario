@@ -133,7 +133,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
             MaterialPageRoute(builder: (_) => const CreateApplicantPage()),
           );
           if (result == true) {
-            _loadApplicants(forceRefresh: true);
+            _loadApplicants();
           }
         },
         child: const Icon(LucideIcons.plus),
@@ -260,7 +260,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                         if (result is Applicant) {
                           // Atualiza o applicant específico na lista
                           _updateApplicantInList(result);
-                        } else if (result == true) {
+                        } else {
                           // Fallback: recarrega toda a lista
                           _loadApplicants(forceRefresh: true);
                         }

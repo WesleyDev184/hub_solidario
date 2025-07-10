@@ -4,7 +4,6 @@ import 'package:project_rotary/core/api/applicants/applicants_service.dart';
 import 'package:project_rotary/core/api/applicants/models/applicants_models.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
-import 'package:project_rotary/core/components/text_area_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class CreateDependentPage extends StatefulWidget {
@@ -105,6 +104,7 @@ class _CreateDependentPageState extends State<CreateDependentPage> {
     if (value == null || value.trim().isEmpty) {
       return 'CPF é obrigatório';
     }
+    // Remover pontuação para validação
     final cpf = value.replaceAll(RegExp(r'[^\d]'), '');
     if (cpf.length != 11) {
       return 'CPF deve ter 11 dígitos';
@@ -116,7 +116,7 @@ class _CreateDependentPageState extends State<CreateDependentPage> {
     if (value == null || value.trim().isEmpty) {
       return 'Email é obrigatório';
     }
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value.trim())) {
       return 'Email inválido';
     }
@@ -128,8 +128,8 @@ class _CreateDependentPageState extends State<CreateDependentPage> {
       return 'Telefone é obrigatório';
     }
     final phone = value.replaceAll(RegExp(r'[^\d]'), '');
-    if (phone.length < 10) {
-      return 'Telefone deve ter pelo menos 10 dígitos';
+    if (phone.length < 10 || phone.length > 11) {
+      return 'Telefone deve ter 10 ou 11 dígitos';
     }
     return null;
   }
@@ -139,102 +139,197 @@ class _CreateDependentPageState extends State<CreateDependentPage> {
     return Scaffold(
       appBar: AppBarCustom(title: 'Criar Dependente'),
       backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Dependente de: ${widget.applicantName}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: CustomColors.textSecondary,
-                ),
-              ),
               const SizedBox(height: 24),
 
-              // Nome
-              InputField(
-                controller: _nameController,
-                hint: 'Nome Completo',
-                icon: LucideIcons.user,
-                validator: _validateName,
-              ),
-              const SizedBox(height: 16),
-
-              // CPF
-              InputField(
-                controller: _cpfController,
-                hint: 'CPF',
-                icon: LucideIcons.idCard,
-                validator: _validateCPF,
-              ),
-              const SizedBox(height: 16),
-
-              // Email
-              InputField(
-                controller: _emailController,
-                hint: 'Email',
-                icon: LucideIcons.mail,
-                validator: _validateEmail,
-              ),
-              const SizedBox(height: 16),
-
-              // Telefone
-              InputField(
-                controller: _phoneController,
-                hint: 'Telefone',
-                icon: LucideIcons.phone,
-                validator: _validatePhone,
-              ),
-              const SizedBox(height: 16),
-
-              // Endereço
-              TextAreaField(
-                controller: _addressController,
-                hint: 'Endereço',
-                icon: LucideIcons.mapPin,
-                maxLines: 3,
-              ),
-              const SizedBox(height: 32),
-
-              // Botão de criar
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _createDependent,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CustomColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child:
-                      _isLoading
-                          ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
-                          )
-                          : const Text(
-                            'Criar Dependente',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+              const Text(
+                'Criar Dependente',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                'Dependente de: ${widget.applicantName}',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              ),
+
+              const SizedBox(height: 32),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Nome
+                      const Text(
+                        'Nome',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _nameController,
+                        hint: 'Digite o nome completo',
+                        icon: LucideIcons.user,
+                        validator: _validateName,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // CPF
+                      const Text(
+                        'CPF',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _cpfController,
+                        hint: 'Digite o CPF',
+                        icon: LucideIcons.idCard,
+                        mask: InputMask.cpf,
+                        validator: _validateCPF,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Email
+                      const Text(
+                        'Email',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _emailController,
+                        hint: 'Digite o email',
+                        icon: LucideIcons.mail,
+                        validator: _validateEmail,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Telefone
+                      const Text(
+                        'Telefone',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _phoneController,
+                        hint: 'Digite o telefone',
+                        icon: LucideIcons.phone,
+                        mask: InputMask.phone,
+                        validator: _validatePhone,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Endereço
+                      const Text(
+                        'Endereço',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InputField(
+                        controller: _addressController,
+                        hint: 'Digite o endereço (opcional)',
+                        icon: LucideIcons.mapPin,
+                      ),
+
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+              ),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          _isLoading ? null : () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(color: Colors.grey[400]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _createDependent,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: CustomColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child:
+                          _isLoading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                              : const Text(
+                                'Criar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
             ],
           ),
         ),

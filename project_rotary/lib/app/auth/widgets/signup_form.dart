@@ -312,6 +312,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   controller: phoneController,
                   hint: "Digite seu telefone",
                   icon: LucideIcons.phone,
+                  mask: InputMask.phone,
                   validator: _validatePhone,
                 ),
 

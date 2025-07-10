@@ -93,7 +93,7 @@ class ApplicantsRepository {
   }
 
   /// Cria um novo applicant
-  AsyncResult<String> createApplicant(CreateApplicantRequest request) async {
+  AsyncResult<Applicant> createApplicant(CreateApplicantRequest request) async {
     try {
       final result = await _apiClient.post(
         '/applicants',
@@ -105,9 +105,10 @@ class ApplicantsRepository {
         try {
           if (data['success'] == true && data['data'] != null) {
             // A API retorna o objeto completo do applicant, extrair o ID
-            final applicantData = data['data'] as Map<String, dynamic>;
-            final applicantId = applicantData['id'] as String;
-            return Success(applicantId);
+            final applicantData = Applicant.fromJson(
+              data['data'] as Map<String, dynamic>,
+            );
+            return Success(applicantData);
           } else {
             return Failure(
               Exception(data['message'] ?? 'Erro ao criar candidato'),
@@ -267,7 +268,7 @@ class ApplicantsRepository {
   }
 
   /// Cria um novo dependent
-  AsyncResult<String> createDependent(CreateDependentRequest request) async {
+  AsyncResult<Dependent> createDependent(CreateDependentRequest request) async {
     try {
       final result = await _apiClient.post(
         '/dependents',
@@ -278,8 +279,10 @@ class ApplicantsRepository {
       return result.fold((data) {
         try {
           if (data['success'] == true && data['data'] != null) {
-            final dependentData = data['data'] as Map<String, dynamic>;
-            return Success(dependentData['id'] as String);
+            final dependentData = Dependent.fromJson(
+              data['data'] as Map<String, dynamic>,
+            );
+            return Success(dependentData);
           } else {
             return Failure(
               Exception(data['message'] ?? 'Erro ao criar dependente'),

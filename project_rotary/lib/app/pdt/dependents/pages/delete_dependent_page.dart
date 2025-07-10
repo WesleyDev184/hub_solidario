@@ -9,6 +9,7 @@ class DeleteDependentPage extends StatefulWidget {
   final String dependentCpf;
   final String dependentEmail;
   final String applicantName;
+  final String applicantId;
 
   const DeleteDependentPage({
     super.key,
@@ -17,6 +18,7 @@ class DeleteDependentPage extends StatefulWidget {
     required this.dependentCpf,
     required this.dependentEmail,
     required this.applicantName,
+    required this.applicantId,
   });
 
   @override
@@ -31,7 +33,10 @@ class _DeleteDependentPageState extends State<DeleteDependentPage> {
       _isLoading = true;
     });
 
-    final result = await ApplicantsService.deleteDependent(widget.dependentId);
+    final result = await ApplicantsService.deleteDependent(
+      widget.dependentId,
+      widget.applicantId,
+    );
 
     if (mounted) {
       setState(() {

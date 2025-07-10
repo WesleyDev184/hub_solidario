@@ -190,6 +190,7 @@ class _CreateApplicantPageState extends State<CreateApplicantPage> {
                         controller: _cpfController,
                         hint: 'Digite o CPF',
                         icon: LucideIcons.creditCard,
+                        mask: InputMask.cpf,
                         validator: _validateCPF,
                       ),
 
@@ -228,6 +229,7 @@ class _CreateApplicantPageState extends State<CreateApplicantPage> {
                         controller: _phoneController,
                         hint: 'Digite o telefone',
                         icon: LucideIcons.phone,
+                        mask: InputMask.phone,
                         validator: _validatePhone,
                       ),
 

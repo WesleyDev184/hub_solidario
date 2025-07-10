@@ -243,9 +243,9 @@ class ApplicantsService {
   }
 
   /// Deleta um dependent
-  static AsyncResult<bool> deleteDependent(String dependentId) async {
+  static AsyncResult<bool> deleteDependent(String dependentId,String applicantId) async {
     await ensureInitialized();
-    return _instance!.deleteDependent(dependentId);
+    return _instance!.deleteDependent(dependentId, applicantId);
   }
 
   /// Busca dependents com filtros

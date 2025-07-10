@@ -136,11 +136,14 @@ class ApplicantsController {
     try {
       final result = await _repository.createApplicant(request);
 
-      return result.fold((applicantId) {
+      return result.fold((applicant) {
         // Invalida cache para forçar refresh na próxima busca
-        _cacheService.clearApplicantsCache();
+        _cacheService.cacheCreatedApplicant(applicant);
 
-        return Success(applicantId);
+        // Atualiza lista local
+        _applicants.add(applicant);
+
+        return Success(applicant.id);
       }, (error) => Failure(error));
     } catch (e) {
       return Failure(Exception('Erro ao criar candidato: $e'));
@@ -315,12 +318,10 @@ class ApplicantsController {
     try {
       final result = await _repository.createDependent(request);
 
-      return result.fold((dependentId) {
-        // Invalida cache para forçar refresh na próxima busca
-        _cacheService.clearDependentsCache();
-        _cacheService.removeCachedApplicantDependents(request.applicantId);
+      return result.fold((dependent) {
+        _cacheService.updateCachedDependent(dependent);
 
-        return Success(dependentId);
+        return Success(dependent.id);
       }, (error) => Failure(error));
     } catch (e) {
       return Failure(Exception('Erro ao criar dependente: $e'));
@@ -353,14 +354,17 @@ class ApplicantsController {
   }
 
   /// Deleta um dependent
-  AsyncResult<bool> deleteDependent(String dependentId) async {
+  AsyncResult<bool> deleteDependent(
+    String dependentId,
+    String applicantId,
+  ) async {
     try {
       final result = await _repository.deleteDependent(dependentId);
 
       return result.fold((success) {
         if (success) {
           // Remove do cache
-          _cacheService.removeCachedDependent(dependentId);
+          _cacheService.removeCachedDependent(dependentId, applicantId);
 
           // Remove da lista local
           _dependents.removeWhere((d) => d.id == dependentId);

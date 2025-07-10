@@ -17,6 +17,7 @@ class DependentPage extends StatelessWidget {
   final String email;
   final String? address;
   final String applicantName;
+  final String applicantId;
 
   const DependentPage({
     super.key,
@@ -28,6 +29,7 @@ class DependentPage extends StatelessWidget {
     required this.email,
     this.address,
     required this.applicantName,
+    required this.applicantId,
   });
 
   void _showActionsMenu(BuildContext context) {
@@ -62,6 +64,8 @@ class DependentPage extends StatelessWidget {
                       dependentCpf: cpf,
                       dependentEmail: email,
                       applicantName: applicantName,
+                      applicantId:
+                          applicantId, // Assuming applicantId is the same as dependentId
                     ),
               ),
             );

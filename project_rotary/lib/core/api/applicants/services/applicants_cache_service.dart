@@ -70,6 +70,17 @@ class ApplicantsCacheService {
     }
   }
 
+  Future<void> cacheCreatedApplicant(Applicant applicant) async {
+    // busca a lista de applicants do cache
+    final cachedApplicants = await getCachedApplicants() ?? [];
+    // adiciona o novo applicant
+    cachedApplicants.add(applicant);
+    // atualiza o cache com a lista completa
+    await cacheApplicants(cachedApplicants);
+    // também cacheia o applicant individual
+    await cacheApplicant(applicant);
+  }
+
   /// Cache de um applicant individual
   Future<void> cacheApplicant(Applicant applicant) async {
     await initialize();
@@ -114,32 +125,34 @@ class ApplicantsCacheService {
 
     final key = '$_applicantCachePrefix$applicantId';
     await _prefs?.remove(key);
-    await _prefs?.remove('${key}_timestamp');
 
-    // Remove também cache de dependentes
-    await removeCachedApplicantDependents(applicantId);
-
-    // Invalida cache geral
-    await _prefs?.remove('${_applicantsCacheKey}_timestamp');
+    // remove da lista geral de applicants
+    final cachedApplicants = await getCachedApplicants();
+    if (cachedApplicants != null) {
+      cachedApplicants.removeWhere((cached) => cached.id == applicantId);
+      await cacheApplicants(cachedApplicants);
+    }
   }
 
   /// Atualiza um applicant no cache
   Future<void> updateCachedApplicant(Applicant applicant) async {
     final cachedApplicant = await getCachedApplicant(applicant.id);
 
-    if (cachedApplicant != null && cachedApplicant.dependents != null) {
-      applicant.addDependents(cachedApplicant.dependents);
-    }
+    // Cria uma nova instância do applicant preservando os dependents existentes
+    final updatedApplicant =
+        cachedApplicant != null && cachedApplicant.dependents != null
+            ? applicant.copyWith(dependents: cachedApplicant.dependents)
+            : applicant;
 
     // Atualiza o cache do applicant
-    await cacheApplicant(applicant);
+    await cacheApplicant(updatedApplicant);
 
     // atualiza o cache da lista geral de applicants
     final cachedApplicants = await getCachedApplicants();
     if (cachedApplicants != null) {
       final updatedApplicants =
           cachedApplicants.map((cached) {
-            return cached.id == applicant.id ? applicant : cached;
+            return cached.id == applicant.id ? updatedApplicant : cached;
           }).toList();
       await cacheApplicants(updatedApplicants);
     }
@@ -249,35 +262,50 @@ class ApplicantsCacheService {
   }
 
   /// Remove um dependent específico do cache
-  Future<void> removeCachedDependent(String dependentId) async {
-    await initialize();
+  Future<void> removeCachedDependent(
+    String dependentId,
+    String applicantId,
+  ) async {
+    // busca o applicant para remover o dependent
+    final cachedApplicant = await getCachedApplicant(applicantId);
+    if (cachedApplicant != null) {
+      // Remove o dependent do cache do applicant
+      final dependents = List<Dependent>.from(cachedApplicant.dependents ?? []);
+      final existingIndex = dependents.indexWhere((d) => d.id == dependentId);
+      if (existingIndex != -1) {
+        dependents.removeAt(existingIndex);
 
-    final key = '$_dependentCachePrefix$dependentId';
-    await _prefs?.remove(key);
-    await _prefs?.remove('${key}_timestamp');
+        // Cria uma nova instância do applicant com os dependents atualizados
+        final updatedApplicant = cachedApplicant.copyWith(
+          dependents: dependents,
+        );
 
-    // Invalida cache geral
-    await _prefs?.remove('${_dependentsCacheKey}_timestamp');
+        // Atualiza o cache do applicant
+        await cacheApplicant(updatedApplicant);
+      }
+    }
   }
 
   /// Atualiza um dependent no cache
   Future<void> updateCachedDependent(Dependent dependent) async {
-    await cacheDependent(dependent);
+    // busca o applicant para atualizar os dependents
+    final cachedApplicant = await getCachedApplicant(dependent.applicantId);
+    if (cachedApplicant != null) {
+      // Atualiza o dependent no cache do applicant
+      final dependents = List<Dependent>.from(cachedApplicant.dependents ?? []);
+      final existingIndex = dependents.indexWhere((d) => d.id == dependent.id);
+      if (existingIndex != -1) {
+        dependents[existingIndex] = dependent;
+      } else {
+        dependents.add(dependent);
+      }
 
-    // Atualiza cache de dependents do applicant
-    final applicantDependents = await getCachedApplicantDependents(
-      dependent.applicantId,
-    );
-    if (applicantDependents != null) {
-      final updatedDependents =
-          applicantDependents.map((dep) {
-            return dep.id == dependent.id ? dependent : dep;
-          }).toList();
-      await cacheApplicantDependents(dependent.applicantId, updatedDependents);
+      // Cria uma nova instância do applicant com os dependents atualizados
+      final updatedApplicant = cachedApplicant.copyWith(dependents: dependents);
+
+      // Atualiza o cache do applicant
+      await cacheApplicant(updatedApplicant);
     }
-
-    // Invalida cache geral para forçar refresh
-    await _prefs?.remove('${_dependentsCacheKey}_timestamp');
   }
 
   // === LIMPEZA E UTILITÁRIOS ===

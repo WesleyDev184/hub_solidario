@@ -85,6 +85,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
               ),
             );
             if (result == true) {
+              _loadApplicantData();
+            } else {
+              // Recarrega os dados do solicitante
               _loadApplicantData(forceRefresh: true);
             }
           },
@@ -352,6 +355,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                           address: dependent.address,
                                           applicantName:
                                               applicant?.name ?? 'Solicitante',
+                                          applicantId: widget.applicantId,
                                         ),
                                   ),
                                 );
@@ -385,6 +389,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                   );
                                   if (result == true) {
                                     _loadApplicantData();
+                                  } else {
+                                    // Recarrega os dados do solicitante
+                                    _loadApplicantData(forceRefresh: true);
                                   }
                                 },
                                 onDelete: () async {
@@ -402,6 +409,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                             applicantName:
                                                 applicant?.name ??
                                                 'Solicitante',
+                                            applicantId: widget.applicantId,
                                           ),
                                     ),
                                   );
