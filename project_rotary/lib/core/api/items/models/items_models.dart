@@ -40,7 +40,7 @@ enum ItemStatus {
 /// Modelo de Item
 class Item {
   final String id;
-  final int seriaCode;
+  final int serialCode;
   final ItemStatus status;
   final String stockId;
   final DateTime createdAt;
@@ -48,7 +48,7 @@ class Item {
 
   const Item({
     required this.id,
-    required this.seriaCode,
+    required this.serialCode,
     required this.status,
     required this.stockId,
     required this.createdAt,
@@ -58,7 +58,7 @@ class Item {
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
       id: json['id'] as String,
-      seriaCode: json['seriaCode'] as int,
+      serialCode: (json['serialCode'] ?? json['seriaCode']) as int,
       status: ItemStatus.fromString(json['status'] as String? ?? 'AVAILABLE'),
       stockId: json['stockId'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -72,7 +72,7 @@ class Item {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'seriaCode': seriaCode,
+      'serialCode': serialCode,
       'status': status.value,
       'stockId': stockId,
       'createdAt': createdAt.toIso8601String(),
@@ -92,7 +92,7 @@ class Item {
 
   Item copyWith({
     String? id,
-    int? seriaCode,
+    int? serialCode,
     ItemStatus? status,
     String? stockId,
     DateTime? createdAt,
@@ -100,7 +100,7 @@ class Item {
   }) {
     return Item(
       id: id ?? this.id,
-      seriaCode: seriaCode ?? this.seriaCode,
+      serialCode: serialCode ?? this.serialCode,
       status: status ?? this.status,
       stockId: stockId ?? this.stockId,
       createdAt: createdAt ?? this.createdAt,
@@ -119,48 +119,48 @@ class Item {
 
   @override
   String toString() {
-    return 'Item(id: $id, seriaCode: $seriaCode, status: ${status.value})';
+    return 'Item(id: $id, serialCode: $serialCode, status: ${status.value})';
   }
 }
 
 /// Request para criar um novo item
 class CreateItemRequest {
-  final int seriaCode;
+  final int serialCode;
   final String stockId;
 
-  const CreateItemRequest({required this.seriaCode, required this.stockId});
+  const CreateItemRequest({required this.serialCode, required this.stockId});
 
   Map<String, dynamic> toJson() {
-    return {'seriaCode': seriaCode, 'stockId': stockId};
+    return {'seriaCode': serialCode, 'stockId': stockId};
   }
 
   @override
   String toString() {
-    return 'CreateItemRequest(seriaCode: $seriaCode, stockId: $stockId)';
+    return 'CreateItemRequest(serialCode: $serialCode, stockId: $stockId)';
   }
 }
 
 /// Request para atualizar um item existente
 class UpdateItemRequest {
-  final int? seriaCode;
+  final int? serialCode;
   final ItemStatus? status;
 
-  const UpdateItemRequest({this.seriaCode, this.status});
+  const UpdateItemRequest({this.serialCode, this.status});
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
 
-    if (seriaCode != null) data['seriaCode'] = seriaCode;
+    if (serialCode != null) data['seriaCode'] = serialCode;
     if (status != null) data['status'] = status!.value;
 
     return data;
   }
 
-  bool get hasChanges => seriaCode != null || status != null;
+  bool get hasChanges => serialCode != null || status != null;
 
   @override
   String toString() {
-    return 'UpdateItemRequest(seriaCode: $seriaCode, status: ${status?.value})';
+    return 'UpdateItemRequest(serialCode: $serialCode, status: ${status?.value})';
   }
 }
 
@@ -270,16 +270,16 @@ class DeleteItemResponse {
 class ItemFilters {
   final ItemStatus? status;
   final String? stockId;
-  final int? minSeriaCode;
-  final int? maxSeriaCode;
+  final int? minSerialCode;
+  final int? maxSerialCode;
   final DateTime? createdAfter;
   final DateTime? createdBefore;
 
   const ItemFilters({
     this.status,
     this.stockId,
-    this.minSeriaCode,
-    this.maxSeriaCode,
+    this.minSerialCode,
+    this.maxSerialCode,
     this.createdAfter,
     this.createdBefore,
   });
@@ -289,8 +289,10 @@ class ItemFilters {
 
     if (status != null) params['status'] = status!.value;
     if (stockId != null) params['stockId'] = stockId!;
-    if (minSeriaCode != null) params['minSeriaCode'] = minSeriaCode.toString();
-    if (maxSeriaCode != null) params['maxSeriaCode'] = maxSeriaCode.toString();
+    if (minSerialCode != null)
+      params['minSerialCode'] = minSerialCode.toString();
+    if (maxSerialCode != null)
+      params['maxSerialCode'] = maxSerialCode.toString();
     if (createdAfter != null)
       params['createdAfter'] = createdAfter!.toIso8601String();
     if (createdBefore != null)
@@ -302,8 +304,8 @@ class ItemFilters {
   bool get hasFilters =>
       status != null ||
       stockId != null ||
-      minSeriaCode != null ||
-      maxSeriaCode != null ||
+      minSerialCode != null ||
+      maxSerialCode != null ||
       createdAfter != null ||
       createdBefore != null;
 }

@@ -110,8 +110,8 @@ class ItemsService {
   static AsyncResult<List<Item>> searchItems({
     ItemStatus? status,
     String? stockId,
-    int? minSeriaCode,
-    int? maxSeriaCode,
+    int? minSerialCode,
+    int? maxSerialCode,
     DateTime? createdAfter,
     DateTime? createdBefore,
     bool forceRefresh = false,
@@ -122,8 +122,8 @@ class ItemsService {
     final filters = ItemFilters(
       status: status,
       stockId: stockId,
-      minSeriaCode: minSeriaCode,
-      maxSeriaCode: maxSeriaCode,
+      minSerialCode: minSerialCode,
+      maxSerialCode: maxSerialCode,
       createdAfter: createdAfter,
       createdBefore: createdBefore,
     );

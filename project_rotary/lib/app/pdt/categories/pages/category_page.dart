@@ -6,8 +6,11 @@ import 'package:project_rotary/app/pdt/categories/pages/delete_category_page.dar
 import 'package:project_rotary/app/pdt/categories/pages/edit_category_page.dart';
 import 'package:project_rotary/app/pdt/categories/widgets/action_menu_category.dart';
 import 'package:project_rotary/app/pdt/categories/widgets/category_items_card.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
+import 'package:project_rotary/core/components/select_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
+import 'package:project_rotary/core/utils/status_utils.dart';
 
 class CategoryPage extends StatefulWidget {
   final String categoryId;
@@ -15,6 +18,7 @@ class CategoryPage extends StatefulWidget {
   final int available;
   final int inMaintenance;
   final int inUse;
+  final int totalItms;
   final String? imageUrl;
 
   const CategoryPage({
@@ -24,6 +28,7 @@ class CategoryPage extends StatefulWidget {
     required this.available,
     required this.inMaintenance,
     required this.inUse,
+    required this.totalItms,
     this.imageUrl,
   });
 
@@ -36,48 +41,20 @@ class _CategoryPageState extends State<CategoryPage> {
   String? _errorMessage;
   bool _isInitialized = false;
 
-  // Dados mockados
-  int availableItems = 15;
-  int borrowedItems = 5;
-  int inMaintenanceItems = 3;
+  // Listagem dos items
+  List<Item> _items = [];
+  List<Item> _filteredItems = [];
 
-  List<Map<String, dynamic>> mockItems = [
-    {
-      'id': '1',
-      'serialCode': '001',
-      'status': 'available',
-      'categoryId': 'category_1',
-    },
-    {
-      'id': '2',
-      'serialCode': '002',
-      'status': 'borrowed',
-      'categoryId': 'category_1',
-    },
-    {
-      'id': '3',
-      'serialCode': '003',
-      'status': 'maintenance',
-      'categoryId': 'category_1',
-    },
-    {
-      'id': '4',
-      'serialCode': '004',
-      'status': 'available',
-      'categoryId': 'category_1',
-    },
-    {
-      'id': '5',
-      'serialCode': '005',
-      'status': 'available',
-      'categoryId': 'category_1',
-    },
-  ];
+  // Filtro de status
+  ItemStatus? _selectedStatusFilter;
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    // Usa addPostFrameCallback para adiar a chamada até depois do build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
   }
 
   @override
@@ -85,33 +62,42 @@ class _CategoryPageState extends State<CategoryPage> {
     super.dispose();
   }
 
-  Future<void> _initializeData() async {
+  Future<void> _initializeData({bool forceRefresh = false}) async {
     if (!_isInitialized) {
       setState(() {
         _isLoading = true;
       });
 
-      // Simula carregamento
-      await Future.delayed(const Duration(seconds: 1));
+      try {
+        // Carrega os itens da categoria
+        final response = await ItemsService.getItemsByStock(
+          widget.categoryId,
+          forceRefresh: forceRefresh,
+        );
 
-      setState(() {
-        _isLoading = false;
-        _isInitialized = true;
-      });
+        response.fold(
+          (data) {
+            setState(() {
+              _items = data;
+              _filteredItems = _applyStatusFilter(data);
+              _isLoading = false;
+              _isInitialized = true;
+            });
+          },
+          (error) {
+            setState(() {
+              _errorMessage = "Erro ao carregar itens: $error";
+              _isLoading = false;
+            });
+          },
+        );
+      } catch (e) {
+        setState(() {
+          _errorMessage = 'Erro ao carregar itens: $e';
+          _isLoading = false;
+        });
+      }
     }
-  }
-
-  Future<void> _refreshItems() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simula recarregamento
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   Widget _buildImage() {
@@ -179,7 +165,10 @@ class _CategoryPageState extends State<CategoryPage> {
 
             if (result == true) {
               // Recarrega os itens após adicionar um novo item
-              _refreshItems();
+              _initializeData();
+            } else {
+              // Se não foi adicionado, recarrega os itens para garantir que a lista esteja atualizada
+              _initializeData(forceRefresh: true);
             }
           },
           onEditPressed: () {
@@ -224,6 +213,47 @@ class _CategoryPageState extends State<CategoryPage> {
           },
         );
       },
+    );
+  }
+
+  // Aplica o filtro de status aos itens
+  List<Item> _applyStatusFilter(List<Item> items) {
+    if (_selectedStatusFilter == null) {
+      return List.from(items);
+    }
+    return items.where((item) => item.status == _selectedStatusFilter).toList();
+  }
+
+  // Atualiza o filtro de status
+  void _updateStatusFilter(ItemStatus? status) {
+    setState(() {
+      _selectedStatusFilter = status;
+      _filteredItems = _applyStatusFilter(_items);
+    });
+  }
+
+  // Widget do filtro de status
+  Widget _buildStatusFilter() {
+    return SizedBox(
+      width: 160,
+      child: SelectField<ItemStatus?>(
+        value: _selectedStatusFilter,
+        hint: 'Filtrar',
+        icon: LucideIcons.settings,
+        items: [
+          const DropdownMenuItem<ItemStatus?>(
+            value: null,
+            child: Text('Todos'),
+          ),
+          ...ItemStatus.values.map((status) {
+            return DropdownMenuItem<ItemStatus?>(
+              value: status,
+              child: Text(StatusUtils.getStatusText(status.value)),
+            );
+          }).toList(),
+        ],
+        onChanged: _updateStatusFilter,
+      ),
     );
   }
 
@@ -298,7 +328,13 @@ class _CategoryPageState extends State<CategoryPage> {
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
-                              onPressed: _refreshItems,
+                              onPressed: () {
+                                setState(() {
+                                  _errorMessage = null;
+                                  _isLoading = true;
+                                });
+                                _initializeData(forceRefresh: true);
+                              },
                               child: const Text('Tentar novamente'),
                             ),
                           ],
@@ -319,23 +355,42 @@ class _CategoryPageState extends State<CategoryPage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const Spacer(),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: CustomColors.warning.withOpacity(0.7),
+                                  color: CustomColors.warning.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Text(
-                                  borrowedItems.toString(),
-                                  style: const TextStyle(
-                                    color: CustomColors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      LucideIcons.clock,
+                                      color: CustomColors.warning,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      widget.inUse.toString(),
+                                      style: const TextStyle(
+                                        color: CustomColors.warning,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Text(
+                                      'Em uso',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: CustomColors.warning,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -345,12 +400,12 @@ class _CategoryPageState extends State<CategoryPage> {
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
+                                  horizontal: 10,
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
                                   color: CustomColors.success.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Row(
                                   children: [
@@ -361,11 +416,11 @@ class _CategoryPageState extends State<CategoryPage> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      availableItems.toString(),
+                                      widget.available.toString(),
                                       style: const TextStyle(
+                                        color: CustomColors.success,
+                                        fontWeight: FontWeight.bold,
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: CustomColors.textPrimary,
                                       ),
                                     ),
                                     const SizedBox(width: 4),
@@ -374,7 +429,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: CustomColors.textPrimary,
+                                        color: CustomColors.success,
                                       ),
                                     ),
                                   ],
@@ -383,12 +438,12 @@ class _CategoryPageState extends State<CategoryPage> {
                               const SizedBox(width: 12),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
+                                  horizontal: 10,
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
                                   color: CustomColors.error.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Row(
                                   children: [
@@ -399,11 +454,11 @@ class _CategoryPageState extends State<CategoryPage> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      inMaintenanceItems.toString(),
+                                      widget.inMaintenance.toString(),
                                       style: const TextStyle(
+                                        color: CustomColors.error,
+                                        fontWeight: FontWeight.bold,
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: CustomColors.textPrimary,
                                       ),
                                     ),
                                     const SizedBox(width: 4),
@@ -412,7 +467,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: CustomColors.textPrimary,
+                                        color: CustomColors.error,
                                       ),
                                     ),
                                   ],
@@ -421,7 +476,25 @@ class _CategoryPageState extends State<CategoryPage> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          if (mockItems.isEmpty)
+                          // Contador de itens e filtro
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Contador de itens
+                              Text(
+                                '${_filteredItems.length} item${_filteredItems.length == 1 ? '' : 's'}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: CustomColors.textSecondary,
+                                ),
+                              ),
+                              // Filtro de status
+                              _buildStatusFilter(),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          if (_filteredItems.isEmpty)
                             const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(32.0),
@@ -453,14 +526,14 @@ class _CategoryPageState extends State<CategoryPage> {
                           else
                             Column(
                               children:
-                                  mockItems
+                                  _filteredItems
                                       .map(
                                         (item) => CategoryItemsCard(
-                                          id: item['id'] as String,
+                                          id: item.id,
                                           serialCode:
-                                              item['serialCode'].toString(),
-                                          status: item['status'] as String,
-                                          createdAt: DateTime.now(),
+                                              item.serialCode.toString(),
+                                          status: item.status.value,
+                                          createdAt: item.createdAt,
                                         ),
                                       )
                                       .toList(),

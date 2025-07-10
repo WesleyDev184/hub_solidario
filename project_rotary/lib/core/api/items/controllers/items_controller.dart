@@ -235,13 +235,13 @@ class ItemsController {
 
   /// Busca items por código serial (busca local)
   List<Item> searchItemsBySerialCode(int serialCode) {
-    return _items.where((item) => item.seriaCode == serialCode).toList();
+    return _items.where((item) => item.serialCode == serialCode).toList();
   }
 
   /// Busca items por faixa de código serial (busca local)
   List<Item> getItemsBySerialRange(int minCode, int maxCode) {
     return _items
-        .where((item) => item.seriaCode >= minCode && item.seriaCode <= maxCode)
+        .where((item) => item.serialCode >= minCode && item.serialCode <= maxCode)
         .toList();
   }
 
@@ -259,7 +259,7 @@ class ItemsController {
     String itemId,
     int newSerialCode,
   ) async {
-    final request = UpdateItemRequest(seriaCode: newSerialCode);
+    final request = UpdateItemRequest(serialCode: newSerialCode);
     return updateItem(itemId, request);
   }
 
@@ -355,7 +355,7 @@ class ItemsController {
   int? getItemSerialCode(String itemId) {
     try {
       final item = _items.firstWhere((i) => i.id == itemId);
-      return item.seriaCode;
+      return item.serialCode;
     } catch (e) {
       return null;
     }

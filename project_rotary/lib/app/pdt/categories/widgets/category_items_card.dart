@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
+import 'package:project_rotary/core/utils/utils.dart' as CoreUtils;
 
 class CategoryItemsCard extends StatelessWidget {
   final String id;
@@ -40,7 +41,7 @@ class CategoryItemsCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}',
+                    CoreUtils.DateUtils.formatDateBR(createdAt),
                     style: TextStyle(
                       fontSize: 14,
                       color: CustomColors.textSecondary,
@@ -53,13 +54,15 @@ class CategoryItemsCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: CustomColors.primary.withOpacity(0.1),
+                color: CoreUtils.StatusUtils.getStatusColor(
+                  status,
+                ).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                status,
-                style: const TextStyle(
-                  color: CustomColors.primary,
+                CoreUtils.StatusUtils.getStatusText(status),
+                style: TextStyle(
+                  color: CoreUtils.StatusUtils.getStatusColor(status),
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
                 ),

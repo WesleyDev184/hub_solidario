@@ -5,6 +5,7 @@ import 'package:project_rotary/app/pdt/categories/pages/category_page.dart';
 import 'package:project_rotary/app/pdt/categories/pages/new_category_page.dart';
 import 'package:project_rotary/app/pdt/categories/widgets/action_menu_categories.dart';
 import 'package:project_rotary/app/pdt/categories/widgets/category_card.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -24,57 +25,18 @@ class _CategoriesPageState extends State<CategoriesPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Dados mockados para categorias
-  final List<Map<String, dynamic>> _allCategories = [
-    {
-      "id": "1",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Cadeiras de Rodas",
-      "availableQtd": 15,
-      "borrowedQtd": 5,
-      "maintenanceQtd": 2,
-    },
-    {
-      "id": "2",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Muletas",
-      "availableQtd": 25,
-      "borrowedQtd": 8,
-      "maintenanceQtd": 1,
-    },
-    {
-      "id": "3",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Andadores",
-      "availableQtd": 12,
-      "borrowedQtd": 3,
-      "maintenanceQtd": 0,
-    },
-    {
-      "id": "4",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Órteses",
-      "availableQtd": 30,
-      "borrowedQtd": 12,
-      "maintenanceQtd": 3,
-    },
-    {
-      "id": "5",
-      "imageUrl": "assets/images/cr.jpg",
-      "title": "Próteses",
-      "availableQtd": 8,
-      "borrowedQtd": 2,
-      "maintenanceQtd": 1,
-    },
-  ];
-
-  List<Map<String, dynamic>> filteredCategories = [];
+  List<Stock> _filteredCategories = [];
+  List<Stock> _allCategories = [];
 
   @override
   void initState() {
     super.initState();
     searchController.addListener(filterCategories);
-    _loadCategories();
+
+    // Usa addPostFrameCallback para adiar a chamada até depois do build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCategories();
+    });
 
     // Registra o callback para recarregar a página
     widget.onRefreshCallback?.call(_refreshPage);
@@ -85,30 +47,50 @@ class _CategoriesPageState extends State<CategoriesPage> {
   }
 
   /// Carrega categorias (simulação com dados mockados)
-  Future<void> _loadCategories() async {
+  Future<void> _loadCategories({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
     });
 
-    // Simula carregamento
-    await Future.delayed(const Duration(seconds: 1));
+    // aplica a busca na api
+    try {
+      final response = await StocksService.getStocks(
+        forceRefresh: forceRefresh,
+      );
 
-    setState(() {
-      _isLoading = false;
-      filteredCategories = List.from(_allCategories);
-    });
+      response.fold(
+        (data) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = null;
+            _allCategories = data;
+            _filteredCategories = List.from(data);
+          });
+        },
+        (error) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = "Erro ao carregar categorias: $error";
+          });
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "Erro ao carregar categorias: $e";
+      });
+    }
   }
 
   void filterCategories() {
     final query = searchController.text.toLowerCase();
     setState(() {
-      filteredCategories =
+      _filteredCategories =
           query.isEmpty
               ? List.from(_allCategories)
               : _allCategories
                   .where(
-                    (category) =>
-                        category["title"].toLowerCase().contains(query),
+                    (category) => category.title.toLowerCase().contains(query),
                   )
                   .toList();
     });
@@ -205,9 +187,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                           mainAxisSpacing: 12,
                           childAspectRatio: 0.7,
                         ),
-                    itemCount: filteredCategories.length,
+                    itemCount: _filteredCategories.length,
                     itemBuilder: (context, index) {
-                      final category = filteredCategories[index];
+                      final category = _filteredCategories[index];
                       return AnimationConfiguration.staggeredGrid(
                         position: index,
                         columnCount: 2,
@@ -220,24 +202,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                   MaterialPageRoute(
                                     builder:
                                         (_) => CategoryPage(
-                                          categoryId: category["id"],
-                                          categoryTitle: category["title"],
-                                          available: category['availableQtd'],
+                                          categoryId: category.id,
+                                          categoryTitle: category.title,
+                                          available: category.availableQtd,
                                           inMaintenance:
-                                              category['maintenanceQtd'],
-                                          inUse: category['borrowedQtd'],
-                                          imageUrl: category["imageUrl"],
+                                              category.maintenanceQtd,
+                                          inUse: category.borrowedQtd,
+                                          totalItms: category.totalQtd,
+                                          imageUrl: category.imageUrl,
                                         ),
                                   ),
                                 );
                               },
                               child: CategoryCard(
-                                id: category["id"],
-                                imageUrl: category["imageUrl"],
-                                title: category["title"],
-                                available: category["availableQtd"],
-                                inUse: category["borrowedQtd"],
-                                inMaintenance: category["maintenanceQtd"],
+                                id: category.id,
+                                imageUrl: category.imageUrl ?? '',
+                                title: category.title,
+                                available: category.availableQtd,
+                                inUse: category.borrowedQtd,
+                                inMaintenance: category.maintenanceQtd,
                               ),
                             ),
                           ),

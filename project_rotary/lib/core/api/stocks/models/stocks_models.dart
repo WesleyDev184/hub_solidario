@@ -9,6 +9,7 @@ class Stock {
   final int maintenanceQtd;
   final int availableQtd;
   final int borrowedQtd;
+  final int totalQtd;
   final String orthopedicBankId;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -20,6 +21,7 @@ class Stock {
     required this.maintenanceQtd,
     required this.availableQtd,
     required this.borrowedQtd,
+    required this.totalQtd,
     required this.orthopedicBankId,
     required this.createdAt,
     required this.updatedAt,
@@ -33,9 +35,15 @@ class Stock {
       maintenanceQtd: json['maintenanceQtd'] as int? ?? 0,
       availableQtd: json['availableQtd'] as int? ?? 0,
       borrowedQtd: json['borrowedQtd'] as int? ?? 0,
+      totalQtd: json['totalQtd'] as int? ?? 0,
       orthopedicBankId: json['orthopedicBankId'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      updatedAt:
+          json['updatedAt'] != null
+              ? DateTime.parse(json['updatedAt'] as String)
+              : DateTime.parse(
+                json['createdAt'] as String,
+              ), // Fallback para createdAt se updatedAt não estiver presente
     );
   }
 
@@ -47,14 +55,12 @@ class Stock {
       'maintenanceQtd': maintenanceQtd,
       'availableQtd': availableQtd,
       'borrowedQtd': borrowedQtd,
+      'totalQtd': totalQtd,
       'orthopedicBankId': orthopedicBankId,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
   }
-
-  /// Calcula o total de itens no estoque
-  int get totalQtd => maintenanceQtd + availableQtd + borrowedQtd;
 
   /// Verifica se há itens disponíveis
   bool get hasAvailableItems => availableQtd > 0;
@@ -66,6 +72,7 @@ class Stock {
     int? maintenanceQtd,
     int? availableQtd,
     int? borrowedQtd,
+    int? totalQtd,
     String? orthopedicBankId,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -77,6 +84,7 @@ class Stock {
       maintenanceQtd: maintenanceQtd ?? this.maintenanceQtd,
       availableQtd: availableQtd ?? this.availableQtd,
       borrowedQtd: borrowedQtd ?? this.borrowedQtd,
+      totalQtd: totalQtd ?? this.totalQtd,
       orthopedicBankId: orthopedicBankId ?? this.orthopedicBankId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

@@ -4,9 +4,7 @@ import 'package:project_rotary/app/auth/pages/forgot_password_page.dart';
 import 'package:project_rotary/app/auth/pages/signup_page.dart';
 import 'package:project_rotary/app/auth/pages/singin_page.dart';
 import 'package:project_rotary/app/pdt/layout.dart';
-import 'package:project_rotary/core/api/api_client.dart';
-import 'package:project_rotary/core/api/applicants/applicants_service.dart';
-import 'package:project_rotary/core/api/auth/auth_service.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/auth_guard.dart';
 
 void main() async {
@@ -33,8 +31,22 @@ void main() async {
     // Continue mesmo se houver erro no ApplicantsService
   }
 
-  // Pequeno delay para garantir que tudo foi inicializado
-  await Future.delayed(const Duration(milliseconds: 100));
+  // inicializa o serviço de categorias
+  try {
+    await StocksService.initialize(apiClient: apiClient);
+    debugPrint('StockService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar StockService: $e');
+    // Continue mesmo se houver erro no CategoriesService
+  }
+
+  try {
+    await ItemsService.initialize(apiClient: apiClient);
+    debugPrint('ItemService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar ItemService: $e');
+    // Continue mesmo se houver erro no CategoriesService
+  }
 
   runApp(const MyApp());
 }
@@ -89,9 +101,6 @@ class _AuthCheckerState extends State<AuthChecker> {
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
-      // Aguarda um pouco mais para garantir que tudo esteja pronto
-      await Future.delayed(const Duration(milliseconds: 300));
-
       if (mounted) {
         final authController = AuthService.instance;
 
@@ -99,13 +108,18 @@ class _AuthCheckerState extends State<AuthChecker> {
           _isChecking = false;
         });
 
-        if (authController != null && authController.isAuthenticated) {
-          // Usuário já está logado, vai para o layout principal
-          Navigator.pushReplacementNamed(context, '/layout');
-        } else {
-          // Usuário não está logado, vai para a tela de login
-          Navigator.pushReplacementNamed(context, '/signin');
-        }
+        // Usa addPostFrameCallback para adiar a navegação
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            if (authController != null && authController.isAuthenticated) {
+              // Usuário já está logado, vai para o layout principal
+              Navigator.pushReplacementNamed(context, '/layout');
+            } else {
+              // Usuário não está logado, vai para a tela de login
+              Navigator.pushReplacementNamed(context, '/signin');
+            }
+          }
+        });
       }
     } catch (e) {
       debugPrint('Erro ao verificar autenticação: $e');
@@ -113,7 +127,13 @@ class _AuthCheckerState extends State<AuthChecker> {
         setState(() {
           _isChecking = false;
         });
-        Navigator.pushReplacementNamed(context, '/signin');
+
+        // Usa addPostFrameCallback para adiar a navegação
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/signin');
+          }
+        });
       }
     }
   }

@@ -30,21 +30,61 @@ class CategoryCard extends StatelessWidget {
         height: double.infinity,
         errorBuilder: (context, error, stackTrace) {
           return Container(
-            color: Colors.grey.shade200,
-            child: Icon(LucideIcons.image, color: Colors.grey, size: 48),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    LucideIcons.image,
+                    color: Colors.grey.shade400,
+                    size: 48,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Imagem não encontrada',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
           );
         },
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
           return Container(
-            color: Colors.grey.shade100,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
             child: Center(
-              child: CircularProgressIndicator(
-                value:
-                    loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                        : null,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value:
+                        loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                    strokeWidth: 2,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Carregando...',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  ),
+                ],
               ),
             ),
           );
@@ -59,8 +99,30 @@ class CategoryCard extends StatelessWidget {
         height: double.infinity,
         errorBuilder: (context, error, stackTrace) {
           return Container(
-            color: Colors.grey.shade200,
-            child: Icon(LucideIcons.image, color: Colors.grey, size: 48),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    LucideIcons.image,
+                    color: Colors.grey.shade400,
+                    size: 48,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Imagem não encontrada',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
           );
         },
       );

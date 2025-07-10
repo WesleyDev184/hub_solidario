@@ -195,7 +195,7 @@ class ItemsRepository {
     int minCode,
     int maxCode,
   ) async {
-    final filters = ItemFilters(minSeriaCode: minCode, maxSeriaCode: maxCode);
+    final filters = ItemFilters(minSerialCode: minCode, maxSerialCode: maxCode);
     return getItems(filters: filters);
   }
 
@@ -225,7 +225,7 @@ class ItemsRepository {
     String itemId,
     int newSerialCode,
   ) async {
-    final request = UpdateItemRequest(seriaCode: newSerialCode);
+    final request = UpdateItemRequest(serialCode: newSerialCode);
     return updateItem(itemId, request);
   }
 }

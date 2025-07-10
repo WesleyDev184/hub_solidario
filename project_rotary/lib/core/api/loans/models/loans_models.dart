@@ -118,7 +118,7 @@ class Loan {
   String? get responsibleName => responsible?.name;
 
   /// Serial code do item (se disponível)
-  int? get itemSerialCode => item?.seriaCode;
+  int? get itemSerialCode => item?.serialCode;
 
   Loan copyWith({
     String? id,
