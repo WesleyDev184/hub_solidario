@@ -142,14 +142,19 @@ class ItemsController {
     try {
       final result = await _repository.createItem(request);
 
-      return result.fold((itemId) {
-        // Limpa o cache para forçar recarregamento
-        _cacheService.clearCache();
+      return result.fold((item) async {
+        // busca o cache atual por stock
+        final cachedItems = await _cacheService.getCachedItemsByStock(item.stockId);
+        if (cachedItems != null) {
+          // Adiciona o novo item ao cache
+          cachedItems.add(item);
+          _cacheService.cacheItemsByStock(item.stockId, cachedItems);
+        } else {
+          // Se não tiver cache, adiciona à lista local
+          _items.add(item);
+        }
 
-        // Se o item foi criado com sucesso, recarrega a lista
-        loadItems(forceRefresh: true);
-
-        return Success(itemId);
+        return Success(item.id);
       }, (error) => Failure(error));
     } catch (e) {
       return Failure(Exception('Erro inesperado: $e'));
@@ -241,7 +246,9 @@ class ItemsController {
   /// Busca items por faixa de código serial (busca local)
   List<Item> getItemsBySerialRange(int minCode, int maxCode) {
     return _items
-        .where((item) => item.serialCode >= minCode && item.serialCode <= maxCode)
+        .where(
+          (item) => item.serialCode >= minCode && item.serialCode <= maxCode,
+        )
         .toList();
   }
 

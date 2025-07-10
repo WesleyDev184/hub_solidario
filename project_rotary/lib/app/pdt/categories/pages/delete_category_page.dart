@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/categories/pages/categories_page.dart';
+import 'package:project_rotary/core/api/stocks/stocks.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 
 class DeleteCategoryPage extends StatefulWidget {
@@ -29,22 +31,37 @@ class _DeleteCategoryPageState extends State<DeleteCategoryPage> {
       _isLoading = true;
     });
 
-    // Simula deleção
-    await Future.delayed(const Duration(seconds: 2));
+    final res = await StocksService.deleteStock(widget.categoryId);
+    res.fold(
+      (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria deletada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
 
-    setState(() {
-      _isLoading = false;
-    });
+        setState(() {
+          _isLoading = false;
+        });
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Categoria deletada com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context, true);
-    }
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const CategoriesPage()),
+          (route) => false,
+        );
+      },
+      (error) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao deletar categoria: ${error}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
   }
 
   @override

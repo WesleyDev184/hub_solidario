@@ -156,59 +156,51 @@ class StocksRepository {
     UpdateStockRequest request,
   ) async {
     try {
-      // Se tem imagem, usa multipart
-      if (request.hasImage) {
-        final result = await _apiClient.patchMultipart(
-          '/stocks/$stockId',
-          request.toJson(),
-          file: request.imageFile,
-          bytes: request.imageBytes,
-          fileName: request.imageFileName,
-          fileFieldName: 'imageFile',
-          useAuth: true,
-        );
+      // Sempre usa multipart pois a API espera form-data
+      final result = await _apiClient.patchMultipart(
+        '/stocks/$stockId',
+        request.toJson(),
+        file: request.imageFile,
+        bytes: request.imageBytes,
+        fileName: request.imageFileName,
+        fileFieldName: 'imageFile',
+        useAuth: true,
+      );
 
-        return result.fold((data) {
-          try {
-            final response = UpdateStockResponse.fromJson(data);
-            if (response.success && response.data != null) {
+      return result.fold((data) {
+        try {
+          final response = UpdateStockResponse.fromJson(data);
+          if (response.success) {
+            // Se não há dados do stock atualizado, criar um stock básico com o ID
+            if (response.data != null) {
               return Success(response.data!);
             } else {
-              return Failure(
-                Exception(response.message ?? 'Erro ao atualizar stock'),
+              // Cria um stock básico com ID para indicar sucesso
+              final updatedStock = Stock(
+                id: stockId,
+                title: request.title ?? 'Categoria atualizada',
+                imageUrl: '',
+                maintenanceQtd: 0,
+                availableQtd: 0,
+                borrowedQtd: 0,
+                totalQtd: 0,
+                orthopedicBankId: '',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
               );
+              return Success(updatedStock);
             }
-          } catch (e) {
+          } else {
             return Failure(
-              Exception('Erro ao processar resposta da atualização: $e'),
+              Exception(response.message ?? 'Erro ao atualizar stock'),
             );
           }
-        }, (error) => Failure(error));
-      } else {
-        // Sem imagem, usa PATCH normal
-        final result = await _apiClient.patch(
-          '/stocks/$stockId',
-          request.toJson(),
-          useAuth: true,
-        );
-
-        return result.fold((data) {
-          try {
-            final response = UpdateStockResponse.fromJson(data);
-            if (response.success && response.data != null) {
-              return Success(response.data!);
-            } else {
-              return Failure(
-                Exception(response.message ?? 'Erro ao atualizar stock'),
-              );
-            }
-          } catch (e) {
-            return Failure(
-              Exception('Erro ao processar resposta da atualização: $e'),
-            );
-          }
-        }, (error) => Failure(error));
-      }
+        } catch (e) {
+          return Failure(
+            Exception('Erro ao processar resposta da atualização: $e'),
+          );
+        }
+      }, (error) => Failure(error));
     } catch (e) {
       return Failure(Exception('Erro na comunicação com a API: $e'));
     }

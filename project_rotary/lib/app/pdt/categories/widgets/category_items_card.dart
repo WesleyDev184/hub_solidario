@@ -5,7 +5,7 @@ import 'package:project_rotary/core/utils/utils.dart' as CoreUtils;
 
 class CategoryItemsCard extends StatelessWidget {
   final String id;
-  final String serialCode;
+  final int serialCode;
   final String status;
   final DateTime createdAt;
 
@@ -32,7 +32,7 @@ class CategoryItemsCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    serialCode,
+                    '${serialCode.toString().padLeft(8, '0').substring(0, 4)}-${serialCode.toString().padLeft(8, '0').substring(4, 8)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,

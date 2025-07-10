@@ -89,7 +89,7 @@ class ItemsRepository {
   }
 
   /// Cria um novo item
-  AsyncResult<String> createItem(CreateItemRequest request) async {
+  AsyncResult<Item> createItem(CreateItemRequest request) async {
     try {
       final result = await _apiClient.post(
         '/items',
@@ -99,11 +99,20 @@ class ItemsRepository {
 
       return result.fold((data) {
         try {
-          final response = CreateItemResponse.fromJson(data);
-          if (response.success) {
-            return Success(response.itemId ?? 'Item criado com sucesso');
+          // Primeiro tenta como resposta estruturada
+          if (data.containsKey('success')) {
+            final response = CreateItemResponse.fromJson(data);
+            if (response.success && response.data != null) {
+              return Success(response.data!);
+            } else {
+              return Failure(
+                Exception(response.message ?? 'Erro ao criar item'),
+              );
+            }
           } else {
-            return Failure(Exception(response.message ?? 'Erro ao criar item'));
+            // Se não for estruturada, tenta como Item diretamente
+            final item = Item.fromJson(data);
+            return Success(item);
           }
         } catch (e) {
           return Failure(

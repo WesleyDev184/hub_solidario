@@ -203,13 +203,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                     builder:
                                         (_) => CategoryPage(
                                           categoryId: category.id,
-                                          categoryTitle: category.title,
-                                          available: category.availableQtd,
-                                          inMaintenance:
-                                              category.maintenanceQtd,
-                                          inUse: category.borrowedQtd,
-                                          totalItms: category.totalQtd,
-                                          imageUrl: category.imageUrl,
+                                          stock: category,
                                         ),
                                   ),
                                 );

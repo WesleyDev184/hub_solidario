@@ -56,17 +56,26 @@ class Item {
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
-    return Item(
-      id: json['id'] as String,
-      serialCode: (json['serialCode'] ?? json['seriaCode']) as int,
-      status: ItemStatus.fromString(json['status'] as String? ?? 'AVAILABLE'),
-      stockId: json['stockId'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt:
-          json['updatedAt'] != null
-              ? DateTime.parse(json['updatedAt'] as String)
-              : null,
-    );
+    try {
+      return Item(
+        id: json['id']?.toString() ?? '',
+        serialCode: (json['serialCode'] ?? json['seriaCode'] ?? 0) as int,
+        status: ItemStatus.fromString(
+          json['status']?.toString() ?? 'AVAILABLE',
+        ),
+        stockId: json['stockId']?.toString() ?? '',
+        createdAt:
+            json['createdAt'] != null
+                ? DateTime.parse(json['createdAt'] as String)
+                : DateTime.now(),
+        updatedAt:
+            json['updatedAt'] != null
+                ? DateTime.parse(json['updatedAt'] as String)
+                : null,
+      );
+    } catch (e) {
+      throw Exception('Erro ao processar dados do item: $e. JSON: $json');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -214,23 +223,6 @@ class ItemListResponse {
   }
 }
 
-/// Response de operações de criação
-class CreateItemResponse {
-  final bool success;
-  final String? message;
-  final String? itemId;
-
-  const CreateItemResponse({required this.success, this.message, this.itemId});
-
-  factory CreateItemResponse.fromJson(Map<String, dynamic> json) {
-    return CreateItemResponse(
-      success: json['success'] as bool? ?? false,
-      message: json['message'] as String?,
-      itemId: json['data']?['id'] as String?,
-    );
-  }
-}
-
 /// Response de operações de atualização
 class UpdateItemResponse {
   final bool success;
@@ -262,6 +254,26 @@ class DeleteItemResponse {
     return DeleteItemResponse(
       success: json['success'] as bool? ?? false,
       message: json['message'] as String?,
+    );
+  }
+}
+
+/// Resposta da criação de item
+class CreateItemResponse {
+  final bool success;
+  final String? message;
+  final Item? data;
+
+  const CreateItemResponse({required this.success, this.message, this.data});
+
+  factory CreateItemResponse.fromJson(Map<String, dynamic> json) {
+    return CreateItemResponse(
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String?,
+      data:
+          json['data'] != null
+              ? Item.fromJson(json['data'] as Map<String, dynamic>)
+              : null,
     );
   }
 }

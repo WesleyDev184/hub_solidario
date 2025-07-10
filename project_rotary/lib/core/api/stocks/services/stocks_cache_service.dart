@@ -125,17 +125,22 @@ class StocksCacheService {
 
   /// Salva um stock individual no cache
   Future<void> cacheStock(Stock stock) async {
-    if (_prefs == null) return;
+    // busca a lista de stocks do cache
+    final cachedStocks = await getCachedStocks() ?? [];
 
     try {
-      final key = 'cached_stock_${stock.id}';
-      final jsonString = jsonEncode(stock.toJson());
+      // verifica se o stock já existe no cache
+      final existingIndex = cachedStocks.indexWhere((s) => s.id == stock.id);
+      if (existingIndex != -1) {
+        // atualiza o stock existente
+        cachedStocks[existingIndex] = stock;
+      } else {
+        // adiciona o novo stock
+        cachedStocks.add(stock);
+      }
 
-      await _prefs!.setString(key, jsonString);
-      await _prefs!.setString(
-        '${key}_update',
-        DateTime.now().toIso8601String(),
-      );
+      // salva a lista atualizada no cache
+      await cacheStocks(cachedStocks);
     } catch (e) {
       debugPrint('Erro ao salvar stock ${stock.id} no cache: $e');
     }
@@ -170,15 +175,14 @@ class StocksCacheService {
 
   /// Remove um stock específico do cache
   Future<void> removeStockFromCache(String stockId) async {
-    if (_prefs == null) return;
+    // busca a lista de stocks do cache
+    final cachedStocks = await getCachedStocks();
+    if (cachedStocks == null) return;
 
-    try {
-      final key = 'cached_stock_$stockId';
-      await _prefs!.remove(key);
-      await _prefs!.remove('${key}_update');
-    } catch (e) {
-      debugPrint('Erro ao remover stock $stockId do cache: $e');
-    }
+    // remove o stock da lista
+    cachedStocks.removeWhere((stock) => stock.id == stockId);
+
+    await cacheStocks(cachedStocks);
   }
 
   /// Limpa todo o cache de stocks

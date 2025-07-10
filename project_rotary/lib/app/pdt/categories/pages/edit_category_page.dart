@@ -1,9 +1,10 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/stocks/models/stocks_models.dart';
+import 'package:project_rotary/core/api/stocks/stocks_service.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/image_uploader.dart';
 import 'package:project_rotary/core/components/input_field.dart';
@@ -32,9 +33,6 @@ class EditCategoryPage extends StatefulWidget {
 class _EditCategoryPageState extends State<EditCategoryPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _availableController = TextEditingController();
-  final TextEditingController _maintenanceController = TextEditingController();
-  final TextEditingController _borrowedController = TextEditingController();
 
   bool _isLoading = false;
 
@@ -46,17 +44,11 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
   void initState() {
     super.initState();
     _titleController.text = widget.currentTitle;
-    _availableController.text = widget.currentAvailable.toString();
-    _maintenanceController.text = widget.currentInMaintenance.toString();
-    _borrowedController.text = widget.currentInUse.toString();
   }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _availableController.dispose();
-    _maintenanceController.dispose();
-    _borrowedController.dispose();
     super.dispose();
   }
 
@@ -67,23 +59,8 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
     return null;
   }
 
-  String? _validateNumber(String? value) {
-    if (value != null && value.trim().isNotEmpty) {
-      final number = int.tryParse(value.trim());
-      if (number == null || number < 0) {
-        return 'Deve ser um número válido maior ou igual a zero';
-      }
-    }
-    return null;
-  }
-
   bool _hasChanges() {
     return _titleController.text.trim() != widget.currentTitle ||
-        int.tryParse(_availableController.text.trim()) !=
-            widget.currentAvailable ||
-        int.tryParse(_maintenanceController.text.trim()) !=
-            widget.currentInMaintenance ||
-        int.tryParse(_borrowedController.text.trim()) != widget.currentInUse ||
         _selectedImageFile != null ||
         _selectedImageBytes != null;
   }
@@ -111,7 +88,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Nenhuma alteração foi feita'),
-          backgroundColor: Colors.orange,
+          backgroundColor: CustomColors.warning,
         ),
       );
       return;
@@ -121,22 +98,90 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
       _isLoading = true;
     });
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Categoria atualizada com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
+    try {
+      // Prepara a requisição de atualização
+      final updateRequest = UpdateStockRequest(
+        title:
+            _titleController.text.trim().isNotEmpty
+                ? _titleController.text.trim()
+                : null,
+        imageFile: _selectedImageFile,
+        imageBytes: _selectedImageBytes,
+        imageFileName: _selectedImageFile?.path.split('/').last,
       );
-      Navigator.pop(context, true);
+
+      // Chama o serviço para atualizar o stock
+      final result = await StocksService.updateStock(
+        widget.categoryId,
+        updateRequest,
+      );
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        result.fold(
+          (updatedStock) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Categoria atualizada com sucesso!'),
+                backgroundColor: CustomColors.success,
+              ),
+            );
+            Navigator.pop(context, updatedStock);
+          },
+          (error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Erro ao atualizar categoria: $error'),
+                backgroundColor: CustomColors.error,
+              ),
+            );
+          },
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro inesperado: $e'),
+            backgroundColor: CustomColors.error,
+          ),
+        );
+      }
     }
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: CustomColors.textSecondary),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: CustomColors.textSecondary,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              color: CustomColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -158,13 +203,16 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: CustomColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Modifique apenas os campos que deseja alterar',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: CustomColors.textSecondary,
+                ),
               ),
 
               const SizedBox(height: 32),
@@ -174,7 +222,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: CustomColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -187,56 +235,103 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
 
               const SizedBox(height: 24),
 
-              const Text(
-                'Quantidade Disponível',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+              // Informações não editáveis das quantidades
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: CustomColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: CustomColors.primary.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              InputField(
-                controller: _availableController,
-                hint: 'Quantidade disponível',
-                icon: LucideIcons.check,
-                validator: _validateNumber,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          LucideIcons.info,
+                          color: CustomColors.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Informações da Categoria:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildInfoRow(
+                      LucideIcons.check,
+                      'Disponível:',
+                      widget.currentAvailable.toString(),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInfoRow(
+                      LucideIcons.wrench,
+                      'Em Manutenção:',
+                      widget.currentInMaintenance.toString(),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInfoRow(
+                      LucideIcons.userCheck,
+                      'Emprestado:',
+                      widget.currentInUse.toString(),
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 24),
 
-              const Text(
-                'Quantidade Em Manutenção',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: CustomColors.warning.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: CustomColors.warning.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              InputField(
-                controller: _maintenanceController,
-                hint: 'Quantidade em manutenção',
-                icon: LucideIcons.wrench,
-                validator: _validateNumber,
-              ),
-
-              const SizedBox(height: 24),
-
-              const Text(
-                'Quantidade Emprestada',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          LucideIcons.info,
+                          color: CustomColors.warning,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Atenção:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: CustomColors.warning,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'As quantidades não podem ser editadas diretamente. Elas são atualizadas automaticamente através dos empréstimos e devoluções.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: CustomColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              InputField(
-                controller: _borrowedController,
-                hint: 'Quantidade emprestada',
-                icon: LucideIcons.userCheck,
-                validator: _validateNumber,
               ),
 
               const SizedBox(height: 24),
@@ -246,7 +341,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: CustomColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -254,7 +349,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 'Selecione uma nova imagem ou mantenha a atual',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: CustomColors.textSecondary,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -276,7 +371,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                           _isLoading ? null : () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: Colors.grey[400]!),
+                        side: BorderSide(color: CustomColors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -286,7 +381,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: CustomColors.textSecondary,
                         ),
                       ),
                     ),
@@ -311,7 +406,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                                    CustomColors.white,
                                   ),
                                 ),
                               )
@@ -320,7 +415,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.white,
+                                  color: CustomColors.white,
                                 ),
                               ),
                     ),

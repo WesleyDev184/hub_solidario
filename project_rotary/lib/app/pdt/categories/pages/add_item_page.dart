@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/items/items_service.dart';
+import 'package:project_rotary/core/api/items/models/items_models.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -38,7 +40,9 @@ class _AddItemPageState extends State<AddItemPage> {
     if (value == null || value.trim().isEmpty) {
       return 'Código serial é obrigatório';
     }
-    final code = int.tryParse(value.trim());
+    // Remove o hífen (-) do código serial
+    final cleanedValue = value.trim().replaceAll('-', '');
+    final code = int.tryParse(cleanedValue);
     if (code == null) {
       return 'Código serial deve ser um número';
     }
@@ -57,22 +61,63 @@ class _AddItemPageState extends State<AddItemPage> {
       _isLoading = true;
     });
 
-    // Simula um delay de carregamento
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Item criado com sucesso!'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
+    try {
+      // Cria o request com o código serial e categoryId como stockId
+      // Remove o hífen (-) do código serial antes de converter para int
+      final cleanedSerialCode = _serialCodeController.text.trim().replaceAll(
+        '-',
+        '',
       );
-      Navigator.pop(context, true); // Retorna true para indicar sucesso
+      final request = CreateItemRequest(
+        serialCode: int.parse(cleanedSerialCode),
+        stockId: widget.categoryId,
+      );
+
+      // Chama o serviço para criar o item
+      final result = await ItemsService.createItem(request);
+
+      if (mounted) {
+        result.fold(
+          (itemId) {
+            // Mostra sucesso se item foi criado
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Item criado com sucesso!'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
+            );
+            
+            Navigator.pop(context, true); // Retorna true para indicar sucesso
+          },
+          (failure) {
+            // Mostra erro se houve falha
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Erro ao criar item: $failure'),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          },
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro inesperado: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -121,8 +166,9 @@ class _AddItemPageState extends State<AddItemPage> {
               const SizedBox(height: 8),
               InputField(
                 controller: _serialCodeController,
-                hint: 'Digite o código serial do item',
+                hint: '0000-0000',
                 icon: LucideIcons.hash,
+                mask: InputMask.serialCode,
                 validator: _validateSerialCode,
               ),
 

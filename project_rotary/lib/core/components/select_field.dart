@@ -7,6 +7,7 @@ class SelectField<T> extends StatelessWidget {
   final List<DropdownMenuItem<T>> items;
   final ValueChanged<T?>? onChanged;
   final String? Function(T?)? validator;
+  final bool underlineVariant;
 
   const SelectField({
     super.key,
@@ -16,6 +17,7 @@ class SelectField<T> extends StatelessWidget {
     required this.items,
     required this.onChanged,
     this.validator,
+    this.underlineVariant = false,
   });
 
   @override
@@ -27,9 +29,35 @@ class SelectField<T> extends StatelessWidget {
       decoration: InputDecoration(
         labelText: hint,
         suffixIcon: Icon(icon),
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
+        border:
+            underlineVariant
+                ? const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                )
+                : const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+        enabledBorder:
+            underlineVariant
+                ? const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                )
+                : const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+        focusedBorder:
+            underlineVariant
+                ? const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue, width: 2),
+                )
+                : const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.blue, width: 2),
+                ),
+        contentPadding:
+            underlineVariant
+                ? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0)
+                : const EdgeInsets.all(16.0),
       ),
       items:
           items.map((item) {

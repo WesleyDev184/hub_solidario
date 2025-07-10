@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-enum InputMask { none, cpf, phone, cep }
+enum InputMask { none, cpf, phone, cep, serialCode }
 
 class InputField extends StatelessWidget {
   final TextEditingController controller;
@@ -49,6 +49,13 @@ class InputField extends StatelessWidget {
           filter: {"#": RegExp(r'[0-9]')},
         );
         inputType = TextInputType.number;
+        break;
+      case InputMask.serialCode:
+        maskFormatter = MaskTextInputFormatter(
+          mask: '####-####',
+          filter: {"#": RegExp(r'[0-9]')},
+        );
+        inputType = TextInputType.text;
         break;
       case InputMask.none:
         maskFormatter = null;
