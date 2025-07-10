@@ -8,7 +8,7 @@ import 'package:project_rotary/core/components/avatar.dart';
 import 'package:project_rotary/core/components/info_row.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
-class DependentPage extends StatelessWidget {
+class DependentPage extends StatefulWidget {
   final String dependentId;
   final String name;
   final String? imageUrl;
@@ -18,6 +18,8 @@ class DependentPage extends StatelessWidget {
   final String? address;
   final String applicantName;
   final String applicantId;
+  final String? isDeleted;
+  final Function(bool)? onDependentDeleted;
 
   const DependentPage({
     super.key,
@@ -30,7 +32,22 @@ class DependentPage extends StatelessWidget {
     this.address,
     required this.applicantName,
     required this.applicantId,
+    this.isDeleted,
+    this.onDependentDeleted,
   });
+
+  @override
+  State<DependentPage> createState() => _DependentPageState();
+}
+
+class _DependentPageState extends State<DependentPage> {
+  late bool _isDeleted;
+
+  @override
+  void initState() {
+    super.initState();
+    _isDeleted = widget.isDeleted == 'true';
+  }
 
   void _showActionsMenu(BuildContext context) {
     showModalBottomSheet(
@@ -43,32 +60,45 @@ class DependentPage extends StatelessWidget {
               MaterialPageRoute(
                 builder:
                     (context) => EditDependentPage(
-                      dependentId: dependentId,
-                      currentName: name,
-                      currentCpf: cpf,
-                      currentEmail: email,
-                      currentPhoneNumber: phone,
-                      currentAddress: address,
-                      applicantName: applicantName,
+                      dependentId: widget.dependentId,
+                      currentName: widget.name,
+                      currentCpf: widget.cpf,
+                      currentEmail: widget.email,
+                      currentPhoneNumber: widget.phone,
+                      currentAddress: widget.address,
+                      applicantName: widget.applicantName,
                     ),
               ),
             );
           },
-          onDeletePressed: () {
-            Navigator.of(context).push(
+          onDeletePressed: () async {
+            final res = await Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
                     (context) => DeleteDependentPage(
-                      dependentId: dependentId,
-                      dependentName: name,
-                      dependentCpf: cpf,
-                      dependentEmail: email,
-                      applicantName: applicantName,
-                      applicantId:
-                          applicantId, // Assuming applicantId is the same as dependentId
+                      dependentId: widget.dependentId,
+                      dependentName: widget.name,
+                      dependentCpf: widget.cpf,
+                      dependentEmail: widget.email,
+                      applicantName: widget.applicantName,
+                      applicantId: widget.applicantId,
                     ),
               ),
             );
+
+            if (res == true) {
+              setState(() {
+                _isDeleted = true;
+              });
+
+              // Notificar a tela anterior se houver callback
+              if (widget.onDependentDeleted != null) {
+                widget.onDependentDeleted!(true);
+              }
+
+              // Voltar para a tela anterior
+              Navigator.of(context).pop();
+            }
           },
         );
       },
@@ -77,8 +107,57 @@ class DependentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Se o dependent foi deletado, exibir mensagem e botão de voltar
+    if (_isDeleted) {
+      return Scaffold(
+        appBar: AppBarCustom(title: widget.name),
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(LucideIcons.userX, size: 80, color: Colors.red[400]),
+                const SizedBox(height: 24),
+                Text(
+                  'Dependente Removido',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red[400],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'O dependente ${widget.name} foi removido com sucesso.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CustomColors.primary,
+                    foregroundColor: CustomColors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text('Voltar'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBarCustom(title: name),
+      appBar: AppBarCustom(title: widget.name),
       backgroundColor: Colors.transparent,
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -88,13 +167,13 @@ class DependentPage extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Avatar(imageUrl: imageUrl, size: 150),
+                Avatar(imageUrl: widget.imageUrl, size: 150),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      name,
+                      widget.name,
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -107,11 +186,11 @@ class DependentPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Informações
-            InfoRow(icon: LucideIcons.idCard, label: cpf),
+            InfoRow(icon: LucideIcons.idCard, label: widget.cpf),
             const SizedBox(height: 5),
-            InfoRow(icon: LucideIcons.phone, label: phone),
+            InfoRow(icon: LucideIcons.phone, label: widget.phone),
             const SizedBox(height: 5),
-            InfoRow(icon: LucideIcons.mail, label: email),
+            InfoRow(icon: LucideIcons.mail, label: widget.email),
 
             const SizedBox(height: 24),
             const Text(
@@ -124,14 +203,17 @@ class DependentPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            InfoRow(icon: LucideIcons.house, label: 'Residência de $name'),
+            InfoRow(
+              icon: LucideIcons.house,
+              label: 'Residência de ${widget.name}',
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 36),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (address != null && address!.isNotEmpty)
-                    ...address!
+                  if (widget.address != null && widget.address!.isNotEmpty)
+                    ...widget.address!
                         .split(',')
                         .map((section) => Text('${section.trim()},'))
                   else
