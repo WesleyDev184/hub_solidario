@@ -95,7 +95,7 @@ class _EditDependentPageState extends State<EditDependentPage> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context, true);
+          Navigator.pop(context, success);
         },
         (error) {
           ScaffoldMessenger.of(context).showSnackBar(

@@ -356,6 +356,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                           applicantName:
                                               applicant?.name ?? 'Solicitante',
                                           applicantId: widget.applicantId,
+                                          createdAt: dependent.createdAt,
                                         ),
                                   ),
                                 );
@@ -387,7 +388,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                           ),
                                     ),
                                   );
-                                  if (result == true) {
+                                  if (result is Dependent) {
                                     _loadApplicantData();
                                   } else {
                                     // Recarrega os dados do solicitante
