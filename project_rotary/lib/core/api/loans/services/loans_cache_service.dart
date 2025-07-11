@@ -14,11 +14,11 @@ class LoansCacheService {
   SharedPreferences? _prefs;
 
   // Cache de loans
-  List<Loan>? _loans;
+  List<LoanListItem>? _loans;
   DateTime? _loansLastUpdated;
 
   // Cache individual por loan
-  final Map<String, Loan> _loansCache = {};
+  final Map<String, LoanListItem> _loansCache = {};
   final Map<String, DateTime> _loansCacheTimestamp = {};
 
   // Cache por applicant
@@ -67,7 +67,7 @@ class LoansCacheService {
   // === CACHE PERSISTENTE DE LOANS ===
 
   /// Cache de todos os loans (persistente)
-  Future<void> cacheLoans(List<Loan> loans) async {
+  Future<void> cacheLoans(List<LoanListItem> loans) async {
     await initialize();
 
     final loansJson = loans.map((loan) => loan.toJson()).toList();
@@ -78,8 +78,8 @@ class LoansCacheService {
     this.loans = loans;
   }
 
-  /// Obtém todos os loans do cache persistente
-  Future<List<Loan>?> getCachedLoans() async {
+  /// Obtém todos os loans do cache persistente (listagem)
+  Future<List<LoanListItem>?> getCachedLoans() async {
     await initialize();
 
     if (!_isCacheValid(_loansCacheKey)) return null;
@@ -91,7 +91,9 @@ class LoansCacheService {
       final loansJson = jsonDecode(loansStr) as List;
       final loans =
           loansJson
-              .map((json) => Loan.fromJson(json as Map<String, dynamic>))
+              .map(
+                (json) => LoanListItem.fromJson(json as Map<String, dynamic>),
+              )
               .toList();
 
       // Também atualiza o cache em memória
@@ -115,7 +117,7 @@ class LoansCacheService {
     await _saveTimestamp(key);
   }
 
-  /// Obtém um loan específico do cache persistente
+  /// Obtém um loan específico do cache persistente (detalhado)
   Future<Loan?> getCachedLoan(String loanId) async {
     await initialize();
 
@@ -170,7 +172,7 @@ class LoansCacheService {
     if (cachedLoans != null) {
       final updatedLoans =
           cachedLoans.map((cached) {
-            return cached.id == loan.id ? loan : cached;
+            return cached.id == loan.id ? LoanListItem.fromLoan(loan) : cached;
           }).toList();
       await cacheLoans(updatedLoans);
     }
@@ -181,7 +183,7 @@ class LoansCacheService {
     // Busca a lista de loans do cache
     final cachedLoans = await getCachedLoans() ?? [];
     // Adiciona o novo loan
-    cachedLoans.add(loan);
+    cachedLoans.add(LoanListItem.fromLoan(loan));
     // Atualiza o cache com a lista completa
     await cacheLoans(cachedLoans);
     debugPrint(
@@ -192,7 +194,7 @@ class LoansCacheService {
   // === CACHE DE LOANS ===
 
   /// Obtém a lista de loans do cache (primeiro tenta persistente, depois memória)
-  Future<List<Loan>?> getLoans() async {
+  Future<List<LoanListItem>?> getLoans() async {
     // Primeiro tenta o cache persistente
     final persistentLoans = await getCachedLoans();
     if (persistentLoans != null) {
@@ -216,7 +218,7 @@ class LoansCacheService {
   }
 
   /// Obtém a lista de loans do cache (apenas memória - método original)
-  List<Loan>? get loans {
+  List<LoanListItem>? get loans {
     if (_loans == null || _isLoansExpired()) {
       debugPrint('LoansCacheService: Cache de loans expirado ou vazio');
       return null;
@@ -228,7 +230,7 @@ class LoansCacheService {
   }
 
   /// Define a lista de loans no cache
-  set loans(List<Loan>? loans) {
+  set loans(List<LoanListItem>? loans) {
     _loans = loans != null ? List.from(loans) : null;
     _loansLastUpdated = loans != null ? DateTime.now() : null;
 
@@ -252,49 +254,26 @@ class LoansCacheService {
 
   // === CACHE INDIVIDUAL ===
 
-  /// Obtém um loan específico do cache em memória
-  Loan? getCachedLoanFromMemory(String loanId) {
-    final loan = _loansCache[loanId];
-    final timestamp = _loansCacheTimestamp[loanId];
-
-    if (loan == null || timestamp == null) {
-      debugPrint('LoansCacheService: Loan $loanId não encontrado no cache');
-      return null;
-    }
-
-    if (DateTime.now().difference(timestamp) > _cacheDuration) {
-      _loansCache.remove(loanId);
-      _loansCacheTimestamp.remove(loanId);
-      debugPrint('LoansCacheService: Cache do loan $loanId expirado');
-      return null;
-    }
-
-    debugPrint('LoansCacheService: Loan $loanId encontrado no cache');
-    return loan;
-  }
-
   /// Define um loan específico no cache
-  void _setCachedLoan(Loan loan) {
+  void _setCachedLoan(LoanListItem loan) {
     _loansCache[loan.id] = loan;
     _loansCacheTimestamp[loan.id] = DateTime.now();
   }
 
   /// Adiciona um loan ao cache
   void addLoan(Loan loan) {
-    _setCachedLoan(loan);
-
     // Adiciona à lista geral se existir
     if (_loans != null) {
       final existingIndex = _loans!.indexWhere((l) => l.id == loan.id);
       if (existingIndex >= 0) {
-        _loans![existingIndex] = loan;
+        _loans![existingIndex] = LoanListItem.fromLoan(loan);
       } else {
-        _loans!.add(loan);
+        _loans!.add(LoanListItem.fromLoan(loan));
       }
     }
 
     // Limpa caches relacionados
-    _clearRelatedCaches(loan);
+    _clearRelatedCaches(LoanListItem.fromLoan(loan));
 
     debugPrint('LoansCacheService: Loan ${loan.id} adicionado ao cache');
   }
@@ -326,7 +305,7 @@ class LoansCacheService {
   // === CACHE POR APPLICANT ===
 
   /// Obtém loans por applicant do cache
-  List<Loan>? getLoansByApplicant(String applicantId) {
+  List<LoanListItem>? getLoansByApplicant(String applicantId) {
     final loans = _loansByApplicantCache[applicantId];
     final timestamp = _loansByApplicantTimestamp[applicantId];
 
@@ -353,7 +332,7 @@ class LoansCacheService {
   }
 
   /// Define loans por applicant no cache
-  void setLoansByApplicant(String applicantId, List<Loan> loans) {
+  void setLoansByApplicant(String applicantId, List<LoanListItem> loans) {
     _loansByApplicantCache[applicantId] = List.from(loans);
     _loansByApplicantTimestamp[applicantId] = DateTime.now();
 
@@ -370,7 +349,7 @@ class LoansCacheService {
   // === CACHE POR ITEM ===
 
   /// Obtém loans por item do cache
-  List<Loan>? getLoansByItem(String itemId) {
+  List<LoanListItem>? getLoansByItem(String itemId) {
     final loans = _loansByItemCache[itemId];
     final timestamp = _loansByItemTimestamp[itemId];
 
@@ -388,7 +367,7 @@ class LoansCacheService {
   }
 
   /// Define loans por item no cache
-  void setLoansByItem(String itemId, List<Loan> loans) {
+  void setLoansByItem(String itemId, List<LoanListItem> loans) {
     _loansByItemCache[itemId] = List.from(loans);
     _loansByItemTimestamp[itemId] = DateTime.now();
 
@@ -400,7 +379,7 @@ class LoansCacheService {
   // === CACHE POR RESPONSIBLE ===
 
   /// Obtém loans por responsible do cache
-  List<Loan>? getLoansByResponsible(String responsibleId) {
+  List<LoanListItem>? getLoansByResponsible(String responsibleId) {
     final loans = _loansByResponsibleCache[responsibleId];
     final timestamp = _loansByResponsibleTimestamp[responsibleId];
 
@@ -418,7 +397,7 @@ class LoansCacheService {
   }
 
   /// Define loans por responsible no cache
-  void setLoansByResponsible(String responsibleId, List<Loan> loans) {
+  void setLoansByResponsible(String responsibleId, List<LoanListItem> loans) {
     _loansByResponsibleCache[responsibleId] = List.from(loans);
     _loansByResponsibleTimestamp[responsibleId] = DateTime.now();
 
@@ -430,15 +409,15 @@ class LoansCacheService {
   // === UTILITÁRIOS ===
 
   /// Limpa caches relacionados a um loan
-  void _clearRelatedCaches(Loan loan) {
-    _loansByApplicantCache.remove(loan.applicantId);
-    _loansByApplicantTimestamp.remove(loan.applicantId);
+  void _clearRelatedCaches(LoanListItem loan) {
+    _loansByApplicantCache.remove(loan.applicant);
+    _loansByApplicantTimestamp.remove(loan.applicant);
 
-    _loansByItemCache.remove(loan.itemId);
-    _loansByItemTimestamp.remove(loan.itemId);
+    _loansByItemCache.remove(loan.item.toString());
+    _loansByItemTimestamp.remove(loan.item.toString());
 
-    _loansByResponsibleCache.remove(loan.responsibleId);
-    _loansByResponsibleTimestamp.remove(loan.responsibleId);
+    _loansByResponsibleCache.remove(loan.responsible);
+    _loansByResponsibleTimestamp.remove(loan.responsible);
   }
 
   /// Verifica se há dados de loans no cache

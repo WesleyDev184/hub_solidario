@@ -8,11 +8,7 @@ class Loan {
   final String? reason;
   final bool isActive;
   final DateTime? returnDate;
-  final String applicantId;
-  final String responsibleId;
-  final String itemId;
   final DateTime createdAt;
-  final DateTime? updatedAt;
 
   // Objetos relacionados (quando carregados da API)
   final Applicant? applicant;
@@ -24,11 +20,7 @@ class Loan {
     this.reason,
     required this.isActive,
     this.returnDate,
-    required this.applicantId,
-    required this.responsibleId,
-    required this.itemId,
     required this.createdAt,
-    this.updatedAt,
     this.applicant,
     this.item,
     this.responsible,
@@ -44,14 +36,7 @@ class Loan {
             json['returnDate'] != null
                 ? DateTime.parse(json['returnDate'] as String)
                 : null,
-        applicantId: _extractId(json, 'applicant', 'applicantId'),
-        responsibleId: _extractId(json, 'responsible', 'responsibleId'),
-        itemId: _extractId(json, 'item', 'itemId'),
         createdAt: DateTime.parse(json['createdAt'] as String),
-        updatedAt:
-            json['updatedAt'] != null
-                ? DateTime.parse(json['updatedAt'] as String)
-                : null,
         applicant:
             json['applicant'] != null &&
                     json['applicant'] is Map<String, dynamic>
@@ -72,38 +57,13 @@ class Loan {
     }
   }
 
-  /// Extrai o ID de um campo que pode ser string, número ou objeto
-  static String _extractId(
-    Map<String, dynamic> json,
-    String fieldName,
-    String idFieldName,
-  ) {
-    final directId = json[idFieldName];
-    if (directId != null) {
-      return directId.toString();
-    }
-
-    final fieldValue = json[fieldName];
-    if (fieldValue == null) return '';
-
-    if (fieldValue is Map<String, dynamic>) {
-      return fieldValue['id']?.toString() ?? '';
-    }
-
-    return fieldValue.toString();
-  }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'reason': reason,
       'isActive': isActive,
       'returnDate': returnDate?.toIso8601String(),
-      'applicantId': applicantId,
-      'responsibleId': responsibleId,
-      'itemId': itemId,
       'createdAt': createdAt.toIso8601String(),
-      if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
       if (applicant != null) 'applicant': applicant!.toJson(),
       if (item != null) 'item': item!.toJson(),
       if (responsible != null) 'responsible': responsible!.toJson(),
@@ -120,7 +80,7 @@ class Loan {
   bool get isOverdue {
     if (!isActive) return false;
     final daysSinceCreated = DateTime.now().difference(createdAt).inDays;
-    return daysSinceCreated > 30;
+    return daysSinceCreated > 90;
   }
 
   /// Número de dias desde a criação do empréstimo
@@ -151,9 +111,6 @@ class Loan {
     String? reason,
     bool? isActive,
     DateTime? returnDate,
-    String? applicantId,
-    String? responsibleId,
-    String? itemId,
     DateTime? createdAt,
     DateTime? updatedAt,
     Applicant? applicant,
@@ -165,11 +122,7 @@ class Loan {
       reason: reason ?? this.reason,
       isActive: isActive ?? this.isActive,
       returnDate: returnDate ?? this.returnDate,
-      applicantId: applicantId ?? this.applicantId,
-      responsibleId: responsibleId ?? this.responsibleId,
-      itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
       applicant: applicant ?? this.applicant,
       item: item ?? this.item,
       responsible: responsible ?? this.responsible,
@@ -187,7 +140,7 @@ class Loan {
 
   @override
   String toString() {
-    return 'Loan{id: $id, reason: $reason, isActive: $isActive, applicantId: $applicantId, responsibleId: $responsibleId, itemId: $itemId, createdAt: $createdAt, returnDate: $returnDate}';
+    return 'Loan{id: $id, reason: $reason, isActive: $isActive, createdAt: $createdAt, returnDate: $returnDate}';
   }
 }
 
@@ -198,30 +151,20 @@ class LoanListItem {
   final String? reason;
   final bool isActive;
   final DateTime? returnDate;
-  final String applicantId;
-  final String responsibleId;
-  final String itemId;
+  final String applicant;
+  final String responsible;
+  final int item;
   final DateTime createdAt;
-  final DateTime? updatedAt;
-
-  // Campos derivados úteis para listagem
-  final String? applicantName;
-  final String? responsibleName;
-  final int? itemSerialCode;
 
   const LoanListItem({
     required this.id,
     this.reason,
     required this.isActive,
     this.returnDate,
-    required this.applicantId,
-    required this.responsibleId,
-    required this.itemId,
+    required this.applicant,
+    required this.responsible,
+    required this.item,
     required this.createdAt,
-    this.updatedAt,
-    this.applicantName,
-    this.responsibleName,
-    this.itemSerialCode,
   });
 
   /// Cria LoanListItem a partir de um Loan completo
@@ -231,96 +174,35 @@ class LoanListItem {
       reason: loan.reason,
       isActive: loan.isActive,
       returnDate: loan.returnDate,
-      applicantId: loan.applicantId,
-      responsibleId: loan.responsibleId,
-      itemId: loan.itemId,
       createdAt: loan.createdAt,
-      updatedAt: loan.updatedAt,
-      applicantName: loan.applicant?.name,
-      responsibleName: loan.responsible?.name,
-      itemSerialCode: loan.item?.serialCode,
+      applicant: loan.applicant?.name ?? '',
+      responsible: loan.responsible?.name ?? '',
+      item: loan.item?.serialCode ?? 0,
     );
+  }
+
+  String get formattedSerialCode {
+    // Formata o serial code para o padrão ####-####
+    final code = item.toString().padLeft(8, '0');
+    return '${code.substring(0, 4)}-${code.substring(4)}';
   }
 
   /// Formato de LISTA: valores simples
   /// Exemplo: "applicant": "John Doe", "item": 12345
-  factory LoanListItem.fromListJson(Map<String, dynamic> json) {
-    try {
-      return LoanListItem(
-        id: json['id'] as String,
-        reason: json['reason'] as String?,
-        isActive: json['isActive'] as bool? ?? true,
-        returnDate:
-            json['returnDate'] != null
-                ? DateTime.parse(json['returnDate'] as String)
-                : null,
-        applicantId: '', // No formato de lista, não temos os IDs separados
-        responsibleId: '',
-        itemId: '',
-        createdAt: DateTime.parse(json['createdAt'] as String),
-        updatedAt:
-            json['updatedAt'] != null
-                ? DateTime.parse(json['updatedAt'] as String)
-                : null,
-        // No formato de lista, os campos vem como valores simples
-        applicantName: json['applicant'] as String?,
-        responsibleName: json['responsible'] as String?,
-        itemSerialCode: json['item'] as int?,
-      );
-    } catch (e) {
-      throw Exception('Erro ao processar LoanListItem (formato lista): $e');
-    }
-  }
-
-  /// Formato INDIVIDUAL: objetos completos
-  /// Exemplo: "applicant": {"id": "...", "name": "John Doe", ...}
-  factory LoanListItem.fromDetailJson(Map<String, dynamic> json) {
-    try {
-      final applicantData = json['applicant'] as Map<String, dynamic>?;
-      final responsibleData = json['responsible'] as Map<String, dynamic>?;
-      final itemData = json['item'] as Map<String, dynamic>?;
-
-      return LoanListItem(
-        id: json['id'] as String,
-        reason: json['reason'] as String?,
-        isActive: json['isActive'] as bool? ?? true,
-        returnDate:
-            json['returnDate'] != null
-                ? DateTime.parse(json['returnDate'] as String)
-                : null,
-        applicantId: applicantData?['id'] as String? ?? '',
-        responsibleId: responsibleData?['id'] as String? ?? '',
-        itemId: itemData?['id'] as String? ?? '',
-        createdAt: DateTime.parse(json['createdAt'] as String),
-        updatedAt:
-            json['updatedAt'] != null
-                ? DateTime.parse(json['updatedAt'] as String)
-                : null,
-        applicantName: applicantData?['name'] as String?,
-        responsibleName: responsibleData?['name'] as String?,
-        itemSerialCode: itemData?['seriaCode'] as int?, // API usa 'seriaCode'
-      );
-    } catch (e) {
-      throw Exception('Erro ao processar LoanListItem (formato detalhado): $e');
-    }
-  }
-
-  /// Detecta automaticamente o formato e cria o LoanListItem apropriado
   factory LoanListItem.fromJson(Map<String, dynamic> json) {
-    // Detecta se é formato de lista ou individual
-    final applicantValue = json['applicant'];
-    final itemValue = json['item'];
-    final responsibleValue = json['responsible'];
-
-    // Se os campos são objetos, é formato individual
-    if (applicantValue is Map<String, dynamic> ||
-        itemValue is Map<String, dynamic> ||
-        responsibleValue is Map<String, dynamic>) {
-      return LoanListItem.fromDetailJson(json);
-    }
-
-    // Se os campos são valores simples, é formato de lista
-    return LoanListItem.fromListJson(json);
+    return LoanListItem(
+      id: json['id'] as String,
+      reason: json['reason'] as String?,
+      isActive: json['isActive'] as bool? ?? true,
+      returnDate:
+          json['returnDate'] != null
+              ? DateTime.parse(json['returnDate'] as String)
+              : null,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      applicant: json['applicant'] as String? ?? '',
+      responsible: json['responsible'] as String? ?? '',
+      item: json['item'] as int? ?? 0,
+    );
   }
 
   /// Converte para JSON
@@ -330,19 +212,10 @@ class LoanListItem {
       'reason': reason,
       'isActive': isActive,
       'returnDate': returnDate?.toIso8601String(),
-      'applicantId': applicantId,
-      'responsibleId': responsibleId,
-      'itemId': itemId,
+      'applicant': applicant,
+      'responsible': responsible,
+      'item': item,
       'createdAt': createdAt.toIso8601String(),
-      if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
-      if (applicantName != null) 'applicantName': applicantName,
-      if (responsibleName != null) 'responsibleName': responsibleName,
-      if (itemSerialCode != null) 'itemSerialCode': itemSerialCode,
-      // Campos derivados úteis
-      'daysSinceCreated': daysSinceCreated,
-      'isOverdue': isOverdue,
-      'isReturned': isReturned,
-      'daysUntilReturn': daysUntilReturn,
     };
   }
 
@@ -356,7 +229,7 @@ class LoanListItem {
   bool get isOverdue {
     if (!isActive) return false;
     final daysSinceCreated = DateTime.now().difference(createdAt).inDays;
-    return daysSinceCreated > 30;
+    return daysSinceCreated > 90;
   }
 
   /// Número de dias desde a criação do empréstimo
@@ -373,29 +246,6 @@ class LoanListItem {
     return loans.map((loan) => LoanListItem.fromLoan(loan)).toList();
   }
 
-  /// Converte lista de JSON para lista de LoanListItems
-  static List<LoanListItem> fromJsonList(List<dynamic> jsonList) {
-    return jsonList
-        .map((json) => LoanListItem.fromJson(json as Map<String, dynamic>))
-        .toList();
-  }
-
-  /// Converte especificamente lista de formato simples
-  static List<LoanListItem> fromListJsonList(List<dynamic> jsonList) {
-    return jsonList
-        .map((json) => LoanListItem.fromListJson(json as Map<String, dynamic>))
-        .toList();
-  }
-
-  /// Converte especificamente lista de formato detalhado
-  static List<LoanListItem> fromDetailJsonList(List<dynamic> jsonList) {
-    return jsonList
-        .map(
-          (json) => LoanListItem.fromDetailJson(json as Map<String, dynamic>),
-        )
-        .toList();
-  }
-
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -409,7 +259,7 @@ class LoanListItem {
 
   @override
   String toString() {
-    return 'LoanListItem{id: $id, reason: $reason, isActive: $isActive, applicantName: $applicantName, responsibleName: $responsibleName, itemSerialCode: $itemSerialCode}';
+    return 'LoanListItem{id: $id, reason: $reason, isActive: $isActive, createdAt: $createdAt, applicant: $applicant, responsible: $responsible, item: $item}';
   }
 }
 
@@ -500,7 +350,7 @@ class LoanResponse {
 class LoansListResponse {
   final bool success;
   final int count;
-  final List<Loan> data;
+  final List<LoanListItem> data;
   final String? message;
 
   const LoansListResponse({
@@ -517,7 +367,9 @@ class LoansListResponse {
       count: json['count'] as int? ?? dataList.length,
       data:
           dataList
-              .map((item) => Loan.fromJson(item as Map<String, dynamic>))
+              .map(
+                (item) => LoanListItem.fromJson(item as Map<String, dynamic>),
+              )
               .toList(),
       message: json['message'] as String?,
     );
@@ -528,85 +380,6 @@ class LoansListResponse {
       'success': success,
       'count': count,
       'data': data.map((loan) => loan.toJson()).toList(),
-      if (message != null) 'message': message,
-    };
-  }
-
-  /// Converte para JSON com apenas dados essenciais para listagem
-  Map<String, dynamic> toListJson() {
-    return {
-      'success': success,
-      'count': count,
-      'data': data.map((loan) => loan.toListItem().toJson()).toList(),
-      if (message != null) 'message': message,
-    };
-  }
-}
-
-/// Response especializada para listas de LoanListItems
-class LoanListItemsResponse {
-  final bool success;
-  final int count;
-  final List<LoanListItem> data;
-  final String? message;
-
-  const LoanListItemsResponse({
-    required this.success,
-    required this.count,
-    required this.data,
-    this.message,
-  });
-
-  /// Para formato de lista (valores simples)
-  factory LoanListItemsResponse.fromListJson(Map<String, dynamic> json) {
-    final dataList = json['data'] as List<dynamic>? ?? [];
-    return LoanListItemsResponse(
-      success: json['success'] as bool? ?? false,
-      count: json['count'] as int? ?? dataList.length,
-      data: LoanListItem.fromListJsonList(dataList),
-      message: json['message'] as String?,
-    );
-  }
-
-  /// Para formato detalhado (objetos completos)
-  factory LoanListItemsResponse.fromDetailJson(Map<String, dynamic> json) {
-    final dataList = json['data'] as List<dynamic>? ?? [];
-    return LoanListItemsResponse(
-      success: json['success'] as bool? ?? false,
-      count: json['count'] as int? ?? dataList.length,
-      data: LoanListItem.fromDetailJsonList(dataList),
-      message: json['message'] as String?,
-    );
-  }
-
-  /// Detecta automaticamente o formato
-  factory LoanListItemsResponse.fromJson(Map<String, dynamic> json) {
-    final dataList = json['data'] as List<dynamic>? ?? [];
-    return LoanListItemsResponse(
-      success: json['success'] as bool? ?? false,
-      count: json['count'] as int? ?? dataList.length,
-      data: LoanListItem.fromJsonList(dataList),
-      message: json['message'] as String?,
-    );
-  }
-
-  /// Cria a partir de LoansListResponse
-  factory LoanListItemsResponse.fromLoansListResponse(
-    LoansListResponse response,
-  ) {
-    return LoanListItemsResponse(
-      success: response.success,
-      count: response.count,
-      data: LoanListItem.fromLoanList(response.data),
-      message: response.message,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'count': count,
-      'data': data.map((item) => item.toJson()).toList(),
       if (message != null) 'message': message,
     };
   }

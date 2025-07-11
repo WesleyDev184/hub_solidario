@@ -8,7 +8,7 @@ class LoansController {
   final LoansRepository _repository;
   final LoansCacheService _cacheService;
 
-  List<Loan> _loans = [];
+  List<LoanListItem> _loans = [];
   bool _isLoading = false;
   String? _error;
 
@@ -25,8 +25,8 @@ class LoansController {
     }
   }
 
-  /// Lista de loans atual
-  List<Loan> get loans => List.unmodifiable(_loans);
+  /// Lista de loans atual (listagem)
+  List<LoanListItem> get loans => List.unmodifiable(_loans);
 
   /// Indica se está carregando
   bool get isLoading => _isLoading;
@@ -43,8 +43,8 @@ class LoansController {
 
   // === OPERAÇÕES DE LOANS ===
 
-  /// Carrega todos os loans
-  AsyncResult<List<Loan>> loadLoans({
+  /// Carrega todos os loans (listagem)
+  AsyncResult<List<LoanListItem>> loadLoans({
     bool forceRefresh = false,
     LoanFilters? filters,
   }) async {
@@ -71,16 +71,17 @@ class LoansController {
 
       return result.fold(
         (loans) async {
-          _loans = loans;
+          final listItems = loans.map(LoanListItem.fromLoan).toList();
+          _loans = listItems;
           _error = null;
           _isLoading = false;
 
           // Atualiza cache se não há filtros
           if (filters == null) {
-            await _cacheService.cacheLoans(loans);
+            await _cacheService.cacheLoans(listItems);
           }
 
-          return Success(loans);
+          return Success(listItems);
         },
         (error) {
           _error = error.toString();
@@ -95,7 +96,7 @@ class LoansController {
     }
   }
 
-  /// Carrega um loan específico por ID
+  /// Carrega um loan específico por ID (detalhado)
   AsyncResult<Loan> loadLoanById(
     String loanId, {
     bool forceRefresh = false,
@@ -118,9 +119,9 @@ class LoansController {
         // Atualiza lista local se o loan já existe
         final index = _loans.indexWhere((l) => l.id == loan.id);
         if (index != -1) {
-          _loans[index] = loan;
+          _loans[index] = LoanListItem.fromLoan(loan);
         } else {
-          _loans.add(loan);
+          _loans.add(LoanListItem.fromLoan(loan));
         }
 
         return Success(loan);
@@ -137,7 +138,7 @@ class LoansController {
 
       return result.fold((loan) async {
         // Adiciona à lista local
-        _loans.add(loan);
+        _loans.add(LoanListItem.fromLoan(loan));
 
         // Atualiza cache
         await _cacheService.cacheCreatedLoan(loan);
@@ -158,7 +159,7 @@ class LoansController {
         // Atualiza na lista local
         final index = _loans.indexWhere((l) => l.id == loan.id);
         if (index != -1) {
-          _loans[index] = loan;
+          _loans[index] = LoanListItem.fromLoan(loan);
         }
 
         // Atualiza cache
@@ -193,25 +194,31 @@ class LoansController {
   }
 
   /// Carrega loans ativos
-  AsyncResult<List<Loan>> loadActiveLoans({bool forceRefresh = false}) async {
+  AsyncResult<List<LoanListItem>> loadActiveLoans({
+    bool forceRefresh = false,
+  }) async {
     final filters = LoanFilters(isActive: true);
     return loadLoans(forceRefresh: forceRefresh, filters: filters);
   }
 
   /// Carrega loans devolvidos
-  AsyncResult<List<Loan>> loadReturnedLoans({bool forceRefresh = false}) async {
+  AsyncResult<List<LoanListItem>> loadReturnedLoans({
+    bool forceRefresh = false,
+  }) async {
     final filters = LoanFilters(isActive: false);
     return loadLoans(forceRefresh: forceRefresh, filters: filters);
   }
 
   /// Carrega loans em atraso
-  AsyncResult<List<Loan>> loadOverdueLoans({bool forceRefresh = false}) async {
+  AsyncResult<List<LoanListItem>> loadOverdueLoans({
+    bool forceRefresh = false,
+  }) async {
     final filters = LoanFilters(isOverdue: true);
     return loadLoans(forceRefresh: forceRefresh, filters: filters);
   }
 
   /// Carrega loans por período
-  AsyncResult<List<Loan>> loadLoansByDateRange(
+  AsyncResult<List<LoanListItem>> loadLoansByDateRange(
     DateTime startDate,
     DateTime endDate, {
     bool forceRefresh = false,
@@ -263,41 +270,38 @@ class LoansController {
   // === OPERAÇÕES DE BUSCA E FILTRO ===
 
   /// Busca loans por texto (razão)
-  List<Loan> searchLoans(String query) {
+  List<LoanListItem> searchLoans(String query) {
     if (query.isEmpty) return _loans;
 
     final searchQuery = query.toLowerCase();
     return _loans.where((loan) {
       return (loan.reason?.toLowerCase().contains(searchQuery) ?? false) ||
-          (loan.applicantName?.toLowerCase().contains(searchQuery) ?? false) ||
-          (loan.responsibleName?.toLowerCase().contains(searchQuery) ?? false);
+          (loan.applicant.toLowerCase().contains(searchQuery)) ||
+          (loan.responsible.toLowerCase().contains(searchQuery));
     }).toList();
   }
 
   /// Filtra loans localmente
-  List<Loan> filterLoans({
+  List<LoanListItem> filterLoans({
     bool? isActive,
-    String? applicantId,
-    String? responsibleId,
-    String? itemId,
+    String? applicant,
+    String? responsible,
+    int? item,
     bool? isOverdue,
   }) {
     return _loans.where((loan) {
       if (isActive != null && loan.isActive != isActive) return false;
-      if (applicantId != null && loan.applicantId != applicantId) return false;
-      if (responsibleId != null && loan.responsibleId != responsibleId) {
-        return false;
-      }
-      if (itemId != null && loan.itemId != itemId) return false;
+      if (applicant != null && loan.applicant != applicant) return false;
+      if (responsible != null && loan.responsible != responsible) return false;
+      if (item != null && loan.item != item) return false;
       if (isOverdue != null && loan.isOverdue != isOverdue) return false;
-
       return true;
     }).toList();
   }
 
   /// Ordena loans por data
-  List<Loan> sortLoansByDate({bool ascending = false}) {
-    final sortedLoans = List<Loan>.from(_loans);
+  List<LoanListItem> sortLoansByDate({bool ascending = false}) {
+    final sortedLoans = List<LoanListItem>.from(_loans);
     sortedLoans.sort((a, b) {
       return ascending
           ? a.createdAt.compareTo(b.createdAt)
@@ -307,8 +311,8 @@ class LoansController {
   }
 
   /// Ordena loans por status (ativos primeiro)
-  List<Loan> sortLoansByStatus() {
-    final sortedLoans = List<Loan>.from(_loans);
+  List<LoanListItem> sortLoansByStatus() {
+    final sortedLoans = List<LoanListItem>.from(_loans);
     sortedLoans.sort((a, b) {
       if (a.isActive && !b.isActive) return -1;
       if (!a.isActive && b.isActive) return 1;
@@ -327,7 +331,7 @@ class LoansController {
   }
 
   /// Força refresh de todos os dados
-  AsyncResult<List<Loan>> refreshAllData() async {
+  AsyncResult<List<LoanListItem>> refreshAllData() async {
     await clearAllCaches();
     return loadLoans(forceRefresh: true);
   }

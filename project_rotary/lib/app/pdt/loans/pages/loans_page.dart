@@ -17,8 +17,8 @@ class LoansPage extends StatefulWidget {
 
 class _LoansPageState extends State<LoansPage> {
   final TextEditingController searchController = TextEditingController();
-  List<Loan> filteredLoans = [];
-  List<Loan> _loans = [];
+  List<LoanListItem> filteredLoans = [];
+  List<LoanListItem> _loans = [];
   bool _isLoading = false;
 
   @override
@@ -75,10 +75,10 @@ class _LoansPageState extends State<LoansPage> {
       } else {
         filteredLoans =
             _loans.where((loan) {
-              final applicant = loan.applicantId.toString().toLowerCase();
+              final applicant = loan.applicant.toString().toLowerCase();
               final reason = loan.reason.toString().toLowerCase();
-              final responsibleId = loan.responsibleId.toString().toLowerCase();
-              final itemId = loan.itemId.toString().toLowerCase();
+              final responsibleId = loan.responsible.toString().toLowerCase();
+              final itemId = loan.item.toString().toLowerCase();
 
               return applicant.contains(query) ||
                   reason.contains(query) ||
@@ -158,14 +158,14 @@ class _LoansPageState extends State<LoansPage> {
                                       id: loan.id.toString(),
                                       imageUrl:
                                           "assets/images/cr.jpg", // URL padrão
-                                      name: loan.applicantId.toString(),
+                                      name: loan.applicant.toString(),
                                       serialCode: _formatSerialCode(
-                                        loan.itemId.hashCode,
+                                        loan.item,
                                       ),
                                       date: _formatDate(loan.createdAt),
-                                      beneficiary: loan.applicantId.toString(),
+                                      beneficiary: loan.applicant.toString(),
                                       responsible:
-                                          loan.responsibleId.toString(),
+                                          loan.responsible.toString(),
                                       returnDate: _formatDate(
                                         loan.returnDate ?? DateTime.now(),
                                       ),
