@@ -62,121 +62,162 @@ class LoanPage extends StatelessWidget {
               ),
             );
           },
-        );  
+        );
       },
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      appBar: AppBarCustom(title: 'Empréstimo: $loanSerialCode'),
-      backgroundColor: Colors.transparent,
+      appBar: AppBarCustom(title: 'Detalhes do Empréstimo'),
+      backgroundColor: CustomColors.primary.withOpacity(0.03),
       body: Stack(
         children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment.bottomLeft,
+                radius: 1.2,
+                colors: [
+                  CustomColors.primary.withOpacity(0.04),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+          // SliverAppBar melhorado
           CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 260.0,
+                expandedHeight: 220.0,
                 floating: false,
                 pinned: true,
                 automaticallyImplyLeading: false,
-                backgroundColor: CustomColors.white,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Image.asset(
-                    'assets/images/cr.jpg',
-                    fit: BoxFit.cover,
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Imagem principal
+                      Image.asset('assets/images/cr.jpg', fit: BoxFit.cover),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
+          // Sheet melhorado
           DraggableScrollableSheet(
-            initialChildSize: 0.69,
-            minChildSize: 0.68,
-            maxChildSize: 1.0,
+            initialChildSize: 0.756,
+            minChildSize: 0.756,
+            maxChildSize: 0.95,
             builder: (context, scrollController) {
               return Container(
-                padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: CustomColors.white,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24.0),
-                    topRight: Radius.circular(24.0),
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: CustomColors.textPrimary.withOpacity(0.1),
-                      blurRadius: 10,
+                      color: CustomColors.primary.withOpacity(0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, -4),
+                      spreadRadius: 1,
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 15,
                       offset: const Offset(0, -2),
+                      spreadRadius: 0,
                     ),
                   ],
                 ),
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.only(bottom: 80),
+                child: Column(
                   children: [
-                    const SizedBox(height: 16),
-                    Text(
-                      'Empréstimo do Item: $loanSerialCode',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: CustomColors.textPrimary, // cor roxa escura
+                    // Handle indicator
+                    Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: CustomColors.textSecondary.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    const SizedBox(height: 48),
+                    Expanded(
+                      child: ListView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        children: [
+                          // Header com código do empréstimo
+                          _buildHeader(),
+                          const SizedBox(height: 24),
 
-                    // Responsável
-                    _buildInfoRow(
-                      LucideIcons.idCard,
-                      'Responsável:',
-                      loanResponsible,
+                          // Seção de Pessoas
+                          _buildSectionCard(
+                            'Pessoas Envolvidas',
+                            LucideIcons.users,
+                            [
+                              _buildInfoRow(
+                                LucideIcons.userCheck,
+                                'Responsável',
+                                loanResponsible,
+                              ),
+                              const SizedBox(height: 12),
+                              _buildInfoRow(
+                                LucideIcons.user,
+                                'Solicitante',
+                                loanApplicant,
+                              ),
+                              const SizedBox(height: 12),
+                              _buildInfoRow(
+                                LucideIcons.heart,
+                                'Beneficiado',
+                                loanBeneficiary,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Seção de Datas
+                          _buildSectionCard(
+                            'Cronograma',
+                            LucideIcons.calendar,
+                            [
+                              _buildInfoRow(
+                                LucideIcons.calendarDays,
+                                'Data do Empréstimo',
+                                loanDate,
+                              ),
+                              const SizedBox(height: 12),
+                              _buildInfoRow(
+                                LucideIcons.calendarClock,
+                                'Data de Devolução',
+                                loanReturnDate,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Seção de Detalhes
+                          _buildSectionCard('Detalhes', LucideIcons.fileText, [
+                            _buildInfoRow(
+                              LucideIcons.messageSquare,
+                              'Motivo',
+                              loanReason,
+                            ),
+                          ]),
+                          const SizedBox(height: 100),
+                        ],
+                      ),
                     ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-
-                    // Solicitante
-                    _buildInfoRow(
-                      LucideIcons.idCard,
-                      'Solicitante:',
-                      loanApplicant,
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-
-                    // Beneficiado
-                    _buildInfoRow(
-                      LucideIcons.idCard,
-                      'Beneficiado:',
-                      loanBeneficiary,
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-
-                    // Empréstimo
-                    _buildInfoRow(
-                      LucideIcons.calendar,
-                      'Empréstimo:',
-                      loanDate,
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-
-                    // Devolução
-                    _buildInfoRow(
-                      LucideIcons.calendar,
-                      'Devolução:',
-                      loanReturnDate,
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-
-                    // Motivo
-                    _buildInfoRow(LucideIcons.fileText, 'Motivo:', loanReason),
                   ],
                 ),
               );
@@ -184,45 +225,255 @@ class LoanPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showActionsMenu(context),
         backgroundColor: CustomColors.primary,
-        child: const Icon(LucideIcons.menu, color: CustomColors.white),
+        foregroundColor: CustomColors.white,
+        icon: const Icon(LucideIcons.menu),
+        label: const Text('Ações'),
+        elevation: 4,
       ),
     );
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                color: CustomColors.textSecondary,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: CustomColors.textSecondary.withOpacity(0.08)),
+        boxShadow: [
+          BoxShadow(
+            color: CustomColors.primary.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  CustomColors.primary.withOpacity(0.12),
+                  CustomColors.primary.withOpacity(0.06),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.circular(10),
             ),
-            Row(
+            child: Icon(icon, color: CustomColors.primary, size: 18),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: CustomColors.textPrimary),
-                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: CustomColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 15,
+                    color: CustomColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [CustomColors.primary.withOpacity(0.9), CustomColors.primary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: CustomColors.primary.withOpacity(0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: CustomColors.primary.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Empréstimo',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: CustomColors.white.withOpacity(0.9),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      loanSerialCode,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: CustomColors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _getStatusColor().withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  loanStatus,
+                  style: const TextStyle(
+                    color: CustomColors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'ID: #${loanId}',
+            style: TextStyle(
+              fontSize: 13,
+              color: CustomColors.white.withOpacity(0.8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColor() {
+    switch (loanStatus.toLowerCase()) {
+      case 'ativo':
+        return Colors.green;
+      case 'finalizado':
+        return Colors.blue;
+      case 'atrasado':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _buildSectionCard(
+    String title,
+    IconData titleIcon,
+    List<Widget> children,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: CustomColors.textSecondary.withOpacity(0.06)),
+        boxShadow: [
+          BoxShadow(
+            color: CustomColors.primary.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  CustomColors.primary.withOpacity(0.06),
+                  CustomColors.primary.withOpacity(0.03),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: CustomColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(titleIcon, color: CustomColors.primary, size: 16),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                     color: CustomColors.textPrimary,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
-      ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(children: children),
+          ),
+        ],
+      ),
     );
   }
 }

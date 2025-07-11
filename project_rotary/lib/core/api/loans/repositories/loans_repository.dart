@@ -10,14 +10,9 @@ class LoansRepository {
   const LoansRepository(this._apiClient);
 
   /// Busca todos os loans
-  AsyncResult<List<Loan>> getLoans({LoanFilters? filters}) async {
+  AsyncResult<List<Loan>> getLoans() async {
     try {
-      final queryParams = filters?.toQueryParams();
-      final result = await _apiClient.get(
-        ApiEndpoints.loans,
-        useAuth: true,
-        queryParams: queryParams,
-      );
+      final result = await _apiClient.get(ApiEndpoints.loans, useAuth: true);
 
       return result.fold((data) {
         try {
@@ -158,109 +153,6 @@ class LoansRepository {
       }, (error) => Failure(error));
     } catch (e) {
       return Failure(Exception('Erro na comunicação com a API: $e'));
-    }
-  }
-
-  // === MÉTODOS DE FILTRO ===
-
-  /// Busca loans por applicant
-  AsyncResult<List<Loan>> getLoansByApplicant(String applicantId) async {
-    final filters = LoanFilters(applicantId: applicantId);
-    return getLoans(filters: filters);
-  }
-
-  /// Busca loans por item
-  AsyncResult<List<Loan>> getLoansByItem(String itemId) async {
-    final filters = LoanFilters(itemId: itemId);
-    return getLoans(filters: filters);
-  }
-
-  /// Busca loans por responsável
-  AsyncResult<List<Loan>> getLoansByResponsible(String responsibleId) async {
-    final filters = LoanFilters(responsibleId: responsibleId);
-    return getLoans(filters: filters);
-  }
-
-  /// Busca loans ativos
-  AsyncResult<List<Loan>> getActiveLoans() async {
-    final filters = LoanFilters(isActive: true);
-    return getLoans(filters: filters);
-  }
-
-  /// Busca loans inativos (devolvidos)
-  AsyncResult<List<Loan>> getReturnedLoans() async {
-    final filters = LoanFilters(isActive: false);
-    return getLoans(filters: filters);
-  }
-
-  /// Busca loans em atraso
-  AsyncResult<List<Loan>> getOverdueLoans() async {
-    final filters = LoanFilters(isOverdue: true);
-    return getLoans(filters: filters);
-  }
-
-  /// Busca loans por período
-  AsyncResult<List<Loan>> getLoansByDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
-    final filters = LoanFilters(
-      createdAfter: startDate,
-      createdBefore: endDate,
-    );
-    return getLoans(filters: filters);
-  }
-
-  // === REGRAS DE NEGÓCIO ===
-
-  /// Verifica se um applicant pode criar um novo loan
-  AsyncResult<bool> canApplicantCreateLoan(String applicantId) async {
-    try {
-      // Busca todos os loans ativos do applicant
-      final activeLoansResult = await getLoansByApplicant(applicantId);
-
-      return activeLoansResult.fold((loans) {
-        // Filtra apenas os loans ativos
-        final activeLoans = loans.where((loan) => loan.isActive).toList();
-
-        // Regra: máximo de 3 loans ativos por applicant
-        const maxActiveLoans = 3;
-
-        if (activeLoans.length < maxActiveLoans) {
-          return const Success(true);
-        } else {
-          return Failure(
-            Exception(
-              'Applicant já possui o máximo de $maxActiveLoans empréstimos ativos',
-            ),
-          );
-        }
-      }, (error) => Failure(error));
-    } catch (e) {
-      return Failure(Exception('Erro ao verificar limite de empréstimos: $e'));
-    }
-  }
-
-  /// Verifica se um item está disponível para empréstimo
-  AsyncResult<bool> isItemAvailableForLoan(String itemId) async {
-    try {
-      // Busca todos os loans do item
-      final loansResult = await getLoansByItem(itemId);
-
-      return loansResult.fold((loans) {
-        // Verifica se há algum loan ativo para este item
-        final hasActiveLoan = loans.any((loan) => loan.isActive);
-
-        if (!hasActiveLoan) {
-          return const Success(true);
-        } else {
-          return Failure(Exception('Item já está emprestado e não disponível'));
-        }
-      }, (error) => Failure(error));
-    } catch (e) {
-      return Failure(
-        Exception('Erro ao verificar disponibilidade do item: $e'),
-      );
     }
   }
 

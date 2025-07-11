@@ -14,6 +14,17 @@ class LoansController {
 
   LoansController(this._repository, this._cacheService);
 
+  /// Inicializa o controller
+  Future<void> initialize() async {
+    await _cacheService.initialize();
+
+    // Tenta carregar dados do cache na inicialização
+    final cachedLoans = await _cacheService.getLoans();
+    if (cachedLoans != null && cachedLoans.isNotEmpty) {
+      _loans = cachedLoans;
+    }
+  }
+
   /// Lista de loans atual
   List<Loan> get loans => List.unmodifiable(_loans);
 
@@ -47,7 +58,7 @@ class LoansController {
     try {
       // Verifica cache primeiro
       if (!forceRefresh && filters == null) {
-        final cachedLoans = _cacheService.loans;
+        final cachedLoans = await _cacheService.getLoans();
         if (cachedLoans != null && cachedLoans.isNotEmpty) {
           _loans = cachedLoans;
           _isLoading = false;
@@ -56,17 +67,17 @@ class LoansController {
       }
 
       // Busca dados via repository
-      final result = await _repository.getLoans(filters: filters);
+      final result = await _repository.getLoans();
 
       return result.fold(
-        (loans) {
+        (loans) async {
           _loans = loans;
           _error = null;
           _isLoading = false;
 
           // Atualiza cache se não há filtros
           if (filters == null) {
-            _cacheService.loans = loans;
+            await _cacheService.cacheLoans(loans);
           }
 
           return Success(loans);
@@ -92,7 +103,7 @@ class LoansController {
     try {
       // Verifica cache primeiro
       if (!forceRefresh) {
-        final cachedLoan = _cacheService.getCachedLoan(loanId);
+        final cachedLoan = await _cacheService.getCachedLoan(loanId);
         if (cachedLoan != null) {
           return Success(cachedLoan);
         }
@@ -100,9 +111,9 @@ class LoansController {
 
       final result = await _repository.getLoanById(loanId);
 
-      return result.fold((loan) {
+      return result.fold((loan) async {
         // Atualiza cache
-        _cacheService.addLoan(loan);
+        await _cacheService.cacheLoan(loan);
 
         // Atualiza lista local se o loan já existe
         final index = _loans.indexWhere((l) => l.id == loan.id);
@@ -122,31 +133,14 @@ class LoansController {
   /// Cria um novo loan
   AsyncResult<Loan> createLoan(CreateLoanRequest request) async {
     try {
-      // Verificações de negócio antes de criar
-      final canCreateResult = await _repository.canApplicantCreateLoan(
-        request.applicantId,
-      );
-
-      if (canCreateResult.isError()) {
-        return Failure(canCreateResult.exceptionOrNull()!);
-      }
-
-      final isAvailableResult = await _repository.isItemAvailableForLoan(
-        request.itemId,
-      );
-      if (isAvailableResult.isError()) {
-        return Failure(isAvailableResult.exceptionOrNull()!);
-      }
-
       final result = await _repository.createLoan(request);
 
-      return result.fold((loan) {
+      return result.fold((loan) async {
         // Adiciona à lista local
-        _loans.insert(0, loan);
+        _loans.add(loan);
 
         // Atualiza cache
-        _cacheService.addLoan(loan);
-        _cacheService.clearLoans();
+        await _cacheService.cacheCreatedLoan(loan);
 
         return Success(loan);
       }, (error) => Failure(error));
@@ -160,7 +154,7 @@ class LoansController {
     try {
       final result = await _repository.updateLoan(loanId, request);
 
-      return result.fold((loan) {
+      return result.fold((loan) async {
         // Atualiza na lista local
         final index = _loans.indexWhere((l) => l.id == loan.id);
         if (index != -1) {
@@ -168,7 +162,7 @@ class LoansController {
         }
 
         // Atualiza cache
-        _cacheService.updateLoan(loan);
+        await _cacheService.updateCachedLoan(loan);
 
         return Success(loan);
       }, (error) => Failure(error));
@@ -182,96 +176,16 @@ class LoansController {
     try {
       final result = await _repository.deleteLoan(loanId);
 
-      return result.fold((success) {
+      return result.fold((success) async {
         if (success) {
           // Remove da lista local
           _loans.removeWhere((loan) => loan.id == loanId);
 
           // Remove do cache
-          _cacheService.removeLoan(loanId);
+          await _cacheService.removeCachedLoan(loanId);
         }
 
         return Success(success);
-      }, (error) => Failure(error));
-    } catch (e) {
-      return Failure(Exception('Erro inesperado: $e'));
-    }
-  }
-
-  // === MÉTODOS DE FILTRO ===
-
-  /// Carrega loans por applicant
-  AsyncResult<List<Loan>> loadLoansByApplicant(
-    String applicantId, {
-    bool forceRefresh = false,
-  }) async {
-    try {
-      // Verifica cache primeiro
-      if (!forceRefresh) {
-        final cachedLoans = _cacheService.getLoansByApplicant(applicantId);
-        if (cachedLoans != null && cachedLoans.isNotEmpty) {
-          return Success(cachedLoans);
-        }
-      }
-
-      final result = await _repository.getLoansByApplicant(applicantId);
-
-      return result.fold((loans) {
-        // Atualiza cache
-        _cacheService.setLoansByApplicant(applicantId, loans);
-        return Success(loans);
-      }, (error) => Failure(error));
-    } catch (e) {
-      return Failure(Exception('Erro inesperado: $e'));
-    }
-  }
-
-  /// Carrega loans por item
-  AsyncResult<List<Loan>> loadLoansByItem(
-    String itemId, {
-    bool forceRefresh = false,
-  }) async {
-    try {
-      // Verifica cache primeiro
-      if (!forceRefresh) {
-        final cachedLoans = _cacheService.getLoansByItem(itemId);
-        if (cachedLoans != null && cachedLoans.isNotEmpty) {
-          return Success(cachedLoans);
-        }
-      }
-
-      final result = await _repository.getLoansByItem(itemId);
-
-      return result.fold((loans) {
-        // Atualiza cache
-        _cacheService.setLoansByItem(itemId, loans);
-        return Success(loans);
-      }, (error) => Failure(error));
-    } catch (e) {
-      return Failure(Exception('Erro inesperado: $e'));
-    }
-  }
-
-  /// Carrega loans por responsável
-  AsyncResult<List<Loan>> loadLoansByResponsible(
-    String responsibleId, {
-    bool forceRefresh = false,
-  }) async {
-    try {
-      // Verifica cache primeiro
-      if (!forceRefresh) {
-        final cachedLoans = _cacheService.getLoansByResponsible(responsibleId);
-        if (cachedLoans != null && cachedLoans.isNotEmpty) {
-          return Success(cachedLoans);
-        }
-      }
-
-      final result = await _repository.getLoansByResponsible(responsibleId);
-
-      return result.fold((loans) {
-        // Atualiza cache
-        _cacheService.setLoansByResponsible(responsibleId, loans);
-        return Success(loans);
       }, (error) => Failure(error));
     } catch (e) {
       return Failure(Exception('Erro inesperado: $e'));
@@ -346,18 +260,6 @@ class LoansController {
     }
   }
 
-  // === REGRAS DE NEGÓCIO ===
-
-  /// Verifica se um applicant pode criar um novo loan
-  AsyncResult<bool> canApplicantCreateLoan(String applicantId) async {
-    return _repository.canApplicantCreateLoan(applicantId);
-  }
-
-  /// Verifica se um item está disponível para empréstimo
-  AsyncResult<bool> isItemAvailableForLoan(String itemId) async {
-    return _repository.isItemAvailableForLoan(itemId);
-  }
-
   // === OPERAÇÕES DE BUSCA E FILTRO ===
 
   /// Busca loans por texto (razão)
@@ -420,6 +322,7 @@ class LoansController {
   /// Limpa todos os caches
   Future<void> clearAllCaches() async {
     _cacheService.clearAll();
+    await _cacheService.clearPersistentCache();
     _statistics = null;
   }
 
@@ -430,7 +333,15 @@ class LoansController {
   }
 
   /// Obtém informações do cache
-  Map<String, dynamic> getCacheInfo() {
+  Future<Map<String, dynamic>> getCacheInfo() async {
+    final memoryInfo = _cacheService.getCacheStatus();
+    final persistentInfo = await _cacheService.getCacheInfo();
+
+    return {'memory': memoryInfo, 'persistent': persistentInfo};
+  }
+
+  /// Obtém informações básicas do cache de forma síncrona
+  Map<String, dynamic> getCacheStatus() {
     return _cacheService.getCacheStatus();
   }
 

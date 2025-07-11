@@ -16,10 +16,11 @@ class LoansService {
 
     try {
       final cacheService = LoansCacheService();
-      await cacheService.initialize();
-
       final repository = LoansRepository(apiClient);
       final controller = LoansController(repository, cacheService);
+
+      // Inicializa o controller (que por sua vez inicializa o cache)
+      await controller.initialize();
 
       _instance = controller;
       _isInitialized = true;
@@ -46,6 +47,7 @@ class LoansService {
   /// Reinicializa o serviço
   static Future<void> reinitialize({required ApiClient apiClient}) async {
     _isInitialized = false;
+    _instance?.dispose();
     _instance = null;
     await initialize(apiClient: apiClient);
   }
@@ -96,41 +98,6 @@ class LoansService {
   static AsyncResult<bool> deleteLoan(String loanId) async {
     await ensureInitialized();
     return _instance!.deleteLoan(loanId);
-  }
-
-  // === MÉTODOS DE FILTRO ===
-
-  /// Busca loans por applicant
-  static AsyncResult<List<Loan>> getLoansByApplicant(
-    String applicantId, {
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadLoansByApplicant(
-      applicantId,
-      forceRefresh: forceRefresh,
-    );
-  }
-
-  /// Busca loans por item
-  static AsyncResult<List<Loan>> getLoansByItem(
-    String itemId, {
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadLoansByItem(itemId, forceRefresh: forceRefresh);
-  }
-
-  /// Busca loans por responsável
-  static AsyncResult<List<Loan>> getLoansByResponsible(
-    String responsibleId, {
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadLoansByResponsible(
-      responsibleId,
-      forceRefresh: forceRefresh,
-    );
   }
 
   /// Busca loans ativos
@@ -198,20 +165,6 @@ class LoansService {
     return _instance!.loadStatistics(forceRefresh: forceRefresh);
   }
 
-  // === REGRAS DE NEGÓCIO ===
-
-  /// Verifica se um applicant pode criar um novo loan
-  static AsyncResult<bool> canApplicantCreateLoan(String applicantId) async {
-    await ensureInitialized();
-    return _instance!.canApplicantCreateLoan(applicantId);
-  }
-
-  /// Verifica se um item está disponível para empréstimo
-  static AsyncResult<bool> isItemAvailableForLoan(String itemId) async {
-    await ensureInitialized();
-    return _instance!.isItemAvailableForLoan(itemId);
-  }
-
   // === OPERAÇÕES DE BUSCA E FILTRO ===
 
   /// Busca loans por texto (razão)
@@ -221,7 +174,7 @@ class LoansService {
   }
 
   /// Filtra loans localmente
-  static List<Loan> filterLoans({
+  static List<Loan> filterLoans({ 
     bool? isActive,
     String? applicantId,
     String? responsibleId,
@@ -265,9 +218,22 @@ class LoansService {
   }
 
   /// Obtém informações do cache
-  static Map<String, dynamic> getCacheInfo() {
+  static Future<Map<String, dynamic>> getCacheInfo() async {
     if (!_isInitialized || _instance == null) return {};
-    return _instance!.getCacheInfo();
+    return await _instance!.getCacheInfo();
+  }
+
+  /// Obtém informações básicas do cache de forma síncrona
+  static Map<String, dynamic> getCacheStatus() {
+    if (!_isInitialized || _instance == null) return {};
+    return _instance!.getCacheStatus();
+  }
+
+  /// Verifica se há dados no cache persistente
+  static Future<bool> hasPersistedData() async {
+    if (!_isInitialized || _instance == null) return false;
+    final cacheInfo = await _instance!.getCacheInfo();
+    return cacheInfo['persistent']?['hasLoansCache'] ?? false;
   }
 
   // === GETTERS DE ESTADO ===

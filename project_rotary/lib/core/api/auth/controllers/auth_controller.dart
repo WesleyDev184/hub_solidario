@@ -402,34 +402,6 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  /// Atualiza a lista de todos os usuários em background
-  Future<void> _refreshAllUsersInBackground() async {
-    // Executa em background sem bloquear a UI
-    Future.delayed(Duration.zero, _performBackgroundUsersRefresh);
-  }
-
-  Future<void> _performBackgroundUsersRefresh() async {
-    try {
-      debugPrint('Refreshing all users in background');
-
-      // Força busca do servidor (não usa cache)
-      final freshUsers = await _repository.getAllUsersFromServer();
-
-      await freshUsers.fold(
-        (users) async {
-          debugPrint(
-            'Background refresh completed: ${users.length} users updated',
-          );
-        },
-        (error) {
-          debugPrint('Background refresh failed: $error');
-        },
-      );
-    } catch (e) {
-      debugPrint('Background refresh error: $e');
-    }
-  }
-
   @override
   void dispose() {
     _stateController?.close();
