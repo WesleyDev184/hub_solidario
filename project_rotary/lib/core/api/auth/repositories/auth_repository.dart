@@ -94,6 +94,13 @@ class AuthRepository {
     try {
       debugPrint('Getting current user');
 
+      // Primeiro, verifica se há um usuário válido no cache
+      final cachedUser = await _cacheService.loadUser();
+      if (cachedUser != null) {
+        debugPrint('Current user loaded from cache: ${cachedUser.email}');
+        return Success(cachedUser);
+      }
+
       final result = await _apiClient.get('/user', useAuth: true);
 
       return result.fold(
@@ -106,6 +113,10 @@ class AuthRepository {
 
             if (response.success && response.data != null) {
               debugPrint('Current user retrieved: ${response.data!.email}');
+
+              // Salva o usuário no cache
+              _cacheService.saveUser(response.data!);
+
               return Success(response.data!);
             } else {
               debugPrint('Failed to get current user: ${response.message}');
@@ -194,6 +205,10 @@ class AuthRepository {
 
             if (response.success) {
               debugPrint('User updated successfully');
+
+              // Limpa o cache do usuário atual para forçar recarregamento
+              _cacheService.saveUser(User.fromJson(request.toJson()));
+
               return const Success(true);
             } else {
               debugPrint('Failed to update user: ${response.message}');
@@ -219,12 +234,23 @@ class AuthRepository {
     }
   }
 
-  /// Obtém todos os usuários
-  AsyncResult<List<User>> getAllUsers() async {
+  /// Obtém usuários por banco ortopédico
+  AsyncResult<List<User>> getUsersByOrthopedicBank(
+    String orthopedicBankId,
+  ) async {
     try {
-      debugPrint('Getting all users');
+      // Primeiro, tenta carregar do cache
+      final cachedUsers = await _cacheService.loadAllUsers();
+      if (cachedUsers.isNotEmpty) {
+        debugPrint('Loaded ${cachedUsers.length} users from cache');
+        // Retorna dados do cache imediatamente
+        return Success(cachedUsers);
+      }
 
-      final result = await _apiClient.get('/users', useAuth: true);
+      final result = await _apiClient.get(
+        '/users/orthopedic-bank/$orthopedicBankId',
+        useAuth: true,
+      );
 
       return result.fold(
         (success) {
@@ -239,7 +265,13 @@ class AuthRepository {
             });
 
             if (response.success && response.data != null) {
-              debugPrint('Retrieved ${response.data!.length} users');
+              debugPrint(
+                'Retrieved ${response.data!.length} users from server',
+              );
+
+              // Salva no cache
+              _cacheService.saveAllUsers(response.data!);
+
               return Success(response.data!);
             } else {
               debugPrint('Failed to get users: ${response.message}');
@@ -258,8 +290,64 @@ class AuthRepository {
         },
       );
     } catch (e) {
-      debugPrint('Get all users error: $e');
-      return Failure(Exception('Erro ao obter usuários: ${e.toString()}'));
+      debugPrint('Get users by bank error: $e');
+      return Failure(
+        Exception('Erro ao obter usuários por banco: ${e.toString()}'),
+      );
+    }
+  }
+
+  /// Obtém todos os usuários forçando busca do servidor
+  AsyncResult<List<User>> getAllUsersFromServer() async {
+    try {
+      debugPrint('Getting all users from server (forced refresh)');
+
+      final result = await _apiClient.get('/users', useAuth: true);
+
+      return result.fold(
+        (success) {
+          try {
+            final response = ControllerResponse<List<User>>.fromJson(success, (
+              json,
+            ) {
+              final list = json as List<dynamic>;
+              return list
+                  .map((item) => User.fromJson(item as Map<String, dynamic>))
+                  .toList();
+            });
+
+            if (response.success && response.data != null) {
+              debugPrint(
+                'Retrieved ${response.data!.length} users from server (forced)',
+              );
+
+              // Atualiza o cache
+              _cacheService.saveAllUsers(response.data!);
+
+              return Success(response.data!);
+            } else {
+              debugPrint(
+                'Failed to get users from server: ${response.message}',
+              );
+              return Failure(
+                Exception(response.message ?? 'Usuários não encontrados'),
+              );
+            }
+          } catch (e) {
+            debugPrint('Error parsing users response (forced): $e');
+            return Failure(Exception('Erro ao processar lista de usuários'));
+          }
+        },
+        (error) {
+          debugPrint('Get all users from server failed: $error');
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      debugPrint('Get all users from server error: $e');
+      return Failure(
+        Exception('Erro ao obter usuários do servidor: ${e.toString()}'),
+      );
     }
   }
 
@@ -267,6 +355,13 @@ class AuthRepository {
   AsyncResult<User> getUserById(String id) async {
     try {
       debugPrint('Getting user by ID: $id');
+
+      // Primeiro, verifica se o usuário já está no cache de todos os usuários
+      final cachedUser = await _cacheService.findUserInAllUsers(id);
+      if (cachedUser != null) {
+        debugPrint('User loaded from cache: ${cachedUser.email}');
+        return Success(cachedUser);
+      }
 
       final result = await _apiClient.get('/user/$id', useAuth: true);
 
@@ -280,6 +375,10 @@ class AuthRepository {
 
             if (response.success && response.data != null) {
               debugPrint('User retrieved: ${response.data!.email}');
+
+              // Adiciona o usuário ao cache
+              _cacheService.addUserToAllUsers(response.data!);
+
               return Success(response.data!);
             } else {
               debugPrint('Failed to get user: ${response.message}');
@@ -320,6 +419,10 @@ class AuthRepository {
 
             if (response.success) {
               debugPrint('User deleted successfully: $id');
+
+              // Remove o usuário do cache
+              _cacheService.removeUserFromAllUsers(id);
+
               return const Success(true);
             } else {
               debugPrint('Failed to delete user: ${response.message}');
@@ -343,59 +446,6 @@ class AuthRepository {
     }
   }
 
-  /// Obtém usuários por banco ortopédico
-  AsyncResult<List<User>> getUsersByOrthopedicBank(
-    String orthopedicBankId,
-  ) async {
-    try {
-      debugPrint('Getting users by orthopedic bank: $orthopedicBankId');
-
-      final result = await _apiClient.get(
-        '/users/orthopedic-bank/$orthopedicBankId',
-        useAuth: true,
-      );
-
-      return result.fold(
-        (success) {
-          try {
-            final response = ControllerResponse<List<User>>.fromJson(success, (
-              json,
-            ) {
-              final list = json as List<dynamic>;
-              return list
-                  .map((item) => User.fromJson(item as Map<String, dynamic>))
-                  .toList();
-            });
-
-            if (response.success && response.data != null) {
-              debugPrint(
-                'Retrieved ${response.data!.length} users for bank $orthopedicBankId',
-              );
-              return Success(response.data!);
-            } else {
-              debugPrint('Failed to get users by bank: ${response.message}');
-              return Failure(
-                Exception(response.message ?? 'Usuários não encontrados'),
-              );
-            }
-          } catch (e) {
-            debugPrint('Error parsing users by bank response: $e');
-            return Failure(Exception('Erro ao processar lista de usuários'));
-          }
-        },
-        (error) {
-          debugPrint('Get users by bank failed: $error');
-          return Failure(error);
-        },
-      );
-    } catch (e) {
-      debugPrint('Get users by bank error: $e');
-      return Failure(
-        Exception('Erro ao obter usuários por banco: ${e.toString()}'),
-      );
-    }
-  }
-
   /// Carrega estado de autenticação do cache
   Future<AuthState> loadCachedAuthState() async {
     return await _cacheService.loadAuthState();
@@ -415,5 +465,123 @@ class AuthRepository {
   /// Verifica se há token válido no cache
   Future<bool> hasValidCachedToken() async {
     return await _cacheService.hasValidToken();
+  }
+
+  /// Obtém o usuário atual forçando busca do servidor
+  AsyncResult<User> getCurrentUserFromServer() async {
+    try {
+      debugPrint('Getting current user from server (forced refresh)');
+
+      final result = await _apiClient.get('/user', useAuth: true);
+
+      return result.fold(
+        (success) {
+          try {
+            final response = ControllerResponse<User>.fromJson(
+              success,
+              (json) => User.fromJson(json as Map<String, dynamic>),
+            );
+
+            if (response.success && response.data != null) {
+              debugPrint(
+                'Current user retrieved from server: ${response.data!.email}',
+              );
+
+              // Atualiza o cache
+              _cacheService.saveUser(response.data!);
+
+              return Success(response.data!);
+            } else {
+              debugPrint(
+                'Failed to get current user from server: ${response.message}',
+              );
+              return Failure(
+                Exception(response.message ?? 'Usuário não encontrado'),
+              );
+            }
+          } catch (e) {
+            debugPrint('Error parsing user response from server: $e');
+            return Failure(Exception('Erro ao processar dados do usuário'));
+          }
+        },
+        (error) {
+          debugPrint('Get current user from server failed: $error');
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      debugPrint('Get current user from server error: $e');
+      return Failure(
+        Exception('Erro ao obter usuário atual do servidor: ${e.toString()}'),
+      );
+    }
+  }
+
+  /// Obtém usuário por ID forçando busca do servidor
+  AsyncResult<User> getUserByIdFromServer(String id) async {
+    try {
+      debugPrint('Getting user by ID from server: $id');
+
+      final result = await _apiClient.get('/user/$id', useAuth: true);
+
+      return result.fold(
+        (success) {
+          try {
+            final response = ControllerResponse<User>.fromJson(
+              success,
+              (json) => User.fromJson(json as Map<String, dynamic>),
+            );
+
+            if (response.success && response.data != null) {
+              debugPrint('User retrieved from server: ${response.data!.email}');
+
+              // Atualiza o cache
+              _cacheService.addUserToAllUsers(response.data!);
+
+              return Success(response.data!);
+            } else {
+              debugPrint('Failed to get user from server: ${response.message}');
+              return Failure(
+                Exception(response.message ?? 'Usuário não encontrado'),
+              );
+            }
+          } catch (e) {
+            debugPrint('Error parsing user by ID response from server: $e');
+            return Failure(Exception('Erro ao processar dados do usuário'));
+          }
+        },
+        (error) {
+          debugPrint('Get user by ID from server failed: $error');
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      debugPrint('Get user by ID from server error: $e');
+      return Failure(
+        Exception('Erro ao obter usuário do servidor: ${e.toString()}'),
+      );
+    }
+  }
+
+  /// Limpa apenas o cache de usuários (mantém dados de autenticação)
+  Future<void> clearUsersCache() async {
+    await _cacheService.clearAllUsers();
+  }
+
+  /// Verifica se há dados de autenticação salvos
+  Future<bool> hasAuthData() async {
+    return await _cacheService.hasAuthData();
+  }
+
+  /// Atualiza o cache de usuários com dados do servidor
+  Future<void> refreshUsersCache() async {
+    try {
+      final result = await getAllUsersFromServer();
+      if (result.isSuccess()) {
+        debugPrint('Users cache refreshed successfully');
+      }
+    } catch (e) {
+      debugPrint('Failed to refresh users cache: $e');
+    }
   }
 }

@@ -76,23 +76,11 @@ class AuthController extends ChangeNotifier {
     try {
       _setLoading(true);
 
-      debugPrint('AuthController.login: Starting login process for: $email');
-      debugPrint('AuthController.login: Current state: ${_state.status}');
-
       // Realiza login
-      debugPrint('AuthController.login: Calling repository.login');
       final loginResult = await _repository.login(email, password);
 
       return await loginResult.fold(
         (tokenResponse) async {
-          debugPrint(
-            'AuthController.login: Login API call successful, token received',
-          );
-
-          // Configura token no ApiClient IMEDIATAMENTE para próximas requisições
-          debugPrint(
-            'AuthController.login: Setting token in ApiClient immediately',
-          );
           notifyListeners(); // Isso irá disparar o listener que configura o token no ApiClient
 
           // Força configuração do token manualmente também para garantir
@@ -299,14 +287,47 @@ class AuthController extends ChangeNotifier {
     return await _repository.getUserById(id);
   }
 
-  /// Obtém todos os usuários
-  AsyncResult<List<User>> getAllUsers() async {
-    return await _repository.getAllUsers();
+  /// Obtém usuários por banco ortopédico
+  AsyncResult<List<User>> getAllUsers(String bankId) async {
+    try {
+      debugPrint('Getting users by orthopedic bank: $bankId');
+
+      // Primeiro, tenta carregar do cache
+      final cachedUsers = await _repository.getUsersByOrthopedicBank(bankId);
+
+      return await cachedUsers.fold(
+        (users) async {
+          if (users.isNotEmpty) {
+            return Success(users);
+          } else {
+            debugPrint('No users found');
+            return Success(<User>[]);
+          }
+        },
+        (error) {
+          debugPrint('Get users by orthopedic bank failed: $error');
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      debugPrint('Get users by orthopedic bank error: $e');
+      return Failure(Exception('Erro ao obter usuários: ${e.toString()}'));
+    }
   }
 
-  /// Obtém usuários por banco ortopédico
-  AsyncResult<List<User>> getUsersByOrthopedicBank(String bankId) async {
-    return await _repository.getUsersByOrthopedicBank(bankId);
+  /// Obtém todos os usuários forçando refresh do servidor
+  AsyncResult<List<User>> refreshAllUsers() async {
+    try {
+      _setLoading(true);
+      debugPrint('Forçando atualização de todos os usuários');
+
+      return await _repository.getAllUsersFromServer();
+    } catch (e) {
+      debugPrint('Erro ao atualizar todos os usuários: $e');
+      return Failure(Exception('Erro ao atualizar usuários: ${e.toString()}'));
+    } finally {
+      _setLoading(false);
+    }
   }
 
   /// Deleta usuário
@@ -378,6 +399,34 @@ class AuthController extends ChangeNotifier {
       );
     } catch (e) {
       debugPrint('Error refreshing current user: $e');
+    }
+  }
+
+  /// Atualiza a lista de todos os usuários em background
+  Future<void> _refreshAllUsersInBackground() async {
+    // Executa em background sem bloquear a UI
+    Future.delayed(Duration.zero, _performBackgroundUsersRefresh);
+  }
+
+  Future<void> _performBackgroundUsersRefresh() async {
+    try {
+      debugPrint('Refreshing all users in background');
+
+      // Força busca do servidor (não usa cache)
+      final freshUsers = await _repository.getAllUsersFromServer();
+
+      await freshUsers.fold(
+        (users) async {
+          debugPrint(
+            'Background refresh completed: ${users.length} users updated',
+          );
+        },
+        (error) {
+          debugPrint('Background refresh failed: $error');
+        },
+      );
+    } catch (e) {
+      debugPrint('Background refresh error: $e');
     }
   }
 

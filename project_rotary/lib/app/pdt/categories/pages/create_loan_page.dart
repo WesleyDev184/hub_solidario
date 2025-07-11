@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/components/select_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
 class CreateLoanPage extends StatefulWidget {
-  final String categoryId;
   final String categoryTitle;
+  final List<Item> items;
 
   const CreateLoanPage({
     super.key,
-    required this.categoryId,
     required this.categoryTitle,
+    required this.items,
   });
 
   @override
@@ -24,33 +25,154 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
   final TextEditingController _reasonController = TextEditingController();
 
   bool _isLoading = false;
+  bool _isLoadingApplicants = false;
+  bool _isLoadingUsers = false;
+
   String? _selectedItemId;
   String? _selectedApplicantId;
   String? _selectedResponsibleId;
 
-  // Mock data for dropdown fields
-  final List<Map<String, String>> _mockItems = [
-    {'id': '1', 'serialCode': 'ITM001', 'status': 'Disponível'},
-    {'id': '2', 'serialCode': 'ITM002', 'status': 'Disponível'},
-    {'id': '3', 'serialCode': 'ITM003', 'status': 'Disponível'},
-  ];
+  List<DropdownMenuItem<String>> _responsible = [];
+  List<DropdownMenuItem<String>> _items = [];
+  List<DropdownMenuItem<String>> _applicants = [];
 
-  final List<Map<String, String>> _mockApplicants = [
-    {'id': '1', 'name': 'João Silva', 'email': 'joao@email.com'},
-    {'id': '2', 'name': 'Maria Santos', 'email': 'maria@email.com'},
-    {'id': '3', 'name': 'Pedro Costa', 'email': 'pedro@email.com'},
-  ];
-
-  final List<Map<String, String>> _mockResponsibles = [
-    {'id': '1', 'name': 'Ana Oliveira', 'role': 'Supervisor'},
-    {'id': '2', 'name': 'Carlos Lima', 'role': 'Gerente'},
-    {'id': '3', 'name': 'Lucia Ferreira', 'role': 'Coordenador'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadItens(); // Carrega itens primeiro (sincrono)
+    _loadUsers(); // Carrega usuários (assíncrono)
+    _loadApplicants(); // Carrega solicitantes (assíncrono)
+  }
 
   @override
   void dispose() {
     _reasonController.dispose();
     super.dispose();
+  }
+
+  void _loadItens() {
+    _items =
+        widget.items.map((Item) {
+          return DropdownMenuItem<String>(
+            value: Item.id,
+            child: Text(Item.formattedSerialCode),
+          );
+        }).toList();
+
+    if (_items.isNotEmpty) {
+      _selectedItemId = _items.first.value;
+    } else {
+      _selectedItemId = null;
+    }
+  }
+
+  Future<void> _loadApplicants() async {
+    if (_isLoadingApplicants) return;
+    setState(() {
+      _isLoadingApplicants = true;
+    });
+
+    final res = await ApplicantsService.getApplicants();
+    res.fold(
+      (applicants) {
+        setState(() {
+          _applicants =
+              applicants.map((applicant) {
+                return DropdownMenuItem<String>(
+                  value: applicant.id,
+                  child: Text(applicant.name ?? ''),
+                );
+              }).toList();
+
+          // Seleciona automaticamente o primeiro item da lista
+          if (_applicants.isNotEmpty) {
+            _selectedApplicantId = _applicants.first.value;
+          }
+          _isLoadingApplicants = false;
+        });
+      },
+      (error) {
+        setState(() {
+          _isLoadingApplicants = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar os Applicants: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _loadUsers() async {
+    if (_isLoadingUsers) return;
+    setState(() {
+      _isLoadingUsers = true;
+    });
+
+    final currentUser = AuthService.currentUser;
+    if (currentUser == null) {
+      setState(() {
+        _isLoadingUsers = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Usuário não autenticado.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final orthopedicBankId = currentUser.orthopedicBank?.id;
+    if (orthopedicBankId == null) {
+      setState(() {
+        _isLoadingUsers = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Banco ortopédico não encontrado.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final res = await AuthService.getAllUsers(orthopedicBankId);
+    res.fold(
+      (users) {
+        setState(() {
+          _responsible =
+              users.map((user) {
+                return DropdownMenuItem<String>(
+                  value: user.id,
+                  child: Text(user.name),
+                );
+              }).toList();
+
+          // Seleciona automaticamente o primeiro item da lista
+          if (_responsible.isNotEmpty) {
+            _selectedResponsibleId = _responsible.first.value;
+          }
+
+          _isLoadingUsers = false;
+        });
+      },
+      (error) {
+        setState(() {
+          _isLoadingUsers = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar responsáveis: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
   }
 
   String? _validateReason(String? value) {
@@ -79,22 +201,42 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
       _isLoading = true;
     });
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 2));
+    final data = CreateLoanRequest(
+      itemId: _selectedItemId!,
+      applicantId: _selectedApplicantId!,
+      responsibleId: _selectedResponsibleId!,
+      reason: _reasonController.text.trim(),
+    );
 
-    setState(() {
-      _isLoading = false;
-    });
+    final res = await LoansService.createLoan(data);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Empréstimo criado com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context, true);
-    }
+    res.fold(
+      (success) {
+        // Empréstimo criado com sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Empréstimo criado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+        setState(() {
+          _isLoading = false;
+        });
+      },
+      (error) {
+        // Erro ao criar o empréstimo
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao criar empréstimo: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -149,15 +291,7 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
                     hint: 'Selecione um item',
                     icon: LucideIcons.package,
                     validator: (value) => _validateSelection(value, 'item'),
-                    items:
-                        _mockItems.map((item) {
-                          return DropdownMenuItem<String>(
-                            value: item['id'],
-                            child: Text(
-                              '${item['serialCode']} - ${item['status']}',
-                            ),
-                          );
-                        }).toList(),
+                    items: _items,
                     onChanged: (String? value) {
                       setState(() {
                         _selectedItemId = value;
@@ -183,13 +317,7 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
                     icon: LucideIcons.user,
                     validator:
                         (value) => _validateSelection(value, 'solicitante'),
-                    items:
-                        _mockApplicants.map((user) {
-                          return DropdownMenuItem<String>(
-                            value: user['id'],
-                            child: Text('${user['name']} (${user['email']})'),
-                          );
-                        }).toList(),
+                    items: _applicants,
                     onChanged: (String? value) {
                       setState(() {
                         _selectedApplicantId = value;
@@ -211,17 +339,11 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
                   const SizedBox(height: 8),
                   SelectField<String>(
                     value: _selectedResponsibleId,
-                    hint: 'Selecione um responsável',
-                    icon: LucideIcons.userCheck,
+                    hint: 'Selecione um banco ortopédico',
+                    icon: LucideIcons.building,
                     validator:
                         (value) => _validateSelection(value, 'responsável'),
-                    items:
-                        _mockResponsibles.map((user) {
-                          return DropdownMenuItem<String>(
-                            value: user['id'],
-                            child: Text('${user['name']} (${user['role']})'),
-                          );
-                        }).toList(),
+                    items: _responsible,
                     onChanged: (String? value) {
                       setState(() {
                         _selectedResponsibleId = value;

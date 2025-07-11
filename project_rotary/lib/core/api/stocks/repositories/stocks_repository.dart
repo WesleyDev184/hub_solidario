@@ -90,7 +90,7 @@ class StocksRepository {
   }
 
   /// Cria um novo stock
-  AsyncResult<String> createStock(CreateStockRequest request) async {
+  AsyncResult<Stock> createStock(CreateStockRequest request) async {
     try {
       // Se tem imagem, usa multipart
       if (request.imageFile != null || request.imageBytes != null) {
@@ -106,14 +106,11 @@ class StocksRepository {
 
         return result.fold((data) {
           try {
-            final response = CreateStockResponse.fromJson(data);
-            if (response.success) {
-              return Success(response.stockId ?? 'Stock criado com sucesso');
-            } else {
-              return Failure(
-                Exception(response.message ?? 'Erro ao criar stock'),
-              );
-            }
+            // A API retorna uma estrutura { success: bool, data: Stock, message: string }
+            final stockData = data['data'] as Map<String, dynamic>;
+            final response = Stock.fromJson(stockData);
+
+            return Success(response);
           } catch (e) {
             return Failure(
               Exception('Erro ao processar resposta da criação: $e'),
@@ -130,14 +127,11 @@ class StocksRepository {
 
         return result.fold((data) {
           try {
-            final response = CreateStockResponse.fromJson(data);
-            if (response.success) {
-              return Success(response.stockId ?? 'Stock criado com sucesso');
-            } else {
-              return Failure(
-                Exception(response.message ?? 'Erro ao criar stock'),
-              );
-            }
+            // A API retorna uma estrutura { success: bool, data: Stock, message: string }
+            final stockData = data['data'] as Map<String, dynamic>;
+            final response = Stock.fromJson(stockData);
+
+            return Success(response);
           } catch (e) {
             return Failure(
               Exception('Erro ao processar resposta da criação: $e'),

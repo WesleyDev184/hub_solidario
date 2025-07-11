@@ -235,9 +235,6 @@ class _CategoryPageState extends State<CategoryPage> {
             if (result == true) {
               // Recarrega os itens após adicionar um novo item
               _initializeData();
-            } else {
-              // Se não foi adicionado, recarrega os itens para garantir que a lista esteja atualizada
-              _initializeData(forceRefresh: true);
             }
           },
           onEditPressed: () async {
@@ -260,9 +257,6 @@ class _CategoryPageState extends State<CategoryPage> {
               setState(() {
                 _stock = res;
               });
-            } else {
-              // Se não foi editado, recarrega os itens para garantir que a lista esteja atualizada
-              _initializeData(forceRefresh: true);
             }
           },
           onDeletePressed: () {
@@ -283,8 +277,13 @@ class _CategoryPageState extends State<CategoryPage> {
               MaterialPageRoute(
                 builder:
                     (context) => CreateLoanPage(
-                      categoryId: widget.categoryId,
                       categoryTitle: _stock?.title ?? 'Categoria',
+                      items:
+                          _items
+                              .where(
+                                (item) => item.status == ItemStatus.available,
+                              )
+                              .toList(),
                     ),
               ),
             );

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/orthopedic_banks/orthopedic_banks.dart';
+import 'package:project_rotary/core/api/stocks/stocks.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/image_uploader.dart';
 import 'package:project_rotary/core/components/input_field.dart';
@@ -21,32 +23,74 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
   final TextEditingController _titleController = TextEditingController();
 
   String? _selectedOrthopedicBankId;
-  List<Map<String, dynamic>> _orthopedicBanks = [
-    {"id": "1", "name": "Banco Ortopédico Central - São Paulo"},
-    {"id": "2", "name": "Instituto de Ortopedia - Rio de Janeiro"},
-    {"id": "3", "name": "Centro Ortopédico Belo Horizonte - Belo Horizonte"},
-    {"id": "4", "name": "Clínica Ortopédica Norte - Brasília"},
-    {"id": "5", "name": "Hospital Ortopédico Sul - Porto Alegre"},
-  ];
-  bool _isLoadingBanks = false;
+  List<DropdownMenuItem<String>> orthopedicBankItems = [];
+  bool isLoadingBanks = false;
   bool _isLoading = false;
+  bool hasErrorLoadingBanks = false;
 
-  // Campo para indicar se uma imagem foi selecionada
-  bool _hasSelectedImage = false;
+  // Campos para upload de imagem
+  File? _selectedImageFile;
+  Uint8List? _selectedImageBytes;
 
   @override
   void initState() {
     super.initState();
     // Seleciona o primeiro banco por padrão
-    if (_orthopedicBanks.isNotEmpty) {
-      _selectedOrthopedicBankId = _orthopedicBanks.first["id"];
-    }
+    _loadOrthopedicBanks();
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     super.dispose();
+  }
+
+  // Método para carregar bancos ortopédicos
+  Future<void> _loadOrthopedicBanks() async {
+    if (isLoadingBanks) return;
+
+    setState(() {
+      isLoadingBanks = true;
+      hasErrorLoadingBanks = false;
+    });
+
+    try {
+      final result = await OrthopedicBanksService.getOrthopedicBanks();
+
+      result.fold(
+        (banks) {
+          setState(() {
+            orthopedicBankItems =
+                banks.map((bank) {
+                  return DropdownMenuItem<String>(
+                    value: bank.id,
+                    child: Text('${bank.name} - ${bank.city}'),
+                  );
+                }).toList();
+
+            // Seleciona automaticamente o primeiro item da lista
+            if (orthopedicBankItems.isNotEmpty &&
+                _selectedOrthopedicBankId == null) {
+              _selectedOrthopedicBankId = orthopedicBankItems.first.value;
+            }
+
+            isLoadingBanks = false;
+            hasErrorLoadingBanks = false;
+          });
+        },
+        (error) {
+          setState(() {
+            isLoadingBanks = false;
+            hasErrorLoadingBanks = true;
+          });
+        },
+      );
+    } catch (e) {
+      setState(() {
+        isLoadingBanks = false;
+        hasErrorLoadingBanks = true;
+      });
+    }
   }
 
   String? _validateTitle(String? value) {
@@ -68,13 +112,15 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
 
   void _onImageSelected(File? file, Uint8List? bytes) {
     setState(() {
-      _hasSelectedImage = true;
+      _selectedImageFile = file;
+      _selectedImageBytes = bytes;
     });
   }
 
   void _onImageRemoved() {
     setState(() {
-      _hasSelectedImage = false;
+      _selectedImageFile = null;
+      _selectedImageBytes = null;
     });
   }
 
@@ -87,7 +133,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, selecione um banco ortopédico'),
-          backgroundColor: Colors.red,
+          backgroundColor: CustomColors.error,
           duration: Duration(seconds: 3),
         ),
       );
@@ -95,7 +141,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
     }
 
     // Validação da imagem obrigatória
-    if (!_hasSelectedImage) {
+    if (_selectedImageFile == null && _selectedImageBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, selecione uma imagem para a categoria'),
@@ -110,25 +156,48 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
       _isLoading = true;
     });
 
-    // Simula um delay de salvamento
-    await Future.delayed(const Duration(seconds: 2));
+    final data = CreateStockRequest(
+      title: _titleController.text.trim(),
+      orthopedicBankId: _selectedOrthopedicBankId!,
+      imageFile: _selectedImageFile,
+      imageBytes: _selectedImageBytes,
+      imageFileName: _selectedImageFile?.path.split('/').last,
+    );
 
-    setState(() {
-      _isLoading = false;
-    });
+    try {
+      final response = await StocksService.createStock(data);
 
-    if (mounted) {
-      // Em caso de sucesso
+      response.fold(
+        (categoryId) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Categoria criada com sucesso!'),
+              backgroundColor: CustomColors.success,
+            ),
+          );
+
+          Navigator.pop(context, true);
+        },
+        (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao criar categoria: $error'),
+              backgroundColor: CustomColors.error,
+            ),
+          );
+        },
+      );
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Categoria criada com sucesso!'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text('Erro ao criar categoria: $e'),
+          backgroundColor: CustomColors.error,
         ),
       );
-
-      // Retornar com indicação de sucesso para recarregar a lista
-      Navigator.pop(context, true);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -152,13 +221,16 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: CustomColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Preencha os dados para criar uma nova categoria',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: CustomColors.textSecondary,
+                ),
               ),
 
               const SizedBox(height: 32),
@@ -169,7 +241,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: CustomColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -188,11 +260,11 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: CustomColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
-              _isLoadingBanks
+              isLoadingBanks
                   ? const Center(
                     child: CircularProgressIndicator(
                       color: CustomColors.primary,
@@ -203,13 +275,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                     hint: 'Selecione um banco ortopédico',
                     icon: LucideIcons.building,
                     validator: _validateOrthopedicBank,
-                    items:
-                        _orthopedicBanks.map((bank) {
-                          return DropdownMenuItem<String>(
-                            value: bank['id'],
-                            child: Text(bank['name']),
-                          );
-                        }).toList(),
+                    items: orthopedicBankItems,
                     onChanged: (String? value) {
                       setState(() {
                         _selectedOrthopedicBankId = value;
@@ -225,7 +291,16 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: CustomColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Selecione uma imagem para a categoria',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: CustomColors.textSecondary,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
               const SizedBox(height: 8),
@@ -250,7 +325,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                               : () => Navigator.pop(context, false),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: Colors.grey[400]!),
+                        side: BorderSide(color: CustomColors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -260,7 +335,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: CustomColors.textSecondary,
                         ),
                       ),
                     ),
@@ -286,7 +361,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                                    CustomColors.white,
                                   ),
                                 ),
                               )
@@ -295,7 +370,7 @@ class _NewCategoryPageState extends State<NewCategoryPage> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.white,
+                                  color: CustomColors.white,
                                 ),
                               ),
                     ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/loans/widgets/loan_card.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 
@@ -16,48 +17,15 @@ class LoansPage extends StatefulWidget {
 
 class _LoansPageState extends State<LoansPage> {
   final TextEditingController searchController = TextEditingController();
-  List<Map<String, dynamic>> filteredLoans = [];
+  List<Loan> filteredLoans = [];
+  List<Loan> _loans = [];
   bool _isLoading = false;
-
-  // Mock data for loans
-  final List<Map<String, dynamic>> _mockLoans = [
-    {
-      'id': '1',
-      'applicantId': 'João Silva',
-      'responsibleId': 'Ana Oliveira',
-      'itemId': 'ITM001',
-      'reason': 'Uso em evento beneficente',
-      'status': 'Ativo',
-      'createdAt': DateTime.now().subtract(const Duration(days: 5)),
-      'dueDate': DateTime.now().add(const Duration(days: 10)),
-    },
-    {
-      'id': '2',
-      'applicantId': 'Maria Santos',
-      'responsibleId': 'Carlos Lima',
-      'itemId': 'ITM002',
-      'reason': 'Projeto comunitário',
-      'status': 'Vencido',
-      'createdAt': DateTime.now().subtract(const Duration(days: 20)),
-      'dueDate': DateTime.now().subtract(const Duration(days: 5)),
-    },
-    {
-      'id': '3',
-      'applicantId': 'Pedro Costa',
-      'responsibleId': 'Lucia Ferreira',
-      'itemId': 'ITM003',
-      'reason': 'Atividade educacional',
-      'status': 'Finalizado',
-      'createdAt': DateTime.now().subtract(const Duration(days: 30)),
-      'dueDate': DateTime.now().subtract(const Duration(days: 15)),
-    },
-  ];
 
   @override
   void initState() {
     super.initState();
+    _fetchLoans();
     searchController.addListener(filterLoans);
-    filteredLoans = List.from(_mockLoans);
 
     // Registra o callback para recarregar a página
     widget.onRefreshCallback?.call(_refreshPage);
@@ -65,23 +33,52 @@ class _LoansPageState extends State<LoansPage> {
 
   void _refreshPage() {
     setState(() {
-      filteredLoans = List.from(_mockLoans);
+      filteredLoans = List.from(_loans);
     });
+  }
+
+  Future<void> _fetchLoans() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final loans = await LoansService.getLoans();
+
+      loans.fold(
+        (fetchedLoans) {
+          setState(() {
+            _loans = fetchedLoans;
+            filteredLoans = List.from(fetchedLoans);
+          });
+        },
+        (error) {
+          // Handle error, e.g., show a snackbar or dialog
+          debugPrint("Error fetching loans: $error");
+        },
+      );
+    } catch (e) {
+      // Handle error, e.g., show a snackbar or dialog
+      debugPrint("Error fetching loans: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void filterLoans() {
     final query = searchController.text.toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        filteredLoans = List.from(_mockLoans);
+        filteredLoans = List.from(_loans);
       } else {
         filteredLoans =
-            _mockLoans.where((loan) {
-              final applicant = loan['applicantId'].toString().toLowerCase();
-              final reason = loan['reason'].toString().toLowerCase();
-              final responsibleId =
-                  loan['responsibleId'].toString().toLowerCase();
-              final itemId = loan['itemId'].toString().toLowerCase();
+            _loans.where((loan) {
+              final applicant = loan.applicantId.toString().toLowerCase();
+              final reason = loan.reason.toString().toLowerCase();
+              final responsibleId = loan.responsibleId.toString().toLowerCase();
+              final itemId = loan.itemId.toString().toLowerCase();
 
               return applicant.contains(query) ||
                   reason.contains(query) ||
@@ -92,10 +89,24 @@ class _LoansPageState extends State<LoansPage> {
     });
   }
 
+  String _formatSerialCode(int itemId) {
+    String idString = itemId.toString();
+    if (idString.length >= 8) {
+      return '${idString.substring(0, 4)}-${idString.substring(4, 8)}';
+    } else {
+      // Pad with zeros if needed
+      idString = idString.padLeft(8, '0');
+      return '${idString.substring(0, 4)}-${idString.substring(4, 8)}';
+    }
+  }
+
   @override
   void dispose() {
     searchController.removeListener(filterLoans);
     searchController.dispose();
+    _loans.clear();
+    filteredLoans.clear();
+    _isLoading = false;
     super.dispose();
   }
 
@@ -144,30 +155,23 @@ class _LoansPageState extends State<LoansPage> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 5.0),
                                     child: LoanCard(
-                                      id: loan['id'].toString(),
+                                      id: loan.id.toString(),
                                       imageUrl:
                                           "assets/images/cr.jpg", // URL padrão
-                                      name: loan['applicantId'].toString(),
-                                      serialCode:
-                                          loan['itemId'].toString().hashCode,
-                                      date: _formatDate(
-                                        loan['createdAt'] as DateTime,
+                                      name: loan.applicantId.toString(),
+                                      serialCode: _formatSerialCode(
+                                        loan.itemId.hashCode,
                                       ),
-                                      beneficiary:
-                                          loan['applicantId'].toString(),
+                                      date: _formatDate(loan.createdAt),
+                                      beneficiary: loan.applicantId.toString(),
                                       responsible:
-                                          loan['responsibleId'].toString(),
-                                      returnDate:
-                                          loan['status'] == 'Finalizado'
-                                              ? _formatDate(
-                                                (loan['dueDate'] as DateTime)
-                                                    .subtract(
-                                                      const Duration(days: 3),
-                                                    ),
-                                              )
-                                              : "Não devolvido",
-                                      status: loan['status'].toString(),
-                                      reason: loan['reason'].toString(),
+                                          loan.responsibleId.toString(),
+                                      returnDate: _formatDate(
+                                        loan.returnDate ?? DateTime.now(),
+                                      ),
+                                      status:
+                                          loan.isActive ? "Ativo" : "Inativo",
+                                      reason: loan.reason.toString(),
                                     ),
                                   ),
                                 ),

@@ -48,6 +48,23 @@ void main() async {
     // Continue mesmo se houver erro no CategoriesService
   }
 
+  try {
+    await OrthopedicBanksService.initialize(apiClient: apiClient);
+    debugPrint('OrthopedicBanksService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar OrthopedicBanksService: $e');
+    // Continue mesmo se houver erro no CategoriesService
+  }
+
+  // Inicializa o serviço de loans
+  try {
+    await LoansService.initialize(apiClient: apiClient);
+    debugPrint('LoansService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar LoansService: $e');
+    // Continue mesmo se houver erro no LoansService
+  }
+
   runApp(const MyApp());
 }
 

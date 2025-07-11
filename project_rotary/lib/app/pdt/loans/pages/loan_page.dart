@@ -62,15 +62,18 @@ class LoanPage extends StatelessWidget {
               ),
             );
           },
-        );
+        );  
       },
     );
   }
 
+
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: AppBarCustom(title: loanSerialCode),
+      appBar: AppBarCustom(title: 'Empréstimo: $loanSerialCode'),
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
@@ -118,7 +121,7 @@ class LoanPage extends StatelessWidget {
                   children: [
                     const SizedBox(height: 16),
                     Text(
-                      loanSerialCode,
+                      'Empréstimo do Item: $loanSerialCode',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

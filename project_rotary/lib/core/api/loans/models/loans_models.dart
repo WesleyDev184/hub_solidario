@@ -35,41 +35,56 @@ class Loan {
   });
 
   factory Loan.fromJson(Map<String, dynamic> json) {
-    return Loan(
-      id: json['id'] as String,
-      reason: json['reason'] as String?,
-      isActive: json['isActive'] as bool? ?? true,
-      returnDate:
-          json['returnDate'] != null
-              ? DateTime.parse(json['returnDate'] as String)
-              : null,
-      applicantId:
-          json['applicantId'] as String? ??
-          json['applicant']?['id'] as String? ??
-          '',
-      responsibleId:
-          json['responsibleId'] as String? ??
-          json['responsible']?['id'] as String? ??
-          '',
-      itemId: json['itemId'] as String? ?? json['item']?['id'] as String? ?? '',
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt:
-          json['updatedAt'] != null
-              ? DateTime.parse(json['updatedAt'] as String)
-              : null,
-      applicant:
-          json['applicant'] != null
-              ? Applicant.fromJson(json['applicant'] as Map<String, dynamic>)
-              : null,
-      item:
-          json['item'] != null
-              ? Item.fromJson(json['item'] as Map<String, dynamic>)
-              : null,
-      responsible:
-          json['responsible'] != null
-              ? User.fromJson(json['responsible'] as Map<String, dynamic>)
-              : null,
-    );
+    try {
+      return Loan(
+        id: json['id'] as String,
+        reason: json['reason'] as String?,
+        isActive: json['isActive'] as bool? ?? true,
+        returnDate:
+            json['returnDate'] != null
+                ? DateTime.parse(json['returnDate'] as String)
+                : null,
+        applicantId:
+            json['applicantId'] as String? ??
+            (json['applicant'] is Map<String, dynamic>
+                ? json['applicant']['id'] as String?
+                : json['applicant']?.toString()) ??
+            '',
+        responsibleId:
+            json['responsibleId'] as String? ??
+            (json['responsible'] is Map<String, dynamic>
+                ? json['responsible']['id'] as String?
+                : json['responsible']?.toString()) ??
+            '',
+        itemId:
+            json['itemId'] as String? ??
+            (json['item'] is Map<String, dynamic>
+                ? json['item']['id'] as String?
+                : json['item']?.toString()) ??
+            '',
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        updatedAt:
+            json['updatedAt'] != null
+                ? DateTime.parse(json['updatedAt'] as String)
+                : null,
+        applicant:
+            json['applicant'] != null &&
+                    json['applicant'] is Map<String, dynamic>
+                ? Applicant.fromJson(json['applicant'] as Map<String, dynamic>)
+                : null,
+        item:
+            json['item'] != null && json['item'] is Map<String, dynamic>
+                ? Item.fromJson(json['item'] as Map<String, dynamic>)
+                : null,
+        responsible:
+            json['responsible'] != null &&
+                    json['responsible'] is Map<String, dynamic>
+                ? User.fromJson(json['responsible'] as Map<String, dynamic>)
+                : null,
+      );
+    } catch (e) {
+      throw Exception('Erro ao processar resposta dos empréstimos: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {

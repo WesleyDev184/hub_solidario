@@ -11,6 +11,7 @@ class AuthCacheService {
   static const String _tokenKey = 'auth_token';
   static const String _refreshTokenKey = 'auth_refresh_token';
   static const String _tokenExpiryKey = 'auth_token_expiry';
+  static const String _allUsersKey = 'auth_all_users';
 
   final SharedPreferences _prefs;
 
@@ -89,8 +90,6 @@ class AuthCacheService {
         status = AuthStatus.unauthenticated;
       }
 
-      debugPrint('Auth state loaded from cache: $status');
-
       return AuthState(
         status: status,
         user: user,
@@ -99,7 +98,6 @@ class AuthCacheService {
         tokenExpiry: tokenExpiry,
       );
     } catch (e) {
-      debugPrint('Erro ao carregar estado de autenticação: $e');
       return const AuthState(status: AuthStatus.unauthenticated);
     }
   }
@@ -193,6 +191,7 @@ class AuthCacheService {
         _prefs.remove(_tokenKey),
         _prefs.remove(_refreshTokenKey),
         _prefs.remove(_tokenExpiryKey),
+        _prefs.remove(_allUsersKey),
       ]);
       debugPrint('Auth data cleared from cache');
     } catch (e) {
@@ -224,6 +223,102 @@ class AuthCacheService {
     } catch (e) {
       debugPrint('Erro ao verificar dados de auth: $e');
       return false;
+    }
+  }
+
+  /// Salva a lista de todos os usuários
+  Future<void> saveAllUsers(List<User> users) async {
+    try {
+      final usersJson = users.map((user) => user.toJson()).toList();
+      await _prefs.setString(_allUsersKey, jsonEncode(usersJson));
+      debugPrint('All users saved to cache: ${users.length} users');
+    } catch (e) {
+      debugPrint('Erro ao salvar todos os usuários: $e');
+    }
+  }
+
+  /// Carrega a lista de todos os usuários
+  Future<List<User>> loadAllUsers() async {
+    try {
+      final usersJson = _prefs.getString(_allUsersKey);
+      if (usersJson != null) {
+        final usersList = jsonDecode(usersJson) as List<dynamic>;
+        return usersList
+            .map((userMap) => User.fromJson(userMap as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('Erro ao carregar todos os usuários: $e');
+      return [];
+    }
+  }
+
+  /// Limpa o cache de todos os usuários
+  Future<void> clearAllUsers() async {
+    try {
+      await _prefs.remove(_allUsersKey);
+      debugPrint('All users cache cleared');
+    } catch (e) {
+      debugPrint('Erro ao limpar cache de todos os usuários: $e');
+    }
+  }
+
+  /// Adiciona um usuário à lista de todos os usuários
+  Future<void> addUserToAllUsers(User user) async {
+    try {
+      final currentUsers = await loadAllUsers();
+
+      // Verifica se o usuário já existe (por ID)
+      final existingIndex = currentUsers.indexWhere((u) => u.id == user.id);
+
+      if (existingIndex >= 0) {
+        // Atualiza o usuário existente
+        currentUsers[existingIndex] = user;
+      } else {
+        // Adiciona o novo usuário
+        currentUsers.add(user);
+      }
+
+      await saveAllUsers(currentUsers);
+    } catch (e) {
+      debugPrint('Erro ao adicionar usuário à lista: $e');
+    }
+  }
+
+  /// Remove um usuário da lista de todos os usuários
+  Future<void> removeUserFromAllUsers(String userId) async {
+    try {
+      final currentUsers = await loadAllUsers();
+      currentUsers.removeWhere((user) => user.id == userId);
+      await saveAllUsers(currentUsers);
+    } catch (e) {
+      debugPrint('Erro ao remover usuário da lista: $e');
+    }
+  }
+
+  /// Verifica se existe cache de todos os usuários
+  Future<bool> hasAllUsersCache() async {
+    try {
+      final usersJson = _prefs.getString(_allUsersKey);
+      return usersJson != null && usersJson.isNotEmpty;
+    } catch (e) {
+      debugPrint('Erro ao verificar cache de todos os usuários: $e');
+      return false;
+    }
+  }
+
+  /// Busca um usuário específico na lista de todos os usuários
+  Future<User?> findUserInAllUsers(String userId) async {
+    try {
+      final allUsers = await loadAllUsers();
+      return allUsers.firstWhere(
+        (user) => user.id == userId,
+        orElse: () => throw StateError('User not found'),
+      );
+    } catch (e) {
+      debugPrint('Usuário não encontrado na lista: $e');
+      return null;
     }
   }
 }

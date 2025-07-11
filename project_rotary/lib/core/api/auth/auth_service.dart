@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:project_rotary/core/api/api_client.dart';
+import 'package:project_rotary/core/api/orthopedic_banks/models/orthopedic_banks_models.dart';
+import 'package:result_dart/result_dart.dart';
 
 import 'auth.dart';
 
@@ -131,5 +133,189 @@ class AuthService {
     _instance = null;
     _repository = null;
     _cacheService = null;
+  }
+
+  /// Garante que o serviço está inicializado
+  static Future<void> ensureInitialized() async {
+    if (!isInitialized) {
+      throw Exception(
+        'AuthService não foi inicializado. Chame AuthService.initialize() primeiro.',
+      );
+    }
+  }
+
+  // === MÉTODOS DE CONVENIÊNCIA ===
+
+  /// Realiza login
+  static AsyncResult<User> login(String email, String password) async {
+    await ensureInitialized();
+    return _instance!.login(email, password);
+  }
+
+  /// Realiza logout
+  static Future<void> logout() async {
+    await ensureInitialized();
+    return _instance!.logout();
+  }
+
+  /// Obtém o usuário atual
+  static User? get currentUser {
+    if (!isInitialized) return null;
+    return _instance!.currentUser;
+  }
+
+  /// Obtém o token de acesso atual
+  static String? get accessToken {
+    if (!isInitialized) return null;
+    return _instance!.accessToken;
+  }
+
+  /// Verifica se está autenticado
+  static bool get isAuthenticated {
+    if (!isInitialized) return false;
+    return _instance!.isAuthenticated;
+  }
+
+  /// Verifica se está desautenticado
+  static bool get isUnauthenticated {
+    if (!isInitialized) return true;
+    return _instance!.isUnauthenticated;
+  }
+
+  /// Verifica se está carregando
+  static bool get isLoading {
+    if (!isInitialized) return false;
+    return _instance!.isLoading;
+  }
+
+  /// Obtém o estado atual de autenticação
+  static AuthState get state {
+    if (!isInitialized) return const AuthState(status: AuthStatus.unknown);
+    return _instance!.state;
+  }
+
+  /// Stream do estado de autenticação
+  static Stream<AuthState> get stateStream {
+    if (!isInitialized) return const Stream.empty();
+    return _instance!.stateStream;
+  }
+
+  /// Atualiza dados do usuário atual
+  static AsyncResult<User> updateCurrentUser(UpdateUserRequest request) async {
+    await ensureInitialized();
+    return _instance!.updateCurrentUser(request);
+  }
+
+  /// Cria um novo usuário
+  static AsyncResult<bool> createUser(CreateUserRequest request) async {
+    await ensureInitialized();
+    return _instance!.createUser(request);
+  }
+
+  /// Obtém usuário por ID
+  static AsyncResult<User> getUserById(String id) async {
+    await ensureInitialized();
+    return _instance!.getUserById(id);
+  }
+
+  /// Obtém todos os usuários por banco ortopédico
+  static AsyncResult<List<User>> getAllUsers(String bankId) async {
+    await ensureInitialized();
+    return _instance!.getAllUsers(bankId);
+  }
+
+  /// Obtém todos os usuários forçando refresh do servidor
+  static AsyncResult<List<User>> refreshAllUsers() async {
+    await ensureInitialized();
+    return _instance!.refreshAllUsers();
+  }
+
+  /// Deleta usuário
+  static AsyncResult<bool> deleteUser(String id) async {
+    await ensureInitialized();
+    return _instance!.deleteUser(id);
+  }
+
+  /// Atualiza dados do usuário atual do servidor
+  static Future<void> refreshCurrentUser() async {
+    await ensureInitialized();
+    return _instance!.refreshCurrentUser();
+  }
+
+  /// Força atualização do estado
+  static void forceUpdate() {
+    if (!isInitialized) return;
+    _instance!.forceUpdate();
+  }
+
+  /// Limpa estado de autenticação
+  static Future<void> clearAuthState() async {
+    await ensureInitialized();
+    return _instance!.clearAuthState();
+  }
+
+  /// Verifica se o token está expirado
+  static bool get isTokenExpired {
+    if (!isInitialized) return true;
+    return _instance!.state.isTokenExpired;
+  }
+
+  /// Obtém data de expiração do token
+  static DateTime? get tokenExpiry {
+    if (!isInitialized) return null;
+    return _instance!.state.tokenExpiry;
+  }
+
+  /// Obtém refresh token
+  static String? get refreshToken {
+    if (!isInitialized) return null;
+    return _instance!.state.refreshToken;
+  }
+
+  /// Verifica se o usuário está logado e o token é válido
+  static bool get isValidAuthentication {
+    if (!isInitialized) return false;
+    return _instance!.isAuthenticated && !_instance!.state.isTokenExpired;
+  }
+
+  /// Obtém informações do banco ortopédico do usuário atual
+  static OrthopedicBank? get currentUserOrthopedicBank {
+    if (!isInitialized || _instance!.currentUser == null) return null;
+    return _instance!.currentUser!.orthopedicBank;
+  }
+
+  /// Verifica se o usuário atual tem banco ortopédico associado
+  static bool get hasOrthopedicBank {
+    return currentUserOrthopedicBank != null;
+  }
+
+  /// Obtém o ID do banco ortopédico do usuário atual
+  static String? get currentUserOrthopedicBankId {
+    return currentUserOrthopedicBank?.id;
+  }
+
+  /// Obtém o nome do usuário atual
+  static String? get currentUserName {
+    return currentUser?.name;
+  }
+
+  /// Obtém o email do usuário atual
+  static String? get currentUserEmail {
+    return currentUser?.email;
+  }
+
+  /// Obtém o telefone do usuário atual
+  static String? get currentUserPhoneNumber {
+    return currentUser?.phoneNumber;
+  }
+
+  /// Obtém o ID do usuário atual
+  static String? get currentUserId {
+    return currentUser?.id;
+  }
+
+  /// Obtém a data de criação do usuário atual
+  static DateTime? get currentUserCreatedAt {
+    return currentUser?.createdAt;
   }
 }

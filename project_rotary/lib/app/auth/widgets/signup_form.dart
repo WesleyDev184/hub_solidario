@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/core/api/api_client.dart';
 import 'package:project_rotary/core/api/auth/auth_service.dart';
 import 'package:project_rotary/core/api/auth/models/auth_models.dart';
 import 'package:project_rotary/core/api/orthopedic_banks/orthopedic_banks_service.dart';
@@ -116,58 +115,30 @@ class _SignUpFormState extends State<SignUpForm> {
     });
 
     try {
-      // Verifica se o serviço está inicializado
-      if (!OrthopedicBanksService.isInitialized) {
-        // Se não estiver inicializado, tenta inicializar
-        try {
-          // Cria um ApiClient para o serviço
-          final apiClient = ApiClient();
-          await OrthopedicBanksService.initialize(apiClient: apiClient);
-        } catch (e) {
-          // Se falhar na inicialização, marca como erro
+      final result = await OrthopedicBanksService.getOrthopedicBanks();
+
+      result.fold(
+        (banks) {
+          setState(() {
+            orthopedicBankItems =
+                banks.map((bank) {
+                  return DropdownMenuItem<String>(
+                    value: bank.id,
+                    child: Text('${bank.name} - ${bank.city}'),
+                  );
+                }).toList();
+            isLoadingBanks = false;
+            hasErrorLoadingBanks = false;
+          });
+        },
+        (error) {
           setState(() {
             _setErrorState();
             isLoadingBanks = false;
             hasErrorLoadingBanks = true;
           });
-          return;
-        }
-      }
-
-      final orthopedicBanksController = OrthopedicBanksService.instance;
-      if (orthopedicBanksController != null) {
-        // Buscar bancos ortopédicos da API
-        final result = await orthopedicBanksController.loadOrthopedicBanks();
-
-        result.fold(
-          (banks) {
-            setState(() {
-              orthopedicBankItems =
-                  banks.map((bank) {
-                    return DropdownMenuItem<String>(
-                      value: bank.id,
-                      child: Text('${bank.name} - ${bank.city}'),
-                    );
-                  }).toList();
-              isLoadingBanks = false;
-              hasErrorLoadingBanks = false;
-            });
-          },
-          (error) {
-            setState(() {
-              _setErrorState();
-              isLoadingBanks = false;
-              hasErrorLoadingBanks = true;
-            });
-          },
-        );
-      } else {
-        setState(() {
-          _setErrorState();
-          isLoadingBanks = false;
-          hasErrorLoadingBanks = true;
-        });
-      }
+        },
+      );
     } catch (e) {
       setState(() {
         _setErrorState();

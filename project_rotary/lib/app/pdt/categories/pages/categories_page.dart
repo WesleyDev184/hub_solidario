@@ -197,8 +197,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                           verticalOffset: 50.0,
                           child: FadeInAnimation(
                             child: InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(
+                              onTap: () async {
+                                final result = await Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder:
                                         (_) => CategoryPage(
@@ -207,6 +207,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                         ),
                                   ),
                                 );
+                                // Recarrega os dados se retornou true
+                                if (result == true) {
+                                  _loadCategories();
+                                }
                               },
                               child: CategoryCard(
                                 id: category.id,

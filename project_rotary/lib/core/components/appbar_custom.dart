@@ -88,7 +88,6 @@ class _AppBarCustomState extends State<AppBarCustom> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: 12,
               children: [
                 Navigator.canPop(context)
                     ? IconButton(
@@ -102,17 +101,21 @@ class _AppBarCustomState extends State<AppBarCustom> {
                       onPressed: () {
                         Navigator.of(
                           context,
-                        ).push(MaterialPageRoute(builder: (_) => InfoPage()));  
+                        ).push(MaterialPageRoute(builder: (_) => InfoPage()));
                       },
                       color: _primaryColor,
                     ),
 
-                Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontSize: 21,
-                    color: _primaryColor,
-                    fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 21,
+                      color: _primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
 

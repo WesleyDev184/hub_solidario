@@ -130,6 +130,12 @@ class Item {
   String toString() {
     return 'Item(id: $id, serialCode: $serialCode, status: ${status.value})';
   }
+
+  String get formattedSerialCode {
+    // Formata o serial code para o padrão ####-####
+    final code = serialCode.toString().padLeft(8, '0');
+    return '${code.substring(0, 4)}-${code.substring(4)}';
+  }
 }
 
 /// Request para criar um novo item

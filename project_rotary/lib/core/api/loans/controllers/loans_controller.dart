@@ -126,6 +126,7 @@ class LoansController {
       final canCreateResult = await _repository.canApplicantCreateLoan(
         request.applicantId,
       );
+
       if (canCreateResult.isError()) {
         return Failure(canCreateResult.exceptionOrNull()!);
       }

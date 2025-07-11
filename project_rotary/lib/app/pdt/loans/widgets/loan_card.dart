@@ -10,7 +10,7 @@ class LoanCard extends StatelessWidget {
   final String imageUrl;
   final String name;
   final String date;
-  final int serialCode;
+  final String serialCode;
   final String responsible;
   final String beneficiary;
   final String returnDate;

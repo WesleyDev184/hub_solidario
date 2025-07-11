@@ -368,7 +368,9 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed:
-                          _isLoading ? null : () => Navigator.pop(context),
+                          _isLoading
+                              ? null
+                              : () => Navigator.pop(context, false),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: CustomColors.border),

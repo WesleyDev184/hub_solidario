@@ -144,14 +144,10 @@ class StocksController {
     try {
       final result = await _repository.createStock(request);
 
-      return result.fold((stockId) {
-        // Limpa o cache para forçar recarregamento
-        _cacheService.clearCache();
+      return result.fold((stock) {
+        _cacheService.cacheStock(stock);
 
-        // Se o stock foi criado com sucesso, recarrega a lista
-        loadStocks(forceRefresh: true);
-
-        return Success(stockId);
+        return Success(stock.id);
       }, (error) => Failure(error));
     } catch (e) {
       return Failure(Exception('Erro inesperado: $e'));
