@@ -221,6 +221,7 @@ class _CategoryPageState extends State<CategoryPage> {
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return ActionMenuCategory(
+          availableQtd: _stock?.availableQtd ?? 0,
           onCreatePressed: () async {
             final result = await Navigator.of(context).push<bool>(
               MaterialPageRoute(
@@ -233,6 +234,16 @@ class _CategoryPageState extends State<CategoryPage> {
             );
 
             if (result == true) {
+              final temp = _stock?.copyWith(
+                availableQtd: _stock!.availableQtd + 1,
+              );
+
+              setState(() {
+                _stock = temp;
+              });
+
+              await StocksService.cacheStock(_stock!);
+
               // Recarrega os itens após adicionar um novo item
               _initializeData();
             }
@@ -271,8 +282,8 @@ class _CategoryPageState extends State<CategoryPage> {
               ),
             );
           },
-          onBorrowPressed: () {
-            Navigator.push(
+          onBorrowPressed: () async {
+            final res = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
@@ -287,6 +298,25 @@ class _CategoryPageState extends State<CategoryPage> {
                     ),
               ),
             );
+
+            if (res is Loan) {
+              _items.removeWhere((item) => item.id == res.item?.id);
+              _items.add(res.item!);
+
+              final tempStock = _stock?.copyWith(
+                borrowedQtd: _stock!.borrowedQtd + 1,
+                availableQtd: _stock!.availableQtd - 1,
+              );
+              // Se o usuário criou um empréstimo, atualiza os itens
+              setState(() {
+                _items = _applyStatusFilter(_items);
+                _filteredItems = _applyStatusFilter(_items);
+                _stock = tempStock;
+              });
+
+              await ItemsService.updateItemStatus(res.item!);
+              await StocksService.cacheStock(_stock!);
+            }
           },
         );
       },

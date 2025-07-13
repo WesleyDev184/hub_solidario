@@ -40,7 +40,6 @@ class LoansCacheService {
 
   /// Inicializa o serviço de cache
   Future<void> initialize() async {
-    debugPrint('LoansCacheService: Inicializando serviço de cache');
     _prefs ??= await SharedPreferences.getInstance();
     clearAll();
   }
@@ -186,9 +185,6 @@ class LoansCacheService {
     cachedLoans.add(LoanListItem.fromLoan(loan));
     // Atualiza o cache com a lista completa
     await cacheLoans(cachedLoans);
-    debugPrint(
-      'LoansCacheService: Loan ${loan.id} adicionado ao cache persistente',
-    );
   }
 
   // === CACHE DE LOANS ===
@@ -198,22 +194,15 @@ class LoansCacheService {
     // Primeiro tenta o cache persistente
     final persistentLoans = await getCachedLoans();
     if (persistentLoans != null) {
-      debugPrint(
-        'LoansCacheService: Retornando ${persistentLoans.length} loans do cache persistente',
-      );
       return persistentLoans;
     }
 
     // Se não encontrar no persistente, tenta o cache em memória
     final memoryLoans = loans;
     if (memoryLoans != null) {
-      debugPrint(
-        'LoansCacheService: Retornando ${memoryLoans.length} loans do cache em memória',
-      );
       return memoryLoans;
     }
 
-    debugPrint('LoansCacheService: Nenhum cache de loans encontrado');
     return null;
   }
 
@@ -240,10 +229,6 @@ class LoansCacheService {
         _setCachedLoan(loan);
       }
     }
-
-    debugPrint(
-      'LoansCacheService: Cache de loans atualizado com ${loans?.length ?? 0} itens',
-    );
   }
 
   /// Verifica se o cache de loans expirou
@@ -445,8 +430,6 @@ class LoansCacheService {
 
     _loansByResponsibleCache.clear();
     _loansByResponsibleTimestamp.clear();
-
-    debugPrint('LoansCacheService: Todo o cache foi limpo');
   }
 
   /// Limpa todo o cache persistente

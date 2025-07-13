@@ -10,7 +10,7 @@ class LoansRepository {
   const LoansRepository(this._apiClient);
 
   /// Busca todos os loans
-  AsyncResult<List<Loan>> getLoans() async {
+  AsyncResult<List<LoanListItem>> getLoans() async {
     try {
       final result = await _apiClient.get(ApiEndpoints.loans, useAuth: true);
 
@@ -20,7 +20,10 @@ class LoansRepository {
             final loansData = data['data'] as List;
             final loans =
                 loansData
-                    .map((json) => Loan.fromJson(json as Map<String, dynamic>))
+                    .map(
+                      (json) =>
+                          LoanListItem.fromJson(json as Map<String, dynamic>),
+                    )
                     .toList();
             return Success(loans);
           } else {
@@ -215,7 +218,7 @@ class LoansRepository {
   }
 
   /// Calcula a duração média dos empréstimos
-  double _calculateAverageLoanDuration(List<Loan> loans) {
+  double _calculateAverageLoanDuration(List<LoanListItem> loans) {
     final completedLoans =
         loans
             .where((loan) => !loan.isActive && loan.returnDate != null)

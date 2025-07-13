@@ -71,17 +71,16 @@ class LoansController {
 
       return result.fold(
         (loans) async {
-          final listItems = loans.map(LoanListItem.fromLoan).toList();
-          _loans = listItems;
+          _loans = loans;
           _error = null;
           _isLoading = false;
 
           // Atualiza cache se não há filtros
           if (filters == null) {
-            await _cacheService.cacheLoans(listItems);
+            await _cacheService.cacheLoans(loans);
           }
 
-          return Success(listItems);
+          return Success(loans);
         },
         (error) {
           _error = error.toString();

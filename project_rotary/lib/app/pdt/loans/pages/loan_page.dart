@@ -225,13 +225,10 @@ class LoanPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+       floatingActionButton: FloatingActionButton(
         onPressed: () => _showActionsMenu(context),
         backgroundColor: CustomColors.primary,
-        foregroundColor: CustomColors.white,
-        icon: const Icon(LucideIcons.menu),
-        label: const Text('Ações'),
-        elevation: 4,
+        child: const Icon(LucideIcons.menu, color: Colors.white),
       ),
     );
   }

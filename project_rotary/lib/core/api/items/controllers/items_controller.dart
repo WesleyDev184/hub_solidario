@@ -144,7 +144,9 @@ class ItemsController {
 
       return result.fold((item) async {
         // busca o cache atual por stock
-        final cachedItems = await _cacheService.getCachedItemsByStock(item.stockId);
+        final cachedItems = await _cacheService.getCachedItemsByStock(
+          item.stockId,
+        );
         if (cachedItems != null) {
           // Adiciona o novo item ao cache
           cachedItems.add(item);
@@ -253,12 +255,13 @@ class ItemsController {
   }
 
   /// Atualiza status de um item
-  AsyncResult<Item> updateItemStatus(
-    String itemId,
-    ItemStatus newStatus,
-  ) async {
-    final request = UpdateItemRequest(status: newStatus);
-    return updateItem(itemId, request);
+  AsyncResult<String> updateItemStatus(Item item) async {
+    try {
+      await _cacheService.updateCacheAfterModification(item);
+      return Success(item.id);
+    } catch (e) {
+      return Failure(Exception('Erro ao atualizar status do item: $e'));
+    }
   }
 
   /// Atualiza código serial de um item

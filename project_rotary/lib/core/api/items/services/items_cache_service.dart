@@ -244,18 +244,17 @@ class ItemsCacheService {
 
   /// Atualiza cache após criação/atualização de item
   Future<void> updateCacheAfterModification(Item item) async {
-    try {
-      // Salva item individual
-      await cacheItem(item);
+    if (_prefs == null) return;
 
-      // Invalida cache geral para forçar reload
-      await _prefs?.remove(_itemsKey);
-      await _prefs?.remove(_lastUpdateKey);
+    //Busca o cache existente
+    final cachedItems = await getCachedItemsByStock(item.stockId);
+    if (cachedItems == null) return;
 
-      // Invalida cache do stock específico
-      await clearStockCache(item.stockId);
-    } catch (e) {
-      debugPrint('Erro ao atualizar cache após modificação: $e');
-    }
+    // Atualiza ou adiciona o item no cache
+    cachedItems.removeWhere((i) => i.id == item.id);
+    cachedItems.add(item);
+
+    // Salva o cache atualizado
+    await cacheItemsByStock(item.stockId, cachedItems);
   }
 }

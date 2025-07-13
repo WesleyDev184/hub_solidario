@@ -9,12 +9,20 @@ enum ItemStatus {
   const ItemStatus(this.value);
   final String value;
 
-  /// Converte string para enum
+  /// Converts a string to an ItemStatus enum.
   static ItemStatus fromString(String value) {
-    return ItemStatus.values.firstWhere(
-      (status) => status.value == value || value.contains(status.value),
+    // Prepare the input string for a case-insensitive comparison.
+    final upperValue = value.toUpperCase();
+
+    final status = ItemStatus.values.firstWhere(
+      // Check for an exact match. This is the correct logic.
+      (status) => status.value == upperValue,
+
+      // The orElse will now correctly execute only when no match is found.
       orElse: () => ItemStatus.available,
     );
+
+    return status;
   }
 
   /// Descrição amigável do status
@@ -60,9 +68,7 @@ class Item {
       return Item(
         id: json['id']?.toString() ?? '',
         serialCode: (json['serialCode'] ?? json['seriaCode'] ?? 0) as int,
-        status: ItemStatus.fromString(
-          json['status']?.toString() ?? 'AVAILABLE',
-        ),
+        status: ItemStatus.fromString(json['status']?.toString() ?? ''),
         stockId: json['stockId']?.toString() ?? '',
         createdAt:
             json['createdAt'] != null

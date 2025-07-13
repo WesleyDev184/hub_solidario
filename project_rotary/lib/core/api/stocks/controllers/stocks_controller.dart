@@ -179,6 +179,15 @@ class StocksController {
     }
   }
 
+  /// Atualiza o cache de um stock
+  Future<void> cacheStock(Stock stock) async {
+    try {
+      await _cacheService.cacheStock(stock);
+    } catch (e) {
+      throw Exception('Erro ao atualizar cache: $e');
+    }
+  }
+
   /// Deleta um stock
   AsyncResult<bool> deleteStock(String stockId) async {
     try {

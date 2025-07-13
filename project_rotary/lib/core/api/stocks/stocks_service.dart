@@ -103,6 +103,12 @@ class StocksService {
     return _instance!.updateStock(stockId, request);
   }
 
+  /// Atualiza o cache de um stock
+  static Future<void> cacheStock(Stock stock) async {
+    await ensureInitialized();
+    return _instance!.cacheStock(stock);
+  }
+
   /// Deleta um stock
   static AsyncResult<bool> deleteStock(String stockId) async {
     await ensureInitialized();

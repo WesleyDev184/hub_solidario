@@ -172,12 +172,9 @@ class ItemsService {
   }
 
   /// Atualiza status de um item
-  static AsyncResult<Item> updateItemStatus(
-    String itemId,
-    ItemStatus newStatus,
-  ) async {
+  static AsyncResult<String> updateItemStatus(Item item) async {
     await ensureInitialized();
-    return _instance!.updateItemStatus(itemId, newStatus);
+    return _instance!.updateItemStatus(item);
   }
 
   /// Atualiza código serial de um item

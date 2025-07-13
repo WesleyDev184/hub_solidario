@@ -8,6 +8,7 @@ class ActionMenuCategory extends StatelessWidget {
   final VoidCallback? onDeletePressed;
   final VoidCallback? onBorrowPressed;
   final String title;
+  final int availableQtd;
 
   const ActionMenuCategory({
     super.key,
@@ -16,6 +17,7 @@ class ActionMenuCategory extends StatelessWidget {
     this.onDeletePressed,
     this.onBorrowPressed,
     this.title = 'Ações',
+    this.availableQtd = 0,
   });
 
   @override
@@ -69,16 +71,17 @@ class ActionMenuCategory extends StatelessWidget {
               onEditPressed?.call();
             },
           ),
-          _buildActionItem(
-            context,
-            icon: LucideIcons.layoutList,
-            title: 'Emprestar',
-            subtitle: "Criar novo empréstimo",
-            onTap: () {
-              Navigator.pop(context);
-              onBorrowPressed?.call();
-            },
-          ),
+          if (availableQtd > 0)
+            _buildActionItem(
+              context,
+              icon: LucideIcons.layoutList,
+              title: 'Emprestar',
+              subtitle: "Criar novo empréstimo",
+              onTap: () {
+                Navigator.pop(context);
+                onBorrowPressed?.call();
+              },
+            ),
           _buildActionItem(
             context,
             icon: LucideIcons.trash2,

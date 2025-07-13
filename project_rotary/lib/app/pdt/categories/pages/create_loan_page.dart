@@ -219,7 +219,7 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, true);
+        Navigator.pop(context, success);
         setState(() {
           _isLoading = false;
         });
