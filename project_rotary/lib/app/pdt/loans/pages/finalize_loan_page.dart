@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/loans/loans_service.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 
 class FinalizeLoanPage extends StatefulWidget {
@@ -33,22 +34,33 @@ class _FinalizeLoanPageState extends State<FinalizeLoanPage> {
       _isLoading = true;
     });
 
-    // Simula finalização do empréstimo
-    await Future.delayed(const Duration(seconds: 2));
+    final res = await LoansService.returnLoan(widget.loanId);
 
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Empréstimo finalizado com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context, true);
-    }
+    res.fold(
+      (success) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Empréstimo finalizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, success); // Return to previous page with success
+      },
+      (error) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao finalizar empréstimo: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
   }
 
   @override

@@ -163,18 +163,18 @@ class LoansCacheService {
 
   /// Atualiza um loan no cache persistente
   Future<void> updateCachedLoan(Loan loan) async {
-    // Cacheia o loan individual
-    await cacheLoan(loan);
+    // Busca a lista de loans do cache
+    final cachedLoans = await getCachedLoans() ?? [];
 
-    // Atualiza o cache da lista geral de loans
-    final cachedLoans = await getCachedLoans();
-    if (cachedLoans != null) {
-      final updatedLoans =
-          cachedLoans.map((cached) {
-            return cached.id == loan.id ? LoanListItem.fromLoan(loan) : cached;
-          }).toList();
-      await cacheLoans(updatedLoans);
+    cachedLoans.removeWhere((l) => l.id == loan.id);
+
+    if (loan.isActive) {
+      // Adiciona o loan atualizado
+      cachedLoans.add(LoanListItem.fromLoan(loan));
     }
+
+    // Atualiza o cache com a lista completa
+    await cacheLoans(cachedLoans);
   }
 
   /// Adiciona um loan criado ao cache persistente

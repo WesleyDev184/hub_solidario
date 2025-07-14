@@ -3,6 +3,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/loans/pages/edit_loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/pages/finalize_loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/widgets/action_menu_loan.dart';
+import 'package:project_rotary/core/api/items/items_service.dart';
+import 'package:project_rotary/core/api/loans/models/loans_models.dart';
+import 'package:project_rotary/core/api/stocks/stocks_service.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
@@ -49,8 +52,8 @@ class LoanPage extends StatelessWidget {
               ),
             );
           },
-          onFinishPressed: () {
-            Navigator.of(context).push(
+          onFinishPressed: () async {
+            final res = await Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
                     (context) => FinalizeLoanPage(
@@ -61,6 +64,35 @@ class LoanPage extends StatelessWidget {
                     ),
               ),
             );
+
+            if (res is Loan) {
+              await ItemsService.updateItemStatus(res.item!);
+
+              final tempStocks = await StocksService.getStocks();
+
+              tempStocks.fold(
+                (stocks) async {
+                  final stock = stocks.firstWhere(
+                    (s) => s.id == res.item!.stockId,
+                    orElse: () => throw Exception('Stock not found'),
+                  );
+
+                  final newStock = stock.copyWith(
+                    availableQtd: stock.availableQtd + 1,
+                    borrowedQtd: stock.borrowedQtd - 1,
+                  );
+
+                  await StocksService.cacheStock(newStock);
+                },
+                (error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Erro ao atualizar estoque: $error'),
+                    ),
+                  );
+                },
+              );
+            }
           },
         );
       },
@@ -225,7 +257,7 @@ class LoanPage extends StatelessWidget {
           ),
         ],
       ),
-       floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: () => _showActionsMenu(context),
         backgroundColor: CustomColors.primary,
         child: const Icon(LucideIcons.menu, color: Colors.white),

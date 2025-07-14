@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/loans/pages/finalize_loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/pages/loan_page.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
+import 'package:project_rotary/core/utils/utils.dart' as CoreUtils;
 
 class LoanCard extends StatelessWidget {
   final String id;
   final String imageUrl;
   final String name;
   final String date;
-  final String serialCode;
+  final int serialCode;
   final String responsible;
   final String beneficiary;
   final String returnDate;
   final String status;
   final String reason;
+  // chama a função de load de dados da pagina de empréstimos
+  final Function loadData;
 
   const LoanCard({
     super.key,
@@ -29,6 +33,7 @@ class LoanCard extends StatelessWidget {
     required this.returnDate,
     required this.status,
     required this.reason,
+    required this.loadData,
   });
 
   Widget _buildImage() {
@@ -86,7 +91,8 @@ class LoanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final serialCodeText = "Empréstimo do item: $serialCode"; // Variável criada
+    final serialCodeText =
+        "Empréstimo do item: ${CoreUtils.Formats.formatSerialCode(serialCode)}"; // Variável criada
 
     return Card(
       color: CustomColors.background,
@@ -165,8 +171,8 @@ class LoanCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Button(
-                            onPressed: () {
-                              Navigator.of(context).push(
+                            onPressed: () async {
+                              final res = await Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder:
                                       (context) => FinalizeLoanPage(
@@ -177,6 +183,44 @@ class LoanCard extends StatelessWidget {
                                       ),
                                 ),
                               );
+
+                              if (res is Loan) {
+                                // Se o empréstimo foi finalizado com sucesso, recarrega os dados
+                                loadData();
+                                await ItemsService.updateItemStatus(res.item!);
+
+                                final tempStocks =
+                                    await StocksService.getStocks();
+
+                                tempStocks.fold(
+                                  (stocks) async {
+                                    final stock = stocks.firstWhere(
+                                      (s) => s.id == res.item!.stockId,
+                                      orElse:
+                                          () =>
+                                              throw Exception(
+                                                'Stock not found',
+                                              ),
+                                    );
+
+                                    final newStock = stock.copyWith(
+                                      availableQtd: stock.availableQtd + 1,
+                                      borrowedQtd: stock.borrowedQtd - 1,
+                                    );
+
+                                    await StocksService.cacheStock(newStock);
+                                  },
+                                  (error) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao atualizar estoque: $error',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
                             },
                             icon: Icon(
                               LucideIcons.arrowLeft,

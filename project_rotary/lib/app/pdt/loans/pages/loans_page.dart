@@ -89,17 +89,6 @@ class _LoansPageState extends State<LoansPage> {
     });
   }
 
-  String _formatSerialCode(int itemId) {
-    String idString = itemId.toString();
-    if (idString.length >= 8) {
-      return '${idString.substring(0, 4)}-${idString.substring(4, 8)}';
-    } else {
-      // Pad with zeros if needed
-      idString = idString.padLeft(8, '0');
-      return '${idString.substring(0, 4)}-${idString.substring(4, 8)}';
-    }
-  }
-
   @override
   void dispose() {
     searchController.removeListener(filterLoans);
@@ -159,19 +148,17 @@ class _LoansPageState extends State<LoansPage> {
                                       imageUrl:
                                           "assets/images/cr.jpg", // URL padrão
                                       name: loan.applicant.toString(),
-                                      serialCode: _formatSerialCode(
-                                        loan.item,
-                                      ),
+                                      serialCode: loan.item,
                                       date: _formatDate(loan.createdAt),
                                       beneficiary: loan.applicant.toString(),
-                                      responsible:
-                                          loan.responsible.toString(),
+                                      responsible: loan.responsible.toString(),
                                       returnDate: _formatDate(
                                         loan.returnDate ?? DateTime.now(),
                                       ),
                                       status:
                                           loan.isActive ? "Ativo" : "Inativo",
                                       reason: loan.reason.toString(),
+                                      loadData: _fetchLoans,
                                     ),
                                   ),
                                 ),
