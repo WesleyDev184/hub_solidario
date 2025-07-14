@@ -18,5 +18,7 @@ public record RequestUpdateLoanDto(
   [SwaggerParameter(Description = "Updated reason for the loan", Required = false)]
   string? Reason,
   [SwaggerParameter(Description = "Indicates whether the loan is active", Required = false)]
-  bool? IsActive
+  bool? IsActive,
+  [SwaggerParameter(Description = "Date when the item was returned", Required = false)]
+  string? ReturnDate
 );

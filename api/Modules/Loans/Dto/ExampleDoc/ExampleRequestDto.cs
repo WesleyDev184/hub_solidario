@@ -21,7 +21,8 @@ namespace api.Modules.Loans.Dto.ExampleDoc
     {
       return new RequestUpdateLoanDto(
         Reason: "Updated loan reason",
-        IsActive: true
+        IsActive: true,
+        ReturnDate: "01/10/2023"
       );
     }
   }
