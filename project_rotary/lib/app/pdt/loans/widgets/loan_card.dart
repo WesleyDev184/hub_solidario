@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/loans/pages/finalize_loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/pages/loan_page.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 import 'package:project_rotary/core/utils/utils.dart' as CoreUtils;
@@ -9,29 +10,14 @@ import 'package:project_rotary/core/utils/utils.dart' as CoreUtils;
 class LoanCard extends StatelessWidget {
   final String id;
   final String imageUrl;
-  final String name;
-  final String date;
-  final int serialCode;
-  final String responsible;
-  final String beneficiary;
-  final String returnDate;
-  final String status;
-  final String reason;
-  // chama a função de load de dados da pagina de empréstimos
-  final Function loadData;
+  final LoanListItem loan;
+  final Function()? loadData;
 
   const LoanCard({
     super.key,
     required this.id,
     required this.imageUrl,
-    required this.name,
-    required this.date,
-    required this.serialCode,
-    required this.responsible,
-    required this.beneficiary,
-    required this.returnDate,
-    required this.status,
-    required this.reason,
+    required this.loan,
     required this.loadData,
   });
 
@@ -91,7 +77,7 @@ class LoanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final serialCodeText =
-        "Empréstimo do item: ${CoreUtils.Formats.formatSerialCode(serialCode)}"; // Variável criada
+        "Empréstimo do item: ${CoreUtils.Formats.formatSerialCode(loan.item)}"; // Variável criada
 
     return Card(
       color: CustomColors.background,
@@ -125,7 +111,7 @@ class LoanCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        name,
+                        loan.applicant,
                         style: const TextStyle(
                           fontSize: 14,
                           color: CustomColors.textSecondary,
@@ -133,7 +119,7 @@ class LoanCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        date,
+                        CoreUtils.DateUtils.formatDateBR(loan.createdAt),
                         style: const TextStyle(
                           fontSize: 12,
                           color: CustomColors.textSecondary,
@@ -144,23 +130,17 @@ class LoanCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Button(
-                            onPressed: () {
-                              Navigator.of(context).push(
+                            onPressed: () async {
+                              final res = await Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder:
-                                      (_) => LoanPage(
-                                        loanId: id,
-                                        loanSerialCode: serialCodeText,
-                                        loanApplicant: name,
-                                        loanBeneficiary: beneficiary,
-                                        loanResponsible: responsible,
-                                        loanReturnDate: returnDate,
-                                        loanStatus: status,
-                                        loanDate: date,
-                                        loanReason: reason,
-                                      ),
+                                      (_) => LoanPage(loanId: id, loan: loan),
                                 ),
                               );
+
+                              if (res == true) {
+                                loadData?.call();
+                              }
                             },
                             icon: Icon(
                               LucideIcons.info,
@@ -177,8 +157,11 @@ class LoanCard extends StatelessWidget {
                                       (context) => FinalizeLoanPage(
                                         loanId: id,
                                         loanSerialCode: serialCodeText,
-                                        loanApplicant: name,
-                                        loanDate: date,
+                                        loanApplicant: loan.applicant,
+                                        loanDate: CoreUtils
+                                            .DateUtils.formatDateBR(
+                                          loan.createdAt,
+                                        ),
                                       ),
                                 ),
                               );

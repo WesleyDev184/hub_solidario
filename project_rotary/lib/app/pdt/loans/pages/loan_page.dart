@@ -3,61 +3,73 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/loans/pages/edit_loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/pages/finalize_loan_page.dart';
 import 'package:project_rotary/app/pdt/loans/widgets/action_menu_loan.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
+import 'package:project_rotary/core/utils/utils.dart' as utils;
 
-class LoanPage extends StatelessWidget {
+class LoanPage extends StatefulWidget {
   final String loanId;
-  final String loanSerialCode;
-  final String loanResponsible;
-  final String loanApplicant;
-  final String loanBeneficiary;
-  final String loanDate;
-  final String loanReturnDate;
-  final String loanStatus;
-  final String loanReason;
+  final LoanListItem loan;
 
-  const LoanPage({
-    super.key,
-    required this.loanId,
-    required this.loanSerialCode,
-    required this.loanResponsible,
-    required this.loanApplicant,
-    required this.loanBeneficiary,
-    required this.loanDate,
-    required this.loanReturnDate,
-    required this.loanStatus,
-    required this.loanReason,
-  });
+  const LoanPage({super.key, required this.loanId, required this.loan});
 
-  void _showActionsMenu(BuildContext context) {
+  @override
+  State<LoanPage> createState() => _LoanPageState();
+}
+
+class _LoanPageState extends State<LoanPage> {
+  late LoanListItem _currentLoan;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentLoan = widget.loan;
+  }
+
+  void _showActionsMenu(BuildContext parentContext) {
     showModalBottomSheet(
-      context: context,
+      context: parentContext,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return ActionMenuLoan(
-          onEditPressed: () {
-            Navigator.of(context).push(
+          onEditPressed: () async {
+            final result = await Navigator.of(context).push<Loan>(
               MaterialPageRoute(
                 builder:
-                    (context) => EditLoanPage(
-                      loanId: loanId,
-                      currentReason: loanReason,
-                      currentIsActive: loanStatus.toLowerCase() == 'ativo',
-                      currentReturnDate: loanReturnDate,
-                    ),
+                    (context) =>
+                        EditLoanPage(loanId: widget.loanId, loan: _currentLoan),
               ),
             );
+
+            if (result != null) {
+              setState(() {
+                _currentLoan = LoanListItem.fromLoan(result);
+              });
+
+              if (mounted) {
+                ScaffoldMessenger.of(parentContext).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: CustomColors.success,
+                    content: Text('Empréstimo atualizado com sucesso!'),
+                  ),
+                );
+              }
+            }
           },
           onFinishPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder:
                     (context) => FinalizeLoanPage(
-                      loanId: loanId,
-                      loanSerialCode: loanSerialCode,
-                      loanApplicant: loanApplicant,
-                      loanDate: loanDate,
+                      loanId: widget.loanId,
+                      loanSerialCode: utils.Formats.formatSerialCode(
+                        _currentLoan.item,
+                      ),
+                      loanApplicant: _currentLoan.applicant,
+                      loanDate: utils.DateUtils.formatDateBR(
+                        _currentLoan.returnDate ?? DateTime.now(),
+                      ),
                     ),
               ),
             );
@@ -70,7 +82,7 @@ class LoanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarCustom(title: 'Detalhes do Empréstimo'),
+      appBar: const AppBarCustom(title: 'Detalhes do Empréstimo'),
       backgroundColor: CustomColors.primary.withOpacity(0.03),
       body: Stack(
         children: [
@@ -86,7 +98,6 @@ class LoanPage extends StatelessWidget {
               ),
             ),
           ),
-          // SliverAppBar melhorado
           CustomScrollView(
             slivers: [
               SliverAppBar(
@@ -100,7 +111,6 @@ class LoanPage extends StatelessWidget {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Imagem principal
                       Image.asset('assets/images/cr.jpg', fit: BoxFit.cover),
                     ],
                   ),
@@ -108,7 +118,6 @@ class LoanPage extends StatelessWidget {
               ),
             ],
           ),
-          // Sheet melhorado
           DraggableScrollableSheet(
             initialChildSize: 0.756,
             minChildSize: 0.756,
@@ -138,7 +147,6 @@ class LoanPage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // Handle indicator
                     Container(
                       margin: const EdgeInsets.only(top: 8),
                       width: 36,
@@ -156,11 +164,8 @@ class LoanPage extends StatelessWidget {
                           vertical: 16,
                         ),
                         children: [
-                          // Header com código do empréstimo
                           _buildHeader(),
                           const SizedBox(height: 24),
-
-                          // Seção de Pessoas
                           _buildSectionCard(
                             'Pessoas Envolvidas',
                             LucideIcons.users,
@@ -168,25 +173,23 @@ class LoanPage extends StatelessWidget {
                               _buildInfoRow(
                                 LucideIcons.userCheck,
                                 'Responsável',
-                                loanResponsible,
+                                _currentLoan.responsible,
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
                                 LucideIcons.user,
                                 'Solicitante',
-                                loanApplicant,
+                                _currentLoan.applicant,
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
                                 LucideIcons.heart,
                                 'Beneficiado',
-                                loanBeneficiary,
+                                _currentLoan.applicant,
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
-
-                          // Seção de Datas
                           _buildSectionCard(
                             'Cronograma',
                             LucideIcons.calendar,
@@ -194,24 +197,26 @@ class LoanPage extends StatelessWidget {
                               _buildInfoRow(
                                 LucideIcons.calendarDays,
                                 'Data do Empréstimo',
-                                loanDate,
+                                utils.DateUtils.formatDateBR(
+                                  _currentLoan.createdAt,
+                                ),
                               ),
                               const SizedBox(height: 12),
                               _buildInfoRow(
                                 LucideIcons.calendarClock,
                                 'Data de Devolução',
-                                loanReturnDate,
+                                utils.DateUtils.formatDateBR(
+                                  _currentLoan.returnDate ?? DateTime.now(),
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
-
-                          // Seção de Detalhes
                           _buildSectionCard('Detalhes', LucideIcons.fileText, [
                             _buildInfoRow(
                               LucideIcons.messageSquare,
                               'Motivo',
-                              loanReason,
+                              _currentLoan.reason ?? 'Nenhum motivo informado',
                             ),
                           ]),
                           const SizedBox(height: 100),
@@ -233,6 +238,7 @@ class LoanPage extends StatelessWidget {
     );
   }
 
+  // Helper methods now use _currentLoan to display data
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -338,7 +344,7 @@ class LoanPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      loanSerialCode,
+                      'Código: ${utils.Formats.formatSerialCode(_currentLoan.item)}',
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -365,7 +371,7 @@ class LoanPage extends StatelessWidget {
                   ],
                 ),
                 child: Text(
-                  loanStatus,
+                  _currentLoan.isActive ? 'Ativo' : 'Finalizado',
                   style: const TextStyle(
                     color: CustomColors.white,
                     fontSize: 12,
@@ -377,7 +383,8 @@ class LoanPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'ID: #${loanId}',
+            // Use widget.loanId for data that doesn't change
+            'ID: #${widget.loanId}',
             style: TextStyle(
               fontSize: 13,
               color: CustomColors.white.withOpacity(0.8),
@@ -389,16 +396,7 @@ class LoanPage extends StatelessWidget {
   }
 
   Color _getStatusColor() {
-    switch (loanStatus.toLowerCase()) {
-      case 'ativo':
-        return Colors.green;
-      case 'finalizado':
-        return Colors.blue;
-      case 'atrasado':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
+    return _currentLoan.isActive ? CustomColors.success : CustomColors.error;
   }
 
   Widget _buildSectionCard(

@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/core/api/loans/loans.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 import 'package:project_rotary/core/components/date_picker_field.dart';
 import 'package:project_rotary/core/components/input_field.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
+import 'package:project_rotary/core/utils/utils.dart' as CoreUtils;
 
 class EditLoanPage extends StatefulWidget {
   final String loanId;
-  final String currentReason;
-  final bool currentIsActive;
-  final String currentReturnDate;
+  final LoanListItem loan;
 
-  const EditLoanPage({
-    super.key,
-    required this.loanId,
-    required this.currentReason,
-    required this.currentIsActive,
-    required this.currentReturnDate,
-  });
+  const EditLoanPage({super.key, required this.loanId, required this.loan});
 
   @override
   State<EditLoanPage> createState() => _EditLoanPageState();
@@ -27,15 +21,18 @@ class _EditLoanPageState extends State<EditLoanPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _reasonController = TextEditingController();
   final TextEditingController _returnDateController = TextEditingController();
-  bool _isActive = false;
   bool _isLoading = false;
+
+  LoanListItem get _loan => widget.loan;
 
   @override
   void initState() {
     super.initState();
-    _reasonController.text = widget.currentReason;
-    _returnDateController.text = widget.currentReturnDate;
-    _isActive = widget.currentIsActive;
+    // Inicializa os controladores com os valores atuais do empréstimo
+    _reasonController.text = _loan.reason ?? '';
+    _returnDateController.text = CoreUtils.DateUtils.formatDateBR(
+      _loan.returnDate ?? DateTime.now(),
+    );
   }
 
   @override
@@ -78,12 +75,18 @@ class _EditLoanPageState extends State<EditLoanPage> {
   }
 
   bool _hasChanges() {
-    return _reasonController.text.trim() != widget.currentReason ||
-        _returnDateController.text.trim() != widget.currentReturnDate ||
-        _isActive != widget.currentIsActive;
+    return _reasonController.text.trim() != widget.loan.reason ||
+        _returnDateController.text.trim() !=
+            CoreUtils.DateUtils.formatDateBR(
+              widget.loan.returnDate ?? DateTime.now(),
+            );
   }
 
   Future<void> _updateLoan() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -98,26 +101,32 @@ class _EditLoanPageState extends State<EditLoanPage> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    final data = UpdateLoanRequest(
+      reason: _reasonController.text.trim(),
+      returnDate: _returnDateController.text.trim(),
+    );
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 2));
+    final res = await LoansService.updateLoan(widget.loanId, data);
 
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Empréstimo atualizado com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context, true);
-    }
+    res.fold(
+      (success) {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.pop(context, success);
+      },
+      (error) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao atualizar empréstimo: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -183,54 +192,6 @@ class _EditLoanPageState extends State<EditLoanPage> {
                 validator: _validateDate,
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(const Duration(days: 365)),
-              ),
-
-              const SizedBox(height: 24),
-
-              const Text(
-                'Status do Empréstimo',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: SwitchListTile(
-                  title: Text(
-                    _isActive ? 'Empréstimo Ativo' : 'Empréstimo Inativo',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  subtitle: Text(
-                    _isActive
-                        ? 'O item está emprestado'
-                        : 'O item foi devolvido',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                  value: _isActive,
-                  onChanged:
-                      _isLoading
-                          ? null
-                          : (value) {
-                            setState(() {
-                              _isActive = value;
-                            });
-                          },
-                  activeColor: CustomColors.primary,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                ),
               ),
 
               const Spacer(),

@@ -298,21 +298,23 @@ class CreateLoanRequest {
 class UpdateLoanRequest {
   final String? reason;
   final bool? isActive;
+  final String? returnDate;
 
-  const UpdateLoanRequest({this.reason, this.isActive});
+  const UpdateLoanRequest({this.reason, this.isActive, this.returnDate});
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
     if (reason != null) json['reason'] = reason;
     if (isActive != null) json['isActive'] = isActive;
+    if (returnDate != null) json['returnDate'] = returnDate;
     return json;
   }
 
-  bool get isEmpty => reason == null && isActive == null;
+  bool get isEmpty => reason == null && isActive == null && returnDate == null;
 
   @override
   String toString() {
-    return 'UpdateLoanRequest{reason: $reason, isActive: $isActive}';
+    return 'UpdateLoanRequest{reason: $reason, isActive: $isActive}, returnDate: $returnDate';
   }
 }
 
