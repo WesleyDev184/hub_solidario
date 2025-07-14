@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/loans/pages/loans_page.dart';
+import 'package:project_rotary/core/api/items/items_service.dart';
 import 'package:project_rotary/core/api/loans/loans_service.dart';
+import 'package:project_rotary/core/api/stocks/stocks_service.dart';
 import 'package:project_rotary/core/components/appbar_custom.dart';
 
 class FinalizeLoanPage extends StatefulWidget {
@@ -37,17 +40,47 @@ class _FinalizeLoanPageState extends State<FinalizeLoanPage> {
     final res = await LoansService.returnLoan(widget.loanId);
 
     res.fold(
-      (success) {
-        setState(() {
-          _isLoading = false;
-        });
+      (success) async {
+        await ItemsService.updateItemStatus(success.item!);
+
+        final tempStocks = await StocksService.getStocks();
+
+        tempStocks.fold(
+          (stocks) async {
+            final stock = stocks.firstWhere(
+              (s) => s.id == success.item!.stockId,
+              orElse: () => throw Exception('Stock not found'),
+            );
+
+            final newStock = stock.copyWith(
+              availableQtd: stock.availableQtd + 1,
+              borrowedQtd: stock.borrowedQtd - 1,
+            );
+
+            await StocksService.cacheStock(newStock);
+          },
+          (error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Erro ao atualizar estoque: $error')),
+            );
+          },
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Empréstimo finalizado com sucesso!'),
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, success); // Return to previous page with success
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoansPage()),
+          (route) => false,
+        );
       },
       (error) {
         setState(() {
