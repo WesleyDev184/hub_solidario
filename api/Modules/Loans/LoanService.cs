@@ -256,15 +256,17 @@ public static class LoanService
           "yyyy-MM-ddTHH:mm:ssZ",
           "dd/MM/yyyy"
         };
+
         if (DateTime.TryParseExact(request.ReturnDate, formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal, out var returnDate)
-            || DateTime.TryParse(request.ReturnDate, out returnDate))
+     || DateTime.TryParse(request.ReturnDate, out returnDate))
         {
-          loan.ReturnDate = returnDate;
+          // Converte a data para UTC antes de atribuir
+          loan.ReturnDate = returnDate.ToUniversalTime(); // <-- AJUSTE AQUI
         }
         else
         {
           await transaction.RollbackAsync(ct);
-          return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "Invalid Return Date format. Use ISO 8601 (e.g., 2024-06-10T15:30:00Z), yyyy-MM-dd, yyyy-MM-dd HH:mm:ss, or dd/MM/yyyy.");
+          return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "Invalid Return Date format.");
         }
       }
 
