@@ -13,7 +13,7 @@ namespace api.Modules.Items
     public static void ItemRoutes(this WebApplication app)
     {
       RouteGroupBuilder itemGroup = app.MapGroup("items")
-        .WithTags("Items");
+        .WithTags("Items").RequireAuthorization();
 
       itemGroup.MapPost("/",
         [SwaggerOperation(
