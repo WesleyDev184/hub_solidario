@@ -33,7 +33,9 @@ class _EditItemPageState extends State<EditItemPage> {
   @override
   void initState() {
     super.initState();
-    _serialCodeController.text = _formatSerialCode(widget.currentSerialCode);
+    _serialCodeController.text = CoreUtils.Formats.formatSerialCode(
+      widget.currentSerialCode,
+    );
     _selectedStatus = widget.currentStatus;
   }
 
@@ -41,11 +43,6 @@ class _EditItemPageState extends State<EditItemPage> {
   void dispose() {
     _serialCodeController.dispose();
     super.dispose();
-  }
-
-  String _formatSerialCode(int code) {
-    final codeStr = code.toString().padLeft(8, '0');
-    return '${codeStr.substring(0, 4)}-${codeStr.substring(4)}';
   }
 
   String? _validateSerialCode(String? value) {
