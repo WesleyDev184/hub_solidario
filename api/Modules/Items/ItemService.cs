@@ -262,8 +262,19 @@ namespace api.Modules.Items
           {
             UpdateStockQuantity(stock, item.Status, -1);
           }
-          // If stock is null here, it's an inconsistency, but we might still proceed with item deletion
-          // depending on business rules. A log would be appropriate.
+        }
+
+        // busca os empréstimos associados ao item
+        var loans = await context.Loans
+          .Where(l => l.ItemId == item.Id)
+          .ToListAsync(ct);
+
+        // valida se a algum empréstimo ativo
+        if (loans.Any(l => l.IsActive))
+        {
+          await transaction.RollbackAsync(ct);
+          return new ResponseItemDeleteDTO(HttpStatusCode.Conflict, null,
+            "Cannot delete item with active or overdue loans.");
         }
 
         context.Items.Remove(item);

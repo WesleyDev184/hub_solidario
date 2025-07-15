@@ -56,13 +56,13 @@ public class ApiDbContext : DbContext
       .HasOne(l => l.Applicant)
       .WithMany()
       .HasForeignKey(l => l.ApplicantId)
-      .OnDelete(DeleteBehavior.Restrict);
+      .OnDelete(DeleteBehavior.Cascade);
 
     modelBuilder.Entity<Loan>()
       .HasOne(l => l.Item)
       .WithMany()
       .HasForeignKey(l => l.ItemId)
-      .OnDelete(DeleteBehavior.Restrict);
+      .OnDelete(DeleteBehavior.Cascade);
 
     modelBuilder.Entity<Applicant>()
       .HasIndex(a => a.CPF)
