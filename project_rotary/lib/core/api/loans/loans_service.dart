@@ -70,15 +70,6 @@ class LoansService {
     return _instance!.loadLoans(forceRefresh: forceRefresh, filters: filters);
   }
 
-  /// Busca um loan por ID
-  static AsyncResult<Loan> getLoanById(
-    String loanId, {
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadLoanById(loanId, forceRefresh: forceRefresh);
-  }
-
   /// Cria um novo loan
   static AsyncResult<Loan> createLoan(CreateLoanRequest request) async {
     await ensureInitialized();
@@ -100,110 +91,11 @@ class LoansService {
     return _instance!.deleteLoan(loanId);
   }
 
-  /// Busca loans ativos (listagem)
-  static AsyncResult<List<LoanListItem>> getActiveLoans({
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadActiveLoans(forceRefresh: forceRefresh);
-  }
-
-  /// Busca loans devolvidos (listagem)
-  static AsyncResult<List<LoanListItem>> getReturnedLoans({
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadReturnedLoans(forceRefresh: forceRefresh);
-  }
-
-  /// Busca loans em atraso (listagem)
-  static AsyncResult<List<LoanListItem>> getOverdueLoans({
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadOverdueLoans(forceRefresh: forceRefresh);
-  }
-
-  /// Busca loans por período (listagem)
-  static AsyncResult<List<LoanListItem>> getLoansByDateRange(
-    DateTime startDate,
-    DateTime endDate, {
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadLoansByDateRange(
-      startDate,
-      endDate,
-      forceRefresh: forceRefresh,
-    );
-  }
-
-  // === OPERAÇÕES DE DEVOLUÇÃO ===
-
   /// Marca um loan como devolvido
   static AsyncResult<Loan> returnLoan(String loanId, [String? reason]) async {
     await ensureInitialized();
     return _instance!.returnLoan(loanId, reason);
   }
-
-  /// Reativa um loan (caso tenha sido devolvido por engano)
-  static AsyncResult<Loan> reactivateLoan(
-    String loanId, [
-    String? reason,
-  ]) async {
-    await ensureInitialized();
-    return _instance!.reactivateLoan(loanId, reason);
-  }
-
-  // === ESTATÍSTICAS ===
-
-  /// Busca estatísticas dos loans
-  static AsyncResult<Map<String, dynamic>> getStatistics({
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadStatistics(forceRefresh: forceRefresh);
-  }
-
-  // === OPERAÇÕES DE BUSCA E FILTRO ===
-
-  /// Busca loans por texto (razão)
-  static List<LoanListItem> searchLoans(String query) {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.searchLoans(query);
-  }
-
-  /// Filtra loans localmente
-  static List<LoanListItem> filterLoans({
-    bool? isActive,
-    String? applicant,
-    String? responsible,
-    int? item,
-    bool? isOverdue,
-  }) {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.filterLoans(
-      isActive: isActive,
-      applicant: applicant,
-      responsible: responsible,
-      item: item,
-      isOverdue: isOverdue,
-    );
-  }
-
-  /// Ordena loans por data
-  static List<LoanListItem> sortLoansByDate({bool ascending = false}) {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.sortLoansByDate(ascending: ascending);
-  }
-
-  /// Ordena loans por status (ativos primeiro)
-  static List<LoanListItem> sortLoansByStatus() {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.sortLoansByStatus();
-  }
-
-  // === OPERAÇÕES DE CACHE ===
 
   /// Limpa todos os caches
   static Future<void> clearAllCaches() async {
@@ -215,33 +107,6 @@ class LoansService {
   static AsyncResult<List<LoanListItem>> refreshAllData() async {
     await ensureInitialized();
     return _instance!.refreshAllData();
-  }
-
-  /// Obtém informações do cache
-  static Future<Map<String, dynamic>> getCacheInfo() async {
-    if (!_isInitialized || _instance == null) return {};
-    return await _instance!.getCacheInfo();
-  }
-
-  /// Obtém informações básicas do cache de forma síncrona
-  static Map<String, dynamic> getCacheStatus() {
-    if (!_isInitialized || _instance == null) return {};
-    return _instance!.getCacheStatus();
-  }
-
-  /// Verifica se há dados no cache persistente
-  static Future<bool> hasPersistedData() async {
-    if (!_isInitialized || _instance == null) return false;
-    final cacheInfo = await _instance!.getCacheInfo();
-    return cacheInfo['persistent']?['hasLoansCache'] ?? false;
-  }
-
-  // === GETTERS DE ESTADO ===
-
-  /// Lista atual de loans (listagem)
-  static List<LoanListItem> get currentLoans {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.loans;
   }
 
   /// Indica se está carregando
@@ -256,12 +121,6 @@ class LoansService {
     return _instance!.error;
   }
 
-  /// Verifica se tem dados carregados
-  static bool get hasData {
-    if (!_isInitialized || _instance == null) return false;
-    return _instance!.hasLoansData;
-  }
-
   /// Estatísticas atuais
   static Map<String, dynamic>? get currentStatistics {
     if (!_isInitialized || _instance == null) return null;
@@ -269,33 +128,6 @@ class LoansService {
   }
 
   // === MÉTODOS DE FACTORY ===
-
-  /// Cria um LoanFilters facilmente
-  static LoanFilters createFilters({
-    String? applicantId,
-    String? responsibleId,
-    String? itemId,
-    bool? isActive,
-    String? reason,
-    DateTime? createdAfter,
-    DateTime? createdBefore,
-    DateTime? returnAfter,
-    DateTime? returnBefore,
-    bool? isOverdue,
-  }) {
-    return LoanFilters(
-      applicantId: applicantId,
-      responsibleId: responsibleId,
-      itemId: itemId,
-      isActive: isActive,
-      reason: reason,
-      createdAfter: createdAfter,
-      createdBefore: createdBefore,
-      returnAfter: returnAfter,
-      returnBefore: returnBefore,
-      isOverdue: isOverdue,
-    );
-  }
 
   /// Cria um CreateLoanRequest facilmente
   static CreateLoanRequest createLoanRequest({
@@ -333,7 +165,7 @@ class LoansService {
   static bool isLoanOverdue(LoanListItem loan) {
     if (!loan.isActive) return false;
     final daysSinceLoan = DateTime.now().difference(loan.createdAt).inDays;
-    return daysSinceLoan > 30; // Considera em atraso após 30 dias
+    return daysSinceLoan > 90;
   }
 
   /// Calcula os dias desde o empréstimo

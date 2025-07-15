@@ -313,14 +313,18 @@ class ItemFilters {
 
     if (status != null) params['status'] = status!.value;
     if (stockId != null) params['stockId'] = stockId!;
-    if (minSerialCode != null)
+    if (minSerialCode != null) {
       params['minSerialCode'] = minSerialCode.toString();
-    if (maxSerialCode != null)
+    }
+    if (maxSerialCode != null) {
       params['maxSerialCode'] = maxSerialCode.toString();
-    if (createdAfter != null)
+    }
+    if (createdAfter != null) {
       params['createdAfter'] = createdAfter!.toIso8601String();
-    if (createdBefore != null)
+    }
+    if (createdBefore != null) {
       params['createdBefore'] = createdBefore!.toIso8601String();
+    }
 
     return params;
   }

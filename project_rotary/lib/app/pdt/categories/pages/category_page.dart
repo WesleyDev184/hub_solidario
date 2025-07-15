@@ -358,7 +358,7 @@ class _CategoryPageState extends State<CategoryPage> {
               value: status,
               child: Text(StatusUtils.getStatusText(status.value)),
             );
-          }).toList(),
+          }),
         ],
         onChanged: _updateStatusFilter,
       ),

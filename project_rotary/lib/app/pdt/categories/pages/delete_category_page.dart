@@ -56,7 +56,7 @@ class _DeleteCategoryPageState extends State<DeleteCategoryPage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao deletar categoria: ${error}'),
+            content: Text('Erro ao deletar categoria: $error'),
             backgroundColor: Colors.red,
           ),
         );

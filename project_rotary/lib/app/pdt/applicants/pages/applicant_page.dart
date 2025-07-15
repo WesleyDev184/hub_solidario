@@ -279,7 +279,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                           (line) =>
                               Text(line, style: const TextStyle(fontSize: 14)),
                         )
-                        .toList()
+                        
                   else
                     const Text(
                       'Endereço não informado',

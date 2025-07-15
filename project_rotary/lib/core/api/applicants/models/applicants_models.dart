@@ -539,12 +539,15 @@ class ApplicantFilters {
     if (name != null) params['name'] = name!;
     if (cpf != null) params['cpf'] = cpf!;
     if (email != null) params['email'] = email!;
-    if (isBeneficiary != null)
+    if (isBeneficiary != null) {
       params['isBeneficiary'] = isBeneficiary.toString();
-    if (createdAfter != null)
+    }
+    if (createdAfter != null) {
       params['createdAfter'] = createdAfter!.toIso8601String();
-    if (createdBefore != null)
+    }
+    if (createdBefore != null) {
       params['createdBefore'] = createdBefore!.toIso8601String();
+    }
 
     return params;
   }
@@ -583,10 +586,12 @@ class DependentFilters {
     if (cpf != null) params['cpf'] = cpf!;
     if (email != null) params['email'] = email!;
     if (applicantId != null) params['applicantId'] = applicantId!;
-    if (createdAfter != null)
+    if (createdAfter != null) {
       params['createdAfter'] = createdAfter!.toIso8601String();
-    if (createdBefore != null)
+    }
+    if (createdBefore != null) {
       params['createdBefore'] = createdBefore!.toIso8601String();
+    }
 
     return params;
   }

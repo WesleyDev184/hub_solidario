@@ -52,19 +52,8 @@ class ItemsService {
 
   /// Encerra o serviço
   static Future<void> dispose() async {
-    if (_instance != null) {
-      await _instance!.clearData();
-    }
     _instance = null;
     _isInitialized = false;
-  }
-
-  // === MÉTODOS DE CONVENIÊNCIA ===
-
-  /// Carrega todos os items
-  static AsyncResult<List<Item>> getItems({bool forceRefresh = false}) async {
-    await ensureInitialized();
-    return _instance!.loadItems(forceRefresh: forceRefresh);
   }
 
   /// Busca items por stock
@@ -74,15 +63,6 @@ class ItemsService {
   }) async {
     await ensureInitialized();
     return _instance!.loadItemsByStock(stockId, forceRefresh: forceRefresh);
-  }
-
-  /// Busca um item por ID
-  static AsyncResult<Item> getItem(
-    String itemId, {
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.getItem(itemId, forceRefresh: forceRefresh);
   }
 
   /// Cria um novo item
@@ -106,71 +86,6 @@ class ItemsService {
     return _instance!.deleteItem(itemId);
   }
 
-  /// Busca items com filtros
-  static AsyncResult<List<Item>> searchItems({
-    ItemStatus? status,
-    String? stockId,
-    int? minSerialCode,
-    int? maxSerialCode,
-    DateTime? createdAfter,
-    DateTime? createdBefore,
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-
-    // Cria filtros baseado nos parâmetros
-    final filters = ItemFilters(
-      status: status,
-      stockId: stockId,
-      minSerialCode: minSerialCode,
-      maxSerialCode: maxSerialCode,
-      createdAfter: createdAfter,
-      createdBefore: createdBefore,
-    );
-
-    return _instance!.loadItems(forceRefresh: forceRefresh, filters: filters);
-  }
-
-  /// Obtém items disponíveis (status = available)
-  static AsyncResult<List<Item>> getAvailableItems({
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.getAvailableItems(forceRefresh: forceRefresh);
-  }
-
-  /// Obtém items em manutenção (status = maintenance)
-  static AsyncResult<List<Item>> getMaintenanceItems({
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.getMaintenanceItems(forceRefresh: forceRefresh);
-  }
-
-  /// Obtém estatísticas dos items
-  static Map<String, int> getItemsStatistics() {
-    if (!_isInitialized || _instance == null) {
-      return {};
-    }
-    return _instance!.getItemsStatistics();
-  }
-
-  /// Obtém estatísticas por stock
-  static Map<String, Map<String, int>> getStatisticsByStock() {
-    if (!_isInitialized || _instance == null) {
-      return {};
-    }
-    return _instance!.getStatisticsByStock();
-  }
-
-  /// Busca items por faixa de serial code (método local)
-  static List<Item> getItemsBySerialRange(int minCode, int maxCode) {
-    if (!_isInitialized || _instance == null) {
-      return [];
-    }
-    return _instance!.getItemsBySerialRange(minCode, maxCode);
-  }
-
   /// Atualiza status de um item
   static AsyncResult<String> updateItemStatus(Item item) async {
     await ensureInitialized();
@@ -184,41 +99,5 @@ class ItemsService {
   ) async {
     await ensureInitialized();
     return _instance!.updateItemSerialCode(itemId, newSerialCode);
-  }
-
-  /// Verifica se um item específico está disponível
-  static bool isItemAvailable(String itemId) {
-    if (!_isInitialized || _instance == null) {
-      return false;
-    }
-    return _instance!.isItemAvailable(itemId);
-  }
-
-  /// Obtém o status de um item
-  static ItemStatus? getItemStatus(String itemId) {
-    if (!_isInitialized || _instance == null) {
-      return null;
-    }
-    return _instance!.getItemStatus(itemId);
-  }
-
-  /// Obtém o código serial de um item
-  static int? getItemSerialCode(String itemId) {
-    if (!_isInitialized || _instance == null) {
-      return null;
-    }
-    return _instance!.getItemSerialCode(itemId);
-  }
-
-  /// Limpa cache de items
-  static Future<void> clearCache() async {
-    await ensureInitialized();
-    return _instance!.clearData();
-  }
-
-  /// Força atualização do cache
-  static AsyncResult<List<Item>> refreshCache() async {
-    await ensureInitialized();
-    return _instance!.refreshItems();
   }
 }

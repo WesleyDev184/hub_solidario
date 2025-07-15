@@ -54,7 +54,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
     // aplica a busca na api
     try {
-      final response = await StocksService.getStocks(
+      final response = await StocksService.getStocksByOrthopedicBank(
         forceRefresh: forceRefresh,
       );
 

@@ -43,7 +43,7 @@ class _FinalizeLoanPageState extends State<FinalizeLoanPage> {
       (success) async {
         await ItemsService.updateItemStatus(success.item!);
 
-        final tempStocks = await StocksService.getStocks();
+        final tempStocks = await StocksService.getStocksByOrthopedicBank();
 
         tempStocks.fold(
           (stocks) async {
@@ -54,7 +54,7 @@ class _FinalizeLoanPageState extends State<FinalizeLoanPage> {
 
             final newStock = stock.copyWith(
               availableQtd: stock.availableQtd + 1,
-              borrowedQtd: stock.borrowedQtd - 1,
+              borrowedQtd: stock.borrowedQtd - 1, 
             );
 
             await StocksService.cacheStock(newStock);

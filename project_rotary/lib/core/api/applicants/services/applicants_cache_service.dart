@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:project_rotary/core/api/applicants/models/applicants_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,8 +9,6 @@ class ApplicantsCacheService {
   static const String _applicantsCacheKey = 'applicants_cache';
   static const String _applicantCachePrefix = 'applicant_';
   static const String _dependentsCacheKey = 'dependents_cache';
-  static const String _dependentCachePrefix = 'dependent_';
-  static const String _applicantDependentsCachePrefix = 'applicant_dependents_';
   static const String _lastUpdateKey = 'applicants_last_update';
   static const Duration _cacheDuration = Duration(minutes: 5);
 
@@ -98,13 +97,13 @@ class ApplicantsCacheService {
 
     final key = '$_applicantCachePrefix$applicantId';
     if (!_isCacheValid(key)) {
-      print('DEBUG: Cache not valid for applicant $applicantId');
+      debugPrint('DEBUG: Cache not valid for applicant $applicantId');
       return null;
     }
 
     final applicantStr = _prefs?.getString(key);
     if (applicantStr == null) {
-      print('DEBUG: No cached data for applicant $applicantId');
+      debugPrint('DEBUG: No cached data for applicant $applicantId');
       return null;
     }
 
@@ -114,7 +113,7 @@ class ApplicantsCacheService {
 
       return applicant;
     } catch (e) {
-      print('DEBUG: Error parsing cached applicant $applicantId: $e');
+      debugPrint('DEBUG: Error parsing cached applicant $applicantId: $e');
       return null;
     }
   }
@@ -156,109 +155,6 @@ class ApplicantsCacheService {
           }).toList();
       await cacheApplicants(updatedApplicants);
     }
-  }
-
-  // === CACHE DE DEPENDENTS ===
-
-  /// Cache de todos os dependents
-  Future<void> cacheDependents(List<Dependent> dependents) async {
-    await initialize();
-
-    final dependentsJson =
-        dependents.map((dependent) => dependent.toJson()).toList();
-    await _prefs?.setString(_dependentsCacheKey, jsonEncode(dependentsJson));
-    await _saveTimestamp(_dependentsCacheKey);
-  }
-
-  /// Obtém todos os dependents do cache
-  Future<List<Dependent>?> getCachedDependents() async {
-    await initialize();
-
-    if (!_isCacheValid(_dependentsCacheKey)) return null;
-
-    final dependentsStr = _prefs?.getString(_dependentsCacheKey);
-    if (dependentsStr == null) return null;
-
-    try {
-      final dependentsJson = jsonDecode(dependentsStr) as List;
-      return dependentsJson
-          .map((json) => Dependent.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Cache de um dependent individual
-  Future<void> cacheDependent(Dependent dependent) async {
-    await initialize();
-
-    final key = '$_dependentCachePrefix${dependent.id}';
-    await _prefs?.setString(key, jsonEncode(dependent.toJson()));
-    await _saveTimestamp(key);
-  }
-
-  /// Obtém um dependent específico do cache
-  Future<Dependent?> getCachedDependent(String dependentId) async {
-    await initialize();
-
-    final key = '$_dependentCachePrefix$dependentId';
-    if (!_isCacheValid(key)) return null;
-
-    final dependentStr = _prefs?.getString(key);
-    if (dependentStr == null) return null;
-
-    try {
-      final dependentJson = jsonDecode(dependentStr) as Map<String, dynamic>;
-      return Dependent.fromJson(dependentJson);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Cache de dependents por applicant
-  Future<void> cacheApplicantDependents(
-    String applicantId,
-    List<Dependent> dependents,
-  ) async {
-    await initialize();
-
-    final key = '$_applicantDependentsCachePrefix$applicantId';
-    final dependentsJson =
-        dependents.map((dependent) => dependent.toJson()).toList();
-    await _prefs?.setString(key, jsonEncode(dependentsJson));
-    await _saveTimestamp(key);
-  }
-
-  /// Obtém dependents de um applicant específico do cache
-  Future<List<Dependent>?> getCachedApplicantDependents(
-    String applicantId,
-  ) async {
-    await initialize();
-
-    final key = '$_applicantDependentsCachePrefix$applicantId';
-    if (!_isCacheValid(key)) return null;
-
-    final dependentsStr = _prefs?.getString(key);
-    if (dependentsStr == null) return null;
-
-    try {
-      final dependentsJson = jsonDecode(dependentsStr) as List;
-      return dependentsJson
-          .map((json) => Dependent.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Remove dependents de um applicant do cache
-  Future<void> removeCachedApplicantDependents(String applicantId) async {
-    await initialize();
-
-    final key = '$_applicantDependentsCachePrefix$applicantId';
-    await _prefs?.remove(key);
-    await _prefs?.remove('${key}_timestamp');
   }
 
   /// Remove um dependent específico do cache
@@ -321,25 +217,7 @@ class ApplicantsCacheService {
     // Remove caches individuais
     final keys = _prefs?.getKeys() ?? <String>{};
     for (final key in keys) {
-      if (key.startsWith(_applicantCachePrefix) ||
-          key.startsWith(_applicantDependentsCachePrefix)) {
-        await _prefs?.remove(key);
-      }
-    }
-  }
-
-  /// Limpa todo o cache de dependents
-  Future<void> clearDependentsCache() async {
-    await initialize();
-
-    // Remove cache geral
-    await _prefs?.remove(_dependentsCacheKey);
-    await _prefs?.remove('${_dependentsCacheKey}_timestamp');
-
-    // Remove caches individuais
-    final keys = _prefs?.getKeys() ?? <String>{};
-    for (final key in keys) {
-      if (key.startsWith(_dependentCachePrefix)) {
+      if (key.startsWith(_applicantCachePrefix)) {
         await _prefs?.remove(key);
       }
     }
@@ -348,7 +226,6 @@ class ApplicantsCacheService {
   /// Limpa todo o cache
   Future<void> clearCache() async {
     await clearApplicantsCache();
-    await clearDependentsCache();
     await _prefs?.remove(_lastUpdateKey);
   }
 
@@ -356,12 +233,6 @@ class ApplicantsCacheService {
   Future<bool> hasApplicantsCache() async {
     await initialize();
     return _prefs?.containsKey(_applicantsCacheKey) ?? false;
-  }
-
-  /// Verifica se há dados de dependents em cache
-  Future<bool> hasDependentsCache() async {
-    await initialize();
-    return _prefs?.containsKey(_dependentsCacheKey) ?? false;
   }
 
   /// Obtém informações do cache
@@ -377,7 +248,6 @@ class ApplicantsCacheService {
 
     return {
       'hasApplicantsCache': await hasApplicantsCache(),
-      'hasDependentsCache': await hasDependentsCache(),
       'applicantsLastUpdate': applicantsTimestamp,
       'dependentsLastUpdate': dependentsTimestamp,
       'isApplicantsCacheValid':

@@ -91,32 +91,3 @@ typedef OrthopedicBankResponse = ControllerResponse<OrthopedicBank>;
 
 /// Tipo específico para resposta de lista de bancos ortopédicos
 typedef OrthopedicBankListResponse = ControllerResponse<List<OrthopedicBank>>;
-
-/// Estado do cache de bancos ortopédicos
-class OrthopedicBanksState {
-  final List<OrthopedicBank> banks;
-  final DateTime? lastUpdated;
-  final bool isLoading;
-
-  const OrthopedicBanksState({
-    this.banks = const [],
-    this.lastUpdated,
-    this.isLoading = false,
-  });
-
-  OrthopedicBanksState copyWith({
-    List<OrthopedicBank>? banks,
-    DateTime? lastUpdated,
-    bool? isLoading,
-  }) {
-    return OrthopedicBanksState(
-      banks: banks ?? this.banks,
-      lastUpdated: lastUpdated ?? this.lastUpdated,
-      isLoading: isLoading ?? this.isLoading,
-    );
-  }
-
-  bool get isEmpty => banks.isEmpty;
-  bool get isNotEmpty => banks.isNotEmpty;
-  int get count => banks.length;
-}

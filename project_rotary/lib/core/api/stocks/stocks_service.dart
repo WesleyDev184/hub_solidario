@@ -61,31 +61,14 @@ class StocksService {
 
   // === MÉTODOS DE CONVENIÊNCIA ===
 
-  /// Carrega todos os stocks
-  static AsyncResult<List<Stock>> getStocks({bool forceRefresh = false}) async {
-    await ensureInitialized();
-    return _instance!.loadStocks(forceRefresh: forceRefresh);
-  }
-
   /// Busca stocks por banco ortopédico
-  static AsyncResult<List<Stock>> getStocksByOrthopedicBank(
-    String orthopedicBankId, {
+  static AsyncResult<List<Stock>> getStocksByOrthopedicBank({
     bool forceRefresh = false,
   }) async {
     await ensureInitialized();
     return _instance!.loadStocksByOrthopedicBank(
-      orthopedicBankId,
       forceRefresh: forceRefresh,
     );
-  }
-
-  /// Busca um stock por ID
-  static AsyncResult<Stock> getStock(
-    String stockId, {
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.getStock(stockId, forceRefresh: forceRefresh);
   }
 
   /// Cria um novo stock
@@ -115,65 +98,6 @@ class StocksService {
     return _instance!.deleteStock(stockId);
   }
 
-  /// Busca stocks por título
-  static List<Stock> searchStocksByTitle(String query) {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.searchStocksByTitle(query);
-  }
-
-  /// Obtém stocks disponíveis
-  static List<Stock> getAvailableStocks() {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.getAvailableStocks();
-  }
-
-  /// Obtém stocks de um banco específico
-  static List<Stock> getStocksByBank(String orthopedicBankId) {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.getStocksByBank(orthopedicBankId);
-  }
-
-  /// Obtém estatísticas dos stocks
-  static Map<String, int> getStocksStatistics() {
-    if (!_isInitialized || _instance == null) {
-      return {
-        'totalStocks': 0,
-        'availableStocks': 0,
-        'totalItems': 0,
-        'availableItems': 0,
-        'borrowedItems': 0,
-        'maintenanceItems': 0,
-      };
-    }
-    return _instance!.getStocksStatistics();
-  }
-
-  /// Verifica se um stock está disponível
-  static bool isStockAvailable(String stockId) {
-    if (!_isInitialized || _instance == null) return false;
-    try {
-      return _instance!.isStockAvailable(stockId);
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Obtém a quantidade disponível de um stock
-  static int getAvailableQuantity(String stockId) {
-    if (!_isInitialized || _instance == null) return 0;
-    try {
-      return _instance!.getAvailableQuantity(stockId);
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  /// Força atualização dos dados
-  static AsyncResult<List<Stock>> refreshStocks() async {
-    await ensureInitialized();
-    return _instance!.refreshStocks();
-  }
-
   /// Limpa todos os dados
   static Future<void> clearData() async {
     if (_instance != null) {
@@ -182,12 +106,6 @@ class StocksService {
   }
 
   // === GETTERS DE ESTADO ===
-
-  /// Lista de stocks atual
-  static List<Stock> get currentStocks {
-    if (!_isInitialized || _instance == null) return [];
-    return _instance!.stocks;
-  }
 
   /// Indica se está carregando
   static bool get isLoading {
@@ -199,11 +117,5 @@ class StocksService {
   static String? get error {
     if (!_isInitialized || _instance == null) return null;
     return _instance!.error;
-  }
-
-  /// Verifica se tem dados carregados
-  static bool get hasData {
-    if (!_isInitialized || _instance == null) return false;
-    return _instance!.hasData;
   }
 }
