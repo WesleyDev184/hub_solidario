@@ -81,9 +81,9 @@ class ItemsService {
   }
 
   /// Deleta um item
-  static AsyncResult<bool> deleteItem(String itemId) async {
+  static AsyncResult<bool> deleteItem(String itemId, String stockId) async {
     await ensureInitialized();
-    return _instance!.deleteItem(itemId);
+    return _instance!.deleteItem(itemId, stockId);
   }
 
   /// Atualiza status de um item

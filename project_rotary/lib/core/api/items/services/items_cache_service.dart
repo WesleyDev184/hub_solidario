@@ -119,17 +119,17 @@ class ItemsCacheService {
     await cacheItemsByStock(item.stockId, cachedItems);
   }
 
-  Future<void> removeItemFromCache(String itemId) async {
+  Future<void> removeItemFromCache(String itemId, String stockId) async {
     if (_prefs == null) return;
 
     // Busca o cache existente
-    final cachedItems = await getCachedItemsByStock(itemId);
+    final cachedItems = await getCachedItemsByStock(stockId);
     if (cachedItems == null) return;
 
     // Remove o item do cache
     cachedItems.removeWhere((item) => item.id == itemId);
 
     // Salva o cache atualizado
-    await cacheItemsByStock(itemId, cachedItems);
+    await cacheItemsByStock(stockId, cachedItems);
   }
 }

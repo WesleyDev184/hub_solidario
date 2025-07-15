@@ -660,8 +660,10 @@ class _CategoryPageState extends State<CategoryPage> {
                     child: CategoryItemsCard(
                       id: item.id,
                       serialCode: item.serialCode,
-                      status: item.status.value,
+                      status: item.status,
                       createdAt: item.createdAt,
+                      loadItems: _initializeData,
+                      stockId: widget.stock.id,
                     ),
                   );
                 }

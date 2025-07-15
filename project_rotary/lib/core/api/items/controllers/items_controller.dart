@@ -79,14 +79,14 @@ class ItemsController {
   }
 
   /// Deleta um item
-  AsyncResult<bool> deleteItem(String itemId) async {
+  AsyncResult<bool> deleteItem(String itemId, String stockId) async {
     try {
       final result = await _repository.deleteItem(itemId);
 
       return result.fold((success) {
         if (success) {
           // Remove do cache
-          _cacheService.removeItemFromCache(itemId);
+          _cacheService.removeItemFromCache(itemId, stockId);
         }
 
         return Success(success);

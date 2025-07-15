@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:project_rotary/app/pdt/categories/pages/delete_item_page.dart';
+import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 import 'package:project_rotary/core/utils/utils.dart' as CoreUtils;
 
 class CategoryItemsCard extends StatelessWidget {
   final String id;
   final int serialCode;
-  final String status;
+  final ItemStatus status;
   final DateTime createdAt;
+  final Function() loadItems;
+  final String stockId;
 
   const CategoryItemsCard({
     super.key,
@@ -15,6 +19,8 @@ class CategoryItemsCard extends StatelessWidget {
     required this.serialCode,
     required this.status,
     required this.createdAt,
+    required this.loadItems,
+    required this.stockId,
   });
 
   @override
@@ -32,7 +38,7 @@ class CategoryItemsCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${serialCode.toString().padLeft(8, '0').substring(0, 4)}-${serialCode.toString().padLeft(8, '0').substring(4, 8)}',
+                    CoreUtils.Formats.formatSerialCode(serialCode),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -55,14 +61,14 @@ class CategoryItemsCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: CoreUtils.StatusUtils.getStatusColor(
-                  status,
+                  status.value,
                 ).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                CoreUtils.StatusUtils.getStatusText(status),
+                CoreUtils.StatusUtils.getStatusText(status.value),
                 style: TextStyle(
-                  color: CoreUtils.StatusUtils.getStatusColor(status),
+                  color: CoreUtils.StatusUtils.getStatusColor(status.value),
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
                 ),
@@ -73,7 +79,23 @@ class CategoryItemsCard extends StatelessWidget {
             Row(
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final res = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => DeleteItemPage(
+                              itemId: id,
+                              stockId: stockId,
+                              itemSerialCode: serialCode,
+                              status: status,
+                            ),
+                      ),
+                    );
+                    if (res == true) {
+                      loadItems.call();
+                    }
+                  },
                   icon: Icon(LucideIcons.trash, color: Colors.red),
                 ),
                 IconButton(

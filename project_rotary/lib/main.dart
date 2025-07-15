@@ -7,6 +7,8 @@ import 'package:project_rotary/app/pdt/layout.dart';
 import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/components/auth_guard.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -21,6 +23,27 @@ void main() async {
     debugPrint('Erro ao inicializar AuthService: $e');
     // Continue mesmo se houver erro no AuthService
   }
+
+  // Adiciona callback global para erro 401
+  apiClient.setOnUnauthorizedCallback(() async {
+    debugPrint('ApiClient: Unauthorized callback triggered (main.dart)');
+    await AuthService.instance?.logout();
+    // Exibe SnackBar global avisando sobre sessão expirada
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sessão expirada, faça login novamente.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/signin',
+      (route) => false,
+    );
+  });
 
   // Inicializa o serviço de aplicantes
   try {
@@ -76,6 +99,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Rotary Project',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       locale: const Locale('pt', 'BR'),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
