@@ -50,7 +50,7 @@
                     "address": "123 Main St, City",
                     "isBeneficiary": true,
                     "beneficiaryQtd": 1,
-                    "createdAt": "2025-07-04T19:12:25.5544828Z",
+                    "createdAt": "2025-07-08T15:59:46.1618321Z",
                     "dependents": null
                   },
                   "message": "Applicant created successfully"
@@ -132,7 +132,7 @@
                       "address": "123 Main St, City",
                       "isBeneficiary": true,
                       "beneficiaryQtd": 1,
-                      "createdAt": "2025-07-04T19:12:25.5655121Z",
+                      "createdAt": "2025-07-08T15:59:46.1713455Z",
                       "dependents": null
                     }
                   ],
@@ -181,7 +181,7 @@
                     "address": "123 Main St, City",
                     "isBeneficiary": true,
                     "beneficiaryQtd": 1,
-                    "createdAt": "2025-07-04T19:12:25.5687277Z",
+                    "createdAt": "2025-07-08T15:59:46.1766488Z",
                     "dependents": [
                       {
                         "id": "11111111-1111-1111-1111-111111111111",
@@ -191,7 +191,7 @@
                         "phoneNumber": "11999999998",
                         "address": "456 Elm St, City",
                         "applicantId": "00000000-0000-0000-0000-000000000000",
-                        "createdAt": "2025-07-04T19:12:25.5687305+00:00"
+                        "createdAt": "2025-07-08T15:59:46.1766512+00:00"
                       }
                     ]
                   },
@@ -270,7 +270,7 @@
                     "address": "123 Main St, City",
                     "isBeneficiary": true,
                     "beneficiaryQtd": 1,
-                    "createdAt": "2025-07-04T19:12:25.5759188Z",
+                    "createdAt": "2025-07-08T15:59:46.1875842Z",
                     "dependents": [
                       {
                         "id": "11111111-1111-1111-1111-111111111111",
@@ -280,7 +280,7 @@
                         "phoneNumber": "11999999998",
                         "address": "456 Elm St, City",
                         "applicantId": "00000000-0000-0000-0000-000000000000",
-                        "createdAt": "2025-07-04T19:12:25.5759216+00:00"
+                        "createdAt": "2025-07-08T15:59:46.1875869+00:00"
                       }
                     ]
                   },
@@ -603,9 +603,9 @@
                       "name": "Orthopedic Bank Name",
                       "city": "Orthopedic Bank Description",
                       "stocks": null,
-                      "createdAt": "2025-07-04T19:12:25.5969864Z"
+                      "createdAt": "2025-07-08T15:59:46.2275248Z"
                     },
-                    "createdAt": "2025-07-04T19:12:25.5969901Z"
+                    "createdAt": "2025-07-08T15:59:46.2275255Z"
                   },
                   "message": "User retrieved successfully"
                 }
@@ -725,7 +725,7 @@
                       "email": "Doe@Exemple.com",
                       "phoneNumber": "11999999999",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-04T19:12:25.6054034Z"
+                      "createdAt": "2025-07-08T15:59:46.2415731Z"
                     }
                   ],
                   "message": "Users retrieved successfully"
@@ -789,9 +789,9 @@
                       "name": "Orthopedic Bank Name",
                       "city": "Orthopedic Bank Description",
                       "stocks": null,
-                      "createdAt": "2025-07-04T19:12:25.60904Z"
+                      "createdAt": "2025-07-08T15:59:46.2460247Z"
                     },
-                    "createdAt": "2025-07-04T19:12:25.6090408Z"
+                    "createdAt": "2025-07-08T15:59:46.2460257Z"
                   },
                   "message": "User retrieved successfully"
                 }
@@ -917,7 +917,7 @@
                       "email": "Doe@Exemple.com",
                       "phoneNumber": "11999999999",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-04T19:12:25.6131755Z"
+                      "createdAt": "2025-07-08T15:59:46.2509726Z"
                     }
                   ],
                   "message": "Users retrieved successfully"
@@ -942,7 +942,7 @@
                       "email": "Doe@Exemple.com",
                       "phoneNumber": "11999999999",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-04T19:12:25.6132119Z"
+                      "createdAt": "2025-07-08T15:59:46.2510312Z"
                     }
                   ],
                   "message": "Users retrieved successfully"
@@ -989,14 +989,14 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "6d3ce8ca-3762-48eb-9bb6-652c5a89ff7b",
+                    "id": "9d9562d7-a2a0-43f4-82de-7e5ae6cbf7bf",
                     "name": "Jane Doe",
                     "cpf": "10987654321",
                     "email": "jane.doe@example.com",
                     "phoneNumber": "11888888888",
                     "address": "456 Secondary St, City",
                     "applicantId": "11111111-1111-1111-1111-111111111111",
-                    "createdAt": "2025-07-04T19:12:25.6199386Z"
+                    "createdAt": "2025-07-08T15:59:46.2610091Z"
                   },
                   "message": "Dependent created successfully"
                 }
@@ -1084,14 +1084,14 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "581250a9-fcf5-40e9-8b3c-69bdeef6aee9",
+                      "id": "f53f0fcd-3516-4905-85d6-aa013b77cbca",
                       "name": "Jane Doe",
                       "cpf": "10987654321",
                       "email": "jane.doe@example.com",
                       "phoneNumber": "11888888888",
                       "address": "456 Secondary St, City",
                       "applicantId": "11111111-1111-1111-1111-111111111111",
-                      "createdAt": "2025-07-04T19:12:25.6218486Z"
+                      "createdAt": "2025-07-08T15:59:46.2643366Z"
                     }
                   ],
                   "message": "Dependents retrieved successfully"
@@ -1131,14 +1131,14 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "28bb4f7a-57c2-4711-8dcd-7e2795dc5868",
+                    "id": "90ea06f4-e60a-42c8-8adc-a01d7a2bd572",
                     "name": "Jane Doe",
                     "cpf": "10987654321",
                     "email": "jane.doe@example.com",
                     "phoneNumber": "11888888888",
                     "address": "456 Secondary St, City",
                     "applicantId": "11111111-1111-1111-1111-111111111111",
-                    "createdAt": "2025-07-04T19:12:25.6322561Z"
+                    "createdAt": "2025-07-08T15:59:46.2690514Z"
                   },
                   "message": "Dependent retrieved successfully"
                 }
@@ -1207,14 +1207,14 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "d7c78df6-8a55-4f32-9422-98853066cdd7",
+                    "id": "ba4ff82f-aabe-417e-af4d-a0e19cf67a6f",
                     "name": "Jane Doe Updated",
                     "cpf": "10987654321",
                     "email": "jane.updated@example.com",
                     "phoneNumber": "11777777777",
                     "address": "789 Tertiary Ave, City",
                     "applicantId": "11111111-1111-1111-1111-111111111111",
-                    "createdAt": "2025-07-04T19:12:25.6380216Z"
+                    "createdAt": "2025-07-08T15:59:46.276964Z"
                   },
                   "message": "Dependent updated successfully"
                 }
@@ -1381,11 +1381,11 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "8cbcbb5b-da40-458d-a255-9ffbd8d9fe43",
+                    "id": "4e4986dd-4007-456f-9d8e-5e0c0f21f6ba",
                     "seriaCode": 12345,
                     "status": "Available",
-                    "stockId": "0653b1e6-ac90-4659-a90b-65c942d422e4",
-                    "createdAt": "2025-07-04T19:12:25.6450608Z"
+                    "stockId": "759b6410-ce20-4c17-9b96-246b41a62476",
+                    "createdAt": "2025-07-08T15:59:46.2895909Z"
                   },
                   "message": "Item created successfully"
                 }
@@ -1473,11 +1473,11 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "02c34a90-cf07-4bc0-9e79-5b5b5cba0758",
+                      "id": "59bf3c6e-6287-4797-9d3c-3b4d65f7d5ba",
                       "seriaCode": 12345,
                       "status": "Available",
-                      "stockId": "695693e4-d818-490b-bc72-3f9909469ba1",
-                      "createdAt": "2025-07-04T19:12:25.647099Z"
+                      "stockId": "3a65c22c-9528-43f0-9013-a31204fcc3ab",
+                      "createdAt": "2025-07-08T15:59:46.292613Z"
                     }
                   ],
                   "message": "Items retrieved successfully"
@@ -1517,11 +1517,11 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "e6a7eaba-1413-4a75-957b-d61d4661c878",
+                    "id": "4c41bd57-4c52-446d-ba02-4b9dca206526",
                     "seriaCode": 12345,
                     "status": "Available",
-                    "stockId": "bc47bb9a-6637-4611-b83a-00a7425d1cda",
-                    "createdAt": "2025-07-04T19:12:25.6498294Z"
+                    "stockId": "3a49265b-d1a5-4cb6-9160-5686fc2d95f0",
+                    "createdAt": "2025-07-08T15:59:46.2968644Z"
                   },
                   "message": "Item retrieved successfully"
                 }
@@ -1587,11 +1587,11 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "e339e27c-5643-496c-8353-d122e02ffa62",
+                    "id": "279b96b2-9d72-45f8-b96d-ba3a7c609f11",
                     "seriaCode": 12345,
                     "status": "Available",
-                    "stockId": "dae1e445-f3e8-406e-b5e2-b579d881b660",
-                    "createdAt": "2025-07-04T19:12:25.655231Z"
+                    "stockId": "2ed3e88a-c3dc-47f8-bab8-aa6a2d64851b",
+                    "createdAt": "2025-07-08T15:59:46.3061744Z"
                   },
                   "message": "Item updated successfully"
                 }
@@ -1726,6 +1726,52 @@
         }
       }
     },
+    "/items/stock/{id}": {
+      "get": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Get items by stock ID",
+        "description": "Retrieves a list of items associated with a specific stock ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseControllerItemListDTO"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "data": [
+                    {
+                      "id": "a4252578-03ec-41b0-9f44-772af9410241",
+                      "seriaCode": 12345,
+                      "status": "Available",
+                      "stockId": "f16d7e6f-9459-4431-9db8-0919ef573b56",
+                      "createdAt": "2025-07-08T15:59:46.3119228Z"
+                    }
+                  ],
+                  "message": "Items retrieved successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/loans": {
       "post": {
         "tags": [
@@ -1761,19 +1807,19 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "d174393e-f930-4b66-b495-4ed8d214bf6c",
-                    "returnDate": "2025-07-11T19:12:25.6647159Z",
+                    "id": "173092fc-6b0e-4470-b329-e98ddc6a1772",
+                    "returnDate": "2025-07-15T15:59:46.3237132Z",
                     "reason": "Loaning item for temporary use",
                     "isActive": true,
                     "item": {
-                      "id": "42522340-bb8d-4df4-8f75-de138f5bacec",
+                      "id": "e74d41e0-9104-4cac-a153-36534108dff0",
                       "seriaCode": 12345,
                       "status": "Available",
-                      "stockId": "20e73104-06dc-4898-baae-3e8badd5724b",
-                      "createdAt": "2025-07-04T19:12:25.6647272Z"
+                      "stockId": "315c8361-34dc-42df-992c-39c8d3418eed",
+                      "createdAt": "2025-07-08T15:59:46.3237188Z"
                     },
                     "applicant": {
-                      "id": "a1a01bdd-aedf-4964-9339-a11221dc55cb",
+                      "id": "b69a278d-9729-4348-bc6b-0c49e0214565",
                       "name": "John Doe",
                       "cpf": "12345678901",
                       "email": "john.doe@example.com",
@@ -1781,18 +1827,18 @@
                       "address": "123 Main St",
                       "isBeneficiary": true,
                       "beneficiaryQtd": 1,
-                      "createdAt": "2025-07-04T19:12:25.66473Z",
+                      "createdAt": "2025-07-08T15:59:46.3237218Z",
                       "dependents": null
                     },
                     "responsible": {
-                      "id": "76999e61-f942-4030-8887-1ddf7fe2ab24",
+                      "id": "4bfd3658-d98f-453f-986c-c9a8f9adb12d",
                       "name": "Jane Smith",
                       "email": "jane.smith@example.com",
                       "phoneNumber": "11888888888",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-04T19:12:25.664732Z"
+                      "createdAt": "2025-07-08T15:59:46.3237244Z"
                     },
-                    "createdAt": "2025-07-04T19:12:25.6647334Z"
+                    "createdAt": "2025-07-08T15:59:46.3237258Z"
                   },
                   "message": "Loan created successfully"
                 }
@@ -1881,14 +1927,14 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "f8ebcd1b-5f4f-403c-919e-27b9e4a5a0c4",
-                      "returnDate": "2025-07-11T19:12:25.6681166Z",
+                      "id": "3116a6e1-2d8c-4e8c-b6e3-55b9bdc318e0",
+                      "returnDate": "2025-07-15T15:59:46.3304539Z",
                       "reason": "Loaning item for temporary use",
                       "isActive": true,
                       "item": 12345,
                       "applicant": "John Doe",
                       "responsible": "Jane Smith",
-                      "createdAt": "2025-07-04T19:12:25.6681207Z"
+                      "createdAt": "2025-07-08T15:59:46.3304584Z"
                     }
                   ],
                   "message": "Loans retrieved successfully"
@@ -1929,19 +1975,19 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "5ae9f2b5-8f69-46aa-8f5a-e598f70da2dc",
-                    "returnDate": "2025-07-11T19:12:25.6731923Z",
+                    "id": "af54aeeb-9ad6-4dbb-91c0-dac9f59442bb",
+                    "returnDate": "2025-07-15T15:59:46.3382244Z",
                     "reason": "Loaning item for temporary use",
                     "isActive": true,
                     "item": {
-                      "id": "f416d91a-4c65-4d87-b3a9-0fff817adbf4",
+                      "id": "cfe51717-f889-4326-85f2-93dae3e618c4",
                       "seriaCode": 12345,
                       "status": "Available",
-                      "stockId": "aac21cbb-833b-4186-974b-0c39980c8d1f",
-                      "createdAt": "2025-07-04T19:12:25.6731984Z"
+                      "stockId": "e47f787f-88c7-4fe1-b84f-606cd41409fa",
+                      "createdAt": "2025-07-08T15:59:46.338231Z"
                     },
                     "applicant": {
-                      "id": "5b84ce95-91fd-40b7-b2d3-fda37f4939de",
+                      "id": "d5ca8de5-07a3-4c86-91b6-e2b269691b5c",
                       "name": "John Doe",
                       "cpf": "12345678901",
                       "email": "john.doe@example.com",
@@ -1949,18 +1995,18 @@
                       "address": "123 Main St",
                       "isBeneficiary": true,
                       "beneficiaryQtd": 1,
-                      "createdAt": "2025-07-04T19:12:25.673201Z",
+                      "createdAt": "2025-07-08T15:59:46.3382345Z",
                       "dependents": null
                     },
                     "responsible": {
-                      "id": "e95e3a0b-5630-4ea5-a903-27fff7e20808",
+                      "id": "da5990e1-aa59-4c57-9efc-19767f97e883",
                       "name": "Jane Smith",
                       "email": "jane.smith@example.com",
                       "phoneNumber": "11888888888",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-04T19:12:25.673203Z"
+                      "createdAt": "2025-07-08T15:59:46.3382368Z"
                     },
-                    "createdAt": "2025-07-04T19:12:25.6732041Z"
+                    "createdAt": "2025-07-08T15:59:46.3382381Z"
                   },
                   "message": "Loan retrieved successfully"
                 }
@@ -2027,19 +2073,19 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "aa827d94-38a4-4a08-bf1b-36ae7a294654",
-                    "returnDate": "2025-07-11T19:12:25.6774751Z",
+                    "id": "040d2191-9c25-411b-b163-eb893d7c7da4",
+                    "returnDate": "2025-07-15T15:59:46.3446586Z",
                     "reason": "Loaning item for temporary use",
                     "isActive": true,
                     "item": {
-                      "id": "b3ad7b8e-d746-4620-89f3-3c3f8bbed20e",
+                      "id": "b3104438-82c7-4a36-a26e-4f3f214d3c30",
                       "seriaCode": 12345,
                       "status": "Available",
-                      "stockId": "d86311ec-7f8c-496e-8296-66d8eb75e7c4",
-                      "createdAt": "2025-07-04T19:12:25.6774826Z"
+                      "stockId": "539689ee-301e-49dc-8677-e37e9a2ec0d1",
+                      "createdAt": "2025-07-08T15:59:46.3446649Z"
                     },
                     "applicant": {
-                      "id": "a68d3377-a1f9-4042-b27a-271e3828dc90",
+                      "id": "d16040be-f868-4ba3-bd26-f0dd0da8780e",
                       "name": "John Doe",
                       "cpf": "12345678901",
                       "email": "john.doe@example.com",
@@ -2047,18 +2093,18 @@
                       "address": "123 Main St",
                       "isBeneficiary": true,
                       "beneficiaryQtd": 1,
-                      "createdAt": "2025-07-04T19:12:25.6774855Z",
+                      "createdAt": "2025-07-08T15:59:46.3446683Z",
                       "dependents": null
                     },
                     "responsible": {
-                      "id": "573fc24a-39d7-4681-b350-66183ca4ebdb",
+                      "id": "82c20e1b-6017-4f7d-9d67-7b756b729f38",
                       "name": "Jane Smith",
                       "email": "jane.smith@example.com",
                       "phoneNumber": "11888888888",
                       "orthopedicBank": null,
-                      "createdAt": "2025-07-04T19:12:25.6774878Z"
+                      "createdAt": "2025-07-08T15:59:46.3446708Z"
                     },
-                    "createdAt": "2025-07-04T19:12:25.677489Z"
+                    "createdAt": "2025-07-08T15:59:46.3446722Z"
                   },
                   "message": "Loan updated successfully"
                 }
@@ -2212,11 +2258,11 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "27238e58-a107-4819-b5e8-71975c8d8765",
+                    "id": "4cf2f00f-e298-436e-9194-85e509733fc9",
                     "name": "Central Orthopedic Bank",
                     "city": "São Paulo",
                     "stocks": null,
-                    "createdAt": "2025-07-04T19:12:25.6856766Z"
+                    "createdAt": "2025-07-08T15:59:46.3678838Z"
                   },
                   "message": "Orthopedic bank created successfully"
                 }
@@ -2290,11 +2336,11 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "887f2732-956e-41b0-a21e-cd905968f579",
+                      "id": "95dea80f-c0c0-4a4c-b8ba-92d268c5b551",
                       "name": "Central Orthopedic Bank",
                       "city": "São Paulo",
                       "stocks": null,
-                      "createdAt": "2025-07-04T19:12:25.6874126Z"
+                      "createdAt": "2025-07-08T15:59:46.3700106Z"
                     }
                   ],
                   "message": "Orthopedic banks retrieved successfully"
@@ -2335,25 +2381,25 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "676ebf76-2cd3-41f9-9ab4-9203e35d49e9",
+                    "id": "c3df48f6-c68e-4a3e-b9b3-f00ddd7f6d6a",
                     "name": "Central Orthopedic Bank",
                     "city": "São Paulo",
                     "stocks": [
                       {
-                        "id": "282e30ad-62df-40d4-a0af-6776e9755c1c",
+                        "id": "54554b52-3032-4e31-b62b-aaa0ae2ee854",
                         "title": "Existing Stock Title",
                         "imageUrl": "https://example.com/image.jpg",
                         "maintenanceQtd": 5,
                         "availableQtd": 10,
                         "borrowedQtd": 2,
                         "totalQtd": 17,
-                        "orthopedicBankId": "bcd5d6b4-a9c9-4228-bf46-ca50da6f5d0f",
+                        "orthopedicBankId": "c8800fc0-9ddb-434b-afda-479ea6f9a38a",
                         "orthopedicBank": null,
                         "items": null,
-                        "createdAt": "2025-07-04T19:12:25.6915635Z"
+                        "createdAt": "2025-07-08T15:59:46.3740256Z"
                       }
                     ],
-                    "createdAt": "2025-07-04T19:12:25.6915654Z"
+                    "createdAt": "2025-07-08T15:59:46.3740274Z"
                   },
                   "message": "Orthopedic bank retrieved successfully"
                 }
@@ -2420,11 +2466,11 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "0c6fb463-0a24-4f91-ba81-0c3b3292e5fd",
+                    "id": "6de44306-149f-4e36-9cb2-9a7916c8fa8f",
                     "name": "Central Orthopedic Bank",
                     "city": "São Paulo",
                     "stocks": null,
-                    "createdAt": "2025-07-04T19:12:25.7001159Z"
+                    "createdAt": "2025-07-08T15:59:46.3836728Z"
                   },
                   "message": "Orthopedic bank updated successfully"
                 }
@@ -2602,17 +2648,17 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "fcb391e5-8ab8-40f4-8480-ff23d4365591",
+                    "id": "0135ae26-ba6c-4ba7-9d8a-50880f5b7010",
                     "title": "Existing Stock Title",
                     "imageUrl": "https://example.com/image.jpg",
                     "maintenanceQtd": 5,
                     "availableQtd": 10,
                     "borrowedQtd": 2,
                     "totalQtd": 17,
-                    "orthopedicBankId": "bf52d380-f969-4fb9-b9bc-cf1b965874c4",
+                    "orthopedicBankId": "5a3b286c-2f84-424e-b4c9-3b57211a4328",
                     "orthopedicBank": null,
                     "items": null,
-                    "createdAt": "2025-07-04T19:12:25.7150813Z"
+                    "createdAt": "2025-07-08T15:59:46.3990472Z"
                   },
                   "message": "Stock created successfully"
                 }
@@ -2659,17 +2705,17 @@
                 "example": {
                   "success": false,
                   "data": {
-                    "id": "73bc5527-89a2-4895-8ef7-a462f5766706",
+                    "id": "c4b1ed5e-a42a-4717-b0d3-abab77de5fa3",
                     "title": "Existing Stock Title",
                     "imageUrl": "https://example.com/image.jpg",
                     "maintenanceQtd": 5,
                     "availableQtd": 10,
                     "borrowedQtd": 2,
                     "totalQtd": 17,
-                    "orthopedicBankId": "4e420a14-6c05-4f39-bdb4-2cc5542921c4",
+                    "orthopedicBankId": "ca18e210-1b48-4ee5-b9b3-215aa2a9f940",
                     "orthopedicBank": null,
                     "items": null,
-                    "createdAt": "2025-07-04T19:12:25.7165847Z"
+                    "createdAt": "2025-07-08T15:59:46.4011719Z"
                   },
                   "message": "Stock with name already exists"
                 }
@@ -2712,17 +2758,17 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "b53ea037-7544-4043-84cd-e86a0da844f4",
+                      "id": "0ae2239b-3138-47ab-9c86-30884929df88",
                       "title": "Existing Stock Title",
                       "imageUrl": "https://example.com/image.jpg",
                       "maintenanceQtd": 5,
                       "availableQtd": 10,
                       "borrowedQtd": 2,
                       "totalQtd": 17,
-                      "orthopedicBankId": "e25ad3bd-e50e-43f1-ba4f-c6ada82bbb11",
+                      "orthopedicBankId": "89a9c087-80bb-4655-a744-485281e33c42",
                       "orthopedicBank": null,
                       "items": null,
-                      "createdAt": "2025-07-04T19:12:25.7191546Z"
+                      "createdAt": "2025-07-08T15:59:46.4043612Z"
                     }
                   ],
                   "message": "Stocks retrieved successfully"
@@ -2762,38 +2808,38 @@
                 "example": {
                   "success": true,
                   "data": {
-                    "id": "adbe49a5-e185-470e-bf11-14b4d5e383e6",
+                    "id": "7fa912fe-ed31-41a8-babf-9316a22b5a6e",
                     "title": "Existing Stock Title",
                     "imageUrl": "https://example.com/image.jpg",
                     "maintenanceQtd": 5,
                     "availableQtd": 10,
                     "borrowedQtd": 2,
                     "totalQtd": 17,
-                    "orthopedicBankId": "34ac26c9-1cf3-4b81-9fcd-7635e0122e22",
+                    "orthopedicBankId": "1f662f83-033e-4fef-bced-ce98654d43a2",
                     "orthopedicBank": {
-                      "id": "3fdc974f-070b-4807-a857-b07e8621ca07",
+                      "id": "56dd4084-f171-415f-b466-2bf9eafc8c8d",
                       "name": "Orthopedic Bank Name",
                       "city": "Barra do Garças - MT",
                       "stocks": null,
-                      "createdAt": "2025-07-04T19:12:25.7232143Z"
+                      "createdAt": "2025-07-08T15:59:46.4095Z"
                     },
                     "items": [
                       {
-                        "id": "afca20a3-8e97-4af4-b71c-547da47fdbd0",
+                        "id": "6ef432d8-b446-48d3-ba51-09a814cfb2bd",
                         "seriaCode": 23344556,
                         "status": "AVAILABLE",
-                        "stockId": "50c2610f-a03b-40a2-b99e-974ef98724a0",
-                        "createdAt": "2025-07-04T19:12:25.7232222Z"
+                        "stockId": "ac61679f-4e05-4922-adbd-aab7e033ffa5",
+                        "createdAt": "2025-07-08T15:59:46.4095405Z"
                       },
                       {
-                        "id": "45381ddc-feda-4097-8eef-f94ea4500dd8",
+                        "id": "4933534b-c167-43e0-aafd-854842e0bb9a",
                         "seriaCode": 23344557,
                         "status": "MAINTENANCE",
-                        "stockId": "94c2faff-951a-4ae1-b03d-3c06c597ab20",
-                        "createdAt": "2025-07-04T19:12:25.7232267Z"
+                        "stockId": "c1476b2b-dcb7-41c4-ab6e-a47b9410021a",
+                        "createdAt": "2025-07-08T15:59:46.4095449Z"
                       }
                     ],
-                    "createdAt": "2025-07-04T19:12:25.723227Z"
+                    "createdAt": "2025-07-08T15:59:46.4095452Z"
                   },
                   "message": "Stock retrieved successfully"
                 }
@@ -2918,17 +2964,17 @@
                 "example": {
                   "success": false,
                   "data": {
-                    "id": "448b1b40-5a3a-440b-9ef3-57fe64a666d1",
+                    "id": "78cde2b5-6874-4115-a905-e21c8adc931b",
                     "title": "Existing Stock Title",
                     "imageUrl": "https://example.com/image.jpg",
                     "maintenanceQtd": 5,
                     "availableQtd": 10,
                     "borrowedQtd": 2,
                     "totalQtd": 17,
-                    "orthopedicBankId": "bd84dbd1-bddb-4376-af16-2e2eb06f9875",
+                    "orthopedicBankId": "f6a17f2f-a541-48f3-95ee-bc794e42e566",
                     "orthopedicBank": null,
                     "items": null,
-                    "createdAt": "2025-07-04T19:12:25.7450099Z"
+                    "createdAt": "2025-07-08T15:59:46.4197174Z"
                   },
                   "message": "Stock with name already exists"
                 }
@@ -3064,17 +3110,17 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "c9a90016-77bc-49af-ba9e-615a556085f8",
+                      "id": "fe8957da-3022-4437-8b92-159f226fb708",
                       "title": "Existing Stock Title",
                       "imageUrl": "https://example.com/image.jpg",
                       "maintenanceQtd": 5,
                       "availableQtd": 10,
                       "borrowedQtd": 2,
                       "totalQtd": 17,
-                      "orthopedicBankId": "3ab05bb5-2dfc-4a38-93d0-26633adcdcc7",
+                      "orthopedicBankId": "a4681b2a-fcbc-4d8e-9efd-d169a0150ac7",
                       "orthopedicBank": null,
                       "items": null,
-                      "createdAt": "2025-07-04T19:12:25.7517754Z"
+                      "createdAt": "2025-07-08T15:59:46.4267368Z"
                     }
                   ],
                   "message": "Stocks retrieved successfully"
@@ -3094,17 +3140,17 @@
                   "count": 1,
                   "data": [
                     {
-                      "id": "e5093938-7554-40b5-8e74-90e7fb9332ab",
+                      "id": "a0c7ce72-c2f3-42dd-9b19-dab0bbdd085e",
                       "title": "Existing Stock Title",
                       "imageUrl": "https://example.com/image.jpg",
                       "maintenanceQtd": 5,
                       "availableQtd": 10,
                       "borrowedQtd": 2,
                       "totalQtd": 17,
-                      "orthopedicBankId": "8dcde257-f865-4e69-b29a-876d4222bab9",
+                      "orthopedicBankId": "fff68359-56fe-412d-b3fe-1a918240564c",
                       "orthopedicBank": null,
                       "items": null,
-                      "createdAt": "2025-07-04T19:12:25.7518461Z"
+                      "createdAt": "2025-07-08T15:59:46.4268396Z"
                     }
                   ],
                   "message": "Stocks retrieved successfully"

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/auth/di/auth_dependency_factory.dart';
 import 'package:project_rotary/app/pdt/info/presentation/pages/info_page.dart';
+import 'package:project_rotary/core/api/auth/auth_service.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 
@@ -23,47 +23,6 @@ class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppBarCustomState extends State<AppBarCustom> {
-  final authController = AuthDependencyFactory.instance.authController;
-  bool _hasLoadedUserData = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Carrega os dados do usuário atual apenas uma vez
-    _loadUserDataOnce();
-  }
-
-  Future<void> _loadUserDataOnce() async {
-    // Evita múltiplas chamadas se já carregou ou já tem usuário em cache
-    if (_hasLoadedUserData || authController.currentUser != null) {
-      return;
-    }
-
-    // Evita também se já está carregando
-    if (authController.isLoading) {
-      return;
-    }
-
-    _hasLoadedUserData = true;
-
-    try {
-      debugPrint('AppBar - Iniciando carregamento de dados do usuário...');
-
-      // Carrega os dados do usuário atual (que já inclui o banco ortopédico)
-      final userResult = await authController.getCurrentUser();
-      userResult.fold(
-        (user) => debugPrint(
-          'AppBar - Usuário carregado: ${user.name} (${user.email}), Banco: ${user.orthopedicBank?.name}',
-        ),
-        (error) => debugPrint('AppBar - Erro ao carregar usuário: $error'),
-      );
-
-      debugPrint('AppBar - Carregamento concluído');
-    } catch (e) {
-      debugPrint('AppBar - Erro geral ao carregar dados: $e');
-    }
-  }
-
   Future<void> _handleLogout() async {
     // Mostra um dialog de confirmação
     final shouldLogout = await showDialog<bool>(
@@ -85,28 +44,30 @@ class _AppBarCustomState extends State<AppBarCustom> {
           ),
     );
 
-    if (shouldLogout == true) {
-      final result = await authController.logout();
+    if (shouldLogout == true && mounted) {
+      try {
+        // Obtém a instância do AuthController
+        final authController = AuthService.instance;
+        if (authController != null) {
+          // Realiza o logout
+          await authController.logout();
+        }
 
-      if (mounted) {
-        result.fold(
-          (success) {
-            // Logout bem-sucedido, navega para a tela de login
-            Navigator.of(
-              context,
-              rootNavigator: true,
-            ).pushNamedAndRemoveUntil('/', (route) => false);
-          },
-          (error) {
-            // Mostra erro se houver falha no logout
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Erro ao fazer logout: $error'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          },
-        );
+        // Navega para a tela de login
+        if (mounted) {
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).pushNamedAndRemoveUntil('/signin', (route) => false);
+        }
+      } catch (e) {
+        // Em caso de erro, ainda assim navega para a tela de login
+        if (mounted) {
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).pushNamedAndRemoveUntil('/signin', (route) => false);
+        }
       }
     }
   }
@@ -127,13 +88,12 @@ class _AppBarCustomState extends State<AppBarCustom> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: 12,
               children: [
                 Navigator.canPop(context)
                     ? IconButton(
                       icon: Icon(LucideIcons.arrowLeft, color: _primaryColor),
                       onPressed: () {
-                        Navigator.of(context).maybePop();
+                        Navigator.of(context).pop(true);
                       },
                     )
                     : IconButton(
@@ -146,12 +106,16 @@ class _AppBarCustomState extends State<AppBarCustom> {
                       color: _primaryColor,
                     ),
 
-                Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontSize: 21,
-                    color: _primaryColor,
-                    fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 21,
+                      color: _primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
 
@@ -195,58 +159,13 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                     ),
                                   ),
 
-                                  AnimatedBuilder(
-                                    animation: authController,
-                                    builder: (context, child) {
-                                      final user = authController.currentUser;
-                                      final isLoading =
-                                          authController.isLoading;
-                                      final error = authController.error;
+                                  // Seção de dados do usuário com dados reais
+                                  Builder(
+                                    builder: (context) {
+                                      final authController =
+                                          AuthService.instance;
+                                      final user = authController?.currentUser;
 
-                                      // Debug: Log do estado atual
-                                      debugPrint(
-                                        'AppBar - User: ${user?.name}, Email: ${user?.email}',
-                                      );
-                                      debugPrint(
-                                        'AppBar - Loading: $isLoading, Error: $error',
-                                      );
-
-                                      // Se está carregando, mostra indicador
-                                      if (isLoading && user == null) {
-                                        return const Column(
-                                          children: [
-                                            ListTile(
-                                              leading:
-                                                  CircularProgressIndicator(),
-                                              title: Text(
-                                                'Carregando dados do usuário...',
-                                              ),
-                                            ),
-                                            Divider(),
-                                          ],
-                                        );
-                                      }
-
-                                      // Se houve erro e não há usuário, mostra erro
-                                      if (error != null && user == null) {
-                                        return Column(
-                                          children: [
-                                            ListTile(
-                                              leading: Icon(
-                                                Icons.error,
-                                                color: Colors.red,
-                                              ),
-                                              title: Text(
-                                                'Erro ao carregar dados',
-                                              ),
-                                              subtitle: Text(error),
-                                            ),
-                                            Divider(),
-                                          ],
-                                        );
-                                      }
-
-                                      // Mostra dados do usuário
                                       return Column(
                                         children: [
                                           ListTile(
@@ -290,10 +209,12 @@ class _AppBarCustomState extends State<AppBarCustom> {
 
                                   Spacer(),
 
-                                  AnimatedBuilder(
-                                    animation: authController,
-                                    builder: (context, child) {
-                                      final user = authController.currentUser;
+                                  // Seção do banco ortopédico com dados reais
+                                  Builder(
+                                    builder: (context) {
+                                      final authController =
+                                          AuthService.instance;
+                                      final user = authController?.currentUser;
                                       final orthopedicBank =
                                           user?.orthopedicBank;
 
@@ -315,16 +236,14 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                           ),
                                           title: Text(
                                             orthopedicBank?.name ??
-                                                'Banco não carregado',
+                                                'Banco não disponível',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                           subtitle: Text(
                                             orthopedicBank?.city ??
-                                                (user != null
-                                                    ? 'ID: ${user.orthopedicBank!.id}'
-                                                    : ''),
+                                                'Cidade não disponível',
                                           ),
                                         ),
                                       );

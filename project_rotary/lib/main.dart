@@ -1,25 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:project_rotary/app/auth/data/impl_auth_repository.dart';
-import 'package:project_rotary/app/auth/presentation/pages/forgot_password_page.dart';
-import 'package:project_rotary/app/auth/presentation/pages/signup_page.dart';
-import 'package:project_rotary/app/auth/presentation/pages/singin_page.dart';
+import 'package:project_rotary/app/auth/pages/forgot_password_page.dart';
+import 'package:project_rotary/app/auth/pages/signup_page.dart';
+import 'package:project_rotary/app/auth/pages/singin_page.dart';
 import 'package:project_rotary/app/pdt/layout.dart';
-import 'package:project_rotary/test_image_uploader_page.dart';
+import 'package:project_rotary/core/api/api.dart';
+import 'package:project_rotary/core/components/auth_guard.dart';
 
-void main() {
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa o ApiClient
+  final apiClient = ApiClient();
+
+  // Inicializa o serviço de autenticação
+  try {
+    await AuthService.initialize(apiClient: apiClient);
+    debugPrint('AuthService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar AuthService: $e');
+    // Continue mesmo se houver erro no AuthService
+  }
+
+  // Adiciona callback global para erro 401
+  apiClient.setOnUnauthorizedCallback(() async {
+    debugPrint('ApiClient: Unauthorized callback triggered (main.dart)');
+    await AuthService.instance?.logout();
+    // Exibe SnackBar global avisando sobre sessão expirada
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sessão expirada, faça login novamente.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/signin',
+      (route) => false,
+    );
+  });
+
+  // Inicializa o serviço de aplicantes
+  try {
+    await ApplicantsService.initialize(apiClient: apiClient);
+    debugPrint('ApplicantsService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar ApplicantsService: $e');
+    // Continue mesmo se houver erro no ApplicantsService
+  }
+
+  // inicializa o serviço de categorias
+  try {
+    await StocksService.initialize(apiClient: apiClient);
+    debugPrint('StockService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar StockService: $e');
+    // Continue mesmo se houver erro no CategoriesService
+  }
+
+  try {
+    await ItemsService.initialize(apiClient: apiClient);
+    debugPrint('ItemService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar ItemService: $e');
+    // Continue mesmo se houver erro no CategoriesService
+  }
+
+  try {
+    await OrthopedicBanksService.initialize(apiClient: apiClient);
+    debugPrint('OrthopedicBanksService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar OrthopedicBanksService: $e');
+    // Continue mesmo se houver erro no CategoriesService
+  }
+
+  // Inicializa o serviço de loans
+  try {
+    await LoansService.initialize(apiClient: apiClient);
+    debugPrint('LoansService inicializado com sucesso');
+  } catch (e) {
+    debugPrint('Erro ao inicializar LoansService: $e');
+    // Continue mesmo se houver erro no LoansService
+  }
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Rotary Project',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       locale: const Locale('pt', 'BR'),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -27,30 +107,27 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('pt', 'BR')],
-      home: const AuthWrapper(), // Usar AuthWrapper em vez de rota fixa
+      home: const AuthChecker(), // Verifica autenticação inicial
       routes: {
         '/signin': (context) => SingInPage(),
         '/signup': (context) => SignUpPage(),
         '/forgot-password': (context) => ForgotPasswordPage(),
-        '/layout': (context) => Layout(),
-        '/test-image': (context) => const ImageUploaderTestPage(),
+        '/layout': (context) => AuthGuard(child: Layout()),
       },
     );
   }
 }
 
-/// Widget que verifica se há uma sessão salva ao iniciar o app
-class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({super.key});
+/// Widget que verifica se o usuário está autenticado
+class AuthChecker extends StatefulWidget {
+  const AuthChecker({super.key});
 
   @override
-  State<AuthWrapper> createState() => _AuthWrapperState();
+  State<AuthChecker> createState() => _AuthCheckerState();
 }
 
-class _AuthWrapperState extends State<AuthWrapper> {
-  final ImplAuthRepository _authRepository = ImplAuthRepository();
-  bool _isLoading = true;
-  bool _isLoggedIn = false;
+class _AuthCheckerState extends State<AuthChecker> {
+  bool _isChecking = true;
 
   @override
   void initState() {
@@ -58,63 +135,78 @@ class _AuthWrapperState extends State<AuthWrapper> {
     _checkAuthStatus();
   }
 
-  /// Verifica se o usuário já está logado
   Future<void> _checkAuthStatus() async {
     try {
-      // Tenta restaurar a sessão salva
-      final sessionResult = await _authRepository.restoreSession();
+      // Aguarda até que o AuthService esteja completamente inicializado
+      while (!AuthService.isInitialized) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
 
-      sessionResult.fold(
-        (isRestored) {
-          setState(() {
-            _isLoggedIn = isRestored;
-            _isLoading = false;
-          });
-        },
-        (error) {
-          setState(() {
-            _isLoggedIn = false;
-            _isLoading = false;
-          });
-        },
-      );
+      if (mounted) {
+        final authController = AuthService.instance;
+
+        setState(() {
+          _isChecking = false;
+        });
+
+        // Usa addPostFrameCallback para adiar a navegação
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            if (authController != null && authController.isAuthenticated) {
+              // Usuário já está logado, vai para o layout principal
+              Navigator.pushReplacementNamed(context, '/layout');
+            } else {
+              // Usuário não está logado, vai para a tela de login
+              Navigator.pushReplacementNamed(context, '/signin');
+            }
+          }
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoggedIn = false;
-        _isLoading = false;
-      });
+      debugPrint('Erro ao verificar autenticação: $e');
+      if (mounted) {
+        setState(() {
+          _isChecking = false;
+        });
+
+        // Usa addPostFrameCallback para adiar a navegação
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/signin');
+          }
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(
+    // Tela de loading enquanto verifica a autenticação
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue.shade400, Colors.blue.shade800],
+          ),
+        ),
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Verificando sessão...'),
+              const CircularProgressIndicator(color: Colors.white),
+              const SizedBox(height: 24),
+              Text(
+                _isChecking
+                    ? 'Verificando autenticação...'
+                    : 'Redirecionando...',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ],
           ),
         ),
-      );
-    }
-
-    // Se está logado, vai para o layout principal
-    if (_isLoggedIn) {
-      return Layout();
-    }
-
-    // Se não está logado, vai para a tela de login
-    return SingInPage();
-  }
-
-  @override
-  void dispose() {
-    _authRepository.dispose();
-    super.dispose();
+      ),
+    );
   }
 }
