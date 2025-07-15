@@ -175,7 +175,7 @@ class CategoryCard extends StatelessWidget {
                     Text(inMaintenance.toString()),
                     SizedBox(width: 16),
                     Icon(
-                      LucideIcons.star,
+                      LucideIcons.clock,
                       color: CustomColors.warning,
                       size: 16,
                     ),

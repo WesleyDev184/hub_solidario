@@ -373,7 +373,7 @@ class _CategoryPageState extends State<CategoryPage> {
   // Widget para construir o header fixo com informações da categoria
   Widget _buildCategoryHeader() {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       decoration: BoxDecoration(
         color: CustomColors.white,
         boxShadow: [
@@ -386,49 +386,128 @@ class _CategoryPageState extends State<CategoryPage> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
+          // Nome da categoria
+          Text(
+            _stock?.title ?? 'Categoria',
+            style: const TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+          ),
+          const SizedBox(height: 4),
+          // Badges responsivas
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
             children: [
-              Text(
-                _stock?.title ?? 'Categoria',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
+              // Em uso
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
-                  vertical: 4,
+                  vertical: 2,
                 ),
                 decoration: BoxDecoration(
                   color: CustomColors.warning.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       LucideIcons.clock,
                       color: CustomColors.warning,
-                      size: 18,
+                      size: 14,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 2),
                     Text(
                       (_stock?.borrowedQtd ?? 0).toString(),
                       style: const TextStyle(
                         color: CustomColors.warning,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 15,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 2),
                     const Text(
                       'Em uso',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 15,
                         fontWeight: FontWeight.w500,
                         color: CustomColors.warning,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Disponíveis
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: CustomColors.success.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      LucideIcons.check,
+                      color: CustomColors.success,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      (_stock?.availableQtd ?? 0).toString(),
+                      style: const TextStyle(
+                        color: CustomColors.success,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Text(
+                      'Disponíveis',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: CustomColors.success,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Manutenção
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: CustomColors.error.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      LucideIcons.wrench,
+                      color: CustomColors.error,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      (_stock?.maintenanceQtd ?? 0).toString(),
+                      style: const TextStyle(
+                        color: CustomColors.error,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Text(
+                      'Manutenção',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: CustomColors.error,
                       ),
                     ),
                   ],
@@ -437,86 +516,6 @@ class _CategoryPageState extends State<CategoryPage> {
             ],
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: CustomColors.success.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      LucideIcons.check,
-                      color: CustomColors.success,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      (_stock?.availableQtd ?? 0).toString(),
-                      style: const TextStyle(
-                        color: CustomColors.success,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'Disponíveis',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: CustomColors.success,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: CustomColors.error.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      LucideIcons.wrench,
-                      color: CustomColors.error,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      (_stock?.maintenanceQtd ?? 0).toString(),
-                      style: const TextStyle(
-                        color: CustomColors.error,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'Manutenção',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: CustomColors.error,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           // Contador de itens e filtro
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -526,7 +525,7 @@ class _CategoryPageState extends State<CategoryPage> {
               Text(
                 '${_filteredItems.length} item${_filteredItems.length == 1 ? '' : 's'}',
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: CustomColors.textSecondary,
                 ),
@@ -562,14 +561,7 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
 
           // Header fixo com informações da categoria
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverAppBarDelegate(
-              minHeight: 170.0,
-              maxHeight: 170.0,
-              child: _buildCategoryHeader(),
-            ),
-          ),
+          SliverToBoxAdapter(child: _buildCategoryHeader()),
 
           // Conteúdo principal
           if (_isLoading)
@@ -687,40 +679,5 @@ class _CategoryPageState extends State<CategoryPage> {
         child: const Icon(LucideIcons.menu, color: Colors.white),
       ),
     );
-  }
-}
-
-// Classe para criar um header fixo com SliverPersistentHeader
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final double minHeight;
-  final double maxHeight;
-  final Widget child;
-
-  _SliverAppBarDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => maxHeight;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
   }
 }
