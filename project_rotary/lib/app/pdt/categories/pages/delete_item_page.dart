@@ -72,7 +72,9 @@ class _DeleteItemPageState extends State<DeleteItemPage> {
 
             await StocksService.cacheStock(updatedStock);
 
-            Navigator.of(context).pop(true); // Return true to indicate deletion
+            Navigator.of(
+              context,
+            ).pop(updatedStock); // Return true to indicate deletion
           },
           (error) {
             ScaffoldMessenger.of(context).showSnackBar(

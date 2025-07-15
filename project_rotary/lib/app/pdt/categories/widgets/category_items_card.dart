@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:project_rotary/app/pdt/categories/pages/delete_item_page.dart';
+import 'package:project_rotary/app/pdt/categories/pages/edit_item_page.dart';
 import 'package:project_rotary/core/api/api.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
 import 'package:project_rotary/core/utils/utils.dart' as CoreUtils;
@@ -11,6 +12,7 @@ class CategoryItemsCard extends StatelessWidget {
   final ItemStatus status;
   final DateTime createdAt;
   final Function() loadItems;
+  final Function(Stock newStock) updateStock;
   final String stockId;
 
   const CategoryItemsCard({
@@ -20,6 +22,7 @@ class CategoryItemsCard extends StatelessWidget {
     required this.status,
     required this.createdAt,
     required this.loadItems,
+    required this.updateStock,
     required this.stockId,
   });
 
@@ -92,14 +95,32 @@ class CategoryItemsCard extends StatelessWidget {
                             ),
                       ),
                     );
-                    if (res == true) {
+                    if (res is Stock) {
                       loadItems.call();
+                      updateStock.call(res);
                     }
                   },
                   icon: Icon(LucideIcons.trash, color: Colors.red),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final res = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => EditItemPage(
+                              itemId: id,
+                              stockId: stockId,
+                              currentSerialCode: serialCode,
+                              currentStatus: status,
+                            ),
+                      ),
+                    );
+                    if (res is Stock) {
+                      loadItems.call();
+                      updateStock.call(res);
+                    }
+                  },
                   icon: Icon(LucideIcons.pen, color: Colors.amber),
                 ),
               ],

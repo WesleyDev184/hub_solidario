@@ -96,6 +96,14 @@ class _CategoryPageState extends State<CategoryPage> {
     }
   }
 
+  /// atualiza o stock com os dados mais recentes
+  Future<void> _updateStock(Stock newStock) async {
+    if (_stock == null) return;
+    setState(() {
+      _stock = newStock;
+    });
+  }
+
   Widget _buildImage() {
     return Container(
       width: double.infinity,
@@ -238,9 +246,8 @@ class _CategoryPageState extends State<CategoryPage> {
                 availableQtd: _stock!.availableQtd + 1,
               );
 
-              setState(() {
-                _stock = temp;
-              });
+              // Atualiza o stock com o novo item adicionado
+              _updateStock(temp!);
 
               await StocksService.cacheStock(_stock!);
 
@@ -265,9 +272,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
             // Se o usuário editou a categoria, atualiza o estado
             if (res != null && res is Stock) {
-              setState(() {
-                _stock = res;
-              });
+              _updateStock(res);
             }
           },
           onDeletePressed: () {
@@ -663,6 +668,7 @@ class _CategoryPageState extends State<CategoryPage> {
                       status: item.status,
                       createdAt: item.createdAt,
                       loadItems: _initializeData,
+                      updateStock: _updateStock,
                       stockId: widget.stock.id,
                     ),
                   );
