@@ -4,20 +4,43 @@ part of 'my_app.dart';
 
 List<RouteEntity> get routes => [
   RouteEntity(key: '/', uri: Uri.parse('/'), routeBuilder: b0Builder),
+  RouteEntity(key: '/info', uri: Uri.parse('/info'), routeBuilder: b1Builder),
+  RouteEntity(
+    key: '/auth/signup',
+    uri: Uri.parse('/auth/signup'),
+    routeBuilder: b2Builder,
+  ),
+  RouteEntity(
+    key: '/auth/signin',
+    uri: Uri.parse('/auth/signin'),
+    routeBuilder: b3Builder,
+  ),
+  RouteEntity(
+    key: '/auth/forgot_password',
+    uri: Uri.parse('/auth/forgot_password'),
+    routeBuilder: b4Builder,
+  ),
   RouteEntity(
     key: '/products/[id]/product',
     uri: Uri.parse('/products/[id]/product'),
-    routeBuilder: b1Builder,
+    routeBuilder: b5Builder,
   ),
   RouteEntity(
     key: '/products',
     uri: Uri.parse('/products'),
-    routeBuilder: b2Builder,
+    routeBuilder: b6Builder,
   ),
 ];
 
 const routePaths = (
   path: '/',
+  info: '/info',
+  auth: (
+    path: '/auth',
+    signup: '/auth/signup',
+    signin: '/auth/signin',
+    forgotPassword: '/auth/forgot_password',
+  ),
   products: (
     path: '/products',
     $id: (path: '/products/[id]', product: '/products/[id]/product'),

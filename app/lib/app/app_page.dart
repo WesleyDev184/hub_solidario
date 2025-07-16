@@ -1,3 +1,4 @@
+import 'package:app/core/components/appbar_custom.dart';
 import 'package:app/my_app.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
@@ -23,10 +24,7 @@ class _AppPageState extends State<AppPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
+      appBar: AppBarCustom(title: widget.title, initialRoute: true),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -39,7 +37,7 @@ class _AppPageState extends State<AppPage> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Routefly.navigate(routePaths.products.path);
+                Routefly.pushNavigate(routePaths.products.path);
               },
               child: const Text('Ir para Produtos'),
             ),

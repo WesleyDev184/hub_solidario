@@ -4,12 +4,24 @@ import 'package:flutter/widgets.dart';
 import 'package:routefly/routefly.dart';
 
 import 'app/app_page.dart' as a0;
-import 'app/products/[id]/product_page.dart' as a1;
-import 'app/products/products_page.dart' as a2;
+import 'app/auth/forgot_password_page.dart' as a4;
+import 'app/auth/signin_page.dart' as a3;
+import 'app/auth/signup_page.dart' as a2;
+import 'app/info/info_page.dart' as a1;
+import 'app/products/[id]/product_page.dart' as a5;
+import 'app/products/products_page.dart' as a6;
 
 Route b0Builder(BuildContext ctx, RouteSettings settings) =>
     Routefly.defaultRouteBuilder(ctx, settings, const a0.AppPage());
 Route b1Builder(BuildContext ctx, RouteSettings settings) =>
-    Routefly.defaultRouteBuilder(ctx, settings, const a1.ProductPage());
+    Routefly.defaultRouteBuilder(ctx, settings, const a1.InfoPage());
 Route b2Builder(BuildContext ctx, RouteSettings settings) =>
-    Routefly.defaultRouteBuilder(ctx, settings, const a2.ProductsPage());
+    Routefly.defaultRouteBuilder(ctx, settings, const a2.SignUpPage());
+Route b3Builder(BuildContext ctx, RouteSettings settings) =>
+    Routefly.defaultRouteBuilder(ctx, settings, const a3.SigninPage());
+Route b4Builder(BuildContext ctx, RouteSettings settings) =>
+    Routefly.defaultRouteBuilder(ctx, settings, const a4.ForgotPasswordPage());
+Route b5Builder(BuildContext ctx, RouteSettings settings) =>
+    Routefly.defaultRouteBuilder(ctx, settings, const a5.ProductPage());
+Route b6Builder(BuildContext ctx, RouteSettings settings) =>
+    Routefly.defaultRouteBuilder(ctx, settings, const a6.ProductsPage());

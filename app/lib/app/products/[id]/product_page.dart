@@ -1,3 +1,4 @@
+import 'package:app/my_app.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 
@@ -11,7 +12,13 @@ class ProductPage extends StatelessWidget {
       builder: (context, snapshot) {
         final id = Routefly.query['id'];
         return Scaffold(
-          appBar: AppBar(title: Text('Produto $id')),
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Routefly.push(routePaths.products.path),
+            ),
+            title: Text('Produto $id'),
+          ),
           body: Center(child: Text('Detalhes do produto $id')),
         );
       },
