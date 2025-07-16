@@ -298,7 +298,7 @@ class _SignUpFormState extends State<SignUpForm> {
       margin: EdgeInsets.zero,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: CustomColors.white,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),

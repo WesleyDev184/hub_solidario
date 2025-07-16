@@ -29,7 +29,7 @@ class SignUpPage extends StatelessWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
               expandedHeight: 200,
-              collapsedHeight: 120,
+              collapsedHeight: 130,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   padding: const EdgeInsets.only(top: 70),
@@ -45,15 +45,7 @@ class SignUpPage extends StatelessWidget {
             ),
             SliverFillRemaining(
               hasScrollBody: false,
-              child: Column(
-                children: [
-                  Expanded(
-                    child:
-                        Container(), // Espaço flexível para empurrar o form para baixo
-                  ),
-                  SignUpForm(),
-                ],
-              ),
+              child: Column(children: [SignUpForm()]),
             ),
           ],
         ),
