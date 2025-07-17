@@ -1,7 +1,7 @@
 import 'package:app/core/api/auth/auth_service.dart';
-import 'package:app/core/components/button.dart';
+import 'package:app/core/widgets/button.dart';
 import 'package:app/core/theme/custom_colors.dart';
-import 'package:app/my_app.dart';
+import 'package:app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';

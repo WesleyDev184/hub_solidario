@@ -1,10 +1,10 @@
-import 'package:app/my_app.dart';
+import 'package:app/app.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Deve ser chamado antes de runApp para garantir que o window_manager esteja pronto
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = WindowOptions(
@@ -19,6 +19,8 @@ void main() async {
     await windowManager.show();
     await windowManager.focus();
   });
-  
-  runApp(const MyApp());
+
+  usePathUrlStrategy();
+
+  runApp(const App());
 }

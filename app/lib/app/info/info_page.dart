@@ -1,5 +1,5 @@
-import 'package:app/core/components/appbar_custom.dart';
-import 'package:app/core/components/avatar.dart';
+import 'package:app/core/widgets/appbar_custom.dart';
+import 'package:app/core/widgets/avatar.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';

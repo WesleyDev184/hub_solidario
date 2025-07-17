@@ -1,4 +1,4 @@
-import 'package:app/my_app.dart';
+import 'package:app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 

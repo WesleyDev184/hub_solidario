@@ -1,4 +1,4 @@
-import 'package:app/my_app.dart';
+import 'package:app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 
@@ -28,7 +28,7 @@ class ProductsPage extends StatelessWidget {
             title: Text(product['name'] as String),
             onTap: () {
               Routefly.navigate(
-                routePaths.products.$id.product.changes({
+                routePaths.products.$id.changes({
                   'id': product['id'].toString(),
                 }),
               );

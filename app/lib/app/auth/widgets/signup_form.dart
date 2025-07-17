@@ -1,11 +1,11 @@
 import 'package:app/core/api/auth/auth_service.dart';
 import 'package:app/core/api/auth/models/auth_models.dart';
 import 'package:app/core/api/orthopedic_banks/orthopedic_banks_service.dart';
-import 'package:app/core/components/input_field.dart';
-import 'package:app/core/components/password_field.dart';
-import 'package:app/core/components/select_field.dart';
+import 'package:app/core/widgets/input_field.dart';
+import 'package:app/core/widgets/password_field.dart';
+import 'package:app/core/widgets/select_field.dart';
 import 'package:app/core/theme/custom_colors.dart';
-import 'package:app/my_app.dart';
+import 'package:app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:routefly/routefly.dart';

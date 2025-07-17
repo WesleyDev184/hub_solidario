@@ -8,7 +8,7 @@ import 'app/auth/forgot_password_page.dart' as a4;
 import 'app/auth/signin_page.dart' as a3;
 import 'app/auth/signup_page.dart' as a2;
 import 'app/info/info_page.dart' as a1;
-import 'app/products/[id]/product_page.dart' as a5;
+import 'app/products/[id]_page.dart' as a5;
 import 'app/products/products_page.dart' as a6;
 
 Route b0Builder(BuildContext ctx, RouteSettings settings) =>

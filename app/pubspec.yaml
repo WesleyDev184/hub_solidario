@@ -46,6 +46,8 @@ dependencies:
   http: ^1.4.0
   result_dart: ^2.1.1
   shared_preferences: ^2.5.3
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

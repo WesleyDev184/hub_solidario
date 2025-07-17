@@ -1,5 +1,5 @@
-import 'package:app/core/components/appbar_custom.dart';
-import 'package:app/my_app.dart';
+import 'package:app/core/widgets/appbar_custom.dart';
+import 'package:app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 

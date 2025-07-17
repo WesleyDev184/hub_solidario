@@ -8,7 +8,7 @@ class ItemsController {
   final ItemsRepository _repository;
   final ItemsCacheService _cacheService;
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
   String? _error;
 
   ItemsController(this._repository, this._cacheService);

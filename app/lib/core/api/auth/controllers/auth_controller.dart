@@ -37,34 +37,18 @@ class AuthController extends ChangeNotifier {
     try {
       _setLoading(true);
 
-      debugPrint('AuthController.initialize: Starting initialization');
-
       // Carrega estado do cache
-      debugPrint('AuthController.initialize: Loading cached state');
       final cachedState = await _repository.loadCachedAuthState();
       _updateState(cachedState);
 
-      debugPrint(
-        'AuthController.initialize: Cached state loaded, authenticated: ${cachedState.isAuthenticated}',
-      );
-
       // Se há token válido, tenta buscar dados atuais do usuário
       if (cachedState.isAuthenticated && !cachedState.isTokenExpired) {
-        debugPrint(
-          'AuthController.initialize: Token is valid, refreshing user data',
-        );
         await _refreshCurrentUser();
       } else if (cachedState.token != null) {
-        debugPrint('AuthController.initialize: Token expired, clearing cache');
         // Token expirado, limpa cache
         await logout();
       }
-
-      debugPrint(
-        'AuthController.initialize: Initialization completed successfully',
-      );
     } catch (e) {
-      debugPrint('AuthController.initialize: Error during initialization: $e');
       _updateState(const AuthState(status: AuthStatus.unauthenticated));
     } finally {
       _setLoading(false);
