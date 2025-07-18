@@ -11,11 +11,11 @@ class OrthopedicBanksController extends GetxController {
 
   final RxList<OrthopedicBank> _banks = <OrthopedicBank>[].obs;
   final RxBool _isLoading = false.obs;
-  final RxString? _error = RxString('');
+  final RxString _error = RxString('');
 
   List<OrthopedicBank> get banks => _banks.toList();
   bool get isLoading => _isLoading.value;
-  String? get error => _error?.value;
+  String? get error => _error.value;
 
   OrthopedicBanksController(this.repository, this.cacheService);
 
@@ -49,13 +49,13 @@ class OrthopedicBanksController extends GetxController {
           return Success(banks);
         },
         (error) async {
-          _error?.value = error.toString();
+          _error.value = error.toString();
           _setLoading(false);
           return Failure(error);
         },
       );
     } catch (e) {
-      _error?.value = e.toString();
+      _error.value = e.toString();
       _setLoading(false);
       return Failure(Exception('Erro ao carregar bancos ortopédicos: $e'));
     }
@@ -75,13 +75,13 @@ class OrthopedicBanksController extends GetxController {
           return Success(bank.id);
         },
         (error) async {
-          _error?.value = error.toString();
+          _error.value = error.toString();
           _setLoading(false);
           return Failure(error);
         },
       );
     } catch (e) {
-      _error?.value = e.toString();
+      _error.value = e.toString();
       _setLoading(false);
       return Failure(Exception('Erro ao criar banco ortopédico: $e'));
     }
@@ -104,13 +104,13 @@ class OrthopedicBanksController extends GetxController {
           return Success(bank);
         },
         (error) async {
-          _error?.value = error.toString();
+          _error.value = error.toString();
           _setLoading(false);
           return Failure(error);
         },
       );
     } catch (e) {
-      _error?.value = e.toString();
+      _error.value = e.toString();
       _setLoading(false);
       return Failure(Exception('Erro ao atualizar banco ortopédico: $e'));
     }
@@ -130,13 +130,13 @@ class OrthopedicBanksController extends GetxController {
           return Success(success);
         },
         (error) async {
-          _error?.value = error.toString();
+          _error.value = error.toString();
           _setLoading(false);
           return Failure(error);
         },
       );
     } catch (e) {
-      _error?.value = e.toString();
+      _error.value = e.toString();
       _setLoading(false);
       return Failure(Exception('Erro ao deletar banco ortopédico: $e'));
     }
@@ -146,10 +146,5 @@ class OrthopedicBanksController extends GetxController {
     if (_isLoading.value != loading) {
       _isLoading.value = loading;
     }
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
   }
 }

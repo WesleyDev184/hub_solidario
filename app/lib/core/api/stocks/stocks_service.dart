@@ -1,119 +1,39 @@
 import 'package:app/core/api/api_client.dart';
 import 'package:app/core/api/stocks/controllers/stocks_controller.dart';
-import 'package:app/core/api/stocks/models/stocks_models.dart';
 import 'package:app/core/api/stocks/repositories/stocks_repository.dart';
 import 'package:app/core/api/stocks/services/stocks_cache_service.dart';
-import 'package:result_dart/result_dart.dart';
+import 'package:get/get.dart';
 
 /// Serviço principal para operações de stocks
+
 class StocksService {
-  static StocksController? _instance;
-  static bool _isInitialized = false;
+  static StocksService? _instance;
 
-  /// Inicializa o serviço de stocks
-  static Future<void> initialize({required ApiClient apiClient}) async {
-    if (_isInitialized) return;
+  late final StocksController stocksController;
+  final ApiClient apiClient;
 
-    try {
-      final cacheService = StocksCacheService();
-      await cacheService.initialize();
+  StocksService._internal(this.apiClient);
 
-      final repository = StocksRepository(apiClient);
-      final controller = StocksController(repository, cacheService);
-
-      _instance = controller;
-      _isInitialized = true;
-    } catch (e) {
-      throw Exception('Erro ao inicializar StocksService: $e');
-    }
-  }
-
-  /// Verifica se o serviço está inicializado
-  static bool get isInitialized => _isInitialized;
-
-  /// Obtém a instância do controller
-  static StocksController? get instance => _instance;
-
-  /// Garante que o serviço está inicializado
-  static Future<void> ensureInitialized() async {
-    if (!_isInitialized) {
+  static StocksService get instance {
+    if (_instance == null) {
       throw Exception(
-        'StocksService não foi inicializado. Chame StocksService.initialize() primeiro.',
+        'StocksService não inicializado. Chame initialize() primeiro.',
       );
     }
+    return _instance!;
   }
 
-  /// Reinicializa o serviço
-  static Future<void> reinitialize({required ApiClient apiClient}) async {
-    _isInitialized = false;
-    _instance = null;
-    await initialize(apiClient: apiClient);
-  }
+  static Future<void> initialize(ApiClient apiClient) async {
+    final service = StocksService._internal(apiClient);
+    final cacheService = StocksCacheService();
+    await cacheService.initialize();
 
-  /// Encerra o serviço
-  static Future<void> dispose() async {
-    if (_instance != null) {
-      await _instance!.clearData();
-    }
-    _instance = null;
-    _isInitialized = false;
-  }
-
-  // === MÉTODOS DE CONVENIÊNCIA ===
-
-  /// Busca stocks por banco ortopédico
-  static AsyncResult<List<Stock>> getStocksByOrthopedicBank({
-    bool forceRefresh = false,
-  }) async {
-    await ensureInitialized();
-    return _instance!.loadStocksByOrthopedicBank(forceRefresh: forceRefresh);
-  }
-
-  /// Cria um novo stock
-  static AsyncResult<String> createStock(CreateStockRequest request) async {
-    await ensureInitialized();
-    return _instance!.createStock(request);
-  }
-
-  /// Atualiza um stock existente
-  static AsyncResult<Stock> updateStock(
-    String stockId,
-    UpdateStockRequest request,
-  ) async {
-    await ensureInitialized();
-    return _instance!.updateStock(stockId, request);
-  }
-
-  /// Atualiza o cache de um stock
-  static Future<void> cacheStock(Stock stock) async {
-    await ensureInitialized();
-    return _instance!.cacheStock(stock);
-  }
-
-  /// Deleta um stock
-  static AsyncResult<bool> deleteStock(String stockId) async {
-    await ensureInitialized();
-    return _instance!.deleteStock(stockId);
-  }
-
-  /// Limpa todos os dados
-  static Future<void> clearData() async {
-    if (_instance != null) {
-      await _instance!.clearData();
-    }
-  }
-
-  // === GETTERS DE ESTADO ===
-
-  /// Indica se está carregando
-  static bool get isLoading {
-    if (!_isInitialized || _instance == null) return false;
-    return _instance!.isLoading;
-  }
-
-  /// Mensagem de erro, se houver
-  static String? get error {
-    if (!_isInitialized || _instance == null) return null;
-    return _instance!.error;
+    final repository = StocksRepository(apiClient);
+    service.stocksController = StocksController(
+      repository: repository,
+      cacheService: cacheService,
+    );
+    Get.put<StocksController>(service.stocksController, permanent: true);
+    _instance = service;
   }
 }

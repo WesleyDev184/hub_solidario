@@ -1,6 +1,6 @@
 import 'package:app/core/middleware/middlewares.dart';
 import 'package:app/core/widgets/auth_builder.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:routefly/routefly.dart';
 
 import 'app.route.dart';
@@ -18,7 +18,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return CupertinoApp.router(
       builder: (context, child) {
         return AuthBuilder(child: child!);
       },
@@ -26,6 +26,12 @@ class _AppState extends State<App> {
         routes: routes,
         initialPath: routePaths.path,
         middlewares: [Middlewares().checkUserPermissions],
+        routeBuilder: (context, settings, child) {
+          return CupertinoPageRoute(
+            settings: settings, // !! IMPORTANT !!
+            builder: (context) => child,
+          );
+        },
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:app/app.dart';
+import 'package:app/core/api/stocks/controllers/stocks_controller.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:routefly/routefly.dart';
 
 class ProductsPage extends StatelessWidget {
@@ -8,29 +10,33 @@ class ProductsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final products = [
-      {'id': 1, 'name': 'Produto 1'},
-      {'id': 2, 'name': 'Produto 2'},
-      {'id': 3, 'name': 'Produto 3'},
-    ];
+    final stocksController = Get.find<StocksController>();
     return Scaffold(
       appBar: AppBarCustom(title: 'Produtos', initialRoute: true),
-      body: ListView.builder(
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return ListTile(
-            title: Text(product['name'] as String),
-            onTap: () {
-              Routefly.pushNavigate(
-                routePaths.products.$id.changes({
-                  'id': product['id'].toString(),
-                }),
-              );
-            },
-          );
-        },
-      ),
+      body: Obx(() {
+        final stocks = stocksController.allStocks;
+        if (stocksController.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (stocks.isEmpty) {
+          return const Center(child: Text('Nenhum produto encontrado.'));
+        }
+        return ListView.builder(
+          itemCount: stocks.length,
+          itemBuilder: (context, index) {
+            final stock = stocks[index];
+            return ListTile(
+              title: Text(stock.title.toString()),
+              subtitle: Text(stock.id),
+              onTap: () {
+                Routefly.push(
+                  routePaths.products.$id.changes({'id': stock.id}),
+                );
+              },
+            );
+          },
+        );
+      }),
     );
   }
 }

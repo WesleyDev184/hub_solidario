@@ -6,133 +6,144 @@ import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
 /// Controller para gerenciar operações de stocks
-class StocksController {
-  final StocksRepository _repository;
-  final StocksCacheService _cacheService;
-  final authController = Get.find<AuthController>();
 
-  bool _isLoading = false;
-  String? _error;
+class StocksController extends GetxController {
+  late final StocksRepository repository;
+  late final StocksCacheService cacheService;
+  final AuthController authController = Get.find<AuthController>();
 
-  StocksController(this._repository, this._cacheService);
+  final RxBool _isLoading = false.obs;
+  final RxString _error = ''.obs;
+  final RxList<Stock> _stocks = <Stock>[].obs;
 
-  /// Indica se está carregando
-  bool get isLoading => _isLoading;
+  StocksController({required this.repository, required this.cacheService});
 
-  /// Mensagem de erro, se houver
-  String? get error => _error;
+  bool get isLoading => _isLoading.value;
+  String? get error => _error.value.isEmpty ? null : _error.value;
+  List<Stock> get allStocks => _stocks.toList();
 
-  /// Busca stocks por banco ortopédico
+  @override
+  void onInit() async {
+    super.onInit();
+    // Carrega os stocks ao iniciar o controller
+    await loadStocksByOrthopedicBank();
+  }
+
   AsyncResult<List<Stock>> loadStocksByOrthopedicBank({
     bool forceRefresh = false,
   }) async {
     try {
-      _isLoading = true;
-
+      _isLoading.value = true;
       final orthopedicBankId = authController.getOrthopedicBankId;
       if (orthopedicBankId == null) {
-        _isLoading = false;
+        _isLoading.value = false;
         return Failure(
           Exception('Usuário não possui banco ortopédico associado.'),
         );
       }
-
-      // Verifica cache primeiro, se não for refresh forçado
       if (!forceRefresh) {
-        final cachedStocks = await _cacheService.getCachedStocksByBank(
+        final cachedStocks = await cacheService.getCachedStocksByBank(
           orthopedicBankId,
         );
         if (cachedStocks != null) {
+          _stocks.assignAll(cachedStocks);
+          _isLoading.value = false;
           return Success(cachedStocks);
         }
       }
-
-      // Busca da API
-      final result = await _repository.getStocksByOrthopedicBank(
+      final result = await repository.getStocksByOrthopedicBank(
         orthopedicBankId,
       );
-
-      return result.fold((stocks) {
-        // Salva no cache
-        _cacheService.cacheStocksByBank(orthopedicBankId, stocks);
-
-        return Success(stocks);
+      _isLoading.value = false;
+      return result.fold((list) {
+        cacheService.cacheStocksByBank(orthopedicBankId, list);
+        _stocks.assignAll(list);
+        return Success(list);
       }, (error) => Failure(error));
     } catch (e) {
+      _isLoading.value = false;
       return Failure(Exception('Erro inesperado: $e'));
     }
   }
 
-  /// Cria um novo stock
   AsyncResult<String> createStock(CreateStockRequest request) async {
     try {
-      final result = await _repository.createStock(request);
-
+      _isLoading.value = true;
+      final result = await repository.createStock(request);
+      _isLoading.value = false;
       return result.fold((stock) {
-        _cacheService.cacheStock(stock);
-
+        cacheService.cacheStock(stock);
+        _stocks.add(stock);
         return Success(stock.id);
       }, (error) => Failure(error));
     } catch (e) {
+      _isLoading.value = false;
       return Failure(Exception('Erro inesperado: $e'));
     }
   }
 
-  /// Atualiza um stock existente
   AsyncResult<Stock> updateStock(
     String stockId,
     UpdateStockRequest request,
   ) async {
     try {
-      final result = await _repository.updateStock(stockId, request);
-
+      _isLoading.value = true;
+      final result = await repository.updateStock(stockId, request);
+      _isLoading.value = false;
       return result.fold((stock) {
-        // Atualiza o cache
-        _cacheService.cacheStock(stock);
-
+        cacheService.cacheStock(stock);
+        updateStockInList(stock);
         return Success(stock);
       }, (error) => Failure(error));
     } catch (e) {
+      _isLoading.value = false;
       return Failure(Exception('Erro inesperado: $e'));
     }
   }
 
-  /// Atualiza o cache de um stock
   Future<void> cacheStock(Stock stock) async {
     try {
-      await _cacheService.cacheStock(stock);
+      await cacheService.cacheStock(stock);
+      updateStockInList(stock);
     } catch (e) {
       throw Exception('Erro ao atualizar cache: $e');
     }
   }
 
-  /// Deleta um stock
   AsyncResult<bool> deleteStock(String stockId) async {
     try {
-      final result = await _repository.deleteStock(stockId);
-
+      _isLoading.value = true;
+      final result = await repository.deleteStock(stockId);
+      _isLoading.value = false;
       return result.fold((success) {
         if (success) {
           final orthopedicBankId = authController.getOrthopedicBankId;
           if (orthopedicBankId != null) {
-            _cacheService.removeStockFromCache(
-              orthopedicBankId,
-              stockId,
-            );
+            _stocks.removeWhere((stock) => stock.id == stockId);
+            cacheService.removeStockFromCache(orthopedicBankId, stockId);
           }
         }
-
         return Success(success);
       }, (error) => Failure(error));
     } catch (e) {
+      _isLoading.value = false;
       return Failure(Exception('Erro inesperado: $e'));
     }
   }
 
-  /// Limpa todos os dados locais e cache
   Future<void> clearData() async {
-    _error = null;
-    _isLoading = false;
-    await _cacheService.clearCache();
+    _error.value = '';
+    _isLoading.value = false;
+    _stocks.clear();
+    await cacheService.clearCache();
+  }
+
+  void updateStockInList(Stock stock) {
+    final index = _stocks.indexWhere((s) => s.id == stock.id);
+    if (index != -1) {
+      _stocks[index] = stock;
+    } else {
+      _stocks.add(stock);
+    }
   }
 }
