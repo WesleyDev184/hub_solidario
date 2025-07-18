@@ -1,9 +1,10 @@
-import 'package:app/core/api/auth/auth_service.dart';
+import 'package:app/app.dart';
+import 'package:app/core/api/auth/controllers/auth_controller.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
-import 'package:app/core/theme/custom_colors.dart';
-import 'package:app/app.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:routefly/routefly.dart';
 
@@ -60,26 +61,8 @@ class _SigninFormState extends State<SigninForm> {
     }
 
     try {
-      // Aguarda até que o AuthService esteja completamente inicializado
-      while (!AuthService.isInitialized) {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
-
       // Obtém a instância do AuthController
-      final authController = AuthService.instance;
-      if (authController == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro: Serviço de autenticação não inicializado'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      debugPrint(
-        'Tentando fazer login com email: ${emailController.text.trim()}',
-      );
+      final authController = Get.find<AuthController>();
 
       // Realiza o login
       final result = await authController.login(
@@ -92,7 +75,7 @@ class _SigninFormState extends State<SigninForm> {
           (user) {
             // Login bem-sucedido
             debugPrint('Login bem-sucedido para usuário: ${user.name}');
-            Routefly.navigate('/layout');
+            Routefly.pushNavigate(routePaths.path);
           },
           (error) {
             // Erro no login

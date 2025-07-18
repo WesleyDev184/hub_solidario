@@ -1,74 +1,61 @@
-import 'dart:async';
-
-import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
 import '../models/auth_models.dart';
 import '../repositories/auth_repository.dart';
+import '../services/auth_cache_service.dart';
 
-/// Controlador de autenticação com cache e manipulação otimista
-class AuthController extends ChangeNotifier {
-  final AuthRepository _repository;
+class AuthController extends GetxController {
+  final AuthRepository repository;
+  final AuthCacheService cacheService;
 
-  AuthState _state = const AuthState(status: AuthStatus.unknown);
-  AuthState get state => _state;
+  // Estados reativos
+  final Rx<AuthState> _state = const AuthState(status: AuthStatus.unknown).obs;
+  final RxBool _isLoading = false.obs;
 
-  bool get isAuthenticated => _state.isAuthenticated;
-  bool get isUnauthenticated => _state.isUnauthenticated;
-  bool get isLoading => _isLoading;
+  AuthState get state => _state.value;
+  bool get isAuthenticated => _state.value.isAuthenticated;
+  bool get isUnauthenticated => _state.value.isUnauthenticated;
+  bool get isLoading => _isLoading.value;
+  User? get currentUser => _state.value.user;
+  String? get getOrthopedicBankId => _state.value.user?.orthopedicBank?.id;
+  String? get accessToken => _state.value.token;
 
-  User? get currentUser => _state.user;
-  String? get accessToken => _state.token;
-
-  bool _isLoading = false;
-  StreamController<AuthState>? _stateController;
-
-  AuthController({required AuthRepository repository})
-    : _repository = repository;
-
-  /// Stream do estado de autenticação
-  Stream<AuthState> get stateStream {
-    _stateController ??= StreamController<AuthState>.broadcast();
-    return _stateController!.stream;
+  @override
+  void onInit() {
+    super.onInit();
+    getAuthState();
   }
 
-  /// Inicializa o controlador carregando estado do cache
-  Future<void> initialize() async {
+  AuthController({required this.repository, required this.cacheService});
+
+  AsyncResult<AuthState> getAuthState() async {
     try {
-      _setLoading(true);
-
-      // Carrega estado do cache
-      final cachedState = await _repository.loadCachedAuthState();
-      _updateState(cachedState);
-
-      // Se há token válido, tenta buscar dados atuais do usuário
-      if (cachedState.isAuthenticated && !cachedState.isTokenExpired) {
-        await _refreshCurrentUser();
-      } else if (cachedState.token != null) {
-        // Token expirado, limpa cache
-        await logout();
+      final cachedState = await cacheService.loadAuthState();
+      if (cachedState.status == AuthStatus.unauthenticated ||
+          cachedState.status == AuthStatus.unknown) {
+        return Failure(
+          Exception('Usuário não autenticado ou estado desconhecido'),
+        );
       }
+      _state.value = cachedState;
+      repository.configureApiClientToken(cachedState.token);
+      return Success(cachedState);
     } catch (e) {
-      _updateState(const AuthState(status: AuthStatus.unauthenticated));
-    } finally {
-      _setLoading(false);
+      return Failure(
+        Exception('Erro ao obter estado de autenticação: ${e.toString()}'),
+      );
     }
   }
 
-  /// Realiza login com cache e manipulação otimista
   AsyncResult<User> login(String email, String password) async {
+    _setLoading(true);
     try {
-      _setLoading(true);
-
-      // Realiza login
-      final loginResult = await _repository.login(email, password);
+      final loginResult = await repository.login(email, password);
 
       return await loginResult.fold(
         (tokenResponse) async {
-          notifyListeners(); // Isso irá disparar o listener que configura o token no ApiClient
-
-          // Força configuração do token manualmente também para garantir
-          final tempState = AuthState(
+          final tempState = _state.value.copyWith(
             status: AuthStatus.authenticated,
             token: tokenResponse.accessToken,
             refreshToken: tokenResponse.refreshToken,
@@ -76,111 +63,62 @@ class AuthController extends ChangeNotifier {
               Duration(seconds: tokenResponse.expiresIn),
             ),
           );
-          _updateState(tempState);
 
-          // Salva token no cache
-          debugPrint('AuthController.login: Saving token to cache');
-          await _repository.saveAuthState(tempState);
+          _state.value = tempState;
+          await cacheService.saveTokenData(tokenResponse);
+          repository.configureApiClientToken(tokenResponse.accessToken);
 
-          // Aguarda um pouco para garantir que o token foi configurado
-          await Future.delayed(const Duration(milliseconds: 100));
-
-          // Busca dados do usuário
-          debugPrint('AuthController.login: Fetching user data');
-          final userResult = await _repository.getCurrentUser();
-
+          final userResult = await repository.getCurrentUser();
           return await userResult.fold(
             (user) async {
-              debugPrint(
-                'AuthController.login: User data fetched successfully',
-              );
-
-              // Estado final com usuário completo
-              final finalState = AuthState(
-                status: AuthStatus.authenticated,
-                user: user,
-                token: tokenResponse.accessToken,
-                refreshToken: tokenResponse.refreshToken,
-                tokenExpiry: DateTime.now().add(
-                  Duration(seconds: tokenResponse.expiresIn),
-                ),
-              );
-
-              _updateState(finalState);
-              await _repository.saveAuthState(finalState);
-
-              debugPrint(
-                'AuthController.login: Login completed successfully for: ${user.email}',
-              );
+              final finalState = tempState.copyWith(user: user);
+              _state.value = finalState;
+              await cacheService.saveAuthState(finalState);
+              await cacheService.addUserToAllUsers(user);
               return Success(user);
             },
             (error) async {
-              debugPrint(
-                'AuthController.login: Failed to fetch user data: $error',
-              );
-
-              // Falhou ao buscar usuário, mas login foi bem-sucedido
-              // Mantém estado autenticado mas sem dados do usuário
-              final partialState = AuthState(
-                status: AuthStatus.authenticated,
-                token: tokenResponse.accessToken,
-                refreshToken: tokenResponse.refreshToken,
-                tokenExpiry: DateTime.now().add(
-                  Duration(seconds: tokenResponse.expiresIn),
-                ),
-              );
-
-              _updateState(partialState);
-              await _repository.saveAuthState(partialState);
-
-              debugPrint(
-                'AuthController.login: Login successful but failed to get user data: $error',
-              );
+              await cacheService.saveAuthState(tempState);
               return Failure(error);
             },
           );
         },
         (error) async {
-          debugPrint('AuthController.login: Login API call failed: $error');
-          _updateState(const AuthState(status: AuthStatus.unauthenticated));
+          _state.value = const AuthState(status: AuthStatus.unauthenticated);
+          await cacheService.clearAuthData();
           return Failure(error);
         },
       );
     } catch (e) {
-      debugPrint('AuthController.login: Exception during login: $e');
-      _updateState(const AuthState(status: AuthStatus.unauthenticated));
-      return Failure(Exception('Erro interno no login: ${e.toString()}'));
+      _state.value = const AuthState(status: AuthStatus.unauthenticated);
+      await cacheService.clearAuthData();
+      return Failure(Exception('Erro interno: ${e.toString()}'));
     } finally {
       _setLoading(false);
     }
   }
 
-  /// Realiza logout com limpeza de cache
-  Future<void> logout() async {
+  AsyncResult<bool> signup(CreateUserRequest request) async {
+    _setLoading(true);
     try {
-      _setLoading(true);
+      final result = await repository.createUser(request);
 
-      debugPrint('Starting logout process');
-
-      // Atualização otimista - limpa estado imediatamente
-      _updateState(const AuthState(status: AuthStatus.unauthenticated));
-
-      // Tenta fazer logout no servidor
-      await _repository.logout();
-
-      // Limpa cache local
-      await _repository.clearAuthCache();
-
-      debugPrint('Logout completed');
+      return result.fold(
+        (user) async {
+          return Success(user);
+        },
+        (error) async {
+          return Failure(error);
+        },
+      );
     } catch (e) {
-      debugPrint('Logout error: $e');
-      // Mesmo com erro, mantém estado deslogado
+      return Failure(Exception('Erro interno: ${e.toString()}'));
     } finally {
       _setLoading(false);
     }
   }
 
-  /// Atualiza dados do usuário atual com cache otimista
+  /// Atualiza usuário atual (com cache otimista)
   AsyncResult<User> updateCurrentUser(UpdateUserRequest request) async {
     if (!isAuthenticated || currentUser == null) {
       return Failure(Exception('Usuário não autenticado'));
@@ -189,206 +127,128 @@ class AuthController extends ChangeNotifier {
     try {
       _setLoading(true);
 
-      // Cria versão otimista do usuário
       final optimisticUser = currentUser!.copyWith(
         name: request.name ?? currentUser!.name,
         email: request.email ?? currentUser!.email,
         phoneNumber: request.phoneNumber ?? currentUser!.phoneNumber,
       );
 
-      // Atualização otimista
-      final optimisticState = _state.copyWith(user: optimisticUser);
+      final optimisticState = state.copyWith(user: optimisticUser);
       _updateState(optimisticState);
+      await cacheService.saveUser(optimisticUser);
 
-      // Salva no cache
-      await _repository.saveAuthState(optimisticState);
-
-      // Faz a requisição real
-      final updateResult = await _repository.updateCurrentUser(request);
+      final updateResult = await repository.updateCurrentUser(request);
 
       return await updateResult.fold(
         (success) async {
-          // Busca dados atualizados do servidor
-          final userResult = await _repository.getCurrentUser();
+          final userResult = await repository.getCurrentUser();
 
           return await userResult.fold(
             (updatedUser) async {
-              final finalState = _state.copyWith(user: updatedUser);
+              final finalState = state.copyWith(user: updatedUser);
               _updateState(finalState);
-              await _repository.saveAuthState(finalState);
-
-              debugPrint('User updated successfully');
+              await cacheService.saveUser(updatedUser);
+              await cacheService.addUserToAllUsers(updatedUser);
               return Success(updatedUser);
             },
             (error) async {
-              // Falhou ao buscar dados atualizados, mantém versão otimista
-              debugPrint(
-                'Update successful but failed to refresh user data: $error',
-              );
+              // Caso erro ao obter user após update, mantém otimista
               return Success(optimisticUser);
             },
           );
         },
         (error) async {
-          // Reverte para versão original
-          _updateState(_state.copyWith(user: currentUser));
-          await _repository.saveAuthState(_state);
-
-          debugPrint('User update failed: $error');
+          // Reverte estado para user anterior
+          _updateState(state.copyWith(user: currentUser));
+          await cacheService.saveUser(currentUser!);
           return Failure(error);
         },
       );
     } catch (e) {
-      // Reverte para versão original em caso de erro
-      _updateState(_state.copyWith(user: currentUser));
-      await _repository.saveAuthState(_state);
-
-      debugPrint('User update error: $e');
+      _updateState(state.copyWith(user: currentUser));
+      await cacheService.saveUser(currentUser!);
       return Failure(Exception('Erro ao atualizar usuário: ${e.toString()}'));
     } finally {
       _setLoading(false);
     }
   }
 
-  /// Cria um novo usuário
-  AsyncResult<bool> createUser(CreateUserRequest request) async {
+  /// Busca usuário por ID (prioriza cache)
+  AsyncResult<User> getUserById(String id) async {
     try {
-      _setLoading(true);
+      final cachedUser = await cacheService.findUserInAllUsers(id);
+      if (cachedUser != null) return Success(cachedUser);
 
-      debugPrint('Creating user: ${request.email}');
-
-      return await _repository.createUser(request);
+      final result = await repository.getUserById(id);
+      return await result.fold((user) async {
+        await cacheService.addUserToAllUsers(user);
+        return Success(user);
+      }, (error) async => Failure(error));
     } catch (e) {
-      debugPrint('Create user error: $e');
-      return Failure(Exception('Erro ao criar usuário: ${e.toString()}'));
-    } finally {
-      _setLoading(false);
+      return Failure(Exception('Erro ao obter usuário: ${e.toString()}'));
     }
   }
 
-  /// Obtém usuário por ID
-  AsyncResult<User> getUserById(String id) async {
-    return await _repository.getUserById(id);
-  }
-
-  /// Obtém usuários por banco ortopédico
+  /// Busca todos os usuários do banco ortopédico (prioriza cache)
   AsyncResult<List<User>> getAllUsers(String bankId) async {
     try {
-      debugPrint('Getting users by orthopedic bank: $bankId');
+      final hasCache = await cacheService.hasAllUsersCache();
+      if (hasCache) {
+        final cachedUsers = await cacheService.loadAllUsers();
+        if (cachedUsers.isNotEmpty) return Success(cachedUsers);
+      }
 
-      // Primeiro, tenta carregar do cache
-      final cachedUsers = await _repository.getUsersByOrthopedicBank(bankId);
-
-      return await cachedUsers.fold(
-        (users) async {
-          if (users.isNotEmpty) {
-            return Success(users);
-          } else {
-            debugPrint('No users found');
-            return Success(<User>[]);
-          }
-        },
-        (error) {
-          debugPrint('Get users by orthopedic bank failed: $error');
-          return Failure(error);
-        },
-      );
+      final allUsers = await repository.getUsersByOrthopedicBank(bankId);
+      return await allUsers.fold((users) async {
+        await cacheService.saveAllUsers(users);
+        return Success(users);
+      }, (error) async => Failure(error));
     } catch (e) {
-      debugPrint('Get users by orthopedic bank error: $e');
       return Failure(Exception('Erro ao obter usuários: ${e.toString()}'));
     }
   }
 
-  /// Obtém todos os usuários forçando refresh do servidor
-  AsyncResult<List<User>> refreshAllUsers() async {
+  Future<void> logout() async {
+    _setLoading(true);
     try {
-      _setLoading(true);
-      debugPrint('Forçando atualização de todos os usuários');
-
-      return await _repository.getAllUsersFromServer();
+      _state.value = const AuthState(status: AuthStatus.unauthenticated);
+      await cacheService.clearAuthData();
+      await repository.logout();
     } catch (e) {
-      debugPrint('Erro ao atualizar todos os usuários: $e');
-      return Failure(Exception('Erro ao atualizar usuários: ${e.toString()}'));
+      print("Erro no logout: $e");
     } finally {
       _setLoading(false);
     }
   }
 
-  /// Deleta usuário
+  /// Deleta usuário e atualiza cache
   AsyncResult<bool> deleteUser(String id) async {
-    return await _repository.deleteUser(id);
-  }
-
-  /// Atualiza dados do usuário atual do servidor
-  Future<void> refreshCurrentUser() async {
-    if (!isAuthenticated) return;
-
-    await _refreshCurrentUser();
-  }
-
-  /// Força atualização do estado
-  void forceUpdate() {
-    notifyListeners();
-    _stateController?.add(_state);
-  }
-
-  /// Limpa estado de autenticação
-  Future<void> clearAuthState() async {
-    await logout();
-  }
-
-  // Métodos privados
-
-  void _updateState(AuthState newState) {
-    if (_state != newState) {
-      _state = newState;
-      debugPrint(
-        'AuthController._updateState: Auth state updated: ${newState.status}',
-      );
-      debugPrint(
-        'AuthController._updateState: Has token: ${newState.token != null}',
-      );
-      debugPrint(
-        'AuthController._updateState: Has user: ${newState.user != null}',
-      );
-      notifyListeners();
-      _stateController?.add(newState);
-    }
-  }
-
-  void _setLoading(bool loading) {
-    if (_isLoading != loading) {
-      _isLoading = loading;
-      debugPrint('Auth loading state: $loading');
-      notifyListeners();
-    }
-  }
-
-  Future<void> _refreshCurrentUser() async {
-    if (!isAuthenticated) return;
-
     try {
-      final userResult = await _repository.getCurrentUser();
-
-      await userResult.fold(
-        (user) async {
-          final updatedState = _state.copyWith(user: user);
-          _updateState(updatedState);
-          await _repository.saveAuthState(updatedState);
-        },
-        (error) {
-          debugPrint('Failed to refresh current user: $error');
-          // Não atualiza estado em caso de erro, mantém dados em cache
-        },
-      );
+      final result = await repository.deleteUser(id);
+      return await result.fold((success) async {
+        if (success) await cacheService.removeUserFromAllUsers(id);
+        return Success(success);
+      }, (error) async => Failure(error));
     } catch (e) {
-      debugPrint('Error refreshing current user: $e');
+      return Failure(Exception('Erro ao deletar usuário: ${e.toString()}'));
     }
   }
 
   @override
-  void dispose() {
-    _stateController?.close();
-    super.dispose();
+  void onClose() {
+    // Qualquer limpeza aqui se precisar
+    super.onClose();
+  }
+
+  void _updateState(AuthState newState) {
+    if (_state.value != newState) {
+      _state.value = newState;
+    }
+  }
+
+  void _setLoading(bool loading) {
+    if (_isLoading.value != loading) {
+      _isLoading.value = loading;
+    }
   }
 }

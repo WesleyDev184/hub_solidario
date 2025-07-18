@@ -2,12 +2,14 @@ import 'package:app/core/api/auth/auth.dart';
 import 'package:app/core/api/stocks/models/stocks_models.dart';
 import 'package:app/core/api/stocks/repositories/stocks_repository.dart';
 import 'package:app/core/api/stocks/services/stocks_cache_service.dart';
+import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
 /// Controller para gerenciar operações de stocks
 class StocksController {
   final StocksRepository _repository;
   final StocksCacheService _cacheService;
+  final authController = Get.find<AuthController>();
 
   bool _isLoading = false;
   String? _error;
@@ -27,7 +29,7 @@ class StocksController {
     try {
       _isLoading = true;
 
-      final orthopedicBankId = AuthService.currentUser?.orthopedicBank?.id;
+      final orthopedicBankId = authController.getOrthopedicBankId;
       if (orthopedicBankId == null) {
         _isLoading = false;
         return Failure(
@@ -111,10 +113,10 @@ class StocksController {
 
       return result.fold((success) {
         if (success) {
-          final temp = AuthService.currentUser;
-          if (temp != null && temp.orthopedicBank != null) {
+          final orthopedicBankId = authController.getOrthopedicBankId;
+          if (orthopedicBankId != null) {
             _cacheService.removeStockFromCache(
-              temp.orthopedicBank!.id,
+              orthopedicBankId,
               stockId,
             );
           }

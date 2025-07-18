@@ -1,12 +1,13 @@
-import 'package:app/core/api/auth/auth_service.dart';
+import 'package:app/app.dart';
+import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/api/auth/models/auth_models.dart';
 import 'package:app/core/api/orthopedic_banks/orthopedic_banks_service.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
 import 'package:app/core/widgets/select_field.dart';
-import 'package:app/core/theme/custom_colors.dart';
-import 'package:app/app.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:routefly/routefly.dart';
 
@@ -48,16 +49,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
     try {
       // Obtém a instância do AuthController
-      final authController = AuthService.instance;
-      if (authController == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro: Serviço de autenticação não inicializado'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
+      final authController = Get.find<AuthController>();
 
       // Cria a requisição de criação de usuário
       final createUserRequest = CreateUserRequest(
@@ -69,7 +61,7 @@ class _SignUpFormState extends State<SignUpForm> {
       );
 
       // Cria o usuário
-      final result = await authController.createUser(createUserRequest);
+      final result = await authController.signup(createUserRequest);
 
       if (context.mounted) {
         result.fold(
@@ -89,19 +81,11 @@ class _SignUpFormState extends State<SignUpForm> {
                   if (context.mounted) {
                     loginResult.fold(
                       (user) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/layout',
-                          (route) => false,
-                        );
+                        Routefly.pushNavigate(routePaths.path);
                       },
                       (error) {
                         // Conta criada mas login falhou - vai para tela de login
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/signin',
-                          (route) => false,
-                        );
+                        Routefly.pushNavigate(routePaths.auth.signin);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(

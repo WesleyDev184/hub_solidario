@@ -1,10 +1,11 @@
-import 'package:app/core/api/auth/auth_service.dart';
-import 'package:app/core/widgets/button.dart';
-import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/app.dart';
+import 'package:app/core/api/auth/controllers/auth_controller.dart';
+import 'package:app/core/theme/custom_colors.dart';
+import 'package:app/core/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:routefly/routefly.dart';
 
@@ -31,8 +32,15 @@ class AppBarCustom extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppBarCustomState extends State<AppBarCustom> {
+  late final AuthController authController;
+
+  @override
+  void initState() {
+    super.initState();
+    authController = Get.find<AuthController>();
+  }
+
   Future<void> _handleLogout() async {
-    // Mostra um dialog de confirmação
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -53,19 +61,11 @@ class _AppBarCustomState extends State<AppBarCustom> {
 
     if (shouldLogout == true && mounted) {
       try {
-        // Obtém a instância do AuthController
-        final authController = AuthService.instance;
-        if (authController != null) {
-          // Realiza o logout
-          await authController.logout();
-        }
-
-        // Navega para a tela de login
+        await authController.logout();
         if (mounted) {
           Routefly.pushNavigate(routePaths.auth.signin);
         }
-      } catch (e) {
-        // Em caso de erro, ainda assim navega para a tela de login
+      } catch (_) {
         if (mounted) {
           Routefly.pushNavigate(routePaths.auth.signin);
         }
@@ -91,7 +91,6 @@ class _AppBarCustomState extends State<AppBarCustom> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Ícone à esquerda
                   !widget.initialRoute
                       ? IconButton(
                           icon: Icon(
@@ -109,14 +108,11 @@ class _AppBarCustomState extends State<AppBarCustom> {
                         )
                       : IconButton(
                           icon: Icon(LucideIcons.info),
-                          onPressed: () {
-                            Routefly.pushNavigate(routePaths.info);
-                          },
+                          onPressed: () =>
+                              Routefly.pushNavigate(routePaths.info),
                           color: _primaryColor,
                         ),
-                  // Espaço pequeno
                   const SizedBox(width: 4),
-                  // Título centralizado, ocupa o espaço restante
                   Expanded(
                     child: Container(
                       alignment: Alignment.center,
@@ -133,11 +129,10 @@ class _AppBarCustomState extends State<AppBarCustom> {
                       ),
                     ),
                   ),
-                  // Espaço pequeno
                   const SizedBox(width: 4),
-                  // Ícone à direita
                   IconButton(
                     icon: Icon(LucideIcons.menu),
+                    color: _primaryColor,
                     onPressed: () {
                       showGeneralDialog(
                         context: context,
@@ -176,94 +171,84 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                             ),
                                           ),
                                         ),
-                                        // ...existing code...
-                                        Builder(
-                                          builder: (context) {
-                                            final authController =
-                                                AuthService.instance;
-                                            final user =
-                                                authController?.currentUser;
-                                            return Column(
-                                              children: [
-                                                ListTile(
-                                                  leading: Icon(
-                                                    LucideIcons.idCard,
-                                                    color: CustomColors
-                                                        .textPrimary,
-                                                  ),
-                                                  title: Text(
-                                                    user?.name ??
-                                                        'Nome não disponível',
-                                                  ),
-                                                ),
-                                                const Divider(),
-                                                ListTile(
-                                                  leading: Icon(
-                                                    LucideIcons.mail,
-                                                    color: CustomColors
-                                                        .textPrimary,
-                                                  ),
-                                                  title: Text(
-                                                    user?.email ??
-                                                        'Email não disponível',
-                                                  ),
-                                                ),
-                                                const Divider(),
-                                                ListTile(
-                                                  leading: Icon(
-                                                    LucideIcons.phone,
-                                                    color: CustomColors
-                                                        .textPrimary,
-                                                  ),
-                                                  title: Text(
-                                                    user?.phoneNumber ??
-                                                        'Telefone não disponível',
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        ),
-                                        const Spacer(),
-                                        Builder(
-                                          builder: (context) {
-                                            final authController =
-                                                AuthService.instance;
-                                            final user =
-                                                authController?.currentUser;
-                                            final orthopedicBank =
-                                                user?.orthopedicBank;
-                                            return Card(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 8,
-                                                  ),
-                                              elevation: 4,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: ListTile(
+                                        Obx(() {
+                                          final user =
+                                              authController.currentUser;
+                                          return Column(
+                                            children: [
+                                              ListTile(
                                                 leading: Icon(
-                                                  LucideIcons.building2,
-                                                  color: CustomColors.primary,
+                                                  LucideIcons.idCard,
+                                                  color:
+                                                      CustomColors.textPrimary,
                                                 ),
                                                 title: Text(
-                                                  orthopedicBank?.name ??
-                                                      'Banco não disponível',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                subtitle: Text(
-                                                  orthopedicBank?.city ??
-                                                      'Cidade não disponível',
+                                                  user?.name ??
+                                                      'Nome não disponível',
                                                 ),
                                               ),
-                                            );
-                                          },
-                                        ),
+                                              const Divider(),
+                                              ListTile(
+                                                leading: Icon(
+                                                  LucideIcons.mail,
+                                                  color:
+                                                      CustomColors.textPrimary,
+                                                ),
+                                                title: Text(
+                                                  user?.email ??
+                                                      'Email não disponível',
+                                                ),
+                                              ),
+                                              const Divider(),
+                                              ListTile(
+                                                leading: Icon(
+                                                  LucideIcons.phone,
+                                                  color:
+                                                      CustomColors.textPrimary,
+                                                ),
+                                                title: Text(
+                                                  user?.phoneNumber ??
+                                                      'Telefone não disponível',
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }),
+                                        const Spacer(),
+                                        Obx(() {
+                                          final user =
+                                              authController.currentUser;
+                                          final orthopedicBank =
+                                              user?.orthopedicBank;
+                                          return Card(
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 8,
+                                            ),
+                                            elevation: 4,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: ListTile(
+                                              leading: Icon(
+                                                LucideIcons.building2,
+                                                color: CustomColors.primary,
+                                              ),
+                                              title: Text(
+                                                orthopedicBank?.name ??
+                                                    'Banco não disponível',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              subtitle: Text(
+                                                orthopedicBank?.city ??
+                                                    'Cidade não disponível',
+                                              ),
+                                            ),
+                                          );
+                                        }),
                                         const SizedBox(height: 16),
                                         Button(
                                           text: "Sair",
@@ -298,14 +283,13 @@ class _AppBarCustomState extends State<AppBarCustom> {
                               return SlideTransition(
                                 position: Tween<Offset>(
                                   begin: const Offset(1, 0),
-                                  end: Offset(0, 0),
+                                  end: Offset.zero,
                                 ).animate(animation),
                                 child: child,
                               );
                             },
                       );
                     },
-                    color: _primaryColor,
                   ),
                 ],
               ),
