@@ -1,3 +1,4 @@
+import 'package:app/core/middleware/middlewares.dart';
 import 'package:app/core/widgets/auth_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
@@ -24,6 +25,7 @@ class _AppState extends State<App> {
       routerConfig: Routefly.routerConfig(
         routes: routes,
         initialPath: routePaths.path,
+        middlewares: [Middlewares().checkUserPermissions],
       ),
     );
   }

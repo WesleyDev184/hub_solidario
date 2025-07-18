@@ -1,7 +1,7 @@
 import 'package:app/app.dart';
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/api/auth/models/auth_models.dart';
-import 'package:app/core/api/orthopedic_banks/orthopedic_banks_service.dart';
+import 'package:app/core/api/orthopedic_banks/controllers/orthopedic_banks_controller.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
@@ -81,7 +81,12 @@ class _SignUpFormState extends State<SignUpForm> {
                   if (context.mounted) {
                     loginResult.fold(
                       (user) {
-                        Routefly.pushNavigate(routePaths.path);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Bem-vindo, ${user.name}!'),
+                            backgroundColor: CustomColors.success,
+                          ),
+                        );
                       },
                       (error) {
                         // Conta criada mas login falhou - vai para tela de login
@@ -221,29 +226,18 @@ class _SignUpFormState extends State<SignUpForm> {
     });
 
     try {
-      final result = await OrthopedicBanksService.getOrthopedicBanks();
+      final controller = Get.find<OrthopedicBanksController>();
 
-      result.fold(
-        (banks) {
-          setState(() {
-            orthopedicBankItems = banks.map((bank) {
-              return DropdownMenuItem<String>(
-                value: bank.id,
-                child: Text('${bank.name} - ${bank.city}'),
-              );
-            }).toList();
-            isLoadingBanks = false;
-            hasErrorLoadingBanks = false;
-          });
-        },
-        (error) {
-          setState(() {
-            _setErrorState();
-            isLoadingBanks = false;
-            hasErrorLoadingBanks = true;
-          });
-        },
-      );
+      setState(() {
+        orthopedicBankItems = controller.banks.map((bank) {
+          return DropdownMenuItem<String>(
+            value: bank.id,
+            child: Text('${bank.name} - ${bank.city}'),
+          );
+        }).toList();
+        isLoadingBanks = false;
+        hasErrorLoadingBanks = false;
+      });
     } catch (e) {
       setState(() {
         _setErrorState();

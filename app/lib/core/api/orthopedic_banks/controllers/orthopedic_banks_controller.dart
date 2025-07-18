@@ -1,99 +1,155 @@
+import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
 import '../models/orthopedic_banks_models.dart';
 import '../repositories/orthopedic_banks_repository.dart';
 import '../services/orthopedic_banks_cache_service.dart';
 
-/// Controller para gerenciar operações de bancos ortopédicos
-class OrthopedicBanksController {
-  final OrthopedicBanksRepository _repository;
-  final OrthopedicBanksCacheService _cacheService;
+class OrthopedicBanksController extends GetxController {
+  final OrthopedicBanksRepository repository;
+  final OrthopedicBanksCacheService cacheService;
 
-  bool _isLoading = false;
-  String? _error;
+  final RxList<OrthopedicBank> _banks = <OrthopedicBank>[].obs;
+  final RxBool _isLoading = false.obs;
+  final RxString? _error = RxString('');
 
-  OrthopedicBanksController(this._repository, this._cacheService);
+  List<OrthopedicBank> get banks => _banks.toList();
+  bool get isLoading => _isLoading.value;
+  String? get error => _error?.value;
 
-  bool get isLoading => _isLoading;
-  String? get error => _error;
+  OrthopedicBanksController(this.repository, this.cacheService);
 
-  /// Busca todos os bancos ortopédicos
+  @override
+  void onInit() {
+    super.onInit();
+    loadOrthopedicBanks();
+  }
+
   AsyncResult<List<OrthopedicBank>> loadOrthopedicBanks({
     bool forceRefresh = false,
   }) async {
+    _setLoading(true);
     try {
-      _isLoading = true;
-      // Verifica cache primeiro, se não for refresh forçado
       if (!forceRefresh) {
-        final cachedState = await _cacheService.loadOrthopedicBanksState();
+        final cachedState = await cacheService.loadOrthopedicBanksState();
         if (cachedState.isNotEmpty) {
-          _isLoading = false;
+          _banks.value = cachedState;
+          _setLoading(false);
           return Success(cachedState);
         }
       }
-
-      final result = await _repository.getOrthopedicBanks(
+      final result = await repository.getOrthopedicBanks(
         forceRefresh: forceRefresh,
       );
-
-      return result.fold(
+      return await result.fold(
         (banks) async {
-          await _cacheService.saveOrthopedicBanksState(banks);
-          _isLoading = false;
+          _banks.value = banks;
+          await cacheService.saveOrthopedicBanksState(banks);
+          _setLoading(false);
           return Success(banks);
         },
-        (error) {
-          _isLoading = false;
+        (error) async {
+          _error?.value = error.toString();
+          _setLoading(false);
           return Failure(error);
         },
       );
     } catch (e) {
-      _isLoading = false;
+      _error?.value = e.toString();
+      _setLoading(false);
       return Failure(Exception('Erro ao carregar bancos ortopédicos: $e'));
     }
   }
 
-  /// Cria um novo banco ortopédico
   AsyncResult<String> createOrthopedicBank(
     CreateOrthopedicBankRequest request,
   ) async {
+    _setLoading(true);
     try {
-      final result = await _repository.createOrthopedicBank(request);
-      return result.fold((bank) async {
-        await _cacheService.saveOrthopedicBankState(bank);
-        return Success(bank.id);
-      }, (error) => Failure(error));
+      final result = await repository.createOrthopedicBank(request);
+      return await result.fold(
+        (bank) async {
+          _banks.add(bank);
+          await cacheService.saveOrthopedicBankState(bank);
+          _setLoading(false);
+          return Success(bank.id);
+        },
+        (error) async {
+          _error?.value = error.toString();
+          _setLoading(false);
+          return Failure(error);
+        },
+      );
     } catch (e) {
+      _error?.value = e.toString();
+      _setLoading(false);
       return Failure(Exception('Erro ao criar banco ortopédico: $e'));
     }
   }
 
-  /// Atualiza um banco ortopédico
   AsyncResult<OrthopedicBank> updateOrthopedicBank(
     String bankId,
     UpdateOrthopedicBankRequest request,
   ) async {
+    _setLoading(true);
     try {
-      final result = await _repository.updateOrthopedicBank(bankId, request);
-      return result.fold((bank) async {
-        await _cacheService.updateOrthopedicBankState(bank);
-        return Success(bank);
-      }, (error) => Failure(error));
+      final result = await repository.updateOrthopedicBank(bankId, request);
+      return await result.fold(
+        (bank) async {
+          _banks.assignAll(
+            _banks.map((b) => b.id == bank.id ? bank : b).toList(),
+          );
+          await cacheService.updateOrthopedicBankState(bank);
+          _setLoading(false);
+          return Success(bank);
+        },
+        (error) async {
+          _error?.value = error.toString();
+          _setLoading(false);
+          return Failure(error);
+        },
+      );
     } catch (e) {
+      _error?.value = e.toString();
+      _setLoading(false);
       return Failure(Exception('Erro ao atualizar banco ortopédico: $e'));
     }
   }
 
-  /// Deleta um banco ortopédico
   AsyncResult<bool> deleteOrthopedicBank(String bankId) async {
+    _setLoading(true);
     try {
-      final result = await _repository.deleteOrthopedicBank(bankId);
-      return result.fold((_) async {
-        await _cacheService.removeOrthopedicBankState(bankId);
-        return Success(true);
-      }, (error) => Failure(error));
+      final result = await repository.deleteOrthopedicBank(bankId);
+      return await result.fold(
+        (success) async {
+          if (success) {
+            _banks.assignAll(_banks.where((b) => b.id != bankId).toList());
+            await cacheService.removeOrthopedicBankState(bankId);
+          }
+          _setLoading(false);
+          return Success(success);
+        },
+        (error) async {
+          _error?.value = error.toString();
+          _setLoading(false);
+          return Failure(error);
+        },
+      );
     } catch (e) {
+      _error?.value = e.toString();
+      _setLoading(false);
       return Failure(Exception('Erro ao deletar banco ortopédico: $e'));
     }
+  }
+
+  void _setLoading(bool loading) {
+    if (_isLoading.value != loading) {
+      _isLoading.value = loading;
+    }
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
   }
 }

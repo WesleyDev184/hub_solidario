@@ -1,5 +1,7 @@
+import 'package:app/app.dart';
 import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
+import 'package:routefly/routefly.dart';
 
 import '../models/auth_models.dart';
 import '../repositories/auth_repository.dart';
@@ -11,6 +13,7 @@ class AuthController extends GetxController {
 
   // Estados reativos
   final Rx<AuthState> _state = const AuthState(status: AuthStatus.unknown).obs;
+  Rx<AuthState> get stateRx => _state;
   final RxBool _isLoading = false.obs;
 
   AuthState get state => _state.value;
@@ -34,6 +37,9 @@ class AuthController extends GetxController {
       final cachedState = await cacheService.loadAuthState();
       if (cachedState.status == AuthStatus.unauthenticated ||
           cachedState.status == AuthStatus.unknown) {
+        // limpa o cache se não autenticado
+        await cacheService.clearAuthData();
+        _state.value = const AuthState(status: AuthStatus.unauthenticated);
         return Failure(
           Exception('Usuário não autenticado ou estado desconhecido'),
         );
@@ -249,6 +255,27 @@ class AuthController extends GetxController {
   void _setLoading(bool loading) {
     if (_isLoading.value != loading) {
       _isLoading.value = loading;
+    }
+  }
+
+  Future<void> checkUserPermissions(String currentUri) async {
+    final isAuthPage = currentUri.startsWith("/auth");
+    final preventLoop =
+        isAuthPage || currentUri.compareTo(routePaths.path) == 0;
+    final validToken = await cacheService.hasValidToken();
+
+    if (!isAuthenticated && !isAuthPage) {
+      Routefly.pushNavigate(routePaths.auth.signin);
+      await logout();
+    }
+
+    if (isAuthenticated && validToken && preventLoop) {
+      Routefly.pushNavigate(routePaths.products.path);
+    }
+
+    if (isAuthenticated && !validToken) {
+      await logout();
+      Routefly.pushNavigate(routePaths.auth.signin);
     }
   }
 }

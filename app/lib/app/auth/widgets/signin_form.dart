@@ -73,9 +73,12 @@ class _SigninFormState extends State<SigninForm> {
       if (context.mounted) {
         result.fold(
           (user) {
-            // Login bem-sucedido
-            debugPrint('Login bem-sucedido para usuário: ${user.name}');
-            Routefly.pushNavigate(routePaths.path);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Bem-vindo, ${user.name}!'),
+                backgroundColor: CustomColors.success,
+              ),
+            );
           },
           (error) {
             // Erro no login

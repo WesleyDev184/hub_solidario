@@ -183,19 +183,15 @@ class OrthopedicBanksRepository {
   }
 
   /// Deleta um banco ortopédico
-  AsyncResult<void> deleteOrthopedicBank(String bankId) async {
+  AsyncResult<bool> deleteOrthopedicBank(String bankId) async {
     try {
       final result = await _apiClient.delete(
         '/orthopedic-banks/$bankId',
         useAuth: true,
       );
 
-      return result.fold((success) async {
-        try {
-          return Success(());
-        } catch (e) {
-          return Success(()); // Sucesso mesmo se falhar no cache
-        }
+      return result.fold((success) {
+        return Success(true);
       }, (failure) => Failure(failure));
     } catch (e) {
       debugPrint('Error deleting orthopedic bank: $e');
