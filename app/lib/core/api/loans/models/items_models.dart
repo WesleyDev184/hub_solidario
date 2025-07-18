@@ -70,14 +70,12 @@ class Item {
         serialCode: (json['serialCode'] ?? json['seriaCode'] ?? 0) as int,
         status: ItemStatus.fromString(json['status']?.toString() ?? ''),
         stockId: json['stockId']?.toString() ?? '',
-        createdAt:
-            json['createdAt'] != null
-                ? DateTime.parse(json['createdAt'] as String)
-                : DateTime.now(),
-        updatedAt:
-            json['updatedAt'] != null
-                ? DateTime.parse(json['updatedAt'] as String)
-                : null,
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'] as String)
+            : DateTime.now(),
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'] as String)
+            : null,
       );
     } catch (e) {
       throw Exception('Erro ao processar dados do item: $e. JSON: $json');
@@ -196,10 +194,9 @@ class ItemResponse {
   factory ItemResponse.fromJson(Map<String, dynamic> json) {
     return ItemResponse(
       success: json['success'] as bool? ?? false,
-      data:
-          json['data'] != null
-              ? Item.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      data: json['data'] != null
+          ? Item.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       message: json['message'] as String?,
     );
   }
@@ -221,10 +218,9 @@ class ItemListResponse {
 
   factory ItemListResponse.fromJson(Map<String, dynamic> json) {
     final dataList = json['data'] as List<dynamic>? ?? [];
-    final items =
-        dataList
-            .map((item) => Item.fromJson(item as Map<String, dynamic>))
-            .toList();
+    final items = dataList
+        .map((item) => Item.fromJson(item as Map<String, dynamic>))
+        .toList();
 
     return ItemListResponse(
       success: json['success'] as bool? ?? false,
@@ -246,10 +242,9 @@ class UpdateItemResponse {
   factory UpdateItemResponse.fromJson(Map<String, dynamic> json) {
     return UpdateItemResponse(
       success: json['success'] as bool? ?? false,
-      data:
-          json['data'] != null
-              ? Item.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      data: json['data'] != null
+          ? Item.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       message: json['message'] as String?,
     );
   }
@@ -282,58 +277,9 @@ class CreateItemResponse {
     return CreateItemResponse(
       success: json['success'] as bool? ?? false,
       message: json['message'] as String?,
-      data:
-          json['data'] != null
-              ? Item.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      data: json['data'] != null
+          ? Item.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
     );
   }
-}
-
-/// Filtros para busca de items
-class ItemFilters {
-  final ItemStatus? status;
-  final String? stockId;
-  final int? minSerialCode;
-  final int? maxSerialCode;
-  final DateTime? createdAfter;
-  final DateTime? createdBefore;
-
-  const ItemFilters({
-    this.status,
-    this.stockId,
-    this.minSerialCode,
-    this.maxSerialCode,
-    this.createdAfter,
-    this.createdBefore,
-  });
-
-  Map<String, String> toQueryParams() {
-    final Map<String, String> params = {};
-
-    if (status != null) params['status'] = status!.value;
-    if (stockId != null) params['stockId'] = stockId!;
-    if (minSerialCode != null) {
-      params['minSerialCode'] = minSerialCode.toString();
-    }
-    if (maxSerialCode != null) {
-      params['maxSerialCode'] = maxSerialCode.toString();
-    }
-    if (createdAfter != null) {
-      params['createdAfter'] = createdAfter!.toIso8601String();
-    }
-    if (createdBefore != null) {
-      params['createdBefore'] = createdBefore!.toIso8601String();
-    }
-
-    return params;
-  }
-
-  bool get hasFilters =>
-      status != null ||
-      stockId != null ||
-      minSerialCode != null ||
-      maxSerialCode != null ||
-      createdAfter != null ||
-      createdBefore != null;
 }

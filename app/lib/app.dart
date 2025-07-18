@@ -2,6 +2,7 @@ import 'package:app/core/middleware/middlewares.dart';
 import 'package:app/core/widgets/auth_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app.route.dart';
 
@@ -23,6 +24,12 @@ class _AppState extends State<App> {
         return AuthBuilder(child: child!);
       },
       supportedLocales: const [Locale('pt', 'BR')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        // ...outros delegates se necessário...
+      ],
       routerConfig: Routefly.routerConfig(
         routes: routes,
         initialPath: routePaths.path,
