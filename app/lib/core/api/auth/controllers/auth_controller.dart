@@ -1,4 +1,4 @@
-import 'package:app/app.dart';
+import 'package:app/routes.dart';
 import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:routefly/routefly.dart';
@@ -267,21 +267,21 @@ class AuthController extends GetxController {
     final validToken = await cacheService.hasValidToken();
 
     if (!isAuthenticated && !isAuthPage) {
-      Routefly.pushNavigate(routePaths.auth.signin);
+      Routefly.navigate(routePaths.auth.signin);
       if (execLogout) {
         await logout();
       }
     }
 
     if (isAuthenticated && validToken && preventLoop) {
-      Routefly.pushNavigate(routePaths.ptd.stocks.path);
+      Routefly.navigate(routePaths.ptd.stocks.path);
     }
 
     if (isAuthenticated && !validToken) {
       if (execLogout) {
         await logout();
       }
-      Routefly.pushNavigate(routePaths.auth.signin);
+      Routefly.navigate(routePaths.auth.signin);
     }
   }
 }

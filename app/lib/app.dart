@@ -1,14 +1,11 @@
 import 'package:app/core/middleware/middlewares.dart';
 import 'package:app/core/widgets/auth_builder.dart';
+import 'package:app/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:routefly/routefly.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:routefly/routefly.dart';
 
-import 'app.route.dart';
-
-part 'app.g.dart';
-
-@Main('lib/app')
+// @Main('lib/app')
 class App extends StatefulWidget {
   const App({super.key});
 

@@ -1,4 +1,3 @@
-import 'package:app/app.dart';
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/api/auth/models/auth_models.dart';
 import 'package:app/core/api/orthopedic_banks/controllers/orthopedic_banks_controller.dart';
@@ -6,6 +5,7 @@ import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
 import 'package:app/core/widgets/select_field.dart';
+import 'package:app/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';

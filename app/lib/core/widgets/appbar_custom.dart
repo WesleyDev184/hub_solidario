@@ -1,7 +1,7 @@
-import 'package:app/app.dart';
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/button.dart';
+import 'package:app/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -48,11 +48,11 @@ class _AppBarCustomState extends State<AppBarCustom> {
         content: const Text('Tem certeza que deseja sair?'),
         actions: [
           TextButton(
-            onPressed: () => Routefly.pop(context, result: false),
+            onPressed: () => Routefly.pop(context),
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Routefly.pop(context, result: true),
+            onPressed: () => Routefly.pop(context),
             child: const Text('Sair'),
           ),
         ],
@@ -65,7 +65,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
       } catch (_) {
         if (mounted) {
           debugPrint('Erro ao fazer logout');
-          Routefly.pushNavigate(routePaths.auth.signin);
+          Routefly.navigate(routePaths.auth.signin);
         }
       }
     }
@@ -98,7 +98,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                           onPressed: () {
                             if (widget.path != null &&
                                 widget.path!.isNotEmpty) {
-                              Routefly.pushNavigate(widget.path!);
+                              Routefly.navigate(widget.path!);
                             } else {
                               Routefly.pop(context);
                             }
@@ -106,8 +106,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                         )
                       : IconButton(
                           icon: Icon(LucideIcons.info),
-                          onPressed: () =>
-                              Routefly.pushNavigate(routePaths.info),
+                          onPressed: () => Routefly.navigate(routePaths.info),
                           color: _primaryColor,
                         ),
                   const SizedBox(width: 4),
