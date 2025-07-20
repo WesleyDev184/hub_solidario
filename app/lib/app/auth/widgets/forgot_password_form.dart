@@ -59,7 +59,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
       );
 
       // Voltar para a tela de login após enviar
-      Routefly.pushNavigate(routePaths.auth.signin);
+      Routefly.navigate(routePaths.auth.signin);
     }
   }
 
@@ -206,7 +206,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                   GestureDetector(
-                    onTap: () => Routefly.pushNavigate(routePaths.auth.signin),
+                    onTap: () => Routefly.navigate(routePaths.auth.signin),
                     child: Text(
                       "Fazer login",
                       style: TextStyle(

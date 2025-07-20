@@ -207,7 +207,7 @@ class _SigninFormState extends State<SigninForm> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Routefly.pushNavigate(routePaths.auth.forgotPassword);
+                      Routefly.navigate(routePaths.auth.forgotPassword);
                     },
                     child: Text(
                       "Esqueci minha senha",
@@ -256,8 +256,7 @@ class _SigninFormState extends State<SigninForm> {
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          Routefly.pushNavigate(routePaths.auth.signup),
+                      onTap: () => Routefly.navigate(routePaths.auth.signup),
                       child: Text(
                         "Registre-se",
                         style: TextStyle(

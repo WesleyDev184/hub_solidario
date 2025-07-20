@@ -39,7 +39,7 @@ class StocksPage extends StatelessWidget {
               title: Text(stock.title.toString()),
               subtitle: Text(stock.id),
               onTap: () {
-                Routefly.pushNavigate(
+                Routefly.navigate(
                   routePaths.ptd.stocks.$id.changes({'id': stock.id}),
                 );
               },

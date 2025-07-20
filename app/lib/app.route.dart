@@ -7,7 +7,7 @@ import 'app/app_page.dart' as a0;
 import 'app/auth/forgot_password_page.dart' as a9;
 import 'app/auth/signin_page.dart' as a8;
 import 'app/auth/signup_page.dart' as a7;
-import 'app/info/info_page.dart' as a1;
+import 'app/ptd/info/info_page.dart' as a1;
 import 'app/ptd/option2_page.dart' as a4;
 import 'app/ptd/option3_page.dart' as a5;
 import 'app/ptd/ptd_layout.dart' as a6;

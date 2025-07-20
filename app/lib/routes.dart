@@ -4,12 +4,12 @@ import 'app/app_page.dart' as a0;
 import 'app/auth/forgot_password_page.dart' as a9;
 import 'app/auth/signin_page.dart' as a8;
 import 'app/auth/signup_page.dart' as a7;
-import 'app/info/info_page.dart' as a1;
+import 'app/ptd/info/info_page.dart' as a3;
 import 'app/ptd/option2_page.dart' as a4;
 import 'app/ptd/option3_page.dart' as a5;
 import 'app/ptd/ptd_layout.dart' as a6;
-import 'app/ptd/stocks/[id]_page.dart' as a2;
-import 'app/ptd/stocks/stocks_page.dart' as a3;
+import 'app/ptd/stocks/[id]_page.dart' as a1;
+import 'app/ptd/stocks/stocks_page.dart' as a2;
 
 List<RouteEntity> get routes => [
   RouteEntity(
@@ -22,25 +22,26 @@ List<RouteEntity> get routes => [
     ),
   ),
   RouteEntity(
-    key: '/info',
-    uri: Uri.parse('/info'),
-    routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
-      ctx,
-      settings,
-      const a1.InfoPage(),
-    ),
-  ),
-  RouteEntity(
     key: '/ptd/stocks/[id]',
     parent: '/ptd',
     uri: Uri.parse('/ptd/stocks/[id]'),
-    routeBuilder: a2.routeBuilder,
+    routeBuilder: a1.routeBuilder,
   ),
   RouteEntity(
     key: '/ptd/stocks',
     parent: '/ptd',
     uri: Uri.parse('/ptd/stocks'),
-    routeBuilder: a3.routeBuilder,
+    routeBuilder: a2.routeBuilder,
+  ),
+  RouteEntity(
+    key: '/ptd/info',
+    parent: '/ptd',
+    uri: Uri.parse('/ptd/info'),
+    routeBuilder: (ctx, settings) => Routefly.defaultRouteBuilder(
+      ctx,
+      settings,
+      const a3.InfoPage(),
+    ),
   ),
   RouteEntity(
     key: '/ptd/option2',
@@ -94,13 +95,13 @@ List<RouteEntity> get routes => [
 
 const routePaths = (
   path: '/',
-  info: '/info',
   ptd: (
     path: '/ptd',
     stocks: (
       path: '/ptd/stocks',
       $id: '/ptd/stocks/[id]',
     ),
+    info: '/ptd/info',
     option2: '/ptd/option2',
     option3: '/ptd/option3',
   ),

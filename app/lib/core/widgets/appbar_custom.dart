@@ -48,11 +48,15 @@ class _AppBarCustomState extends State<AppBarCustom> {
         content: const Text('Tem certeza que deseja sair?'),
         actions: [
           TextButton(
-            onPressed: () => Routefly.pop(context),
+            onPressed: () {
+              Navigator.of(context).maybePop(false);
+            },
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Routefly.pop(context),
+            onPressed: () {
+              Navigator.of(context).maybePop(true);
+            },
             child: const Text('Sair'),
           ),
         ],
@@ -100,13 +104,14 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                 widget.path!.isNotEmpty) {
                               Routefly.navigate(widget.path!);
                             } else {
-                              Routefly.pop(context);
+                              Routefly.navigate(routePaths.ptd.stocks.path);
                             }
                           },
                         )
                       : IconButton(
                           icon: Icon(LucideIcons.info),
-                          onPressed: () => Routefly.navigate(routePaths.info),
+                          onPressed: () =>
+                              Routefly.navigate(routePaths.ptd.info),
                           color: _primaryColor,
                         ),
                   const SizedBox(width: 4),

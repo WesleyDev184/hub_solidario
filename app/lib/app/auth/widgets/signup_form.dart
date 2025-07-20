@@ -90,7 +90,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       },
                       (error) {
                         // Conta criada mas login falhou - vai para tela de login
-                        Routefly.pushNavigate(routePaths.auth.signin);
+                        Routefly.navigate(routePaths.auth.signin);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
@@ -543,7 +543,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     ),
                     GestureDetector(
                       onTap: () =>
-                          Routefly.pushNavigate(routePaths.auth.signin),
+                          Routefly.navigate(routePaths.auth.signin),
                       child: Text(
                         "Faça login",
                         style: TextStyle(
