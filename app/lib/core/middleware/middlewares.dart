@@ -11,7 +11,7 @@ class Middlewares {
       debugPrint(
         'Mid: checkUserPermissions called with state: ${routeInfo.uri.path}',
       );
-      authController.checkUserPermissions(routeInfo.uri.path);
+      authController.checkUserPermissions(routeInfo.uri.path, true);
     });
 
     return routeInfo;

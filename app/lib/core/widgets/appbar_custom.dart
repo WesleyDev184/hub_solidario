@@ -64,6 +64,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
         await authController.logout();
       } catch (_) {
         if (mounted) {
+          debugPrint('Erro ao fazer logout');
           Routefly.pushNavigate(routePaths.auth.signin);
         }
       }

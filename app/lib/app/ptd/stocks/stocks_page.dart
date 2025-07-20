@@ -5,8 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:routefly/routefly.dart';
 
-class ProductsPage extends StatelessWidget {
-  const ProductsPage({super.key});
+Route routeBuilder(BuildContext context, RouteSettings settings) {
+  return PageRouteBuilder(
+    settings: settings,
+    pageBuilder: (_, a1, a2) => const StocksPage(),
+    transitionsBuilder: (_, a1, a2, child) {
+      return FadeTransition(opacity: a1, child: child);
+    },
+  );
+}
+
+class StocksPage extends StatelessWidget {
+  const StocksPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,21 +39,14 @@ class ProductsPage extends StatelessWidget {
               title: Text(stock.title.toString()),
               subtitle: Text(stock.id),
               onTap: () {
-                Routefly.push(
-                  routePaths.products.$id.changes({'id': stock.id}),
+                Routefly.pushNavigate(
+                  routePaths.ptd.stocks.$id.changes({'id': stock.id}),
                 );
               },
             );
           },
         );
       }),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Routefly.pushNavigate(routePaths.dashboard.option1.path);
-        },
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }

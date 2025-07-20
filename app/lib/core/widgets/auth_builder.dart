@@ -22,7 +22,7 @@ class _AuthBuilderState extends State<AuthBuilder> {
     ever<AuthState>(_authController.stateRx, (state) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         debugPrint('Builder ever: checkUserPermissions called with state');
-        _authController.checkUserPermissions(Routefly.currentUri.path);
+        _authController.checkUserPermissions(Routefly.currentUri.path, false);
       });
     });
   }

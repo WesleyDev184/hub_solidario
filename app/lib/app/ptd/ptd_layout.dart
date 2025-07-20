@@ -2,21 +2,21 @@ import 'package:app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 
-class DashboardLayout extends StatefulWidget {
-  const DashboardLayout({super.key});
+class PtdLayout extends StatefulWidget {
+  const PtdLayout({super.key});
 
   @override
-  State<DashboardLayout> createState() => _DashboardLayoutState();
+  State<PtdLayout> createState() => _PtdLayoutState();
 }
 
-class _DashboardLayoutState extends State<DashboardLayout> {
+class _PtdLayoutState extends State<PtdLayout> {
   int _selectedIndex = 0;
 
-  final List<String> _tabKeys = ['option1', 'option2', 'option3'];
+  final List<String> _tabKeys = ['stocks', 'option2', 'option3'];
   final List<String> _routes = [
-    routePaths.dashboard.option1.path,
-    routePaths.dashboard.option2,
-    routePaths.dashboard.option3,
+    routePaths.ptd.stocks.path,
+    routePaths.ptd.option2,
+    routePaths.ptd.option3,
   ];
 
   final Map<int, String> _tabHistory = {};
@@ -29,6 +29,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
       final uriString = Routefly.currentUri.path;
       for (int i = 0; i < _tabKeys.length; i++) {
         if (uriString.contains(_tabKeys[i])) {
+          debugPrint('Tab history updated for index $i: $uriString');
           _tabHistory[i] = uriString;
         }
       }
@@ -75,10 +76,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
         currentIndex: currentIndex,
         onTap: _onItemTapped,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Option 1',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Stocks'),
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Option 2'),
           BottomNavigationBarItem(icon: Icon(Icons.info), label: 'Option 3'),
         ],

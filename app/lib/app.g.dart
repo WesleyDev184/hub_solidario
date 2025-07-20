@@ -6,78 +6,60 @@ List<RouteEntity> get routes => [
   RouteEntity(key: '/', uri: Uri.parse('/'), routeBuilder: b0Builder),
   RouteEntity(key: '/info', uri: Uri.parse('/info'), routeBuilder: b1Builder),
   RouteEntity(
+    key: '/ptd/stocks/[id]',
+    parent: '/ptd',
+    uri: Uri.parse('/ptd/stocks/[id]'),
+    routeBuilder: b2Builder,
+  ),
+  RouteEntity(
+    key: '/ptd/stocks',
+    parent: '/ptd',
+    uri: Uri.parse('/ptd/stocks'),
+    routeBuilder: b3Builder,
+  ),
+  RouteEntity(
+    key: '/ptd/option2',
+    parent: '/ptd',
+    uri: Uri.parse('/ptd/option2'),
+    routeBuilder: b4Builder,
+  ),
+  RouteEntity(
+    key: '/ptd/option3',
+    parent: '/ptd',
+    uri: Uri.parse('/ptd/option3'),
+    routeBuilder: b5Builder,
+  ),
+  RouteEntity(key: '/ptd', uri: Uri.parse('/ptd'), routeBuilder: b6Builder),
+  RouteEntity(
     key: '/auth/signup',
     uri: Uri.parse('/auth/signup'),
-    routeBuilder: b2Builder,
+    routeBuilder: b7Builder,
   ),
   RouteEntity(
     key: '/auth/signin',
     uri: Uri.parse('/auth/signin'),
-    routeBuilder: b3Builder,
+    routeBuilder: b8Builder,
   ),
   RouteEntity(
     key: '/auth/forgot_password',
     uri: Uri.parse('/auth/forgot_password'),
-    routeBuilder: b4Builder,
-  ),
-  RouteEntity(
-    key: '/dashboard',
-    uri: Uri.parse('/dashboard'),
-    routeBuilder: b5Builder,
-  ),
-  RouteEntity(
-    key: '/dashboard/option2',
-    parent: '/dashboard',
-    uri: Uri.parse('/dashboard/option2'),
-    routeBuilder: b6Builder,
-  ),
-  RouteEntity(
-    key: '/dashboard/option3',
-    parent: '/dashboard',
-    uri: Uri.parse('/dashboard/option3'),
-    routeBuilder: b7Builder,
-  ),
-  RouteEntity(
-    key: '/dashboard/option1',
-    parent: '/dashboard',
-    uri: Uri.parse('/dashboard/option1'),
-    routeBuilder: b8Builder,
-  ),
-  RouteEntity(
-    key: '/dashboard/option1/option4',
-    parent: '/dashboard',
-    uri: Uri.parse('/dashboard/option1/option4'),
     routeBuilder: b9Builder,
-  ),
-  RouteEntity(
-    key: '/products/[id]',
-    uri: Uri.parse('/products/[id]'),
-    routeBuilder: b10Builder,
-  ),
-  RouteEntity(
-    key: '/products',
-    uri: Uri.parse('/products'),
-    routeBuilder: b11Builder,
   ),
 ];
 
 const routePaths = (
   path: '/',
   info: '/info',
+  ptd: (
+    path: '/ptd',
+    stocks: (path: '/ptd/stocks', $id: '/ptd/stocks/[id]'),
+    option2: '/ptd/option2',
+    option3: '/ptd/option3',
+  ),
   auth: (
     path: '/auth',
     signup: '/auth/signup',
     signin: '/auth/signin',
     forgotPassword: '/auth/forgot_password',
   ),
-  dashboard: (
-    path: '/dashboard',
-    option2: '/dashboard/option2',
-    option3: '/dashboard/option3',
-    option1: (
-      path: '/dashboard/option1',
-      option4: '/dashboard/option1/option4',
-    ),
-  ),
-  products: (path: '/products', $id: '/products/[id]'),
 );

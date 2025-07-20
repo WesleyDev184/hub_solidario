@@ -260,7 +260,7 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> checkUserPermissions(String currentUri) async {
+  Future<void> checkUserPermissions(String currentUri, bool execLogout) async {
     final isAuthPage = currentUri.startsWith("/auth");
     final preventLoop =
         isAuthPage || currentUri.compareTo(routePaths.path) == 0;
@@ -268,15 +268,19 @@ class AuthController extends GetxController {
 
     if (!isAuthenticated && !isAuthPage) {
       Routefly.pushNavigate(routePaths.auth.signin);
-      await logout();
+      if (execLogout) {
+        await logout();
+      }
     }
 
     if (isAuthenticated && validToken && preventLoop) {
-      Routefly.pushNavigate(routePaths.products.path);
+      Routefly.pushNavigate(routePaths.ptd.stocks.path);
     }
 
     if (isAuthenticated && !validToken) {
-      await logout();
+      if (execLogout) {
+        await logout();
+      }
       Routefly.pushNavigate(routePaths.auth.signin);
     }
   }

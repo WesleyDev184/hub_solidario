@@ -128,7 +128,5 @@ class LoansCacheService {
     // Remove cache geral
     await _prefs?.remove(_loansCacheKey);
     await _prefs?.remove('${_loansCacheKey}_timestamp');
-
-    debugPrint('LoansCacheService: Todo o cache persistente foi limpo');
   }
 }
