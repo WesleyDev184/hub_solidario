@@ -1,6 +1,7 @@
 import 'package:app/core/api/applicants/models/applicants_models.dart';
 import 'package:app/core/api/applicants/repositories/applicants_repository.dart';
 import 'package:app/core/api/applicants/services/applicants_cache_service.dart';
+import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
@@ -8,6 +9,7 @@ import 'package:result_dart/result_dart.dart';
 class ApplicantsController extends GetxController {
   final ApplicantsRepository _repository;
   final ApplicantsCacheService _cacheService;
+  final AuthController authController = Get.find<AuthController>();
 
   final RxBool _isLoading = false.obs;
   final RxString _error = ''.obs;
@@ -27,7 +29,20 @@ class ApplicantsController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    await loadApplicants();
+
+    // Observa mudanças no estado de autenticação
+    ever(authController.stateRx, (authState) async {
+      if (authState.isAuthenticated) {
+        await loadApplicants();
+      } else {
+        await clearData();
+      }
+    });
+
+    // Carrega applicants se já estiver autenticado
+    if (authController.isAuthenticated) {
+      await loadApplicants();
+    }
   }
 
   /// Carrega todos os applicants

@@ -1,12 +1,12 @@
+import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/api/loans/models/loans_models.dart';
 import 'package:app/core/api/loans/repositories/loans_repository.dart';
 import 'package:app/core/api/loans/services/loans_cache_service.dart';
-
-/// Controller para gerenciar operações de loans
 import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
 class LoansController extends GetxController {
+  final AuthController authController = Get.find<AuthController>();
   final LoansRepository _repository;
   final LoansCacheService _cacheService;
 
@@ -20,7 +20,20 @@ class LoansController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    await loadLoans();
+
+    // Observa mudanças no estado de autenticação
+    ever(authController.stateRx, (authState) async {
+      if (authState.isAuthenticated) {
+        await loadLoans();
+      } else {
+        await clearAllCaches();
+      }
+    });
+
+    // Carrega loans se já estiver autenticado
+    if (authController.isAuthenticated) {
+      await loadLoans();
+    }
   }
 
   /// Indica se está carregando

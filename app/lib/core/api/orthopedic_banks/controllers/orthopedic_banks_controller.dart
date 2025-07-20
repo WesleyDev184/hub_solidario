@@ -1,3 +1,4 @@
+import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
@@ -6,6 +7,7 @@ import '../repositories/orthopedic_banks_repository.dart';
 import '../services/orthopedic_banks_cache_service.dart';
 
 class OrthopedicBanksController extends GetxController {
+  final AuthController authController = Get.find<AuthController>();
   final OrthopedicBanksRepository repository;
   final OrthopedicBanksCacheService cacheService;
 
@@ -20,9 +22,25 @@ class OrthopedicBanksController extends GetxController {
   OrthopedicBanksController(this.repository, this.cacheService);
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    loadOrthopedicBanks();
+
+    // Observa mudanças no estado de autenticação
+    ever(authController.stateRx, (authState) async {
+      if (authState.isAuthenticated) {
+        await loadOrthopedicBanks();
+      } else {
+        _error.value = '';
+        _isLoading.value = false;
+        _banks.clear();
+        // Limpa apenas dados locais, pois não há método de clear no cacheService
+      }
+    });
+
+    // Carrega bancos se já estiver autenticado
+    if (authController.isAuthenticated) {
+      await loadOrthopedicBanks();
+    }
   }
 
   AsyncResult<List<OrthopedicBank>> loadOrthopedicBanks({

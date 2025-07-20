@@ -61,30 +61,32 @@ class AuthController extends GetxController {
 
       return await loginResult.fold(
         (tokenResponse) async {
-          final tempState = _state.value.copyWith(
-            status: AuthStatus.authenticated,
-            token: tokenResponse.accessToken,
-            refreshToken: tokenResponse.refreshToken,
-            tokenExpiry: DateTime.now().add(
-              Duration(seconds: tokenResponse.expiresIn),
-            ),
-          );
-
-          _state.value = tempState;
           await cacheService.saveTokenData(tokenResponse);
           repository.configureApiClientToken(tokenResponse.accessToken);
 
           final userResult = await repository.getCurrentUser();
           return await userResult.fold(
             (user) async {
-              final finalState = tempState.copyWith(user: user);
+              final finalState = _state.value.copyWith(
+                status: AuthStatus.authenticated,
+                token: tokenResponse.accessToken,
+                refreshToken: tokenResponse.refreshToken,
+                tokenExpiry: DateTime.now().add(
+                  Duration(seconds: tokenResponse.expiresIn),
+                ),
+                user: user,
+              );
               _state.value = finalState;
               await cacheService.saveAuthState(finalState);
               await cacheService.addUserToAllUsers(user);
               return Success(user);
             },
             (error) async {
-              await cacheService.saveAuthState(tempState);
+              // Não autentica se não conseguir recuperar usuário
+              _state.value = const AuthState(
+                status: AuthStatus.unauthenticated,
+              );
+              await cacheService.clearAuthData();
               return Failure(error);
             },
           );

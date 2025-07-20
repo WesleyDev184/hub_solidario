@@ -1,4 +1,4 @@
-import 'package:app/core/api/auth/auth.dart';
+import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/api/stocks/models/stocks_models.dart';
 import 'package:app/core/api/stocks/repositories/stocks_repository.dart';
 import 'package:app/core/api/stocks/services/stocks_cache_service.dart';
@@ -25,8 +25,20 @@ class StocksController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    // Carrega os stocks ao iniciar o controller
-    await loadStocksByOrthopedicBank();
+
+    // Observa mudanças no estado de autenticação
+    ever(authController.stateRx, (authState) async {
+      if (authState.isAuthenticated) {
+        await loadStocksByOrthopedicBank();
+      } else {
+        await clearData();
+      }
+    });
+
+    // Carrega stocks se já estiver autenticado
+    if (authController.isAuthenticated) {
+      await loadStocksByOrthopedicBank();
+    }
   }
 
   AsyncResult<List<Stock>> loadStocksByOrthopedicBank({
