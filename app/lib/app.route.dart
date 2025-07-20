@@ -7,9 +7,14 @@ import 'app/app_page.dart' as a0;
 import 'app/auth/forgot_password_page.dart' as a4;
 import 'app/auth/signin_page.dart' as a3;
 import 'app/auth/signup_page.dart' as a2;
+import 'app/dashboard/dashboard_layout.dart' as a5;
+import 'app/dashboard/option1/option1_page.dart' as a8;
+import 'app/dashboard/option1/option4_page.dart' as a9;
+import 'app/dashboard/option2_page.dart' as a6;
+import 'app/dashboard/option3_page.dart' as a7;
 import 'app/info/info_page.dart' as a1;
-import 'app/products/[id]_page.dart' as a5;
-import 'app/products/products_page.dart' as a6;
+import 'app/products/[id]_page.dart' as a10;
+import 'app/products/products_page.dart' as a11;
 
 Route b0Builder(BuildContext ctx, RouteSettings settings) =>
     Routefly.defaultRouteBuilder(ctx, settings, const a0.AppPage());
@@ -22,6 +27,16 @@ Route b3Builder(BuildContext ctx, RouteSettings settings) =>
 Route b4Builder(BuildContext ctx, RouteSettings settings) =>
     Routefly.defaultRouteBuilder(ctx, settings, const a4.ForgotPasswordPage());
 Route b5Builder(BuildContext ctx, RouteSettings settings) =>
-    Routefly.defaultRouteBuilder(ctx, settings, const a5.ProductPage());
-Route b6Builder(BuildContext ctx, RouteSettings settings) =>
-    Routefly.defaultRouteBuilder(ctx, settings, const a6.ProductsPage());
+    Routefly.defaultRouteBuilder(ctx, settings, const a5.DashboardLayout());
+Route b6Builder(BuildContext context, RouteSettings settings) =>
+    a6.routeBuilder(context, settings);
+Route b7Builder(BuildContext context, RouteSettings settings) =>
+    a7.routeBuilder(context, settings);
+Route b8Builder(BuildContext context, RouteSettings settings) =>
+    a8.routeBuilder(context, settings);
+Route b9Builder(BuildContext context, RouteSettings settings) =>
+    a9.routeBuilder(context, settings);
+Route b10Builder(BuildContext ctx, RouteSettings settings) =>
+    Routefly.defaultRouteBuilder(ctx, settings, const a10.ProductPage());
+Route b11Builder(BuildContext ctx, RouteSettings settings) =>
+    Routefly.defaultRouteBuilder(ctx, settings, const a11.ProductsPage());

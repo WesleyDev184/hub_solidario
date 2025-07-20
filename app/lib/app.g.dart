@@ -21,14 +21,43 @@ List<RouteEntity> get routes => [
     routeBuilder: b4Builder,
   ),
   RouteEntity(
+    key: '/dashboard',
+    uri: Uri.parse('/dashboard'),
+    routeBuilder: b5Builder,
+  ),
+  RouteEntity(
+    key: '/dashboard/option2',
+    parent: '/dashboard',
+    uri: Uri.parse('/dashboard/option2'),
+    routeBuilder: b6Builder,
+  ),
+  RouteEntity(
+    key: '/dashboard/option3',
+    parent: '/dashboard',
+    uri: Uri.parse('/dashboard/option3'),
+    routeBuilder: b7Builder,
+  ),
+  RouteEntity(
+    key: '/dashboard/option1',
+    parent: '/dashboard',
+    uri: Uri.parse('/dashboard/option1'),
+    routeBuilder: b8Builder,
+  ),
+  RouteEntity(
+    key: '/dashboard/option1/option4',
+    parent: '/dashboard',
+    uri: Uri.parse('/dashboard/option1/option4'),
+    routeBuilder: b9Builder,
+  ),
+  RouteEntity(
     key: '/products/[id]',
     uri: Uri.parse('/products/[id]'),
-    routeBuilder: b5Builder,
+    routeBuilder: b10Builder,
   ),
   RouteEntity(
     key: '/products',
     uri: Uri.parse('/products'),
-    routeBuilder: b6Builder,
+    routeBuilder: b11Builder,
   ),
 ];
 
@@ -40,6 +69,15 @@ const routePaths = (
     signup: '/auth/signup',
     signin: '/auth/signin',
     forgotPassword: '/auth/forgot_password',
+  ),
+  dashboard: (
+    path: '/dashboard',
+    option2: '/dashboard/option2',
+    option3: '/dashboard/option3',
+    option1: (
+      path: '/dashboard/option1',
+      option4: '/dashboard/option1/option4',
+    ),
   ),
   products: (path: '/products', $id: '/products/[id]'),
 );

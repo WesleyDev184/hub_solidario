@@ -37,6 +37,13 @@ class ProductsPage extends StatelessWidget {
           },
         );
       }),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Routefly.pushNavigate(routePaths.dashboard.option1.path);
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
