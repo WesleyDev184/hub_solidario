@@ -2,11 +2,10 @@ import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
-import 'package:app/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:routefly/routefly.dart';
 
 class SigninForm extends StatefulWidget {
   const SigninForm({super.key});
@@ -207,7 +206,7 @@ class _SigninFormState extends State<SigninForm> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Routefly.navigate(routePaths.auth.forgotPassword);
+                      context.go('/auth/forgot_password');
                     },
                     child: Text(
                       "Esqueci minha senha",
@@ -256,7 +255,7 @@ class _SigninFormState extends State<SigninForm> {
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                     GestureDetector(
-                      onTap: () => Routefly.navigate(routePaths.auth.signup),
+                      onTap: () => context.go('/auth/signup'),
                       child: Text(
                         "Registre-se",
                         style: TextStyle(

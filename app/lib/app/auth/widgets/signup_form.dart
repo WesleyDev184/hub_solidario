@@ -5,11 +5,10 @@ import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
 import 'package:app/core/widgets/select_field.dart';
-import 'package:app/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:routefly/routefly.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});
@@ -90,7 +89,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       },
                       (error) {
                         // Conta criada mas login falhou - vai para tela de login
-                        Routefly.navigate(routePaths.auth.signin);
+                        context.go('/auth/signin');
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
@@ -542,8 +541,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          Routefly.navigate(routePaths.auth.signin),
+                      onTap: () => context.go('/auth/signin'),
                       child: Text(
                         "Faça login",
                         style: TextStyle(

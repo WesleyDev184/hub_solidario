@@ -1,19 +1,8 @@
 import 'package:app/core/api/stocks/controllers/stocks_controller.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
-import 'package:app/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:routefly/routefly.dart';
-
-Route routeBuilder(BuildContext context, RouteSettings settings) {
-  return PageRouteBuilder(
-    settings: settings,
-    pageBuilder: (_, a1, a2) => const StocksPage(),
-    transitionsBuilder: (_, a1, a2, child) {
-      return FadeTransition(opacity: a1, child: child);
-    },
-  );
-}
+import 'package:go_router/go_router.dart';
 
 class StocksPage extends StatelessWidget {
   const StocksPage({super.key});
@@ -39,9 +28,7 @@ class StocksPage extends StatelessWidget {
               title: Text(stock.title.toString()),
               subtitle: Text(stock.id),
               onTap: () {
-                Routefly.navigate(
-                  routePaths.ptd.stocks.$id.changes({'id': stock.id}),
-                );
+                context.go('/ptd/stocks/${stock.id}');
               },
             );
           },

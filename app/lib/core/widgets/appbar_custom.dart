@@ -1,13 +1,12 @@
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/button.dart';
-import 'package:app/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:routefly/routefly.dart';
 
 const _primaryBg = CustomColors.white;
 const _primaryColor = CustomColors.textPrimary;
@@ -69,7 +68,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
       } catch (_) {
         if (mounted) {
           debugPrint('Erro ao fazer logout');
-          Routefly.navigate(routePaths.auth.signin);
+          if (mounted) context.go('/auth/signin');
         }
       }
     }
@@ -102,16 +101,15 @@ class _AppBarCustomState extends State<AppBarCustom> {
                           onPressed: () {
                             if (widget.path != null &&
                                 widget.path!.isNotEmpty) {
-                              Routefly.navigate(widget.path!);
+                              context.go(widget.path!);
                             } else {
-                              Routefly.navigate(routePaths.ptd.stocks.path);
+                              context.go('/ptd/stocks');
                             }
                           },
                         )
                       : IconButton(
                           icon: Icon(LucideIcons.info),
-                          onPressed: () =>
-                              Routefly.navigate(routePaths.ptd.info),
+                          onPressed: () => context.go('/ptd/info'),
                           color: _primaryColor,
                         ),
                   const SizedBox(width: 4),

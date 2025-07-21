@@ -1,9 +1,8 @@
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/input_field.dart';
-import 'package:app/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:routefly/routefly.dart';
 
 class ForgotPasswordForm extends StatefulWidget {
   const ForgotPasswordForm({super.key});
@@ -59,7 +58,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
       );
 
       // Voltar para a tela de login após enviar
-      Routefly.navigate(routePaths.auth.signin);
+      context.go('/auth/signin');
     }
   }
 
@@ -206,7 +205,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                   GestureDetector(
-                    onTap: () => Routefly.navigate(routePaths.auth.signin),
+                    onTap: () => context.go('/auth/signin'),
                     child: Text(
                       "Fazer login",
                       style: TextStyle(

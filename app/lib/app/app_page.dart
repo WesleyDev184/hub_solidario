@@ -1,4 +1,3 @@
-import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:flutter/material.dart';
 
 class AppPage extends StatelessWidget {
@@ -8,9 +7,6 @@ class AppPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarCustom(title: title, initialRoute: true),
-      body: const Center(child: CircularProgressIndicator()),
-    );
+    return Scaffold(body: const Center(child: CircularProgressIndicator()));
   }
 }

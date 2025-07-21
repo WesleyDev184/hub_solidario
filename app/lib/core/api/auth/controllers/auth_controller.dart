@@ -1,7 +1,5 @@
-import 'package:app/routes.dart';
 import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
-import 'package:routefly/routefly.dart';
 
 import '../models/auth_models.dart';
 import '../repositories/auth_repository.dart';
@@ -257,31 +255,6 @@ class AuthController extends GetxController {
   void _setLoading(bool loading) {
     if (_isLoading.value != loading) {
       _isLoading.value = loading;
-    }
-  }
-
-  Future<void> checkUserPermissions(String currentUri, bool execLogout) async {
-    final isAuthPage = currentUri.startsWith("/auth");
-    final preventLoop =
-        isAuthPage || currentUri.compareTo(routePaths.path) == 0;
-    final validToken = await cacheService.hasValidToken();
-
-    if (!isAuthenticated && !isAuthPage) {
-      Routefly.navigate(routePaths.auth.signin);
-      if (execLogout) {
-        await logout();
-      }
-    }
-
-    if (isAuthenticated && validToken && preventLoop) {
-      Routefly.navigate(routePaths.ptd.stocks.path);
-    }
-
-    if (isAuthenticated && !validToken) {
-      if (execLogout) {
-        await logout();
-      }
-      Routefly.navigate(routePaths.auth.signin);
     }
   }
 }
