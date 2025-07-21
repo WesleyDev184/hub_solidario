@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/info/presentation/pages/info_page.dart';
 import 'package:project_rotary/core/api/auth/auth_service.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -100,11 +99,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                       )
                       : IconButton(
                         icon: Icon(LucideIcons.info),
-                        onPressed: () {
-                          Navigator.of(
-                            context,
-                          ).push(MaterialPageRoute(builder: (_) => InfoPage()));
-                        },
+                        onPressed: () {},
                         color: _primaryColor,
                       ),
                   // Espaço pequeno
