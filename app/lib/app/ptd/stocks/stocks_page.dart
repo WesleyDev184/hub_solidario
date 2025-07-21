@@ -1,5 +1,6 @@
 import 'package:app/core/api/stocks/controllers/stocks_controller.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
+import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,7 @@ class StocksPage extends StatelessWidget {
               title: Text(stock.title.toString()),
               subtitle: Text(stock.id),
               onTap: () {
-                context.go('/ptd/stocks/${stock.id}');
+                context.go(RoutePaths.ptd.stockId(stock.id));
               },
             );
           },

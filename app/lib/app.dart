@@ -41,7 +41,7 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp.router(
+    return MaterialApp.router(
       supportedLocales: const [Locale('pt', 'BR')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -49,9 +49,7 @@ class _AppState extends State<App> {
         GlobalCupertinoLocalizations.delegate,
         // ...outros delegates se necessário...
       ],
-      routeInformationParser: _router.routeInformationParser,
-      routeInformationProvider: _router.routeInformationProvider,
-      routerDelegate: _router.routerDelegate,
+      routerConfig: _router,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import 'app/app_page.dart';
 import 'app/auth/forgot_password_page.dart';
 import 'app/auth/signin_page.dart';
@@ -14,27 +15,29 @@ import 'app/ptd/stocks/stocks_page.dart';
 
 GoRouter createGoRouter(AuthController authController) {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: RoutePaths.root,
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const AppPage()),
       GoRoute(
-        path: '/auth/signin',
+        path: RoutePaths.root,
+        builder: (context, state) => const AppPage(),
+      ),
+      GoRoute(
+        path: RoutePaths.auth.signin,
         builder: (context, state) => const SigninPage(),
       ),
       GoRoute(
-        path: '/auth/signup',
+        path: RoutePaths.auth.signup,
         builder: (context, state) => const SignUpPage(),
       ),
       GoRoute(
-        path: '/auth/forgot_password',
+        path: RoutePaths.auth.forgotPassword,
         builder: (context, state) => const ForgotPasswordPage(),
       ),
-      GoRoute(
-        path: '/ptd',
-        builder: (context, state) => const PtdLayout(),
+      ShellRoute(
+        builder: (context, state, child) => PtdLayout(child: child),
         routes: [
           GoRoute(
-            path: 'stocks',
+            path: RoutePaths.ptd.stocks,
             builder: (context, state) => const StocksPage(),
             routes: [
               GoRoute(
@@ -44,13 +47,16 @@ GoRouter createGoRouter(AuthController authController) {
               ),
             ],
           ),
-          GoRoute(path: 'info', builder: (context, state) => const InfoPage()),
           GoRoute(
-            path: 'option2',
+            path: RoutePaths.ptd.info,
+            builder: (context, state) => const InfoPage(),
+          ),
+          GoRoute(
+            path: RoutePaths.ptd.option2,
             builder: (context, state) => const Option2Page(),
           ),
           GoRoute(
-            path: 'option3',
+            path: RoutePaths.ptd.option3,
             builder: (context, state) => const Option3Page(),
           ),
         ],
@@ -65,28 +71,28 @@ GoRouter createGoRouter(AuthController authController) {
       debugPrint("Current path: $currentPath");
 
       final List<String> publicPaths = [
-        '/auth/signin',
-        '/auth/signup',
-        '/auth/forgot_password',
+        RoutePaths.auth.signin,
+        RoutePaths.auth.signup,
+        RoutePaths.auth.forgotPassword,
       ];
 
       final bool goingToPublicPath = publicPaths.contains(currentPath);
 
       if (!isLoggedIn && !goingToPublicPath) {
-        return '/auth/signin';
+        return RoutePaths.auth.signin;
       }
 
       if (isLoggedIn && goingToPublicPath) {
-        return '/ptd/stocks';
+        return RoutePaths.ptd.stocks;
       }
 
       if (isLoggedIn && !hasValidToken) {
         await authController.logout();
-        return '/auth/signin';
+        return RoutePaths.auth.signin;
       }
 
-      if (isLoggedIn && currentPath == '/') {
-        return '/ptd/stocks';
+      if (isLoggedIn && currentPath == RoutePaths.root) {
+        return RoutePaths.ptd.stocks;
       }
 
       return null;
