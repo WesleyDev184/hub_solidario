@@ -17,7 +17,7 @@ class BackgroundWrapper extends StatelessWidget {
               image: const AssetImage("assets/images/bg.jpg"),
               fit: BoxFit.cover,
               colorFilter: ColorFilter.mode(
-                CustomColors.primarySwatch.shade100,
+                CustomColors.primarySwatch.shade100.withOpacity(0.3),
                 BlendMode.dstATop,
               ),
             ),
