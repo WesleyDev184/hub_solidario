@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:app/core/api/loans/models/items_models.dart';
+import 'package:app/core/api/orthopedic_banks/orthopedic_banks.dart';
+
 /// Modelo de Stock
 class Stock {
   final String id;
@@ -11,6 +14,8 @@ class Stock {
   final int borrowedQtd;
   final int totalQtd;
   final String orthopedicBankId;
+  final OrthopedicBank? orthopedicBank;
+  final List<Item>? items;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -23,6 +28,8 @@ class Stock {
     required this.borrowedQtd,
     required this.totalQtd,
     required this.orthopedicBankId,
+    this.orthopedicBank,
+    this.items,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -37,13 +44,22 @@ class Stock {
       borrowedQtd: json['borrowedQtd'] as int? ?? 0,
       totalQtd: json['totalQtd'] as int? ?? 0,
       orthopedicBankId: json['orthopedicBankId'] as String,
+      orthopedicBank: json['orthopedicBank'] != null
+          ? OrthopedicBank.fromJson(
+              json['orthopedicBank'] as Map<String, dynamic>,
+            )
+          : null,
+      items: json['items'] != null
+          ? (json['items'] as List<dynamic>)
+                .map((item) => Item.fromJson(item as Map<String, dynamic>))
+                .toList()
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt:
-          json['updatedAt'] != null
-              ? DateTime.parse(json['updatedAt'] as String)
-              : DateTime.parse(
-                json['createdAt'] as String,
-              ), // Fallback para createdAt se updatedAt não estiver presente
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : DateTime.parse(
+              json['createdAt'] as String,
+            ), // Fallback para createdAt se updatedAt não estiver presente
     );
   }
 
@@ -57,6 +73,8 @@ class Stock {
       'borrowedQtd': borrowedQtd,
       'totalQtd': totalQtd,
       'orthopedicBankId': orthopedicBankId,
+      'orthopedicBank': orthopedicBank?.toJson(),
+      'items': items?.map((item) => item.toJson()).toList(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -74,6 +92,8 @@ class Stock {
     int? borrowedQtd,
     int? totalQtd,
     String? orthopedicBankId,
+    OrthopedicBank? orthopedicBank,
+    List<Item>? items,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -86,6 +106,8 @@ class Stock {
       borrowedQtd: borrowedQtd ?? this.borrowedQtd,
       totalQtd: totalQtd ?? this.totalQtd,
       orthopedicBankId: orthopedicBankId ?? this.orthopedicBankId,
+      orthopedicBank: orthopedicBank ?? this.orthopedicBank,
+      items: items ?? this.items,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -182,10 +204,9 @@ class StockResponse {
   factory StockResponse.fromJson(Map<String, dynamic> json) {
     return StockResponse(
       success: json['success'] as bool? ?? false,
-      data:
-          json['data'] != null
-              ? Stock.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      data: json['data'] != null
+          ? Stock.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       message: json['message'] as String?,
     );
   }
@@ -207,10 +228,9 @@ class StockListResponse {
 
   factory StockListResponse.fromJson(Map<String, dynamic> json) {
     final dataList = json['data'] as List<dynamic>? ?? [];
-    final stocks =
-        dataList
-            .map((item) => Stock.fromJson(item as Map<String, dynamic>))
-            .toList();
+    final stocks = dataList
+        .map((item) => Stock.fromJson(item as Map<String, dynamic>))
+        .toList();
 
     return StockListResponse(
       success: json['success'] as bool? ?? false,
@@ -253,10 +273,9 @@ class UpdateStockResponse {
   factory UpdateStockResponse.fromJson(Map<String, dynamic> json) {
     return UpdateStockResponse(
       success: json['success'] as bool? ?? false,
-      data:
-          json['data'] != null
-              ? Stock.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      data: json['data'] != null
+          ? Stock.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       message: json['message'] as String?,
     );
   }

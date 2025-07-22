@@ -41,6 +41,8 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    debugInvertOversizedImages = true; // Ativa a depuração de imagens grandes
+
     return MaterialApp.router(
       supportedLocales: const [Locale('pt', 'BR')],
       localizationsDelegates: const [

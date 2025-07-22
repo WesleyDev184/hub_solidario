@@ -1,3 +1,4 @@
+import 'package:app/app/ptd/stocks/add_stock_page.dart';
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -41,7 +42,7 @@ GoRouter createGoRouter(AuthController authController) {
             builder: (context, state) => const StocksPage(),
             routes: [
               GoRoute(
-                path: ':id',
+                path: 'detail/:id',
                 builder: (context, state) =>
                     StockPage(id: state.pathParameters['id']!),
               ),
@@ -50,6 +51,10 @@ GoRouter createGoRouter(AuthController authController) {
           GoRoute(
             path: RoutePaths.ptd.info,
             builder: (context, state) => const InfoPage(),
+          ),
+          GoRoute(
+            path: RoutePaths.ptd.addStock,
+            builder: (context, state) => const AddStockPage(),
           ),
           GoRoute(
             path: RoutePaths.ptd.option2,
@@ -123,7 +128,8 @@ class _PtdPaths {
   const _PtdPaths();
   String get root => '/ptd';
   String get stocks => '/ptd/stocks';
-  String stockId(String id) => '/ptd/stocks/$id';
+  String get addStock => '/ptd/stocks/add';
+  String stockId(String id) => '/ptd/stocks/detail/$id';
   String get info => '/ptd/info';
   String get option2 => '/ptd/option2';
   String get option3 => '/ptd/option3';

@@ -2,14 +2,22 @@ import 'package:app/core/theme/custom_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-class ActionMenuCategories extends StatelessWidget {
+class ActionMenuStock extends StatelessWidget {
   final VoidCallback? onCreatePressed;
+  final VoidCallback? onEditPressed;
+  final VoidCallback? onDeletePressed;
+  final VoidCallback? onBorrowPressed;
   final String title;
+  final int availableQtd;
 
-  const ActionMenuCategories({
+  const ActionMenuStock({
     super.key,
     this.onCreatePressed,
+    this.onEditPressed,
+    this.onDeletePressed,
+    this.onBorrowPressed,
     this.title = 'Ações',
+    this.availableQtd = 0,
   });
 
   @override
@@ -46,12 +54,44 @@ class ActionMenuCategories extends StatelessWidget {
           _buildActionItem(
             context,
             icon: LucideIcons.plus,
-            title: 'Criar',
-            subtitle: 'Criar nova categoria',
+            title: 'Adicionar',
+            subtitle: 'Adicionar novo item',
             onTap: () {
               Navigator.pop(context);
               onCreatePressed?.call();
             },
+          ),
+          _buildActionItem(
+            context,
+            icon: LucideIcons.pencil,
+            title: 'Editar',
+            subtitle: 'Editar categoria',
+            onTap: () {
+              Navigator.pop(context);
+              onEditPressed?.call();
+            },
+          ),
+          if (availableQtd > 0)
+            _buildActionItem(
+              context,
+              icon: LucideIcons.layoutList,
+              title: 'Emprestar',
+              subtitle: "Criar novo empréstimo",
+              onTap: () {
+                Navigator.pop(context);
+                onBorrowPressed?.call();
+              },
+            ),
+          _buildActionItem(
+            context,
+            icon: LucideIcons.trash2,
+            title: 'Deletar',
+            subtitle: 'Deletar categoria',
+            onTap: () {
+              Navigator.pop(context);
+              onDeletePressed?.call();
+            },
+            isDestructive: true,
           ),
           const SizedBox(height: 20),
         ],
@@ -65,21 +105,28 @@ class ActionMenuCategories extends StatelessWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    bool isDestructive = false,
   }) {
     return ListTile(
       leading: Container(
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: CustomColors.primary.withOpacity(0.1),
+          color: isDestructive
+              ? CustomColors.error.withOpacity(0.1)
+              : CustomColors.primary.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: CustomColors.primary, size: 20),
+        child: Icon(
+          icon,
+          color: isDestructive ? CustomColors.error : CustomColors.primary,
+          size: 20,
+        ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: CustomColors.textPrimary,
+          color: isDestructive ? CustomColors.error : CustomColors.textPrimary,
           fontWeight: FontWeight.w500,
         ),
       ),

@@ -8,23 +8,37 @@ class BackgroundWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: CustomColors.white,
-            image: DecorationImage(
-              image: const AssetImage("assets/images/bg.jpg"),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(
-                CustomColors.primarySwatch.shade100.withOpacity(0.3),
-                BlendMode.dstATop,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final int displayWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth.round()
+            : 412;
+        final int displayHeight = constraints.maxHeight.isFinite
+            ? constraints.maxHeight.round()
+            : 857;
+        return Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: CustomColors.white,
+                image: DecorationImage(
+                  image: ResizeImage(
+                    const AssetImage("assets/images/bg.jpg"),
+                    width: displayWidth,
+                    height: displayHeight,
+                  ),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    CustomColors.primarySwatch.shade100.withOpacity(0.3),
+                    BlendMode.dstATop,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        child,
-      ],
+            child,
+          ],
+        );
+      },
     );
   }
 }

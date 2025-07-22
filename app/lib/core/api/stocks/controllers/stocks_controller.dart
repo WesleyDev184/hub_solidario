@@ -20,6 +20,10 @@ class StocksController extends GetxController {
 
   bool get isLoading => _isLoading.value;
   String? get error => _error.value.isEmpty ? null : _error.value;
+  set error(String? value) {
+    _error.value = value ?? '';
+    update();
+  }
   List<Stock> get allStocks => _stocks.toList();
 
   @override
@@ -71,6 +75,30 @@ class StocksController extends GetxController {
         cacheService.cacheStocksByBank(orthopedicBankId, list);
         _stocks.assignAll(list);
         return Success(list);
+      }, (error) => Failure(error));
+    } catch (e) {
+      _isLoading.value = false;
+      return Failure(Exception('Erro inesperado: $e'));
+    }
+  }
+
+  AsyncResult<Stock> getStockById(String stockId) async {
+    try {
+      _isLoading.value = true;
+      if (_stocks.isNotEmpty) {
+        final stock = _stocks.firstWhereOrNull((s) => s.id == stockId);
+        if (stock != null && stock.items?.isNotEmpty == true) {
+          _isLoading.value = false;
+          return Success(stock);
+        }
+      }
+
+      final result = await repository.getStock(stockId);
+      _isLoading.value = false;
+      return result.fold((stock) {
+        cacheService.cacheStock(stock);
+        updateStockInList(stock);
+        return Success(stock);
       }, (error) => Failure(error));
     } catch (e) {
       _isLoading.value = false;

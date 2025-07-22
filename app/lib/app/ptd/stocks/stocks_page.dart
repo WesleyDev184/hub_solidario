@@ -5,6 +5,7 @@ import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class StocksPage extends StatefulWidget {
   const StocksPage({super.key});
@@ -23,11 +24,22 @@ class _StocksPageState extends State<StocksPage> {
     super.dispose();
   }
 
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton(
+      tooltip: 'Ações',
+      child: const Icon(LucideIcons.plus),
+      onPressed: () {
+        context.go(RoutePaths.ptd.addStock);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final stocksController = Get.find<StocksController>();
     return Scaffold(
       appBar: AppBarCustom(title: 'Produtos', initialRoute: true),
+      floatingActionButton: _buildFloatingActionButton(),
       backgroundColor: Colors.transparent,
       body: Column(
         children: [

@@ -17,28 +17,31 @@ class Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(size / 2),
-      child:
-          (imageUrl != null && imageUrl!.isNotEmpty)
-              ? (isNetworkImage
-                  ? Image.network(
+      child: (imageUrl != null && imageUrl!.isNotEmpty)
+          ? (isNetworkImage
+                ? Image.network(
                     imageUrl!,
                     width: size,
                     height: size,
                     fit: BoxFit.cover,
+                    cacheWidth: size.round(),
+                    cacheHeight: size.round(),
                     errorBuilder: (context, error, stackTrace) {
                       return _buildDefaultIcon();
                     },
                   )
-                  : Image.asset(
+                : Image.asset(
                     imageUrl!,
                     width: size,
                     height: size,
                     fit: BoxFit.cover,
+                    cacheWidth: size.round(),
+                    cacheHeight: size.round(),
                     errorBuilder: (context, error, stackTrace) {
                       return _buildDefaultIcon();
                     },
                   ))
-              : _buildDefaultIcon(),
+          : _buildDefaultIcon(),
     );
   }
 

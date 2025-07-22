@@ -4,7 +4,7 @@ import 'package:app/core/utils/utils.dart' as CoreUtils;
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-class CategoryItemsCard extends StatelessWidget {
+class StockItemsCard extends StatelessWidget {
   final String id;
   final int serialCode;
   final ItemStatus status;
@@ -12,7 +12,7 @@ class CategoryItemsCard extends StatelessWidget {
 
   final String stockId;
 
-  const CategoryItemsCard({
+  const StockItemsCard({
     super.key,
     required this.id,
     required this.serialCode,
