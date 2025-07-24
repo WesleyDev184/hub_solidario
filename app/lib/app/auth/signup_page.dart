@@ -9,47 +9,61 @@ class SignUpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: CustomColors.primary,
-        image: DecorationImage(
-          image: const AssetImage("assets/images/bg.jpg"),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            CustomColors.primarySwatch.shade100,
-            BlendMode.dstATop,
-          ),
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              expandedHeight: 200,
-              collapsedHeight: 130,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  padding: const EdgeInsets.only(top: 70),
-                  child: const HeaderLogo(),
-                ),
-                collapseMode: CollapseMode.parallax,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final int displayWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth.round()
+            : 412;
+        final int displayHeight = constraints.maxHeight.isFinite
+            ? constraints.maxHeight.round()
+            : 857;
+        return Container(
+          decoration: BoxDecoration(
+            color: CustomColors.primary,
+            image: DecorationImage(
+              image: ResizeImage(
+                const AssetImage("assets/images/bg.jpg"),
+                width: displayWidth,
+                height: displayHeight,
               ),
-              pinned: true,
-              floating: false,
-              automaticallyImplyLeading: false,
-              stretch: true,
-              stretchTriggerOffset: 150.0,
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                CustomColors.primarySwatch.shade100,
+                BlendMode.dstATop,
+              ),
             ),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Column(children: [SignUpForm()]),
+          ),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  expandedHeight: 200,
+                  collapsedHeight: 130,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      padding: const EdgeInsets.only(top: 70),
+                      child: const HeaderLogo(),
+                    ),
+                    collapseMode: CollapseMode.parallax,
+                  ),
+                  pinned: true,
+                  floating: false,
+                  automaticallyImplyLeading: false,
+                  stretch: true,
+                  stretchTriggerOffset: 150.0,
+                ),
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(children: [SignUpForm()]),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
