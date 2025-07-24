@@ -22,7 +22,6 @@ class StocksController extends GetxController {
   String? get error => _error.value.isEmpty ? null : _error.value;
   set error(String? value) {
     _error.value = value ?? '';
-    update();
   }
 
   RxList<Stock> get allStocks => _stocks;
@@ -99,7 +98,6 @@ class StocksController extends GetxController {
       return result.fold((stock) {
         cacheService.cacheStock(stock);
         updateStockInList(stock);
-        update();
         return Success(stock);
       }, (error) => Failure(error));
     } catch (e) {
@@ -116,7 +114,6 @@ class StocksController extends GetxController {
       return result.fold((stock) {
         cacheService.cacheStock(stock);
         _stocks.add(stock);
-        update();
         return Success(stock.id);
       }, (error) => Failure(error));
     } catch (e) {
@@ -136,7 +133,6 @@ class StocksController extends GetxController {
       return result.fold((stock) {
         cacheService.cacheStock(stock);
         updateStockInList(stock);
-        update();
         return Success(stock);
       }, (error) => Failure(error));
     } catch (e) {
@@ -158,7 +154,6 @@ class StocksController extends GetxController {
             cacheService.removeStockFromCache(orthopedicBankId, stockId);
           }
         }
-        update();
         return Success(success);
       }, (error) => Failure(error));
     } catch (e) {
@@ -177,7 +172,7 @@ class StocksController extends GetxController {
   void updateStockInList(Stock stock) {
     final index = _stocks.indexWhere((s) => s.id == stock.id);
     if (index != -1) {
-      _stocks[index] = stock;
+      _stocks[index] = stock.copyWith(); // garante nova referência
     } else {
       _stocks.add(stock);
     }

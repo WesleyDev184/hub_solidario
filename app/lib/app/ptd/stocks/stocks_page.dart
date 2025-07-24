@@ -15,6 +15,7 @@ class StocksPage extends StatefulWidget {
 }
 
 class _StocksPageState extends State<StocksPage> {
+  final stocksController = Get.find<StocksController>();
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
 
@@ -36,7 +37,6 @@ class _StocksPageState extends State<StocksPage> {
 
   @override
   Widget build(BuildContext context) {
-    final stocksController = Get.find<StocksController>();
     return Scaffold(
       appBar: AppBarCustom(title: 'Produtos', initialRoute: true),
       floatingActionButton: _buildFloatingActionButton(),

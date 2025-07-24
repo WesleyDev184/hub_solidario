@@ -20,7 +20,7 @@ class StockPage extends StatefulWidget {
 }
 
 class _StockPageState extends State<StockPage> {
-  late StocksController _stockController;
+  final StocksController _stockController = Get.find<StocksController>();
   Stock? _stock;
   // Listagem dos itens
   List<Item> _items = [];
@@ -31,7 +31,6 @@ class _StockPageState extends State<StockPage> {
   @override
   void initState() {
     super.initState();
-    _stockController = Get.find<StocksController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadStock();
     });
@@ -51,7 +50,6 @@ class _StockPageState extends State<StockPage> {
 
   @override
   void dispose() {
-    // Limpa os dados e estados ao sair da página
     _items.clear();
     _filteredItems.clear();
     _selectedStatusFilter = null;

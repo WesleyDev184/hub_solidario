@@ -1,4 +1,5 @@
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
+import 'package:app/core/api/stocks/controllers/stocks_controller.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -29,6 +30,12 @@ class _AppState extends State<App> {
     // Isso garante que a função `redirect` seja reavaliada.
     _authController.stateRx.listen((_) {
       _router.refresh();
+    });
+
+    final stockController = Get.find<StocksController>();
+
+    stockController.allStocks.listen((stocks) {
+      debugPrint('Stocks updated: ${stocks.length} items');
     });
   }
 
