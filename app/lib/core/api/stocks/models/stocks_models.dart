@@ -53,7 +53,7 @@ class Stock {
           ? (json['items'] as List<dynamic>)
                 .map((item) => Item.fromJson(item as Map<String, dynamic>))
                 .toList()
-          : [],
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)

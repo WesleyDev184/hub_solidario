@@ -23,7 +23,6 @@ class _StockPageState extends State<StockPage> {
   final StocksController _stockController = Get.find<StocksController>();
   Stock? _stock;
   // Listagem dos itens
-  List<Item> _items = [];
   List<Item> _filteredItems = [];
   // Filtro de status
   ItemStatus? _selectedStatusFilter;
@@ -42,15 +41,13 @@ class _StockPageState extends State<StockPage> {
       setState(() {
         _stock = stock;
         // Inicializa os itens a partir do stock
-        _items = stock.items ?? [];
-        _filteredItems = _applyStatusFilter(_items);
+        _filteredItems = _applyStatusFilter(stock.items ?? []);
       });
     }, (failure) => _stockController.error = failure.toString());
   }
 
   @override
   void dispose() {
-    _items.clear();
     _filteredItems.clear();
     _selectedStatusFilter = null;
     _stock = null;
@@ -206,7 +203,7 @@ class _StockPageState extends State<StockPage> {
   void _updateStatusFilter(ItemStatus? status) {
     setState(() {
       _selectedStatusFilter = status;
-      _filteredItems = _applyStatusFilter(_items);
+      _filteredItems = _applyStatusFilter(_stock?.items ?? []);
     });
   }
 
@@ -396,6 +393,7 @@ class _StockPageState extends State<StockPage> {
                   color: CustomColors.textSecondary,
                 ),
               ),
+
               // Filtro de status
               _buildStatusFilter(),
             ],
