@@ -99,6 +99,7 @@ class StocksController extends GetxController {
       return result.fold((stock) {
         cacheService.cacheStock(stock);
         updateStockInList(stock);
+        update();
         return Success(stock);
       }, (error) => Failure(error));
     } catch (e) {
@@ -115,6 +116,7 @@ class StocksController extends GetxController {
       return result.fold((stock) {
         cacheService.cacheStock(stock);
         _stocks.add(stock);
+        update();
         return Success(stock.id);
       }, (error) => Failure(error));
     } catch (e) {
@@ -134,20 +136,12 @@ class StocksController extends GetxController {
       return result.fold((stock) {
         cacheService.cacheStock(stock);
         updateStockInList(stock);
+        update();
         return Success(stock);
       }, (error) => Failure(error));
     } catch (e) {
       _isLoading.value = false;
       return Failure(Exception('Erro inesperado: $e'));
-    }
-  }
-
-  Future<void> cacheStock(Stock stock) async {
-    try {
-      await cacheService.cacheStock(stock);
-      updateStockInList(stock);
-    } catch (e) {
-      throw Exception('Erro ao atualizar cache: $e');
     }
   }
 
@@ -164,6 +158,7 @@ class StocksController extends GetxController {
             cacheService.removeStockFromCache(orthopedicBankId, stockId);
           }
         }
+        update();
         return Success(success);
       }, (error) => Failure(error));
     } catch (e) {
