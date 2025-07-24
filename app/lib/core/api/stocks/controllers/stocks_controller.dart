@@ -24,7 +24,8 @@ class StocksController extends GetxController {
     _error.value = value ?? '';
     update();
   }
-  List<Stock> get allStocks => _stocks.toList();
+
+  RxList<Stock> get allStocks => _stocks;
 
   @override
   void onInit() async {
