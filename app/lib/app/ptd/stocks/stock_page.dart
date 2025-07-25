@@ -193,7 +193,9 @@ class _StockPageState extends State<StockPage> {
           onDeletePressed: () {
             context.go(RoutePaths.ptd.deleteStock(_stock?.id ?? ''));
           },
-          onBorrowPressed: () {},
+          onBorrowPressed: () {
+            context.go(RoutePaths.ptd.borrowItem(_stock?.id ?? ''));
+          },
         );
       },
     );

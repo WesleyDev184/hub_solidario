@@ -1,5 +1,6 @@
 import 'package:app/app/ptd/stocks/add_item_page.dart';
 import 'package:app/app/ptd/stocks/add_stock_page.dart';
+import 'package:app/app/ptd/stocks/borrow_item_page.dart';
 import 'package:app/app/ptd/stocks/delete_item_page.dart';
 import 'package:app/app/ptd/stocks/delete_stock_page.dart';
 import 'package:app/app/ptd/stocks/edit_item_page.dart';
@@ -81,6 +82,11 @@ GoRouter createGoRouter(AuthController authController) {
                   itemId: state.pathParameters['id']!,
                   stockId: state.pathParameters['stockId']!,
                 ),
+              ),
+              GoRoute(
+                path: 'borrow_item/:id',
+                builder: (context, state) =>
+                    BorrowItemPage(stockId: state.pathParameters['id']!),
               ),
             ],
           ),
@@ -174,6 +180,7 @@ class _PtdPaths {
       '/ptd/stocks/edit_item/$itemId/$stockId';
   String deleteItem(String itemId, String stockId) =>
       '/ptd/stocks/delete_item/$itemId/$stockId';
+  String borrowItem(String stockId) => '/ptd/stocks/borrow_item/$stockId';
   String get info => '/ptd/info';
   String get option2 => '/ptd/option2';
   String get option3 => '/ptd/option3';

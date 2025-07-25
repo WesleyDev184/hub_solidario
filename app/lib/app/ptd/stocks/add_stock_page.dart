@@ -272,7 +272,7 @@ class _AddStockPageState extends State<AddStockPage> {
                       child: OutlinedButton(
                         onPressed: _isLoading
                             ? null
-                            : () => Navigator.pop(context, false),
+                            : () => context.go(RoutePaths.ptd.stocks),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           side: BorderSide(color: CustomColors.border),
