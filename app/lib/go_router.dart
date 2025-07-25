@@ -1,3 +1,4 @@
+import 'package:app/app/ptd/loans/loans_page.dart';
 import 'package:app/app/ptd/stocks/add_item_page.dart';
 import 'package:app/app/ptd/stocks/add_stock_page.dart';
 import 'package:app/app/ptd/stocks/borrow_item_page.dart';
@@ -14,7 +15,6 @@ import 'app/auth/forgot_password_page.dart';
 import 'app/auth/signin_page.dart';
 import 'app/auth/signup_page.dart';
 import 'app/ptd/info/info_page.dart';
-import 'app/ptd/option2_page.dart';
 import 'app/ptd/option3_page.dart';
 import 'app/ptd/ptd_layout.dart';
 import 'app/ptd/stocks/stock_page.dart';
@@ -100,8 +100,8 @@ GoRouter createGoRouter(AuthController authController) {
           ),
 
           GoRoute(
-            path: RoutePaths.ptd.option2,
-            builder: (context, state) => const Option2Page(),
+            path: RoutePaths.ptd.loans,
+            builder: (context, state) => const LoansPage(),
           ),
           GoRoute(
             path: RoutePaths.ptd.option3,
@@ -182,6 +182,6 @@ class _PtdPaths {
       '/ptd/stocks/delete_item/$itemId/$stockId';
   String borrowItem(String stockId) => '/ptd/stocks/borrow_item/$stockId';
   String get info => '/ptd/info';
-  String get option2 => '/ptd/option2';
+  String get loans => '/ptd/loans';
   String get option3 => '/ptd/option3';
 }

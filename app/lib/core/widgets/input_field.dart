@@ -11,6 +11,7 @@ class InputField extends StatelessWidget {
   final String? Function(String?)? validator;
   final InputMask mask;
   final TextInputType? keyboardType;
+  final ValueChanged<String>? onChanged;
 
   const InputField({
     super.key,
@@ -21,6 +22,7 @@ class InputField extends StatelessWidget {
     this.validator,
     this.mask = InputMask.none,
     this.keyboardType,
+    this.onChanged,
   });
 
   @override
@@ -68,6 +70,7 @@ class InputField extends StatelessWidget {
       validator: validator,
       keyboardType: inputType,
       inputFormatters: maskFormatter != null ? [maskFormatter] : null,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: hint,
         suffixIcon: Icon(icon),

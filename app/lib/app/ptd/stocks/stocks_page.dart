@@ -1,6 +1,7 @@
 import 'package:app/app/ptd/stocks/widgets/stock_card.dart';
 import 'package:app/core/api/stocks/controllers/stocks_controller.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
+import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -45,17 +46,10 @@ class _StocksPageState extends State<StocksPage> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
+            child: InputField(
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Buscar produto...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                isDense: true,
-                contentPadding: const EdgeInsets.all(12),
-              ),
+              hint: "Buscar",
+              icon: LucideIcons.search,
               onChanged: (value) {
                 setState(() {
                   _searchText = value;

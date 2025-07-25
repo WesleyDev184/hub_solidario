@@ -14,10 +14,10 @@ class PtdLayout extends StatefulWidget {
 
 class _PtdLayoutState extends State<PtdLayout> {
   int _selectedIndex = 0;
-  final List<String> _tabKeys = ['stocks', 'option2', 'option3'];
+  final List<String> _tabKeys = ['stocks', 'loans', 'option3'];
   final List<String> _routes = [
     RoutePaths.ptd.stocks,
-    RoutePaths.ptd.option2,
+    RoutePaths.ptd.loans,
     RoutePaths.ptd.option3,
   ];
   final Map<int, String> _tabHistory = {};
@@ -62,8 +62,11 @@ class _PtdLayoutState extends State<PtdLayout> {
         currentIndex: currentIndex,
         onTap: _onItemTapped,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Stocks'),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Option 2'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Categorias',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Empréstimos'),
           BottomNavigationBarItem(icon: Icon(Icons.info), label: 'Option 3'),
         ],
       ),
