@@ -1,4 +1,4 @@
-server = wesley@ssh.bovisoft.com
+server = wesley@ssh.prod.hubsolidario.com
 project_path = $(shell basename $(shell pwd))
 
 rsync:
