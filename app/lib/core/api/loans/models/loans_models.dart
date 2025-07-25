@@ -1,6 +1,6 @@
 import 'package:app/core/api/applicants/models/applicants_models.dart';
 import 'package:app/core/api/auth/models/auth_models.dart';
-import 'package:app/core/api/loans/models/items_models.dart';
+import 'package:app/core/api/stocks/models/items_models.dart';
 
 /// Modelo de Loan (Empréstimo) - Versão completa
 class Loan {

@@ -1,4 +1,9 @@
+import 'package:app/app/ptd/stocks/add_item_page.dart';
 import 'package:app/app/ptd/stocks/add_stock_page.dart';
+import 'package:app/app/ptd/stocks/delete_item_page.dart';
+import 'package:app/app/ptd/stocks/delete_stock_page.dart';
+import 'package:app/app/ptd/stocks/edit_item_page.dart';
+import 'package:app/app/ptd/stocks/edit_stock_page.dart';
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -46,16 +51,48 @@ GoRouter createGoRouter(AuthController authController) {
                 builder: (context, state) =>
                     StockPage(id: state.pathParameters['id']!),
               ),
+              GoRoute(
+                path: 'edit/:id',
+                builder: (context, state) =>
+                    EditStockPage(stockId: state.pathParameters['id']!),
+              ),
+              GoRoute(
+                path: 'delete/:id',
+                builder: (context, state) =>
+                    DeleteStockPage(stockId: state.pathParameters['id']!),
+              ),
+
+              GoRoute(
+                path: 'add_item/:id',
+                builder: (context, state) =>
+                    AddItemPage(stockId: state.pathParameters['id']!),
+              ),
+
+              GoRoute(
+                path: 'edit_item/:id/:stockId',
+                builder: (context, state) => EditItemPage(
+                  itemId: state.pathParameters['id']!,
+                  stockId: state.pathParameters['stockId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'delete_item/:id/:stockId',
+                builder: (context, state) => DeleteItemPage(
+                  itemId: state.pathParameters['id']!,
+                  stockId: state.pathParameters['stockId']!,
+                ),
+              ),
             ],
-          ),
-          GoRoute(
-            path: RoutePaths.ptd.info,
-            builder: (context, state) => const InfoPage(),
           ),
           GoRoute(
             path: RoutePaths.ptd.addStock,
             builder: (context, state) => const AddStockPage(),
           ),
+          GoRoute(
+            path: RoutePaths.ptd.info,
+            builder: (context, state) => const InfoPage(),
+          ),
+
           GoRoute(
             path: RoutePaths.ptd.option2,
             builder: (context, state) => const Option2Page(),
@@ -129,7 +166,14 @@ class _PtdPaths {
   String get root => '/ptd';
   String get stocks => '/ptd/stocks';
   String get addStock => '/ptd/stocks/add';
+  String editStock(String id) => '/ptd/stocks/edit/$id';
+  String deleteStock(String id) => '/ptd/stocks/delete/$id';
   String stockId(String id) => '/ptd/stocks/detail/$id';
+  String addItem(String id) => '/ptd/stocks/add_item/$id';
+  String editItem(String itemId, String stockId) =>
+      '/ptd/stocks/edit_item/$itemId/$stockId';
+  String deleteItem(String itemId, String stockId) =>
+      '/ptd/stocks/delete_item/$itemId/$stockId';
   String get info => '/ptd/info';
   String get option2 => '/ptd/option2';
   String get option3 => '/ptd/option3';

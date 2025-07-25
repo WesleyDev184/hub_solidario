@@ -1,13 +1,15 @@
 import 'package:app/app/ptd/stocks/widgets/action_menu_stock.dart';
 import 'package:app/app/ptd/stocks/widgets/stock_items_card.dart';
 import 'package:app/core/api/api.dart';
-import 'package:app/core/api/loans/models/items_models.dart';
+import 'package:app/core/api/stocks/models/items_models.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/utils/status_utils.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/select_field.dart';
+import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class StockPage extends StatefulWidget {
@@ -182,9 +184,15 @@ class _StockPageState extends State<StockPage> {
       builder: (BuildContext context) {
         return ActionMenuStock(
           availableQtd: _stock?.availableQtd ?? 0,
-          onCreatePressed: () {},
-          onEditPressed: () {},
-          onDeletePressed: () {},
+          onCreatePressed: () {
+            context.go(RoutePaths.ptd.addItem(_stock?.id ?? ''));
+          },
+          onEditPressed: () {
+            context.go(RoutePaths.ptd.editStock(_stock?.id ?? ''));
+          },
+          onDeletePressed: () {
+            context.go(RoutePaths.ptd.deleteStock(_stock?.id ?? ''));
+          },
           onBorrowPressed: () {},
         );
       },

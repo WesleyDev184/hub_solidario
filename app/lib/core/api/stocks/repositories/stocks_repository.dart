@@ -1,4 +1,6 @@
 import 'package:app/core/api/api_client.dart';
+import 'package:app/core/api/api_config.dart';
+import 'package:app/core/api/stocks/models/items_models.dart';
 import 'package:app/core/api/stocks/models/stocks_models.dart';
 import 'package:result_dart/result_dart.dart';
 
@@ -11,7 +13,7 @@ class StocksRepository {
   /// Busca todos os stocks
   AsyncResult<List<Stock>> getStocks() async {
     try {
-      final result = await _apiClient.get('/stocks', useAuth: true);
+      final result = await _apiClient.get(ApiEndpoints.stocks, useAuth: true);
 
       return result.fold((data) {
         try {
@@ -37,7 +39,10 @@ class StocksRepository {
   /// Busca um stock por ID
   AsyncResult<Stock> getStock(String stockId) async {
     try {
-      final result = await _apiClient.get('/stocks/$stockId', useAuth: true);
+      final result = await _apiClient.get(
+        ApiEndpoints.stockById(stockId),
+        useAuth: true,
+      );
 
       return result.fold((data) {
         try {
@@ -64,7 +69,7 @@ class StocksRepository {
   ) async {
     try {
       final result = await _apiClient.get(
-        '/stocks/orthopedic-bank/$orthopedicBankId',
+        ApiEndpoints.stocksByOrthopedicBank(orthopedicBankId),
         useAuth: true,
       );
 
@@ -95,7 +100,7 @@ class StocksRepository {
       // Se tem imagem, usa multipart
       if (request.imageFile != null || request.imageBytes != null) {
         final result = await _apiClient.postMultipart(
-          '/stocks',
+          ApiEndpoints.stocks,
           request.toJson(),
           file: request.imageFile,
           bytes: request.imageBytes,
@@ -152,7 +157,7 @@ class StocksRepository {
     try {
       // Sempre usa multipart pois a API espera form-data
       final result = await _apiClient.patchMultipart(
-        '/stocks/$stockId',
+        ApiEndpoints.stockById(stockId),
         request.toJson(),
         file: request.imageFile,
         bytes: request.imageBytes,
@@ -203,7 +208,10 @@ class StocksRepository {
   /// Deleta um stock
   AsyncResult<bool> deleteStock(String stockId) async {
     try {
-      final result = await _apiClient.delete('/stocks/$stockId', useAuth: true);
+      final result = await _apiClient.delete(
+        ApiEndpoints.stockById(stockId),
+        useAuth: true,
+      );
 
       return result.fold((data) {
         try {
@@ -218,6 +226,90 @@ class StocksRepository {
         } catch (e) {
           return Failure(
             Exception('Erro ao processar resposta da deleção: $e'),
+          );
+        }
+      }, (error) => Failure(error));
+    } catch (e) {
+      return Failure(Exception('Erro na comunicação com a API: $e'));
+    }
+  }
+
+  /// Cria um novo item em um stock
+  AsyncResult<Item> createItem(CreateItemRequest request) async {
+    try {
+      final result = await _apiClient.post(
+        ApiEndpoints.items,
+        request.toJson(),
+        useAuth: true,
+      );
+      return result.fold((data) {
+        try {
+          final response = CreateItemResponse.fromJson(data);
+          if (response.success && response.data != null) {
+            return Success(response.data!);
+          } else {
+            return Failure(Exception(response.message ?? 'Erro ao criar item'));
+          }
+        } catch (e) {
+          return Failure(
+            Exception('Erro ao processar resposta da criação do item: $e'),
+          );
+        }
+      }, (error) => Failure(error));
+    } catch (e) {
+      return Failure(Exception('Erro na comunicação com a API: $e'));
+    }
+  }
+
+  /// Atualiza um item existente
+  AsyncResult<Item> updateItem(String itemId, UpdateItemRequest request) async {
+    try {
+      final result = await _apiClient.patch(
+        ApiEndpoints.itemById(itemId),
+        request.toJson(),
+        useAuth: true,
+      );
+      return result.fold((data) {
+        try {
+          final response = UpdateItemResponse.fromJson(data);
+          if (response.success && response.data != null) {
+            return Success(response.data!);
+          } else {
+            return Failure(
+              Exception(response.message ?? 'Erro ao atualizar item'),
+            );
+          }
+        } catch (e) {
+          return Failure(
+            Exception('Erro ao processar resposta da atualização do item: $e'),
+          );
+        }
+      }, (error) => Failure(error));
+    } catch (e) {
+      return Failure(Exception('Erro na comunicação com a API: $e'));
+    }
+  }
+
+  /// Deleta um item de um stock
+  AsyncResult<bool> deleteItem(String itemId) async {
+    try {
+      final result = await _apiClient.delete(
+        ApiEndpoints.itemById(itemId),
+        useAuth: true,
+      );
+      return result.fold((data) {
+        try {
+          final response = DeleteItemResponse.fromJson(data);
+          if (response.success) {
+            return Success(true);
+          } else {
+            return Failure(
+              Exception(response.message ?? 'Erro ao deletar item'),
+            );
+          }
+        } catch (e) {
+          return Failure(
+            Exception('Erro ao processar resposta da deleção do item: $e'),
           );
         }
       }, (error) => Failure(error));

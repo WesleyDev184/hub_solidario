@@ -43,7 +43,7 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     debugInvertOversizedImages = true; // Ativa a depuração de imagens grandes
 
-    return MaterialApp.router(
+    return GetMaterialApp.router(
       supportedLocales: const [Locale('pt', 'BR')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -51,7 +51,9 @@ class _AppState extends State<App> {
         GlobalCupertinoLocalizations.delegate,
         // ...outros delegates se necessário...
       ],
-      routerConfig: _router,
+      routerDelegate: _router.routerDelegate,
+      routeInformationParser: _router.routeInformationParser,
+      routeInformationProvider: _router.routeInformationProvider,
     );
   }
 }

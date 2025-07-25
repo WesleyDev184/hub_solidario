@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:app/core/api/loans/models/items_models.dart';
+import 'package:app/core/api/stocks/models/items_models.dart';
 import 'package:app/core/api/orthopedic_banks/orthopedic_banks.dart';
 
 /// Modelo de Stock

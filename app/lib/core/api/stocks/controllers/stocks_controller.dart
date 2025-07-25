@@ -1,4 +1,5 @@
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
+import 'package:app/core/api/stocks/models/items_models.dart';
 import 'package:app/core/api/stocks/models/stocks_models.dart';
 import 'package:app/core/api/stocks/repositories/stocks_repository.dart';
 import 'package:app/core/api/stocks/services/stocks_cache_service.dart';
@@ -71,8 +72,8 @@ class StocksController extends GetxController {
         orthopedicBankId,
       );
       _isLoading.value = false;
-      return result.fold((list) {
-        cacheService.cacheStocksByBank(orthopedicBankId, list);
+      return result.fold((list) async {
+        await cacheService.cacheStocksByBank(orthopedicBankId, list);
         _stocks.assignAll(list);
         return Success(list);
       }, (error) => Failure(error));
@@ -95,8 +96,8 @@ class StocksController extends GetxController {
 
       final result = await repository.getStock(stockId);
       _isLoading.value = false;
-      return result.fold((stock) {
-        cacheService.cacheStock(stock);
+      return result.fold((stock) async {
+        await cacheService.cacheStock(stock);
         updateStockInList(stock);
         return Success(stock);
       }, (error) => Failure(error));
@@ -111,8 +112,8 @@ class StocksController extends GetxController {
       _isLoading.value = true;
       final result = await repository.createStock(request);
       _isLoading.value = false;
-      return result.fold((stock) {
-        cacheService.cacheStock(stock);
+      return result.fold((stock) async {
+        await cacheService.cacheStock(stock);
         _stocks.add(stock);
         return Success(stock.id);
       }, (error) => Failure(error));
@@ -130,8 +131,8 @@ class StocksController extends GetxController {
       _isLoading.value = true;
       final result = await repository.updateStock(stockId, request);
       _isLoading.value = false;
-      return result.fold((stock) {
-        cacheService.cacheStock(stock);
+      return result.fold((stock) async {
+        await cacheService.cacheStock(stock);
         updateStockInList(stock);
         return Success(stock);
       }, (error) => Failure(error));
@@ -146,12 +147,162 @@ class StocksController extends GetxController {
       _isLoading.value = true;
       final result = await repository.deleteStock(stockId);
       _isLoading.value = false;
-      return result.fold((success) {
+      return await result.fold((success) async {
         if (success) {
           final orthopedicBankId = authController.getOrthopedicBankId;
           if (orthopedicBankId != null) {
             _stocks.removeWhere((stock) => stock.id == stockId);
-            cacheService.removeStockFromCache(orthopedicBankId, stockId);
+            // Atualiza o cache completo após remover
+            await cacheService.cacheStocksByBank(orthopedicBankId, _stocks);
+          }
+        }
+        return Success(success);
+      }, (error) async => Failure(error));
+    } catch (e) {
+      _isLoading.value = false;
+      return Failure(Exception('Erro inesperado: $e'));
+    }
+  }
+
+  void updateStockInList(Stock stock) {
+    final index = _stocks.indexWhere((s) => s.id == stock.id);
+    if (index != -1) {
+      final savedStock = _stocks[index];
+      // Se o stock já salvo tem itens, mantém esses itens
+      final updatedStock =
+          (savedStock.items != null && savedStock.items!.isNotEmpty)
+          ? stock.copyWith(items: savedStock.items)
+          : stock.copyWith();
+      _stocks[index] = updatedStock; // garante nova referência
+    } else {
+      _stocks.add(stock);
+    }
+  }
+
+  /// Cria um novo item no estoque
+  AsyncResult<Item> createItem(CreateItemRequest request) async {
+    try {
+      _isLoading.value = true;
+      final result = await repository.createItem(request);
+      _isLoading.value = false;
+      return result.fold((item) async {
+        final stockTemp = _stocks.firstWhereOrNull(
+          (s) => s.id == request.stockId,
+        );
+
+        if (stockTemp != null) {
+          // Atualiza o stock na lista com o novo item
+          final updatedStock = stockTemp.copyWith(
+            items: [...?stockTemp.items, item],
+          );
+          _stocks[_stocks.indexOf(stockTemp)] = updatedStock;
+          await cacheService.cacheStock(updatedStock);
+        }
+
+        return Success(item);
+      }, (error) => Failure(error));
+    } catch (e) {
+      _isLoading.value = false;
+      return Failure(Exception('Erro inesperado: $e'));
+    }
+  }
+
+  /// Atualiza um item no estoque e ajusta os contadores de status
+  AsyncResult<Item> updateItem(String itemId, UpdateItemRequest request) async {
+    try {
+      _isLoading.value = true;
+      final result = await repository.updateItem(itemId, request);
+      _isLoading.value = false;
+      return result.fold((item) async {
+        final stockTemp = _stocks.firstWhereOrNull(
+          (s) => s.items?.any((i) => i.id == itemId) ?? false,
+        );
+        if (stockTemp != null) {
+          // Descobre o item antigo para saber o status anterior
+          final oldItem = stockTemp.items?.firstWhere((i) => i.id == itemId);
+          final oldStatus = oldItem?.status;
+          final newStatus = item.status;
+
+          // Atualiza o item na lista
+          final updatedItems = stockTemp.items?.map((i) {
+            return i.id == itemId ? item : i;
+          }).toList();
+
+          // Atualiza os contadores de status
+          int availableQtd = stockTemp.availableQtd;
+          int maintenanceQtd = stockTemp.maintenanceQtd;
+          int totalQtd = stockTemp.totalQtd;
+
+          if (oldStatus != null && oldStatus != newStatus) {
+            // Remove do status antigo
+            if (oldStatus == ItemStatus.available) {
+              availableQtd -= 1;
+            } else if (oldStatus == ItemStatus.maintenance) {
+              maintenanceQtd -= 1;
+            }
+
+            // Adiciona ao novo status
+            if (newStatus == ItemStatus.available) {
+              availableQtd += 1;
+            } else if (newStatus == ItemStatus.maintenance) {
+              maintenanceQtd += 1;
+            }
+          }
+
+          final updatedStock = stockTemp.copyWith(
+            items: updatedItems,
+            availableQtd: availableQtd,
+            maintenanceQtd: maintenanceQtd,
+            totalQtd: totalQtd,
+          );
+          _stocks[_stocks.indexOf(stockTemp)] = updatedStock;
+          await cacheService.cacheStock(updatedStock);
+        }
+        return Success(item);
+      }, (error) => Failure(error));
+    } catch (e) {
+      _isLoading.value = false;
+      return Failure(Exception('Erro inesperado: $e'));
+    }
+  }
+
+  /// Deleta um item do estoque e ajusta os contadores de status
+  AsyncResult<bool> deleteItem(String itemId, String stockId) async {
+    try {
+      _isLoading.value = true;
+      final result = await repository.deleteItem(itemId);
+      _isLoading.value = false;
+      return result.fold((success) async {
+        if (success) {
+          final stockTemp = _stocks.firstWhereOrNull((s) => s.id == stockId);
+          if (stockTemp != null) {
+            // Remove o item da lista de itens do estoque
+            final updatedItems = stockTemp.items
+                ?.where((i) => i.id != itemId)
+                .toList();
+            // Atualiza os contadores de status
+            int availableQtd = stockTemp.availableQtd;
+            int maintenanceQtd = stockTemp.maintenanceQtd;
+            int totalQtd = stockTemp.totalQtd;
+
+            final oldItem = stockTemp.items?.firstWhere((i) => i.id == itemId);
+            final oldStatus = oldItem?.status;
+
+            if (oldStatus == ItemStatus.available) {
+              availableQtd -= 1;
+            } else if (oldStatus == ItemStatus.maintenance) {
+              maintenanceQtd -= 1;
+            }
+            totalQtd -= 1;
+
+            final updatedStock = stockTemp.copyWith(
+              items: updatedItems,
+              availableQtd: availableQtd,
+              maintenanceQtd: maintenanceQtd,
+              totalQtd: totalQtd,
+            );
+            _stocks[_stocks.indexOf(stockTemp)] = updatedStock;
+            await cacheService.cacheStock(updatedStock);
           }
         }
         return Success(success);
@@ -167,14 +318,5 @@ class StocksController extends GetxController {
     _isLoading.value = false;
     _stocks.clear();
     await cacheService.clearCache();
-  }
-
-  void updateStockInList(Stock stock) {
-    final index = _stocks.indexWhere((s) => s.id == stock.id);
-    if (index != -1) {
-      _stocks[index] = stock.copyWith(); // garante nova referência
-    } else {
-      _stocks.add(stock);
-    }
   }
 }
