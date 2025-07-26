@@ -2,6 +2,7 @@ import 'package:app/app/ptd/applicants/add_applicant_page.dart';
 import 'package:app/app/ptd/applicants/applicant_page.dart';
 import 'package:app/app/ptd/applicants/applicants_page.dart';
 import 'package:app/app/ptd/applicants/delete_applicant_page.dart';
+import 'package:app/app/ptd/applicants/edit_applicant_page.dart';
 import 'package:app/app/ptd/loans/edit_loan_page.dart';
 import 'package:app/app/ptd/loans/finalize_loan_page.dart';
 import 'package:app/app/ptd/loans/loan_page.dart';
@@ -140,11 +141,11 @@ GoRouter createGoRouter(AuthController authController) {
                 path: 'add',
                 builder: (context, state) => AddApplicantPage(),
               ),
-              // GoRoute(
-              //   path: 'edit/:id',
-              //   builder: (context, state) =>
-              //       EditApplicantPage(applicantId: state.pathParameters['id']!),
-              // ),
+              GoRoute(
+                path: 'edit/:id',
+                builder: (context, state) =>
+                    EditApplicantPage(applicantId: state.pathParameters['id']!),
+              ),
               GoRoute(
                 path: 'delete/:id',
                 builder: (context, state) => DeleteApplicantPage(

@@ -69,7 +69,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
           },
           onEditPressed: () {
             // Navega para tela de editar solicitante
-            // context.go(RoutePaths.ptd.editApplicant(applicantId: widget.applicantId)); // ajuste conforme sua rota
+            context.go(
+              RoutePaths.ptd.applicantEdit(widget.applicantId),
+            ); // ajuste conforme sua rota
           },
           onDeletePressed: () {
             // Navega para tela de deletar solicitante

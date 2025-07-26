@@ -130,7 +130,9 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                                 qtd: applicant.beneficiaryQtd,
                                 beneficiary: applicant.isBeneficiary,
                                 onEdit: () {
-                                  // Editar applicant
+                                  context.go(
+                                    RoutePaths.ptd.applicantEdit(applicant.id),
+                                  );
                                 },
                                 onDelete: () {
                                   context.go(
