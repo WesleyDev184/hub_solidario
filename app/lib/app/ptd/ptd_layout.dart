@@ -1,6 +1,7 @@
 import 'package:app/core/widgets/background_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../go_router.dart';
 
@@ -14,11 +15,11 @@ class PtdLayout extends StatefulWidget {
 
 class _PtdLayoutState extends State<PtdLayout> {
   int _selectedIndex = 0;
-  final List<String> _tabKeys = ['stocks', 'loans', 'option3'];
+  final List<String> _tabKeys = ['stocks', 'loans', 'applicants'];
   final List<String> _routes = [
     RoutePaths.ptd.stocks,
     RoutePaths.ptd.loans,
-    RoutePaths.ptd.option3,
+    RoutePaths.ptd.applicants,
   ];
   final Map<int, String> _tabHistory = {};
 
@@ -63,11 +64,17 @@ class _PtdLayoutState extends State<PtdLayout> {
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
+            icon: Icon(LucideIcons.grid2x2),
             label: 'Categorias',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Empréstimos'),
-          BottomNavigationBarItem(icon: Icon(Icons.info), label: 'Option 3'),
+          BottomNavigationBarItem(
+            icon: Icon(LucideIcons.list),
+            label: 'Empréstimos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(LucideIcons.users),
+            label: 'Solicitantes',
+          ),
         ],
       ),
     );

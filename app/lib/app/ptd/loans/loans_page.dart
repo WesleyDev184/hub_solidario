@@ -18,7 +18,6 @@ class LoansPage extends StatefulWidget {
 class _LoansPageState extends State<LoansPage> {
   final LoansController loansController = Get.find<LoansController>();
   final TextEditingController _searchController = TextEditingController();
-  String _searchText = '';
 
   @override
   void dispose() {
@@ -42,9 +41,7 @@ class _LoansPageState extends State<LoansPage> {
               hint: "Buscar",
               icon: LucideIcons.search,
               onChanged: (value) {
-                setState(() {
-                  _searchText = value;
-                });
+                // Não precisa de setState nem variável extra
               },
             ),
             const SizedBox(height: 16),
@@ -54,7 +51,8 @@ class _LoansPageState extends State<LoansPage> {
                 if (loansController.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final filteredLoans = _searchText.isEmpty
+                final searchText = _searchController.text;
+                final filteredLoans = searchText.isEmpty
                     ? loans
                     : loans.where((loan) {
                         final applicant = loan.applicant
@@ -65,7 +63,7 @@ class _LoansPageState extends State<LoansPage> {
                             .toString()
                             .toLowerCase();
                         final itemId = loan.item.toString().toLowerCase();
-                        final query = _searchText.toLowerCase();
+                        final query = searchText.toLowerCase();
                         return applicant.contains(query) ||
                             reason.contains(query) ||
                             responsibleId.contains(query) ||

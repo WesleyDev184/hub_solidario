@@ -1,3 +1,7 @@
+import 'package:app/app/ptd/applicants/add_applicant_page.dart';
+import 'package:app/app/ptd/applicants/applicant_page.dart';
+import 'package:app/app/ptd/applicants/applicants_page.dart';
+import 'package:app/app/ptd/applicants/delete_applicant_page.dart';
 import 'package:app/app/ptd/loans/edit_loan_page.dart';
 import 'package:app/app/ptd/loans/finalize_loan_page.dart';
 import 'package:app/app/ptd/loans/loan_page.dart';
@@ -18,7 +22,6 @@ import 'app/auth/forgot_password_page.dart';
 import 'app/auth/signin_page.dart';
 import 'app/auth/signup_page.dart';
 import 'app/ptd/info/info_page.dart';
-import 'app/ptd/option3_page.dart';
 import 'app/ptd/ptd_layout.dart';
 import 'app/ptd/stocks/stock_page.dart';
 import 'app/ptd/stocks/stocks_page.dart';
@@ -125,8 +128,30 @@ GoRouter createGoRouter(AuthController authController) {
             ],
           ),
           GoRoute(
-            path: RoutePaths.ptd.option3,
-            builder: (context, state) => const Option3Page(),
+            path: RoutePaths.ptd.applicants,
+            builder: (context, state) => const ApplicantsPage(),
+            routes: [
+              GoRoute(
+                path: 'detail/:id',
+                builder: (context, state) =>
+                    ApplicantPage(applicantId: state.pathParameters['id']!),
+              ),
+              GoRoute(
+                path: 'add',
+                builder: (context, state) => AddApplicantPage(),
+              ),
+              // GoRoute(
+              //   path: 'edit/:id',
+              //   builder: (context, state) =>
+              //       EditApplicantPage(applicantId: state.pathParameters['id']!),
+              // ),
+              GoRoute(
+                path: 'delete/:id',
+                builder: (context, state) => DeleteApplicantPage(
+                  applicantId: state.pathParameters['id']!,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -191,6 +216,7 @@ class _AuthPaths {
 class _PtdPaths {
   const _PtdPaths();
   String get root => '/ptd';
+  // Stocks
   String get stocks => '/ptd/stocks';
   String get addStock => '/ptd/stocks/add';
   String editStock(String id) => '/ptd/stocks/edit/$id';
@@ -202,10 +228,20 @@ class _PtdPaths {
   String deleteItem(String itemId, String stockId) =>
       '/ptd/stocks/delete_item/$itemId/$stockId';
   String borrowItem(String stockId) => '/ptd/stocks/borrow_item/$stockId';
+
+  // Info
   String get info => '/ptd/info';
+
+  // Loans
   String get loans => '/ptd/loans';
   String loanId(String id) => '/ptd/loans/detail/$id';
   String editLoan(String id) => '/ptd/loans/edit/$id';
   String loanFinalize(String id) => '/ptd/loans/finalize/$id';
-  String get option3 => '/ptd/option3';
+
+  // Applicants
+  String get applicants => '/ptd/applicants';
+  String get addApplicant => '/ptd/applicants/add';
+  String applicantId(String id) => '/ptd/applicants/detail/$id';
+  String applicantEdit(String id) => '/ptd/applicants/edit/$id';
+  String applicantDelete(String id) => '/ptd/applicants/delete/$id';
 }

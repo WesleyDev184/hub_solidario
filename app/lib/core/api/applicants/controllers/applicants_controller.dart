@@ -103,10 +103,12 @@ class ApplicantsController extends GetxController {
         final cachedApplicant = await _cacheService.getCachedApplicant(
           applicantId,
         );
-        if (cachedApplicant != null) {
+        if (cachedApplicant != null &&
+            cachedApplicant.dependents?.isNotEmpty == true) {
           return Success(cachedApplicant);
         }
       }
+
       final result = await _repository.getApplicant(applicantId);
       return result.fold(
         (applicant) {

@@ -18,7 +18,6 @@ class StocksPage extends StatefulWidget {
 class _StocksPageState extends State<StocksPage> {
   final stocksController = Get.find<StocksController>();
   final TextEditingController _searchController = TextEditingController();
-  String _searchText = '';
 
   @override
   void dispose() {
@@ -51,9 +50,7 @@ class _StocksPageState extends State<StocksPage> {
               hint: "Buscar",
               icon: LucideIcons.search,
               onChanged: (value) {
-                setState(() {
-                  _searchText = value;
-                });
+                // Não precisa de setState nem variável extra
               },
             ),
           ),
@@ -63,14 +60,15 @@ class _StocksPageState extends State<StocksPage> {
               if (stocksController.isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-              final filteredStocks = _searchText.isEmpty
+              final searchText = _searchController.text;
+              final filteredStocks = searchText.isEmpty
                   ? stocks
                   : stocks
                         .where(
                           (stock) => stock.title
                               .toString()
                               .toLowerCase()
-                              .contains(_searchText.toLowerCase()),
+                              .contains(searchText.toLowerCase()),
                         )
                         .toList();
               if (filteredStocks.isEmpty) {
