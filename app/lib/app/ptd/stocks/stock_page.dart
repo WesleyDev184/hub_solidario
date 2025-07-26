@@ -416,7 +416,10 @@ class _StockPageState extends State<StockPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarCustom(title: _stock?.title ?? 'Categoria'),
+      appBar: AppBarCustom(
+        title: _stock?.title ?? 'Categoria',
+        path: RoutePaths.ptd.loans,
+      ),
       backgroundColor: Colors.transparent,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(), // Adiciona a animação de bounce

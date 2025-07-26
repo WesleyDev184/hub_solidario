@@ -122,6 +122,35 @@ class LoansController extends GetxController {
     }
   }
 
+  /// Carrega um loan específico pelo ID
+  AsyncResult<LoanListItem> loadLoanById(String loanId) async {
+    try {
+      _isLoading.value = true;
+      final result = _loans.firstWhereOrNull((loan) => loan.id == loanId);
+      if (result != null) {
+        _isLoading.value = false;
+        return Success(result);
+      }
+      
+      final loanResult = await _repository.getLoanById(loanId);
+      return loanResult.fold(
+        (loan) {
+          _isLoading.value = false;
+          _loans.add(LoanListItem.fromLoan(loan));
+          return Success(LoanListItem.fromLoan(loan));
+        },
+        (error) {
+          _isLoading.value = false;
+          _error.value = error.toString();
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      _error.value = e.toString();
+      return Failure(Exception('Erro inesperado: $e'));
+    }
+  }
+
   /// Atualiza um loan existente
   AsyncResult<Loan> updateLoan(String loanId, UpdateLoanRequest request) async {
     try {

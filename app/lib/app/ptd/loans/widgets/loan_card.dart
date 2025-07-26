@@ -2,7 +2,9 @@ import 'package:app/core/api/api.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/utils/utils.dart' as CoreUtils;
 import 'package:app/core/widgets/button.dart';
+import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class LoanCard extends StatelessWidget {
@@ -132,7 +134,7 @@ class LoanCard extends StatelessWidget {
                         children: [
                           Button(
                             onPressed: () {
-                              debugPrint("Ação de detalhes do empréstimo");
+                              context.go(RoutePaths.ptd.loanId(loan.id));
                             },
                             icon: Icon(
                               LucideIcons.info,

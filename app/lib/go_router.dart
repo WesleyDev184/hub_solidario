@@ -1,3 +1,4 @@
+import 'package:app/app/ptd/loans/loan_page.dart';
 import 'package:app/app/ptd/loans/loans_page.dart';
 import 'package:app/app/ptd/stocks/add_item_page.dart';
 import 'package:app/app/ptd/stocks/add_stock_page.dart';
@@ -88,12 +89,13 @@ GoRouter createGoRouter(AuthController authController) {
                 builder: (context, state) =>
                     BorrowItemPage(stockId: state.pathParameters['id']!),
               ),
+              GoRoute(
+                path: 'add',
+                builder: (context, state) => const AddStockPage(),
+              ),
             ],
           ),
-          GoRoute(
-            path: RoutePaths.ptd.addStock,
-            builder: (context, state) => const AddStockPage(),
-          ),
+
           GoRoute(
             path: RoutePaths.ptd.info,
             builder: (context, state) => const InfoPage(),
@@ -102,6 +104,13 @@ GoRouter createGoRouter(AuthController authController) {
           GoRoute(
             path: RoutePaths.ptd.loans,
             builder: (context, state) => const LoansPage(),
+            routes: [
+              GoRoute(
+                path: 'detail/:id',
+                builder: (context, state) =>
+                    LoanPage(loanId: state.pathParameters['id']!),
+              ),
+            ],
           ),
           GoRoute(
             path: RoutePaths.ptd.option3,
@@ -183,5 +192,6 @@ class _PtdPaths {
   String borrowItem(String stockId) => '/ptd/stocks/borrow_item/$stockId';
   String get info => '/ptd/info';
   String get loans => '/ptd/loans';
+  String loanId(String id) => '/ptd/loans/detail/$id';
   String get option3 => '/ptd/option3';
 }
