@@ -1,3 +1,5 @@
+import 'package:app/app/ptd/loans/edit_loan_page.dart';
+import 'package:app/app/ptd/loans/finalize_loan_page.dart';
 import 'package:app/app/ptd/loans/loan_page.dart';
 import 'package:app/app/ptd/loans/loans_page.dart';
 import 'package:app/app/ptd/stocks/add_item_page.dart';
@@ -110,6 +112,16 @@ GoRouter createGoRouter(AuthController authController) {
                 builder: (context, state) =>
                     LoanPage(loanId: state.pathParameters['id']!),
               ),
+              GoRoute(
+                path: 'finalize/:id',
+                builder: (context, state) =>
+                    FinalizeLoanPage(loanId: state.pathParameters['id']!),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                builder: (context, state) =>
+                    EditLoanPage(loanId: state.pathParameters['id']!),
+              ),
             ],
           ),
           GoRoute(
@@ -193,5 +205,7 @@ class _PtdPaths {
   String get info => '/ptd/info';
   String get loans => '/ptd/loans';
   String loanId(String id) => '/ptd/loans/detail/$id';
+  String editLoan(String id) => '/ptd/loans/edit/$id';
+  String loanFinalize(String id) => '/ptd/loans/finalize/$id';
   String get option3 => '/ptd/option3';
 }

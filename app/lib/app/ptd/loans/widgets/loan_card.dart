@@ -22,57 +22,108 @@ class LoanCard extends StatelessWidget {
   });
 
   Widget _buildImage() {
-    // Verifica se é uma URL web (começa com http:// ou https://)
+    // Adiciona uma borda à imagem usando Container e BoxDecoration
+    final borderRadius = BorderRadius.circular(12);
+    final border = Border.all(
+      color: CustomColors.primarySwatch.shade100,
+      width: 2,
+    );
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return Image.network(
-        imageUrl,
+      return SizedBox(
         width: 120,
-        height: 130,
-        fit: BoxFit.cover,
-        cacheWidth: 120,
-        cacheHeight: 130,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            width: 120,
-            height: 130,
-            color: Colors.grey.shade200,
-            child: Icon(LucideIcons.image, color: Colors.grey, size: 48),
-          );
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            width: 120,
-            height: 130,
-            color: Colors.grey.shade100,
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                    : null,
+        height: 120,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipRRect(
+              borderRadius: borderRadius,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+                child: Image.network(
+                  imageUrl,
+                  cacheWidth: 120,
+                  cacheHeight: 120,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 120,
+                      height: 120,
+                      color: Colors.grey.shade200,
+                      child: Icon(
+                        LucideIcons.image,
+                        color: Colors.grey,
+                        size: 48,
+                      ),
+                    );
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      width: 120,
+                      height: 120,
+                      color: Colors.grey.shade100,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          );
-        },
+            Container(
+              decoration: BoxDecoration(
+                border: border,
+                borderRadius: borderRadius,
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       // É um asset local
-      return Image.asset(
-        imageUrl,
+      return SizedBox(
         width: 120,
         height: 130,
-        fit: BoxFit.cover,
-        cacheWidth: 120,
-        cacheHeight: 130,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            width: 120,
-            height: 130,
-            color: Colors.grey.shade200,
-            child: Icon(LucideIcons.image, color: Colors.grey, size: 48),
-          );
-        },
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipRRect(
+              borderRadius: borderRadius,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+                child: Image.asset(
+                  imageUrl,
+                  cacheWidth: 120,
+                  cacheHeight: 120,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 120,
+                      height: 130,
+                      color: Colors.grey.shade200,
+                      child: Icon(
+                        LucideIcons.image,
+                        color: Colors.grey,
+                        size: 48,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                border: border,
+                borderRadius: borderRadius,
+              ),
+            ),
+          ],
+        ),
       );
     }
   }
@@ -92,12 +143,9 @@ class LoanCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: _buildImage(),
-                ),
+                _buildImage(),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -145,7 +193,7 @@ class LoanCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Button(
                             onPressed: () {
-                              debugPrint("Ação de editar empréstimo");
+                              context.go(RoutePaths.ptd.loanFinalize(loan.id));
                             },
                             icon: Icon(
                               LucideIcons.arrowLeft,

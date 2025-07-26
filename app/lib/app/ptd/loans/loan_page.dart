@@ -6,6 +6,7 @@ import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class LoanPage extends StatefulWidget {
@@ -53,7 +54,14 @@ class _LoanPageState extends State<LoanPage> {
       context: parentContext,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return ActionMenuLoan(onEditPressed: () {}, onFinishPressed: () {});
+        return ActionMenuLoan(
+          onEditPressed: () {
+            context.go(RoutePaths.ptd.editLoan(widget.loanId));
+          },
+          onFinishPressed: () {
+            context.go(RoutePaths.ptd.loanFinalize(widget.loanId));
+          },
+        );
       },
     );
   }
@@ -295,7 +303,7 @@ class _LoanPageState extends State<LoanPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Código: ${utils.Formats.formatSerialCode(_currentLoan?.item ?? 00000000)}',
+                      'Código: ${_currentLoan?.formattedSerialCode ?? 'N/A'}',
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,

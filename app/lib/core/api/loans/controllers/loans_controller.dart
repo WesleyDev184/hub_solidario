@@ -131,7 +131,7 @@ class LoansController extends GetxController {
         _isLoading.value = false;
         return Success(result);
       }
-      
+
       final loanResult = await _repository.getLoanById(loanId);
       return loanResult.fold(
         (loan) {
@@ -151,6 +151,27 @@ class LoansController extends GetxController {
     }
   }
 
+  /// busca na api um loan específico pelo ID
+  AsyncResult<Loan> fetchLoanById(String loanId) async {
+    try {
+      _isLoading.value = true;
+      final result = await _repository.getLoanById(loanId);
+      _isLoading.value = false;
+      return result.fold(
+        (loan) {
+          return Success(loan);
+        },
+        (error) {
+          _error.value = error.toString();
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      _error.value = e.toString();
+      return Failure(Exception('Erro inesperado: $e'));
+    }
+  }
+
   /// Atualiza um loan existente
   AsyncResult<Loan> updateLoan(String loanId, UpdateLoanRequest request) async {
     try {
@@ -160,7 +181,9 @@ class LoansController extends GetxController {
       return result.fold(
         (loan) async {
           await _cacheService.updateCachedLoan(loan);
-          updateLoanInList(LoanListItem.fromLoan(loan));
+          if (loan.isActive) {
+            updateLoanInList(LoanListItem.fromLoan(loan));
+          }
           return Success(loan);
         },
         (error) {
@@ -202,6 +225,9 @@ class LoansController extends GetxController {
   /// Marca um loan como devolvido
   AsyncResult<Loan> returnLoan(String loanId, [String? reason]) async {
     final request = UpdateLoanRequest(isActive: false, reason: reason);
+
+    _loans.removeWhere((loan) => loan.id == loanId);
+
     return updateLoan(loanId, request);
   }
 
