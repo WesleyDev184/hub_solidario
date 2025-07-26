@@ -101,7 +101,10 @@ class _ApplicantPageState extends State<ApplicantPage> {
         );
 
     return Scaffold(
-      appBar: AppBarCustom(title: currentApplicant.name ?? 'Solicitante'),
+      appBar: AppBarCustom(
+        title: currentApplicant.name ?? 'Solicitante',
+        path: RoutePaths.ptd.applicants,
+      ),
       backgroundColor: Colors.transparent,
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -238,9 +241,12 @@ class _ApplicantPageState extends State<ApplicantPage> {
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: InkWell(
                             onTap: () {
-                              // Navega para detalhes do dependente
-                              // context.go(RoutePaths.ptd.dependentId(
-                              //     dependent.id)); // ajuste conforme sua rota
+                              context.go(
+                                RoutePaths.ptd.dependentId(
+                                  widget.applicantId,
+                                  dependent.id,
+                                ),
+                              );
                             },
                             child: DependentCard(
                               dependent: dependent,

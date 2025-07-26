@@ -191,7 +191,10 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarCustom(title: "Editar Solicitante"),
+      appBar: AppBarCustom(
+        title: "Editar Solicitante",
+        path: RoutePaths.ptd.applicantId(widget.applicantId),
+      ),
       backgroundColor: Colors.transparent,
       body: Obx(() {
         final isLoading = _applicantsController.isLoading;

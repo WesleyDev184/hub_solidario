@@ -100,8 +100,8 @@ class ApplicantsController extends GetxController {
   }) async {
     try {
       if (!forceRefresh) {
-        final cachedApplicant = await _cacheService.getCachedApplicant(
-          applicantId,
+        final cachedApplicant = _applicants.firstWhereOrNull(
+          (a) => a.id == applicantId,
         );
         if (cachedApplicant != null &&
             cachedApplicant.dependents?.isNotEmpty == true) {
@@ -135,7 +135,7 @@ class ApplicantsController extends GetxController {
       _isLoading.value = false;
       return result.fold(
         (applicant) {
-          _cacheService.cacheCreatedApplicant(applicant);
+          _cacheService.cacheApplicant(applicant);
           _applicants.add(applicant);
           return Success(applicant.id);
         },
@@ -161,7 +161,7 @@ class ApplicantsController extends GetxController {
       _isLoading.value = false;
       return result.fold(
         (updatedApplicant) {
-          _cacheService.updateCachedApplicant(updatedApplicant);
+          _cacheService.updateApplicantInCache(updatedApplicant);
           updateApplicantInList(updatedApplicant);
           return Success(updatedApplicant);
         },
@@ -185,7 +185,7 @@ class ApplicantsController extends GetxController {
       return result.fold(
         (success) {
           if (success) {
-            _cacheService.removeCachedApplicant(applicantId);
+            _cacheService.removeApplicantFromCache(applicantId);
             _applicants.removeWhere((a) => a.id == applicantId);
           }
           return Success(success);
@@ -209,7 +209,15 @@ class ApplicantsController extends GetxController {
       _isLoading.value = false;
       return result.fold(
         (dependent) {
-          _cacheService.updateCachedDependent(dependent);
+          final applicant = _applicants.firstWhereOrNull(
+            (a) => a.id == request.applicantId,
+          );
+          if (applicant != null) {
+            applicant.dependents?.add(dependent);
+            _cacheService.updateApplicantInCache(applicant);
+            updateApplicantInList(applicant);
+          }
+
           return Success(dependent.id);
         },
         (error) {
@@ -219,6 +227,48 @@ class ApplicantsController extends GetxController {
       );
     } catch (e) {
       _error.value = 'Erro ao criar dependente: $e';
+      return Failure(Exception(_error.value));
+    }
+  }
+
+  /// Busca um dependent por ID
+  AsyncResult<Dependent> getDependent(
+    String dependentId,
+    String applicantId,
+  ) async {
+    try {
+      final cachedApplicant = _applicants.firstWhereOrNull(
+        (a) => a.id == applicantId,
+      );
+      if (cachedApplicant != null) {
+        final dependent = cachedApplicant.dependents?.firstWhereOrNull(
+          (d) => d.id == dependentId,
+        );
+        if (dependent != null) {
+          return Success(dependent);
+        }
+      }
+
+      final result = await _repository.getDependent(dependentId);
+      return result.fold(
+        (dependent) {
+          final applicant = _applicants.firstWhereOrNull(
+            (a) => a.id == dependent.applicantId,
+          );
+          if (applicant != null) {
+            applicant.dependents?.add(dependent);
+            _cacheService.updateApplicantInCache(applicant);
+            updateApplicantInList(applicant);
+          }
+          return Success(dependent);
+        },
+        (error) {
+          _error.value = error.toString();
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      _error.value = 'Erro ao buscar dependente: $e';
       return Failure(Exception(_error.value));
     }
   }
@@ -234,7 +284,22 @@ class ApplicantsController extends GetxController {
       _isLoading.value = false;
       return result.fold(
         (updatedDependent) {
-          _cacheService.updateCachedDependent(updatedDependent);
+          final applicant = _applicants.firstWhereOrNull(
+            (a) => a.id == updatedDependent.applicantId,
+          );
+
+          if (applicant != null) {
+            final index = applicant.dependents?.indexWhere(
+              (d) => d.id == updatedDependent.id,
+            );
+            if (index != null && index != -1) {
+              applicant.dependents![index] = updatedDependent;
+            } else {
+              applicant.dependents?.add(updatedDependent);
+            }
+            _cacheService.updateApplicantInCache(applicant);
+          }
+
           return Success(updatedDependent);
         },
         (error) {
@@ -260,7 +325,14 @@ class ApplicantsController extends GetxController {
       return result.fold(
         (success) {
           if (success) {
-            _cacheService.removeCachedDependent(dependentId, applicantId);
+            final applicant = _applicants.firstWhereOrNull(
+              (a) => a.id == applicantId,
+            );
+            if (applicant != null) {
+              applicant.dependents?.removeWhere((d) => d.id == dependentId);
+              _cacheService.updateApplicantInCache(applicant);
+              updateApplicantInList(applicant);
+            }
           }
           return Success(success);
         },
