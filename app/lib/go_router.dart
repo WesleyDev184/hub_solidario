@@ -2,6 +2,7 @@ import 'package:app/app/ptd/applicants/add_applicant_page.dart';
 import 'package:app/app/ptd/applicants/applicant_page.dart';
 import 'package:app/app/ptd/applicants/applicants_page.dart';
 import 'package:app/app/ptd/applicants/delete_applicant_page.dart';
+import 'package:app/app/ptd/applicants/dependents/add_dependent_page.dart';
 import 'package:app/app/ptd/applicants/dependents/dependent_page.dart';
 import 'package:app/app/ptd/applicants/edit_applicant_page.dart';
 import 'package:app/app/ptd/loans/edit_loan_page.dart';
@@ -140,11 +141,16 @@ GoRouter createGoRouter(AuthController authController) {
                 routes: [
                   GoRoute(
                     path: 'dependents/detail/:dependentId',
-                    builder: (context, state) =>
-                        DependentPage(
-                          applicantId: state.pathParameters['id']!,
-                          dependentId: state.pathParameters['dependentId']!,
-                        ),
+                    builder: (context, state) => DependentPage(
+                      applicantId: state.pathParameters['id']!,
+                      dependentId: state.pathParameters['dependentId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'dependents/add',
+                    builder: (context, state) => AddDependentPage(
+                      applicantId: state.pathParameters['id']!,
+                    ),
                   ),
                 ],
               ),
@@ -260,4 +266,6 @@ class _PtdPaths {
   // Dependents
   String dependentId(String applicantId, String id) =>
       '/ptd/applicants/detail/$applicantId/dependents/detail/$id';
+  String addDependent(String applicantId) =>
+      '/ptd/applicants/detail/$applicantId/dependents/add';
 }

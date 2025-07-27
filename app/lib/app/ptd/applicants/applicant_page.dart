@@ -64,8 +64,9 @@ class _ApplicantPageState extends State<ApplicantPage> {
       builder: (BuildContext context) {
         return ActionMenuApplicant(
           onCreatedPressed: () {
-            // Navega para tela de adicionar dependente
-            // context.go(RoutePaths.ptd.addDependent(applicantId: widget.applicantId)); // ajuste conforme sua rota
+            context.go(
+              RoutePaths.ptd.addDependent(widget.applicantId),
+            ); // Navega para tela de adicionar dependente
           },
           onEditPressed: () {
             // Navega para tela de editar solicitante
