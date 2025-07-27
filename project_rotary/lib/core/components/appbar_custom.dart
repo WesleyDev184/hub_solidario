@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:project_rotary/app/pdt/info/presentation/pages/info_page.dart';
 import 'package:project_rotary/core/api/auth/auth_service.dart';
 import 'package:project_rotary/core/components/button.dart';
 import 'package:project_rotary/core/theme/custom_colors.dart';
@@ -84,222 +83,220 @@ class _AppBarCustomState extends State<AppBarCustom> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.only(bottom: 8, top: 8, left: 8, right: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Navigator.canPop(context)
-                    ? IconButton(
-                      icon: Icon(LucideIcons.arrowLeft, color: _primaryColor),
-                      onPressed: () {
-                        Navigator.of(context).pop(true);
-                      },
-                    )
-                    : IconButton(
-                      icon: Icon(LucideIcons.info),
-                      onPressed: () {
-                        Navigator.of(
-                          context,
-                        ).push(MaterialPageRoute(builder: (_) => InfoPage()));
-                      },
-                      color: _primaryColor,
-                    ),
-
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 21,
-                      color: _primaryColor,
-                      fontWeight: FontWeight.w500,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: SizedBox(
+              height: kToolbarHeight - 2,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Ícone à esquerda
+                  Navigator.canPop(context)
+                      ? IconButton(
+                        icon: Icon(LucideIcons.arrowLeft, color: _primaryColor),
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                      )
+                      : IconButton(
+                        icon: Icon(LucideIcons.info),
+                        onPressed: () {},
+                        color: _primaryColor,
+                      ),
+                  // Espaço pequeno
+                  const SizedBox(width: 4),
+                  // Título centralizado, ocupa o espaço restante
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        widget.title,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 21,
+                          color: _primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-
-                IconButton(
-                  icon: Icon(LucideIcons.menu),
-                  onPressed: () {
-                    showGeneralDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      barrierLabel:
-                          MaterialLocalizations.of(
-                            context,
-                          ).modalBarrierDismissLabel,
-                      barrierColor: Colors.black54,
-                      transitionDuration: Duration(milliseconds: 300),
-                      pageBuilder: (
-                        BuildContext buildContext,
-                        Animation animation,
-                        Animation secondaryAnimation,
-                      ) {
-                        return Align(
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            height: MediaQuery.of(context).size.height,
-                            color: _primaryBg,
-                            child: Drawer(
-                              elevation: 12,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    color: CustomColors.background,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 24,
-                                    ), // opcional
-                                    child: Center(
-                                      child: SvgPicture.asset(
-                                        'assets/images/rotary.svg',
-                                        width: 150,
+                  // Espaço pequeno
+                  const SizedBox(width: 4),
+                  // Ícone à direita
+                  IconButton(
+                    icon: Icon(LucideIcons.menu),
+                    onPressed: () {
+                      showGeneralDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        barrierLabel:
+                            MaterialLocalizations.of(
+                              context,
+                            ).modalBarrierDismissLabel,
+                        barrierColor: Colors.black54,
+                        transitionDuration: const Duration(milliseconds: 300),
+                        pageBuilder: (
+                          BuildContext buildContext,
+                          Animation animation,
+                          Animation secondaryAnimation,
+                        ) {
+                          return Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              height: MediaQuery.of(context).size.height,
+                              color: _primaryBg,
+                              child: Drawer(
+                                elevation: 12,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      color: CustomColors.background,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 24,
+                                      ),
+                                      child: Center(
+                                        child: SvgPicture.asset(
+                                          'assets/images/rotary.svg',
+                                          width: 150,
+                                        ),
                                       ),
                                     ),
-                                  ),
-
-                                  // Seção de dados do usuário com dados reais
-                                  Builder(
-                                    builder: (context) {
-                                      final authController =
-                                          AuthService.instance;
-                                      final user = authController?.currentUser;
-
-                                      return Column(
-                                        children: [
-                                          ListTile(
-                                            leading: Icon(
-                                              LucideIcons.idCard,
-                                              color: CustomColors.textPrimary,
+                                    // ...existing code...
+                                    Builder(
+                                      builder: (context) {
+                                        final authController =
+                                            AuthService.instance;
+                                        final user =
+                                            authController?.currentUser;
+                                        return Column(
+                                          children: [
+                                            ListTile(
+                                              leading: Icon(
+                                                LucideIcons.idCard,
+                                                color: CustomColors.textPrimary,
+                                              ),
+                                              title: Text(
+                                                user?.name ??
+                                                    'Nome não disponível',
+                                              ),
                                             ),
-                                            title: Text(
-                                              user?.name ??
-                                                  'Nome não disponível',
+                                            const Divider(),
+                                            ListTile(
+                                              leading: Icon(
+                                                LucideIcons.mail,
+                                                color: CustomColors.textPrimary,
+                                              ),
+                                              title: Text(
+                                                user?.email ??
+                                                    'Email não disponível',
+                                              ),
                                             ),
-                                          ),
-
-                                          Divider(),
-                                          ListTile(
-                                            leading: Icon(
-                                              LucideIcons.mail,
-                                              color: CustomColors.textPrimary,
+                                            const Divider(),
+                                            ListTile(
+                                              leading: Icon(
+                                                LucideIcons.phone,
+                                                color: CustomColors.textPrimary,
+                                              ),
+                                              title: Text(
+                                                user?.phoneNumber ??
+                                                    'Telefone não disponível',
+                                              ),
                                             ),
-                                            title: Text(
-                                              user?.email ??
-                                                  'Email não disponível',
-                                            ),
-                                          ),
-
-                                          Divider(),
-                                          ListTile(
-                                            leading: Icon(
-                                              LucideIcons.phone,
-                                              color: CustomColors.textPrimary,
-                                            ),
-                                            title: Text(
-                                              user?.phoneNumber ??
-                                                  'Telefone não disponível',
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-
-                                  Spacer(),
-
-                                  // Seção do banco ortopédico com dados reais
-                                  Builder(
-                                    builder: (context) {
-                                      final authController =
-                                          AuthService.instance;
-                                      final user = authController?.currentUser;
-                                      final orthopedicBank =
-                                          user?.orthopedicBank;
-
-                                      return Card(
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 8,
-                                        ),
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: ListTile(
-                                          leading: Icon(
-                                            LucideIcons.building2,
-                                            color: CustomColors.primary,
-                                          ),
-                                          title: Text(
-                                            orthopedicBank?.name ??
-                                                'Banco não disponível',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          subtitle: Text(
-                                            orthopedicBank?.city ??
-                                                'Cidade não disponível',
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-
-                                  const SizedBox(height: 16),
-
-                                  Button(
-                                    text: "Sair",
-                                    icon: Icon(
-                                      LucideIcons.logOut,
-                                      color: CustomColors.white,
+                                          ],
+                                        );
+                                      },
                                     ),
-                                    backgroundColor: CustomColors.error,
-                                    onPressed: _handleLogout,
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 16.0,
-                                      bottom: 16.0,
+                                    const Spacer(),
+                                    Builder(
+                                      builder: (context) {
+                                        final authController =
+                                            AuthService.instance;
+                                        final user =
+                                            authController?.currentUser;
+                                        final orthopedicBank =
+                                            user?.orthopedicBank;
+                                        return Card(
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                          elevation: 4,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: ListTile(
+                                            leading: Icon(
+                                              LucideIcons.building2,
+                                              color: CustomColors.primary,
+                                            ),
+                                            title: Text(
+                                              orthopedicBank?.name ??
+                                                  'Banco não disponível',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              orthopedicBank?.city ??
+                                                  'Cidade não disponível',
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                    child: Text(
-                                      'Versão 1.0.0',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
+                                    const SizedBox(height: 16),
+                                    Button(
+                                      text: "Sair",
+                                      icon: Icon(
+                                        LucideIcons.logOut,
+                                        color: CustomColors.white,
+                                      ),
+                                      backgroundColor: CustomColors.error,
+                                      onPressed: _handleLogout,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 16.0,
+                                        bottom: 16.0,
+                                      ),
+                                      child: Text(
+                                        'Versão 1.0.0',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                      transitionBuilder: (
-                        context,
-                        animation,
-                        secondaryAnimation,
-                        child,
-                      ) {
-                        return SlideTransition(
-                          position: Tween<Offset>(
-                            begin: Offset(1, 0),
-                            end: Offset(0, 0),
-                          ).animate(animation),
-                          child: child,
-                        );
-                      },
-                    );
-                  },
-                  color: _primaryColor,
-                ),
-              ],
+                          );
+                        },
+                        transitionBuilder: (
+                          context,
+                          animation,
+                          secondaryAnimation,
+                          child,
+                        ) {
+                          return SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(1, 0),
+                              end: Offset(0, 0),
+                            ).animate(animation),
+                            child: child,
+                          );
+                        },
+                      );
+                    },
+                    color: _primaryColor,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

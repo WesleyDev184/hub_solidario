@@ -329,7 +329,7 @@ public static class StockController
             Expiration = TimeSpan.FromMinutes(5),
             LocalCacheExpiration = TimeSpan.FromMinutes(2)
           },
-          cancellationToken: ct);
+          cancellationToken: ct, tags: ["stocks"]);
 
         if (cachedResponse.Status == HttpStatusCode.NotFound)
         {

@@ -95,16 +95,21 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
 
       result.fold(
         (success) {
+          // Mostra o snackbar antes de navegar
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${widget.applicantName} excluído com sucesso!'),
               backgroundColor: CustomColors.success,
+              duration: const Duration(milliseconds: 1200),
             ),
           );
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const ApplicantsPage()),
-            (route) => false,
-          );
+          // Aguarda um curto tempo para o usuário ver o snackbar
+          Future.delayed(const Duration(milliseconds: 1200), () {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const ApplicantsPage()),
+              (route) => false,
+            );
+          });
         },
         (failure) {
           ScaffoldMessenger.of(context).showSnackBar(

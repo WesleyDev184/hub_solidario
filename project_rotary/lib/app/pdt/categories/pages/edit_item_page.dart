@@ -185,181 +185,186 @@ class _EditItemPageState extends State<EditItemPage> {
     return Scaffold(
       appBar: AppBarCustom(title: "Editar Item"),
       backgroundColor: Colors.transparent,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 24),
-              const Text(
-                'Editar Item',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: CustomColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Modifique apenas os campos que deseja alterar',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: CustomColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: CustomColors.warning.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: CustomColors.warning.withOpacity(0.3),
-                    width: 1,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 24),
+                const Text(
+                  'Editar Item',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: CustomColors.textPrimary,
                   ),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      LucideIcons.info,
-                      color: CustomColors.warning,
-                      size: 20,
+                const SizedBox(height: 8),
+                Text(
+                  'Modifique apenas os campos que deseja alterar',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: CustomColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: CustomColors.warning.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: CustomColors.warning.withOpacity(0.3),
+                      width: 1,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Atenção: Alterar o código serial pode causar inconsistências entre o sistema e o item físico. Só edite se for realmente necessário.',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: CustomColors.warning,
-                          fontWeight: FontWeight.bold,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        LucideIcons.info,
+                        color: CustomColors.warning,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Atenção: Alterar o código serial pode causar inconsistências entre o sistema e o item físico. Só edite se for realmente necessário.',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: CustomColors.warning,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Código Serial',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: CustomColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                InputField(
+                  controller: _serialCodeController,
+                  hint: '0000-0000',
+                  icon: LucideIcons.hash,
+                  mask: InputMask.serialCode,
+                  validator: _validateSerialCode,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Status',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: CustomColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<ItemStatus>(
+                  value: _selectedStatus,
+                  items:
+                      ItemStatus.values
+                          .where((status) => status != ItemStatus.unavailable)
+                          .map((status) {
+                            return DropdownMenuItem(
+                              value: status,
+                              child: Text(
+                                CoreUtils.StatusUtils.getStatusText(
+                                  status.value,
+                                ),
+                              ),
+                            );
+                          })
+                          .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedStatus = value;
+                      });
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed:
+                            _isLoading
+                                ? null
+                                : () => Navigator.pop(context, false),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: CustomColors.border),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _updateItem,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: CustomColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child:
+                            _isLoading
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      CustomColors.white,
+                                    ),
+                                  ),
+                                )
+                                : const Text(
+                                  'Atualizar',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.white,
+                                  ),
+                                ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Código Serial',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: CustomColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              InputField(
-                controller: _serialCodeController,
-                hint: '0000-0000',
-                icon: LucideIcons.hash,
-                mask: InputMask.serialCode,
-                validator: _validateSerialCode,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Status',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: CustomColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<ItemStatus>(
-                value: _selectedStatus,
-                items:
-                    ItemStatus.values
-                        .where((status) => status != ItemStatus.unavailable)
-                        .map((status) {
-                          return DropdownMenuItem(
-                            value: status,
-                            child: Text(
-                              CoreUtils.StatusUtils.getStatusText(status.value),
-                            ),
-                          );
-                        })
-                        .toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedStatus = value;
-                    });
-                  }
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed:
-                          _isLoading
-                              ? null
-                              : () => Navigator.pop(context, false),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: CustomColors.border),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Cancelar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: CustomColors.textSecondary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _updateItem,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: CustomColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child:
-                          _isLoading
-                              ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    CustomColors.white,
-                                  ),
-                                ),
-                              )
-                              : const Text(
-                                'Atualizar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.white,
-                                ),
-                              ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),

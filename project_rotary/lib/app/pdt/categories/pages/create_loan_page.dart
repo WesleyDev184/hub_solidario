@@ -244,198 +244,190 @@ class _CreateLoanPageState extends State<CreateLoanPage> {
     return Scaffold(
       appBar: AppBarCustom(title: "Criar Empréstimo"),
       backgroundColor: Colors.transparent,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 24),
-
-              const Text(
-                'Criar Novo Empréstimo',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 24),
+                const Text(
+                  'Criar Novo Empréstimo',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Categoria: ${widget.categoryTitle}',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
+                const SizedBox(height: 8),
+                Text(
+                  'Categoria: ${widget.categoryTitle}',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-
-              const SizedBox(height: 32),
-
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Item Selection
-                  const Text(
-                    'Item *',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SelectField<String>(
-                    value: _selectedItemId,
-                    hint: 'Selecione um item',
-                    icon: LucideIcons.package,
-                    validator: (value) => _validateSelection(value, 'item'),
-                    items: _items,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedItemId = value;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Applicant Selection
-                  const Text(
-                    'Solicitante *',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SelectField<String>(
-                    value: _selectedApplicantId,
-                    hint: 'Selecione um solicitante',
-                    icon: LucideIcons.user,
-                    validator:
-                        (value) => _validateSelection(value, 'solicitante'),
-                    items: _applicants,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedApplicantId = value;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Responsible Selection
-                  const Text(
-                    'Responsável *',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SelectField<String>(
-                    value: _selectedResponsibleId,
-                    hint: 'Selecione um banco ortopédico',
-                    icon: LucideIcons.building,
-                    validator:
-                        (value) => _validateSelection(value, 'responsável'),
-                    items: _responsible,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedResponsibleId = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // Reason Field
-              const Text(
-                'Motivo *',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 8),
-              InputField(
-                controller: _reasonController,
-                hint: 'Descreva o motivo do empréstimo...',
-                icon: LucideIcons.messageSquare,
-                validator: _validateReason,
-              ),
-
-              const Spacer(),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed:
-                          _isLoading ? null : () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: Colors.grey[400]!),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                const SizedBox(height: 32),
+                // Seção de seleção
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Item Selection
+                    const Text(
+                      'Item *',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
                       ),
-                      child: const Text(
-                        'Cancelar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                    ),
+                    const SizedBox(height: 8),
+                    SelectField<String>(
+                      value: _selectedItemId,
+                      hint: 'Selecione um item',
+                      icon: LucideIcons.package,
+                      validator: (value) => _validateSelection(value, 'item'),
+                      items: _items,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedItemId = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    // Applicant Selection
+                    const Text(
+                      'Solicitante *',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SelectField<String>(
+                      value: _selectedApplicantId,
+                      hint: 'Selecione um solicitante',
+                      icon: LucideIcons.user,
+                      validator:
+                          (value) => _validateSelection(value, 'solicitante'),
+                      items: _applicants,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedApplicantId = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    // Responsible Selection
+                    const Text(
+                      'Responsável *',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SelectField<String>(
+                      value: _selectedResponsibleId,
+                      hint: 'Selecione um banco ortopédico',
+                      icon: LucideIcons.building,
+                      validator:
+                          (value) => _validateSelection(value, 'responsável'),
+                      items: _responsible,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedResponsibleId = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Reason Field
+                const Text(
+                  'Motivo *',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                InputField(
+                  controller: _reasonController,
+                  hint: 'Descreva o motivo do empréstimo...',
+                  icon: LucideIcons.messageSquare,
+                  validator: _validateReason,
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed:
+                            _isLoading ? null : () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: Colors.grey[400]!),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _createLoan,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: CustomColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _createLoan,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: CustomColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
                         ),
-                        elevation: 0,
-                      ),
-                      child:
-                          _isLoading
-                              ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                        child:
+                            _isLoading
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                                : const Text(
+                                  'Criar Empréstimo',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
                                   ),
                                 ),
-                              )
-                              : const Text(
-                                'Criar Empréstimo',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
-                              ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
