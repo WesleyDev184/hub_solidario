@@ -30,18 +30,16 @@ class ApiEndpoints {
   static const String user = '/user';
   static const String users = '/users';
   static String userById(String id) => '/user/$id';
-  static String usersByOrthopedicBank(String orthopedicBankId) =>
-      '/users/orthopedic-bank/$orthopedicBankId';
+  static String usersByHub(String hubId) => '/users/hub/$hubId';
 
-  // Orthopedic Banks endpoints
-  static const String orthopedicBanks = '/orthopedic-banks';
-  static String orthopedicBankById(String id) => '/orthopedic-banks/$id';
+  // Hubs endpoints
+  static const String hubs = '/hubs';
+  static String hubById(String id) => '/hubs/$id';
 
   // Stocks endpoints
   static const String stocks = '/stocks';
   static String stockById(String id) => '/stocks/$id';
-  static String stocksByOrthopedicBank(String orthopedicBankId) =>
-      '/stocks/orthopedic-bank/$orthopedicBankId';
+  static String stocksByHub(String hubId) => '/stocks/hub/$hubId';
 
   // Items endpoints
   static const String items = '/items';

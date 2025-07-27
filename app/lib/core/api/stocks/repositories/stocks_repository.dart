@@ -63,13 +63,13 @@ class StocksRepository {
     }
   }
 
-  /// Busca stocks por banco ortopédico
-  AsyncResult<List<Stock>> getStocksByOrthopedicBank(
-    String orthopedicBankId,
+  /// Busca stocks por hub
+  AsyncResult<List<Stock>> getStocksByHubs(
+    String hubId,
   ) async {
     try {
       final result = await _apiClient.get(
-        ApiEndpoints.stocksByOrthopedicBank(orthopedicBankId),
+        ApiEndpoints.stocksByHub(hubId),
         useAuth: true,
       );
 
@@ -183,7 +183,7 @@ class StocksRepository {
                 availableQtd: 0,
                 borrowedQtd: 0,
                 totalQtd: 0,
-                orthopedicBankId: '',
+                hubId: '',
                 createdAt: DateTime.now(),
                 updatedAt: DateTime.now(),
               );

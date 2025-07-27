@@ -218,8 +218,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                         Obx(() {
                                           final user =
                                               authController.currentUser;
-                                          final orthopedicBank =
-                                              user?.orthopedicBank;
+                                          final orthopedicBank = user?.hub;
                                           return Card(
                                             margin: const EdgeInsets.symmetric(
                                               horizontal: 16,

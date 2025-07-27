@@ -19,7 +19,7 @@ class AuthController extends GetxController {
   bool get isUnauthenticated => _state.value.isUnauthenticated;
   bool get isLoading => _isLoading.value;
   User? get currentUser => _state.value.user;
-  String? get getOrthopedicBankId => _state.value.user?.orthopedicBank?.id;
+  String? get getHubId => _state.value.user?.hub?.id;
   String? get accessToken => _state.value.token;
 
   @override

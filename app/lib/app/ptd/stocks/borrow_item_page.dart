@@ -132,7 +132,7 @@ class _BorrowItemPageState extends State<BorrowItemPage> {
       return;
     }
 
-    final orthopedicBankId = currentUser.orthopedicBank?.id;
+    final orthopedicBankId = currentUser.hub?.id;
     if (orthopedicBankId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

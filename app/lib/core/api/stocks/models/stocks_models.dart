@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:app/core/api/hubs/hubs.dart';
 import 'package:app/core/api/stocks/models/items_models.dart';
-import 'package:app/core/api/orthopedic_banks/orthopedic_banks.dart';
 
 /// Modelo de Stock
 class Stock {
@@ -13,8 +13,8 @@ class Stock {
   final int availableQtd;
   final int borrowedQtd;
   final int totalQtd;
-  final String orthopedicBankId;
-  final OrthopedicBank? orthopedicBank;
+  final String hubId;
+  final Hub? hub;
   final List<Item>? items;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -27,8 +27,8 @@ class Stock {
     required this.availableQtd,
     required this.borrowedQtd,
     required this.totalQtd,
-    required this.orthopedicBankId,
-    this.orthopedicBank,
+    required this.hubId,
+    this.hub,
     this.items,
     required this.createdAt,
     required this.updatedAt,
@@ -43,11 +43,9 @@ class Stock {
       availableQtd: json['availableQtd'] as int? ?? 0,
       borrowedQtd: json['borrowedQtd'] as int? ?? 0,
       totalQtd: json['totalQtd'] as int? ?? 0,
-      orthopedicBankId: json['orthopedicBankId'] as String,
-      orthopedicBank: json['orthopedicBank'] != null
-          ? OrthopedicBank.fromJson(
-              json['orthopedicBank'] as Map<String, dynamic>,
-            )
+      hubId: json['hubId'] as String,
+      hub: json['hub'] != null
+          ? Hub.fromJson(json['hub'] as Map<String, dynamic>)
           : null,
       items: json['items'] != null
           ? (json['items'] as List<dynamic>)
@@ -72,8 +70,8 @@ class Stock {
       'availableQtd': availableQtd,
       'borrowedQtd': borrowedQtd,
       'totalQtd': totalQtd,
-      'orthopedicBankId': orthopedicBankId,
-      'orthopedicBank': orthopedicBank?.toJson(),
+      'hubId': hubId,
+      'hub': hub?.toJson(),
       'items': items?.map((item) => item.toJson()).toList(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -91,8 +89,8 @@ class Stock {
     int? availableQtd,
     int? borrowedQtd,
     int? totalQtd,
-    String? orthopedicBankId,
-    OrthopedicBank? orthopedicBank,
+    String? hubId,
+    Hub? hub,
     List<Item>? items,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -105,8 +103,8 @@ class Stock {
       availableQtd: availableQtd ?? this.availableQtd,
       borrowedQtd: borrowedQtd ?? this.borrowedQtd,
       totalQtd: totalQtd ?? this.totalQtd,
-      orthopedicBankId: orthopedicBankId ?? this.orthopedicBankId,
-      orthopedicBank: orthopedicBank ?? this.orthopedicBank,
+      hubId: hubId ?? this.hubId,
+      hub: hub ?? this.hub,
       items: items ?? this.items,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -131,26 +129,26 @@ class Stock {
 /// Request para criar um novo stock
 class CreateStockRequest {
   final String title;
-  final String orthopedicBankId;
+  final String hubId;
   final File? imageFile;
   final Uint8List? imageBytes;
   final String? imageFileName;
 
   const CreateStockRequest({
     required this.title,
-    required this.orthopedicBankId,
+    required this.hubId,
     this.imageFile,
     this.imageBytes,
     this.imageFileName,
   });
 
   Map<String, dynamic> toJson() {
-    return {'title': title, 'orthopedicBankId': orthopedicBankId};
+    return {'title': title, 'hubId': hubId};
   }
 
   @override
   String toString() {
-    return 'CreateStockRequest(title: $title, orthopedicBankId: $orthopedicBankId)';
+    return 'CreateStockRequest(title: $title, hubId: $hubId)';
   }
 }
 

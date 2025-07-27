@@ -1,37 +1,35 @@
 import 'package:app/core/api/api_client.dart';
+import 'package:app/core/api/hubs/services/hubs_cache_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:result_dart/result_dart.dart';
 
-import '../models/orthopedic_banks_models.dart';
-import '../services/orthopedic_banks_cache_service.dart';
+import '../models/hubs_models.dart';
 
-/// Repositório para operações de bancos ortopédicos
-class OrthopedicBanksRepository {
+/// Repositório para operações de hubs
+class HubsRepository {
   final ApiClient _apiClient;
 
-  OrthopedicBanksRepository({
+  HubsRepository({
     required ApiClient apiClient,
-    required OrthopedicBanksCacheService cacheService,
+    required HubsCacheService cacheService,
   }) : _apiClient = apiClient;
 
   /// Cria um novo banco ortopédico
-  AsyncResult<OrthopedicBank> createOrthopedicBank(
-    CreateOrthopedicBankRequest request,
-  ) async {
+  AsyncResult<Hub> createHub(CreateHubRequest request) async {
     try {
-      debugPrint('Creating orthopedic bank: ${request.name}');
+      debugPrint('Creating hub: ${request.name}');
 
       final result = await _apiClient.post(
-        '/orthopedic-banks',
+        '/hubs',
         request.toJson(),
         useAuth: true,
       );
 
       return result.fold((success) async {
         try {
-          final response = OrthopedicBankResponse.fromJson(
+          final response = HubResponse.fromJson(
             success,
-            (json) => OrthopedicBank.fromJson(json as Map<String, dynamic>),
+            (json) => Hub.fromJson(json as Map<String, dynamic>),
           );
 
           if (response.success && response.data != null) {
@@ -57,21 +55,16 @@ class OrthopedicBanksRepository {
   }
 
   /// Obtém todos os bancos ortopédicos
-  AsyncResult<List<OrthopedicBank>> getOrthopedicBanks({
-    bool forceRefresh = false,
-  }) async {
+  AsyncResult<List<Hub>> getHubs({bool forceRefresh = false}) async {
     try {
-      final result = await _apiClient.get('/orthopedic-banks', useAuth: true);
+      final result = await _apiClient.get('/hubs', useAuth: true);
 
       return result.fold((success) async {
         try {
-          final response = OrthopedicBankListResponse.fromJson(
+          final response = HubListResponse.fromJson(
             success,
             (json) => (json as List)
-                .map(
-                  (item) =>
-                      OrthopedicBank.fromJson(item as Map<String, dynamic>),
-                )
+                .map((item) => Hub.fromJson(item as Map<String, dynamic>))
                 .toList(),
           );
 
@@ -100,20 +93,17 @@ class OrthopedicBanksRepository {
   }
 
   /// Obtém um banco ortopédico por ID
-  AsyncResult<OrthopedicBank> getOrthopedicBank(String bankId) async {
+  AsyncResult<Hub> getHub(String bankId) async {
     try {
       debugPrint('Getting orthopedic bank: $bankId');
 
-      final result = await _apiClient.get(
-        '/orthopedic-banks/$bankId',
-        useAuth: true,
-      );
+      final result = await _apiClient.get('/hubs/$bankId', useAuth: true);
 
       return result.fold((success) async {
         try {
-          final response = OrthopedicBankResponse.fromJson(
+          final response = HubResponse.fromJson(
             success,
-            (json) => OrthopedicBank.fromJson(json as Map<String, dynamic>),
+            (json) => Hub.fromJson(json as Map<String, dynamic>),
           );
 
           if (response.success && response.data != null) {
@@ -140,22 +130,19 @@ class OrthopedicBanksRepository {
   }
 
   /// Atualiza um banco ortopédico
-  AsyncResult<OrthopedicBank> updateOrthopedicBank(
-    String bankId,
-    UpdateOrthopedicBankRequest request,
-  ) async {
+  AsyncResult<Hub> updateHub(String bankId, UpdateHubRequest request) async {
     try {
       final result = await _apiClient.patch(
-        '/orthopedic-banks/$bankId',
+        '/hubs/$bankId',
         request.toJson(),
         useAuth: true,
       );
 
       return result.fold((success) async {
         try {
-          final response = OrthopedicBankResponse.fromJson(
+          final response = HubResponse.fromJson(
             success,
-            (json) => OrthopedicBank.fromJson(json as Map<String, dynamic>),
+            (json) => Hub.fromJson(json as Map<String, dynamic>),
           );
 
           if (response.success && response.data != null) {
@@ -183,12 +170,9 @@ class OrthopedicBanksRepository {
   }
 
   /// Deleta um banco ortopédico
-  AsyncResult<bool> deleteOrthopedicBank(String bankId) async {
+  AsyncResult<bool> deleteHub(String bankId) async {
     try {
-      final result = await _apiClient.delete(
-        '/orthopedic-banks/$bankId',
-        useAuth: true,
-      );
+      final result = await _apiClient.delete('/hubs/$bankId', useAuth: true);
 
       return result.fold((success) {
         return Success(true);

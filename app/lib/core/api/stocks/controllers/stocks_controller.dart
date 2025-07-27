@@ -34,7 +34,7 @@ class StocksController extends GetxController {
     // Observa mudanças no estado de autenticação
     ever(authController.stateRx, (authState) async {
       if (authState.isAuthenticated) {
-        await loadStocksByOrthopedicBank();
+        await loadStocksByHubs();
       } else {
         await clearData();
       }
@@ -42,38 +42,32 @@ class StocksController extends GetxController {
 
     // Carrega stocks se já estiver autenticado
     if (authController.isAuthenticated) {
-      await loadStocksByOrthopedicBank();
+      await loadStocksByHubs();
     }
   }
 
-  AsyncResult<List<Stock>> loadStocksByOrthopedicBank({
-    bool forceRefresh = false,
-  }) async {
+  AsyncResult<List<Stock>> loadStocksByHubs({bool forceRefresh = false}) async {
     try {
       _isLoading.value = true;
-      final orthopedicBankId = authController.getOrthopedicBankId;
-      if (orthopedicBankId == null) {
+      final hubId = authController.getHubId;
+      if (hubId == null) {
         _isLoading.value = false;
         return Failure(
-          Exception('Usuário não possui banco ortopédico associado.'),
+          Exception('Usuário não possui hub associado.'),
         );
       }
       if (!forceRefresh) {
-        final cachedStocks = await cacheService.getCachedStocksByBank(
-          orthopedicBankId,
-        );
+        final cachedStocks = await cacheService.getCachedStocksByBank(hubId);
         if (cachedStocks != null) {
           _stocks.assignAll(cachedStocks);
           _isLoading.value = false;
           return Success(cachedStocks);
         }
       }
-      final result = await repository.getStocksByOrthopedicBank(
-        orthopedicBankId,
-      );
+      final result = await repository.getStocksByHubs(hubId);
       _isLoading.value = false;
       return result.fold((list) async {
-        await cacheService.cacheStocksByBank(orthopedicBankId, list);
+        await cacheService.cacheStocksByBank(hubId, list);
         _stocks.assignAll(list);
         return Success(list);
       }, (error) => Failure(error));
@@ -176,11 +170,11 @@ class StocksController extends GetxController {
       _isLoading.value = false;
       return await result.fold((success) async {
         if (success) {
-          final orthopedicBankId = authController.getOrthopedicBankId;
-          if (orthopedicBankId != null) {
+          final hubId = authController.getHubId;
+          if (hubId != null) {
             _stocks.removeWhere((stock) => stock.id == stockId);
             // Atualiza o cache completo após remover
-            await cacheService.cacheStocksByBank(orthopedicBankId, _stocks);
+            await cacheService.cacheStocksByBank(hubId, _stocks);
           }
         }
         return Success(success);

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:app/core/api/orthopedic_banks/controllers/orthopedic_banks_controller.dart';
+import 'package:app/core/api/hubs/controllers/hubs_controller.dart';
 import 'package:app/core/api/stocks/stocks.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
@@ -39,12 +39,12 @@ class _AddStockPageState extends State<AddStockPage> {
   void initState() {
     super.initState();
 
-    final orthopedicBankController = Get.find<OrthopedicBanksController>();
+    final hubsController = Get.find<HubsController>();
 
-    orthopedicBankItems = orthopedicBankController.banks.map((bank) {
+    orthopedicBankItems = hubsController.hubs.map((hub) {
       return DropdownMenuItem<String>(
-        value: bank.id,
-        child: Text('${bank.name} - ${bank.city}'),
+        value: hub.id,
+        child: Text('${hub.name} - ${hub.city}'),
       );
     }).toList();
 
@@ -114,7 +114,7 @@ class _AddStockPageState extends State<AddStockPage> {
 
     final data = CreateStockRequest(
       title: _titleController.text.trim(),
-      orthopedicBankId: _selectedOrthopedicBankId!,
+      hubId: _selectedOrthopedicBankId!,
       imageFile: _selectedImageFile,
       imageBytes: _selectedImageBytes,
       imageFileName: _selectedImageFile?.path.split('/').last,

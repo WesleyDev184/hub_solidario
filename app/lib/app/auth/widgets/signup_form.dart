@@ -1,6 +1,6 @@
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/api/auth/models/auth_models.dart';
-import 'package:app/core/api/orthopedic_banks/controllers/orthopedic_banks_controller.dart';
+import 'package:app/core/api/hubs/controllers/hubs_controller.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
@@ -56,7 +56,7 @@ class _SignUpFormState extends State<SignUpForm> {
         email: emailController.text.trim(),
         password: passwordController.text,
         phoneNumber: phoneController.text.trim(),
-        orthopedicBankId: selectedOrthopedicBankId!,
+        hubId: selectedOrthopedicBankId!,
       );
 
       // Cria o usuário
@@ -118,7 +118,7 @@ class _SignUpFormState extends State<SignUpForm> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro inesperado: {e.toString()}'),
+            content: Text('Erro inesperado: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -225,13 +225,13 @@ class _SignUpFormState extends State<SignUpForm> {
     });
 
     try {
-      final controller = Get.find<OrthopedicBanksController>();
+      final controller = Get.find<HubsController>();
 
       setState(() {
-        orthopedicBankItems = controller.banks.map((bank) {
+        orthopedicBankItems = controller.hubs.map((hub) {
           return DropdownMenuItem<String>(
-            value: bank.id,
-            child: Text('${bank.name} - ${bank.city}'),
+            value: hub.id,
+            child: Text('${hub.name} - ${hub.city}'),
           );
         }).toList();
         isLoadingBanks = false;

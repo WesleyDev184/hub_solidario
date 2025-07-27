@@ -1,14 +1,14 @@
 import 'package:app/core/api/auth/models/auth_models.dart';
 
 /// Modelo para banco ortopédico
-class OrthopedicBank {
+class Hub {
   final String id;
   final String name;
   final String city;
   final List<dynamic>? stocks;
   final DateTime createdAt;
 
-  const OrthopedicBank({
+  const Hub({
     required this.id,
     required this.name,
     required this.city,
@@ -16,7 +16,7 @@ class OrthopedicBank {
     required this.createdAt,
   });
 
-  factory OrthopedicBank.fromJson(Map<String, dynamic> json) => OrthopedicBank(
+  factory Hub.fromJson(Map<String, dynamic> json) => Hub(
     id: json['id'] as String,
     name: json['name'] as String,
     city: json['city'] as String,
@@ -32,14 +32,14 @@ class OrthopedicBank {
     'createdAt': createdAt.toIso8601String(),
   };
 
-  OrthopedicBank copyWith({
+  Hub copyWith({
     String? id,
     String? name,
     String? city,
     List<dynamic>? stocks,
     DateTime? createdAt,
   }) {
-    return OrthopedicBank(
+    return Hub(
       id: id ?? this.id,
       name: name ?? this.name,
       city: city ?? this.city,
@@ -50,14 +50,14 @@ class OrthopedicBank {
 }
 
 /// Modelo para criação de banco ortopédico
-class CreateOrthopedicBankRequest {
+class CreateHubRequest {
   final String name;
   final String city;
 
-  const CreateOrthopedicBankRequest({required this.name, required this.city});
+  const CreateHubRequest({required this.name, required this.city});
 
-  factory CreateOrthopedicBankRequest.fromJson(Map<String, dynamic> json) =>
-      CreateOrthopedicBankRequest(
+  factory CreateHubRequest.fromJson(Map<String, dynamic> json) =>
+      CreateHubRequest(
         name: json['name'] as String,
         city: json['city'] as String,
       );
@@ -66,14 +66,14 @@ class CreateOrthopedicBankRequest {
 }
 
 /// Modelo para atualização de banco ortopédico
-class UpdateOrthopedicBankRequest {
+class UpdateHubRequest {
   final String? name;
   final String? city;
 
-  const UpdateOrthopedicBankRequest({this.name, this.city});
+  const UpdateHubRequest({this.name, this.city});
 
-  factory UpdateOrthopedicBankRequest.fromJson(Map<String, dynamic> json) =>
-      UpdateOrthopedicBankRequest(
+  factory UpdateHubRequest.fromJson(Map<String, dynamic> json) =>
+      UpdateHubRequest(
         name: json['name'] as String?,
         city: json['city'] as String?,
       );
@@ -87,7 +87,7 @@ class UpdateOrthopedicBankRequest {
 }
 
 /// Tipo específico para resposta de banco ortopédico único
-typedef OrthopedicBankResponse = ControllerResponse<OrthopedicBank>;
+typedef HubResponse = ControllerResponse<Hub>;
 
 /// Tipo específico para resposta de lista de bancos ortopédicos
-typedef OrthopedicBankListResponse = ControllerResponse<List<OrthopedicBank>>;
+typedef HubListResponse = ControllerResponse<List<Hub>>;
