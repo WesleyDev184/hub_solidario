@@ -58,9 +58,9 @@ public static class StockController
         StatusCodes.Status404NotFound,
         typeof(ExampleResponseStockHubNotFoundDTO))]
     [SwaggerRequestExample(
-        typeof(RequestCreateStockDto),
+        typeof(RequestCreateStockFormDto),
         typeof(ExampleRequestCreateStockFormDto))]
-    async ([FromForm] RequestCreateStockDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
+    async ([FromForm] RequestCreateStockFormDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
       {
         // Converter o form DTO para o DTO original
         var request = new RequestCreateStockDto(
@@ -213,9 +213,9 @@ public static class StockController
         StatusCodes.Status409Conflict,
         typeof(ExampleResponseConflictStockDTO))]
     [SwaggerRequestExample(
-        typeof(RequestUpdateStockDto),
+        typeof(RequestUpdateStockFormDto),
         typeof(ExampleRequestUpdateStockFormDto))]
-    async (Guid id, [FromForm] RequestUpdateStockDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
+    async (Guid id, [FromForm] RequestUpdateStockFormDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
       {
         // Converter o form DTO para o DTO original
         var request = new RequestUpdateStockDto(
