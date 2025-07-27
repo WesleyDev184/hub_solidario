@@ -38,7 +38,7 @@ api/
 │   ├── Dependents/                # Gestão de dependentes
 │   ├── Items/                     # Gestão de itens individuais
 │   ├── Loans/                     # Gestão de empréstimos
-│   ├── OrthopedicBanks/          # Gestão de bancos ortopédicos
+│   ├── Hubs/          # Gestão de bancos ortopédicos
 │   └── Stocks/                    # Gestão de estoques
 ├── Migrations/                    # Migrações do banco de dados
 ├── Swagger/                       # Configurações do Swagger
@@ -48,7 +48,7 @@ api/
 
 ## 🗂️ Módulos Funcionais
 
-### 1. **OrthopedicBanks** (Bancos Ortopédicos)
+### 1. **Hubs** (Bancos Ortopédicos)
 
 - Representa os bancos/fornecedores de órteses
 - Gerencia informações sobre as fontes dos equipamentos
@@ -94,7 +94,7 @@ api/
 ## 🔗 Relacionamentos Entre Entidades
 
 ```
-OrthopedicBank (1) ──── (N) Stock
+Hub (1) ──── (N) Stock
 Stock (1) ──── (N) Item
 Applicant (1) ──── (N) Dependent
 Applicant (1) ──── (N) Loan
@@ -244,7 +244,6 @@ X-Api-Key: your-secret-api-key
 - Logs estruturados disponíveis
 - Health checks podem ser implementados
 - Métricas de cache híbrido
-
 
 ## 📄 Licença
 

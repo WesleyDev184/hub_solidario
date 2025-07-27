@@ -1,5 +1,5 @@
 using System.Net;
-using api.Modules.OrthopedicBanks.Dto;
+using api.Modules.Hubs.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Auth.Dto;
@@ -14,8 +14,8 @@ public record ResponseEntityUserDTO(
   string Email,
   [property: SwaggerSchema(Description = "Phone number of the user", Format = "string")]
   string PhoneNumber,
-  [property: SwaggerSchema(Description = "Role of the user")]
-  ResponseEntityOrthopedicBankDTO? OrthopedicBank,
+  [property: SwaggerSchema(Description = "Hub associated with the user")]
+  ResponseEntityHubDTO? Hub,
   [property: SwaggerSchema(Description = "Creation date of the user", Format = "date-time")]
   DateTime CreatedAt
 );

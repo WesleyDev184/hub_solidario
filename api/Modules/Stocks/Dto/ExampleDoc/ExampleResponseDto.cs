@@ -1,7 +1,7 @@
 using Swashbuckle.AspNetCore.Filters;
 using api.Modules.Items.Dto;
 using api.Modules.Items.Enum;
-using api.Modules.OrthopedicBanks.Dto;
+using api.Modules.Hubs.Dto;
 
 namespace api.Modules.Stocks.Dto.ExampleDoc
 {
@@ -20,8 +20,8 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
             AvailableQtd: 10,
             BorrowedQtd: 2,
             TotalQtd: 17,
-            OrthopedicBankId: Guid.NewGuid(),
-            OrthopedicBank: null,
+            HubId: Guid.NewGuid(),
+            Hub: null,
             Items: null,
             CreatedAt: DateTime.UtcNow
           ),
@@ -45,8 +45,8 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
             AvailableQtd: 10,
             BorrowedQtd: 2,
             TotalQtd: 17,
-            OrthopedicBankId: Guid.NewGuid(),
-            OrthopedicBank: null,
+            HubId: Guid.NewGuid(),
+            Hub: null,
             Items: null,
             CreatedAt: DateTime.UtcNow
           ),
@@ -96,10 +96,10 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
           AvailableQtd: 10,
           BorrowedQtd: 2,
           TotalQtd: 17,
-          OrthopedicBankId: Guid.NewGuid(),
-          OrthopedicBank: new ResponseEntityOrthopedicBankDTO(
+          HubId: Guid.NewGuid(),
+          Hub: new ResponseEntityHubDTO(
             Id: Guid.NewGuid(),
-            Name: "Orthopedic Bank Name",
+            Name: "Hub Name",
             City: "Barra do Garças - MT",
             null,
             CreatedAt:
@@ -149,14 +149,14 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
     }
   }
 
-  public class ExampleResponseStockOrthopedicBankNotFoundDTO : IExamplesProvider<ResponseControllerStockDTO>
+  public class ExampleResponseStockHubNotFoundDTO : IExamplesProvider<ResponseControllerStockDTO>
   {
     public ResponseControllerStockDTO GetExamples()
     {
       return new ResponseControllerStockDTO(
         Success: false,
         Data: null,
-        Message: "Orthopedic Bank with is Id not found"
+        Message: "Hub with is Id not found"
       );
     }
   }
@@ -179,8 +179,8 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
             AvailableQtd: 10,
             BorrowedQtd: 2,
             TotalQtd: 17,
-            OrthopedicBankId: Guid.NewGuid(),
-            OrthopedicBank: null,
+            HubId: Guid.NewGuid(),
+            Hub: null,
             Items: null,
             CreatedAt: DateTime.UtcNow
           )

@@ -4,14 +4,14 @@ using api.Modules.Applicants.Entity;
 using api.Modules.Dependents.Entity;
 using api.Modules.Items.Entity;
 using api.Modules.Loans.Entity;
-using api.Modules.OrthopedicBanks.Entity;
+using api.Modules.Hubs.Entity;
 using api.Modules.Stocks.Entity;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 
 public class ApiDbContext : DbContext
 {
-  public DbSet<OrthopedicBank> OrthopedicBanks { get; set; }
+  public DbSet<Hub> Hubs { get; set; }
   public DbSet<Stock> Stocks { get; set; }
   public DbSet<Item> Items { get; set; }
   public DbSet<Applicant> Applicants { get; set; }
@@ -33,11 +33,11 @@ public class ApiDbContext : DbContext
   {
     base.OnModelCreating(modelBuilder);
 
-    // Relacionamento OrthopedicBank -> Stock
-    modelBuilder.Entity<OrthopedicBank>()
-      .HasMany(ob => ob.Stocks)
-      .WithOne(s => s.OrthopedicBank)
-      .HasForeignKey(s => s.OrthopedicBankId)
+    // Relacionamento Hub -> Stock
+    modelBuilder.Entity<Hub>()
+      .HasMany(h => h.Stocks)
+      .WithOne(s => s.Hub)
+      .HasForeignKey(s => s.HubId)
       .OnDelete(DeleteBehavior.Cascade);
 
     modelBuilder.Entity<Stock>()

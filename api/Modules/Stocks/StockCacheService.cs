@@ -8,7 +8,7 @@ public static class StockCacheService
   {
     public const string AllStocks = "stocks-all";
     public static string StockById(Guid id) => $"stock-{id}";
-    public static string StocksByOrthopedicBank(Guid orthopedicBankId) => $"stocks-orthopedic-bank-{orthopedicBankId}";
+    public static string StocksByHub(Guid hubId) => $"stocks-hub-{hubId}";
   }
 
   /// <summary>
@@ -22,20 +22,20 @@ public static class StockCacheService
   /// <summary>
   /// Invalida o cache de um stock específico
   /// </summary>
-  public static async Task InvalidateStockCache(HybridCache cache, Guid stockId, Guid? orthopedicBankId, CancellationToken ct = default)
+  public static async Task InvalidateStockCache(HybridCache cache, Guid stockId, Guid? hubId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.StockById(stockId), ct);
     await InvalidateAllStockCaches(cache, ct);
 
-    if (orthopedicBankId.HasValue)
-      await InvalidateOrthopedicBankStockCaches(cache, orthopedicBankId.Value, ct);
+    if (hubId.HasValue)
+      await InvalidateHubStockCaches(cache, hubId.Value, ct);
   }
 
   /// <summary>
   /// Invalida caches relacionados a um banco ortopédico específico
   /// </summary>
-  public static async Task InvalidateOrthopedicBankStockCaches(HybridCache cache, Guid orthopedicBankId, CancellationToken ct = default)
+  public static async Task InvalidateHubStockCaches(HybridCache cache, Guid hubId, CancellationToken ct = default)
   {
-    await cache.RemoveAsync(Keys.StocksByOrthopedicBank(orthopedicBankId), ct);
+    await cache.RemoveAsync(Keys.StocksByHub(hubId), ct);
   }
 }

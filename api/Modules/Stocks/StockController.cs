@@ -4,7 +4,6 @@ using api.Modules.Stocks.Dto;
 using api.Modules.Stocks.Dto.ExampleDoc;
 using api.Services.S3;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
@@ -22,7 +21,7 @@ public static class StockController
       [
         SwaggerOperation(
           Summary = "Create a new stock",
-          Description = "Creates a new stock in the system. This endpoint accepts form-data with the following fields: Title (required), OrthopedicBankId (required), and ImageFile (optional).")
+          Description = "Creates a new stock in the system. This endpoint accepts form-data with the following fields: Title (required), HubId (required), and ImageFile (optional).")
       ]
     [SwaggerResponse(
         StatusCodes.Status201Created,
@@ -41,7 +40,7 @@ public static class StockController
         "An unexpected error occurred.",
         typeof(ResponseControllerStockDTO))]
     [SwaggerResponse(StatusCodes.Status404NotFound,
-        $"Orthopedic bank with ID not found.",
+        $"hub with ID not found.",
         typeof(ResponseControllerStockDTO))]
     [SwaggerResponseExample(
         StatusCodes.Status201Created,
@@ -57,17 +56,17 @@ public static class StockController
         typeof(ExampleResponseInternalServerErrorStockDTO))]
     [SwaggerResponseExample(
         StatusCodes.Status404NotFound,
-        typeof(ExampleResponseStockOrthopedicBankNotFoundDTO))]
+        typeof(ExampleResponseStockHubNotFoundDTO))]
     [SwaggerRequestExample(
-        typeof(RequestCreateStockFormDto),
+        typeof(RequestCreateStockDto),
         typeof(ExampleRequestCreateStockFormDto))]
-    async ([FromForm] RequestCreateStockFormDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
+    async ([FromForm] RequestCreateStockDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
       {
         // Converter o form DTO para o DTO original
         var request = new RequestCreateStockDto(
           formRequest.Title,
           formRequest.ImageFile,
-          formRequest.OrthopedicBankId
+          formRequest.HubId
         );
 
         var response = await StockService.CreateStock(request, context, fileStorageService, ct);
@@ -75,7 +74,7 @@ public static class StockController
         // Invalidar cache após criação bem-sucedida
         if (response.Status == HttpStatusCode.Created)
         {
-          await StockCacheService.InvalidateStockCache(cache, response.Data!.Id, response.Data.OrthopedicBankId, ct);
+          await StockCacheService.InvalidateStockCache(cache, response.Data!.Id, response.Data.HubId, ct);
         }
 
         return response.Status switch
@@ -214,9 +213,9 @@ public static class StockController
         StatusCodes.Status409Conflict,
         typeof(ExampleResponseConflictStockDTO))]
     [SwaggerRequestExample(
-        typeof(RequestUpdateStockFormDto),
+        typeof(RequestUpdateStockDto),
         typeof(ExampleRequestUpdateStockFormDto))]
-    async (Guid id, [FromForm] RequestUpdateStockFormDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
+    async (Guid id, [FromForm] RequestUpdateStockDto formRequest, ApiDbContext context, IFileStorageService fileStorageService, HybridCache cache, CancellationToken ct) =>
       {
         // Converter o form DTO para o DTO original
         var request = new RequestUpdateStockDto(
@@ -232,7 +231,7 @@ public static class StockController
         // Invalidar cache após atualização bem-sucedida
         if (response.Status == HttpStatusCode.OK)
         {
-          await StockCacheService.InvalidateStockCache(cache, id, response.Data!.OrthopedicBankId, ct);
+          await StockCacheService.InvalidateStockCache(cache, id, response.Data!.HubId, ct);
         }
 
         return response.Status switch
@@ -288,7 +287,7 @@ public static class StockController
         // Invalidar cache após exclusão bem-sucedida
         if (response.Status == HttpStatusCode.OK)
         {
-          await StockCacheService.InvalidateStockCache(cache, id, response.OrthopedicBankId, ct);
+          await StockCacheService.InvalidateStockCache(cache, id, response.HubId, ct);
         }
 
         return response.Status switch
@@ -303,10 +302,10 @@ public static class StockController
       });
 
     // Endpoint adicional com cache por banco ortopédico (opcional)
-    stockGroup.MapGet("/orthopedic-bank/{orthopedicBankId:guid}",
+    stockGroup.MapGet("/hub/{HubId:guid}",
       [SwaggerOperation(
-        Summary = "Get stocks by orthopedic bank",
-        Description = "Retrieves all stocks for a specific orthopedic bank.")
+        Summary = "Get stocks by hub",
+        Description = "Retrieves all stocks for a specific hub.")
       ]
     [SwaggerResponse(
         StatusCodes.Status200OK,
@@ -314,16 +313,16 @@ public static class StockController
         typeof(ResponseControllerStockListDTO))]
     [SwaggerResponse(
         StatusCodes.Status404NotFound,
-        "Orthopedic bank not found.",
+        "hub not found.",
         typeof(ResponseControllerStockListDTO))]
-    async (Guid orthopedicBankId, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+    async (Guid HubId, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
       {
-        var cacheKey = StockCacheService.Keys.StocksByOrthopedicBank(orthopedicBankId);
+        var cacheKey = StockCacheService.Keys.StocksByHub(HubId);
 
         // Buscar stocks do banco ortopédico específico com cache
         var cachedResponse = await cache.GetOrCreateAsync(
           cacheKey,
-          async cancel => await StockService.GetStocksByOrthopedicBank(orthopedicBankId, context, cancel),
+          async cancel => await StockService.GetStocksByHub(HubId, context, cancel),
           options: new HybridCacheEntryOptions
           {
             Expiration = TimeSpan.FromMinutes(5),

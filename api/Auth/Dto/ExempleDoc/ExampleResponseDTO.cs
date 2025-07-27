@@ -1,4 +1,4 @@
-using api.Modules.OrthopedicBanks.Dto;
+using api.Modules.Hubs.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -117,10 +117,10 @@ public class ExampleResponseGetUserDTO : IExamplesProvider<ResponseControllerUse
         "John Doe",
         "Doe@exemple.com",
         "11999999999",
-        new ResponseEntityOrthopedicBankDTO(
+        new ResponseEntityHubDTO(
           Guid.Parse("00000000-0000-0000-0000-000000000000"),
-          "Orthopedic Bank Name",
-          "Orthopedic Bank Description",
+          "Hub Name",
+          "Hub Description",
           null,
           DateTime.UtcNow
         ),

@@ -45,7 +45,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
-            OrthopedicBank: null,
+            Hub: null,
             CreatedAt: DateTime.UtcNow
           ),
           CreatedAt: DateTime.UtcNow
@@ -91,7 +91,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
-            OrthopedicBank: null,
+            Hub: null,
             CreatedAt: DateTime.UtcNow
           ),
           CreatedAt: DateTime.UtcNow
@@ -228,7 +228,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
-            OrthopedicBank: null,
+            Hub: null,
             CreatedAt: DateTime.UtcNow
           ),
           CreatedAt: DateTime.UtcNow
