@@ -21,15 +21,16 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
   /// Exemplo de requisição para criar um stock via form-data (usado para multipart/form-data requests)
   /// Este exemplo mostra como enviar dados via form-data incluindo upload de arquivo
   /// </summary>
-  public class ExampleRequestCreateStockFormDto : IExamplesProvider<RequestCreateStockDto>
+  public class ExampleRequestCreateStockFormDto : IExamplesProvider<RequestCreateStockFormDto>
   {
-    public RequestCreateStockDto GetExamples()
+    public RequestCreateStockFormDto GetExamples()
     {
-      return new RequestCreateStockDto(
-        Title: "Cadeira de Rodas Dobrável",
-        ImageFile: null, // O arquivo será enviado via form-data no campo "ImageFile"
-        HubId: new Guid("12345678-1234-1234-1234-123456789012") // ID de exemplo fixo
-      );
+      return new RequestCreateStockFormDto
+      {
+        Title = "Cadeira de Rodas Dobrável",
+        ImageFile = null, // O arquivo será enviado via form-data no campo "ImageFile"
+        HubId = new Guid("12345678-1234-1234-1234-123456789012") // ID de exemplo fixo
+      };
     }
   }
 
@@ -54,17 +55,18 @@ namespace api.Modules.Stocks.Dto.ExampleDoc
   /// Exemplo de requisição para atualizar um stock via form-data (usado para multipart/form-data requests)
   /// Este exemplo mostra como enviar dados via form-data incluindo upload de arquivo
   /// </summary>
-  public class ExampleRequestUpdateStockFormDto : IExamplesProvider<RequestUpdateStockDto>
+  public class ExampleRequestUpdateStockFormDto : IExamplesProvider<RequestUpdateStockFormDto>
   {
-    public RequestUpdateStockDto GetExamples()
+    public RequestUpdateStockFormDto GetExamples()
     {
-      return new RequestUpdateStockDto(
-        Title: "Cadeira de Rodas Dobrável - Atualizada",
-        ImageFile: null, // O arquivo será enviado via form-data no campo "ImageFile"
-        MaintenanceQtd: 2,  // Quantidade em manutenção
-        AvailableQtd: 8,    // Quantidade disponível
-        BorrowedQtd: 5      // Quantidade emprestada
-      );
+      return new RequestUpdateStockFormDto
+      {
+        Title = "Cadeira de Rodas Dobrável - Atualizada",
+        ImageFile = null, // O arquivo será enviado via form-data no campo "ImageFile"
+        MaintenanceQtd = 2,  // Quantidade em manutenção
+        AvailableQtd = 8,    // Quantidade disponível
+        BorrowedQtd = 5      // Quantidade emprestada
+      };
     }
   }
 }
