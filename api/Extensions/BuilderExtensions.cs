@@ -92,9 +92,9 @@ namespace api.Extensions
           c.SwaggerDoc("v1",
             new OpenApiInfo
             {
-              Title = "Rotary API",
-              Version = "v1.4",
-              Description = "API for Rotary Club orthosis loan management system.",
+              Title = "Hub API",
+              Version = "v1.5",
+              Description = "API for Hub Solidario loan management system.",
             });
           c.EnableAnnotations();
           c.ExampleFilters();
