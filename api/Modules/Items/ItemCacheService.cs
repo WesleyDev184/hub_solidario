@@ -35,5 +35,6 @@ public static class ItemCacheService
       await cache.RemoveAsync(StockCacheService.Keys.StockById(StockId.Value), ct);
       await cache.RemoveAsync(Keys.ItemStockById(StockId.Value), ct);
     }
+
   }
 }
