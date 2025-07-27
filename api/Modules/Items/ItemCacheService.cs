@@ -1,3 +1,4 @@
+using api.Modules.Stocks;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace api.Modules.Items;
@@ -28,7 +29,11 @@ public static class ItemCacheService
     await InvalidateAllItemCaches(cache, ct);
     await cache.RemoveByTagAsync("loans", ct);
     await cache.RemoveByTagAsync("stocks", ct);
+
     if (StockId.HasValue)
+    {
+      await cache.RemoveAsync(StockCacheService.Keys.StockById(StockId.Value), ct);
       await cache.RemoveAsync(Keys.ItemStockById(StockId.Value), ct);
+    }
   }
 }
