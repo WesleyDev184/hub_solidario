@@ -291,7 +291,9 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
                         child: OutlinedButton(
                           onPressed: isLoading
                               ? null
-                              : () => Navigator.pop(context),
+                              : () => context.go(
+                                  RoutePaths.ptd.applicants,
+                                ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             side: BorderSide(color: Colors.grey[400]!),

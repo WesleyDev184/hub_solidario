@@ -373,7 +373,11 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
                             child: OutlinedButton(
                               onPressed: isLoading
                                   ? null
-                                  : () => Navigator.pop(context),
+                                  : () => context.go(
+                                      RoutePaths.ptd.applicantId(
+                                        widget.applicantId,
+                                      ),
+                                    ),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,

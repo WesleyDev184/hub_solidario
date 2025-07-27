@@ -9,16 +9,21 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-class AddDependentPage extends StatefulWidget {
+class EditDependentPage extends StatefulWidget {
+  final String dependentId;
   final String applicantId;
 
-  const AddDependentPage({super.key, required this.applicantId});
+  const EditDependentPage({
+    super.key,
+    required this.dependentId,
+    required this.applicantId,
+  });
 
   @override
-  State<AddDependentPage> createState() => _AddDependentPageState();
+  State<EditDependentPage> createState() => _EditDependentPageState();
 }
 
-class _AddDependentPageState extends State<AddDependentPage> {
+class _EditDependentPageState extends State<EditDependentPage> {
   final _applicantsController = Get.find<ApplicantsController>();
 
   final _formKey = GlobalKey<FormState>();
@@ -28,30 +33,56 @@ class _AddDependentPageState extends State<AddDependentPage> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
 
-  String applicantName = '';
+  String? _applicantName;
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadApplicant();
+      _loadInfo();
     });
   }
 
-  void _loadApplicant() async {
-    final result = await _applicantsController.getApplicant(widget.applicantId);
+  void _loadInfo() async {
+    final result = await _applicantsController.getDependent(
+      widget.dependentId,
+      widget.applicantId,
+    );
 
-    result.fold(
+    final applicantResult = await _applicantsController.getApplicant(
+      widget.applicantId,
+    );
+
+    applicantResult.fold(
       (applicant) {
         setState(() {
-          applicantName = applicant.name ?? '';
+          _applicantName = applicant.name;
         });
       },
       (error) {
         Get.snackbar(
           'Erro',
-          'Não foi possível carregar os dados do solicitante.',
+          'Não foi possível carregar os dados do responsável.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      },
+    );
+
+    result.fold(
+      (dependent) {
+        setState(() {
+          _nameController.text = dependent.name ?? '';
+          _cpfController.text = dependent.cpf ?? '';
+          _emailController.text = dependent.email ?? '';
+          _phoneController.text = dependent.phoneNumber ?? '';
+          _addressController.text = dependent.address ?? '';
+        });
+      },
+      (error) {
+        Get.snackbar(
+          'Erro',
+          'Não foi possível carregar os dados do dependente.',
           snackPosition: SnackPosition.BOTTOM,
         );
       },
@@ -68,11 +99,10 @@ class _AddDependentPageState extends State<AddDependentPage> {
     super.dispose();
   }
 
-  Future<void> _createDependent() async {
+  Future<void> _updateDependent() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final request = CreateDependentRequest(
-      applicantId: widget.applicantId,
+    final request = UpdateDependentRequest(
       name: _nameController.text.trim(),
       cpf: _cpfController.text.trim(),
       email: _emailController.text.trim(),
@@ -80,23 +110,28 @@ class _AddDependentPageState extends State<AddDependentPage> {
       address: _addressController.text.trim(),
     );
 
-    final result = await _applicantsController.createDependent(request);
+    final result = await _applicantsController.updateDependent(
+      widget.dependentId,
+      request,
+    );
 
     if (mounted) {
       result.fold(
-        (dependent) {
+        (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${_nameController.text} criado com sucesso!'),
+              content: Text('${_nameController.text} atualizado com sucesso!'),
               backgroundColor: Colors.green,
             ),
           );
-          context.go(RoutePaths.ptd.applicantId(widget.applicantId));
+          context.go(
+            RoutePaths.ptd.dependentId(widget.applicantId, widget.dependentId),
+          );
         },
         (error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Erro ao criar dependente: $error'),
+              content: Text('Erro ao atualizar dependente: $error'),
               backgroundColor: Colors.red,
             ),
           );
@@ -152,10 +187,7 @@ class _AddDependentPageState extends State<AddDependentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarCustom(
-        title: 'Criar Dependente',
-        path: RoutePaths.ptd.applicantId(widget.applicantId),
-      ),
+      appBar: AppBarCustom(title: 'Editar Dependente'),
       backgroundColor: Colors.transparent,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -167,7 +199,7 @@ class _AddDependentPageState extends State<AddDependentPage> {
               const SizedBox(height: 24),
 
               const Text(
-                'Criar Dependente',
+                'Editar Dependente',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -176,7 +208,7 @@ class _AddDependentPageState extends State<AddDependentPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Dependente de: $applicantName',
+                'Dependente de: ${_applicantName ?? 'Carregando...'}',
                 style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
 
@@ -294,9 +326,7 @@ class _AddDependentPageState extends State<AddDependentPage> {
                       child: OutlinedButton(
                         onPressed: _applicantsController.isLoading
                             ? null
-                            : () => context.go(
-                                RoutePaths.ptd.applicantId(widget.applicantId),
-                              ),
+                            : () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           side: BorderSide(color: Colors.grey[400]!),
@@ -319,7 +349,7 @@ class _AddDependentPageState extends State<AddDependentPage> {
                       child: ElevatedButton(
                         onPressed: _applicantsController.isLoading
                             ? null
-                            : _createDependent,
+                            : _updateDependent,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: CustomColors.primary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -340,7 +370,7 @@ class _AddDependentPageState extends State<AddDependentPage> {
                                 ),
                               )
                             : const Text(
-                                'Criar',
+                                'Salvar',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -352,7 +382,6 @@ class _AddDependentPageState extends State<AddDependentPage> {
                   ],
                 ),
               ),
-              const SizedBox(width: 24),
             ],
           ),
         ),

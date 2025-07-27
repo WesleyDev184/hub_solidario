@@ -8,6 +8,7 @@ import 'package:app/core/widgets/info_row.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class DependentPage extends StatefulWidget {
@@ -64,8 +65,22 @@ class _DependentPageState extends State<DependentPage> {
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return ActionMenuDependent(
-          onEditPressed: () => {},
-          onDeletePressed: () => {},
+          onEditPressed: () => {
+            context.go(
+              RoutePaths.ptd.dependentEdit(
+                widget.applicantId,
+                widget.dependentId,
+              ),
+            ),
+          },
+          onDeletePressed: () => {
+            context.go(
+              RoutePaths.ptd.dependentDelete(
+                widget.applicantId,
+                widget.dependentId,
+              ),
+            ),
+          },
         );
       },
     );

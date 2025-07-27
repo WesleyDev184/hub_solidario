@@ -254,16 +254,20 @@ class _ApplicantPageState extends State<ApplicantPage> {
                               imageUrl: 'assets/images/dog.jpg',
                               applicantName: applicant?.name ?? 'Solicitante',
                               onEdit: () {
-                                // Navega para tela de editar dependente
-                                // context.go(RoutePaths.ptd.editDependent(
-                                //     dependentId: dependent.id,
-                                //     applicantId: widget.applicantId)); // ajuste conforme sua rota
+                                context.go(
+                                  RoutePaths.ptd.dependentEdit(
+                                    widget.applicantId,
+                                    dependent.id,
+                                  ),
+                                );
                               },
                               onDelete: () {
-                                // Navega para tela de deletar dependente
-                                // context.go(RoutePaths.ptd.deleteDependent(
-                                //     dependentId: dependent.id,
-                                //     applicantId: widget.applicantId)); // ajuste conforme sua rota
+                                context.go(
+                                  RoutePaths.ptd.dependentDelete(
+                                    widget.applicantId,
+                                    dependent.id,
+                                  ),
+                                );
                               },
                             ),
                           ),

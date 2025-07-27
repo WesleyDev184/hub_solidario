@@ -3,7 +3,9 @@ import 'package:app/app/ptd/applicants/applicant_page.dart';
 import 'package:app/app/ptd/applicants/applicants_page.dart';
 import 'package:app/app/ptd/applicants/delete_applicant_page.dart';
 import 'package:app/app/ptd/applicants/dependents/add_dependent_page.dart';
+import 'package:app/app/ptd/applicants/dependents/delete_dependent_page.dart';
 import 'package:app/app/ptd/applicants/dependents/dependent_page.dart';
+import 'package:app/app/ptd/applicants/dependents/edit_dependent_page.dart';
 import 'package:app/app/ptd/applicants/edit_applicant_page.dart';
 import 'package:app/app/ptd/loans/edit_loan_page.dart';
 import 'package:app/app/ptd/loans/finalize_loan_page.dart';
@@ -152,6 +154,20 @@ GoRouter createGoRouter(AuthController authController) {
                       applicantId: state.pathParameters['id']!,
                     ),
                   ),
+                  GoRoute(
+                    path: 'dependents/edit/:dependentId',
+                    builder: (context, state) => EditDependentPage(
+                      applicantId: state.pathParameters['id']!,
+                      dependentId: state.pathParameters['dependentId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'dependents/delete/:dependentId',
+                    builder: (context, state) => DeleteDependentPage(
+                      applicantId: state.pathParameters['id']!,
+                      dependentId: state.pathParameters['dependentId']!,
+                    ),
+                  ),
                 ],
               ),
               GoRoute(
@@ -268,4 +284,8 @@ class _PtdPaths {
       '/ptd/applicants/detail/$applicantId/dependents/detail/$id';
   String addDependent(String applicantId) =>
       '/ptd/applicants/detail/$applicantId/dependents/add';
+  String dependentEdit(String applicantId, String id) =>
+      '/ptd/applicants/detail/$applicantId/dependents/edit/$id';
+  String dependentDelete(String applicantId, String id) =>
+      '/ptd/applicants/detail/$applicantId/dependents/delete/$id';
 }
