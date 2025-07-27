@@ -5,7 +5,7 @@ using api.Modules.Applicants;
 using api.Modules.Dependents;
 using api.Modules.Items;
 using api.Modules.Loans;
-using api.Modules.OrthopedicBanks;
+using api.Modules.Hubs;
 using api.Modules.Stocks;
 using Microsoft.EntityFrameworkCore;
 using api.DB;
@@ -106,7 +106,7 @@ namespace api.Extensions
     private static void AppEndPointsMap(this WebApplication app)
     {
       app.AuthRoutes();
-      app.OrthopedicBankRoutes();
+      app.HubRoutes();
       app.StockRoutes();
       app.ItemRoutes();
       app.ApplicantRoutes();

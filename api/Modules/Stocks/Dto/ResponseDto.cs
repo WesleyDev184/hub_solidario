@@ -1,11 +1,13 @@
 using System.Net;
 using api.Modules.Items.Dto;
-using api.Modules.OrthopedicBanks.Dto;
+using api.Modules.Hubs.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Modules.Stocks.Dto;
 
 // Response Services
+// Ensure only one definition exists for ResponseEntityStockDTO in this file and namespace.
+// If you need to keep this record, remove any other conflicting or duplicate definitions of ResponseEntityStockDTO from this file or other files in the same namespace.
 public record ResponseEntityStockDTO(
   [property: SwaggerSchema(Description = "Unique identifier of the stock", Format = "uuid")]
   Guid Id,
@@ -21,10 +23,10 @@ public record ResponseEntityStockDTO(
   int BorrowedQtd,
   [property: SwaggerSchema(Description = "Total quantity", Format = "int32")]
   int TotalQtd,
-  [property: SwaggerSchema(Description = "Unique identifier of the orthopedic bank", Format = "uuid", Nullable = true)]
-  Guid? OrthopedicBankId,
-  [property: SwaggerSchema(Description = "Orthopedic bank", Nullable = true)]
-  ResponseEntityOrthopedicBankDTO? OrthopedicBank,
+  [property: SwaggerSchema(Description = "Unique identifier of the Hub", Format = "uuid", Nullable = true)]
+  Guid? HubId,
+  [property: SwaggerSchema(Description = "Hub", Nullable = true)]
+  ResponseEntityHubDTO? Hub,
   [property: SwaggerSchema(Description = "Items associated with the stock", Nullable = true)]
   ResponseEntityItemDTO[]? Items,
   [property: SwaggerSchema(Description = "Creation date of the stock", Format = "date-time")]
@@ -43,8 +45,8 @@ public record ResponseStockDTO(
 public record ResponseStockDeleteDTO(
   [property: SwaggerSchema(Description = "HTTP status code of the response")]
   HttpStatusCode Status,
-  [property: SwaggerSchema(Description = "Unique identifier of the orthopedic bank", Format = "uuid", Nullable = true)]
-  Guid? OrthopedicBankId,
+  [property: SwaggerSchema(Description = "Unique identifier of the Hub", Format = "uuid", Nullable = true)]
+  Guid? HubId,
   [property: SwaggerSchema(Description = "Additional message", Nullable = true)]
   string? Message
 );

@@ -8,7 +8,7 @@ public static class AuthCacheService
   {
     public const string AllUsers = "users-all";
     public static string UserById(Guid id) => $"user-{id}";
-    public static string UsersByOrthopedicBank(Guid orthopedicBankId) => $"users-orthopedic-bank-{orthopedicBankId}";
+    public static string UsersByHub(Guid hubId) => $"users-hub-{hubId}";
   }
 
   /// <summary>
@@ -30,11 +30,11 @@ public static class AuthCacheService
   }
 
   /// <summary>
-  /// Invalida caches relacionados a um banco ortopédico específico
+  /// Invalida caches relacionados a um hub específico
   /// </summary>
-  public static async Task InvalidateOrthopedicBankUserCaches(HybridCache cache, Guid orthopedicBankId, CancellationToken ct = default)
+  public static async Task InvalidateHubUserCaches(HybridCache cache, Guid hubId, CancellationToken ct = default)
   {
-    await cache.RemoveAsync(Keys.UsersByOrthopedicBank(orthopedicBankId), ct);
+    await cache.RemoveAsync(Keys.UsersByHub(hubId), ct);
     await cache.RemoveAsync(Keys.AllUsers, ct);
   }
 }

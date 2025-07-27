@@ -2,8 +2,8 @@ using System.Net;
 using api.DB;
 using api.Modules.Items.Dto;
 using api.Modules.Items.Entity;
-using api.Modules.OrthopedicBanks.Dto;
-using api.Modules.OrthopedicBanks.Entity;
+using api.Modules.Hubs.Dto;
+using api.Modules.Hubs.Entity;
 using api.Modules.Stocks.Dto;
 using api.Modules.Stocks.Entity;
 using api.Services.S3;
@@ -35,16 +35,16 @@ public static class StockService
         "Title is required.");
     }
 
-    // Verify that the associated OrthopedicBank exists
-    var orthopedicBank = await context.OrthopedicBanks
-      .SingleOrDefaultAsync(ob => ob.Id == request.OrthopedicBankId, ct);
+    // Verify that the associated hub exists
+    var hub = await context.Hubs
+      .SingleOrDefaultAsync(ob => ob.Id == request.HubId, ct);
 
-    if (orthopedicBank == null)
+    if (hub == null)
     {
       return new ResponseStockDTO(
         HttpStatusCode.NotFound,
         null,
-        $"Orthopedic bank with ID '{request.OrthopedicBankId}' not found.");
+        $"Hub with ID '{request.HubId}' not found.");
     }
 
     string? imageUrl = null;
@@ -88,7 +88,7 @@ public static class StockService
       }
 
       // Create a new stock with initial quantities set to 0
-      var newStock = new Stock(request.Title, imageUrl ?? string.Empty, request.OrthopedicBankId);
+      var newStock = new Stock(request.Title, imageUrl ?? string.Empty, request.HubId);
 
       context.Stocks.Add(newStock);
       await context.SaveChangesAsync(ct);
@@ -111,7 +111,7 @@ public static class StockService
   }
 
   /// <summary>
-  /// Retrieves a single stock by its ID, including its associated orthopedic bank and items.
+  /// Retrieves a single stock by its ID, including its associated hub and items.
   /// </summary>
   public static async Task<ResponseStockDTO> GetStock(
     Guid id,
@@ -119,7 +119,7 @@ public static class StockService
     CancellationToken ct)
   {
     var stock = await context.Stocks.AsNoTracking()
-      .Include(s => s.OrthopedicBank)
+      .Include(s => s.Hub)
       .Include(s => s.Items)
       .SingleOrDefaultAsync(s => s.Id == id, ct);
 
@@ -128,12 +128,12 @@ public static class StockService
       return new ResponseStockDTO(HttpStatusCode.NotFound, null, $"Stock with ID '{id}' not found.");
     }
 
-    var responseStock = MapToResponseEntityStockDto(stock, stock.OrthopedicBank, stock.Items.ToList());
+    var responseStock = MapToResponseEntityStockDto(stock, stock.Hub, stock.Items.ToList());
     return new ResponseStockDTO(HttpStatusCode.OK, responseStock, "Stock retrieved successfully.");
   }
 
   /// <summary>
-  /// Retrieves a list of all stocks, without including associated items or orthopedic bank details for performance.
+  /// Retrieves a list of all stocks, without including associated items or hub details for performance.
   /// </summary>
   public static async Task<ResponseStockListDTO> GetStocks(
     ApiDbContext context,
@@ -150,8 +150,8 @@ public static class StockService
         s.AvailableQtd,
         s.BorrowedQtd,
         s.TotalQtd,
-        s.OrthopedicBankId,
-        null, // OrthopedicBank not included in list view for brevity/performance
+        s.HubId,
+        null, // Hub not included in list view for brevity/performance
         null, // Items not included in list view for brevity/performance
         s.CreatedAt))
       .ToListAsync(ct);
@@ -161,30 +161,30 @@ public static class StockService
   }
 
   /// <summary>
-  /// Retrieves a list of all stocks for a specific orthopedic bank.
+  /// Retrieves a list of all stocks for a specific hub.
   /// </summary>
-  public static async Task<ResponseStockListDTO> GetStocksByOrthopedicBank(
-    Guid orthopedicBankId,
+  public static async Task<ResponseStockListDTO> GetStocksByHub(
+    Guid hubId,
     ApiDbContext context,
     CancellationToken ct)
   {
-    // Verify that the associated OrthopedicBank exists
-    var orthopedicBankExists = await context.OrthopedicBanks
+    // Verify that the associated Hub exists
+    var hubExists = await context.Hubs
       .AsNoTracking()
-      .AnyAsync(ob => ob.Id == orthopedicBankId, ct);
+      .AnyAsync(ob => ob.Id == hubId, ct);
 
-    if (!orthopedicBankExists)
+    if (!hubExists)
     {
       return new ResponseStockListDTO(
         HttpStatusCode.NotFound,
         0,
         new List<ResponseEntityStockDTO>(),
-        $"Orthopedic bank with ID '{orthopedicBankId}' not found.");
+        $"hub with ID '{hubId}' not found.");
     }
 
     var stocks = await context.Stocks
       .AsNoTracking()
-      .Where(s => s.OrthopedicBankId == orthopedicBankId)
+      .Where(s => s.HubId == hubId)
       .Select(s => new ResponseEntityStockDTO(
         s.Id,
         s.Title,
@@ -193,8 +193,8 @@ public static class StockService
         s.AvailableQtd,
         s.BorrowedQtd,
         s.TotalQtd,
-        s.OrthopedicBankId,
-        null, // OrthopedicBank not included in list view for brevity/performance
+        s.HubId,
+        null, // Hub not included in list view for brevity/performance
         null, // Items not included in list view for brevity/performance
         s.CreatedAt))
       .ToListAsync(ct);
@@ -203,7 +203,7 @@ public static class StockService
       HttpStatusCode.OK,
       stocks.Count,
       stocks,
-      $"Stocks for orthopedic bank {orthopedicBankId} retrieved successfully.");
+      $"Stocks for hub {hubId} retrieved successfully.");
   }
 
   /// <summary>
@@ -441,7 +441,7 @@ public static class StockService
       }
 
       // 204 No Content is standard for successful DELETE operations where no content is returned
-      return new ResponseStockDeleteDTO(HttpStatusCode.OK, stock.OrthopedicBankId, "Stock deleted successfully.");
+      return new ResponseStockDeleteDTO(HttpStatusCode.OK, stock.HubId, "Stock deleted successfully.");
     }
     catch (Exception ex)
     {
@@ -457,7 +457,7 @@ public static class StockService
   /// </summary>
   private static ResponseEntityStockDTO MapToResponseEntityStockDto(
     Stock stock,
-    OrthopedicBank? orthopedicBank, // Use full namespace to avoid conflict if OrthopedicBank is also a DTO
+    Hub? hub, // Use full namespace to avoid conflict if hub is also a DTO
     List<Item>? items) // Use full namespace for Item entity
   {
     return new ResponseEntityStockDTO(
@@ -468,15 +468,15 @@ public static class StockService
       stock.AvailableQtd,
       stock.BorrowedQtd,
       stock.TotalQtd,
-      stock.OrthopedicBankId,
-      orthopedicBank == null
+      stock.HubId,
+      hub == null
         ? null
-        : new ResponseEntityOrthopedicBankDTO(
-          orthopedicBank.Id,
-          orthopedicBank.Name,
-          orthopedicBank.City,
+        : new ResponseEntityHubDTO(
+          hub.Id,
+          hub.Name,
+          hub.City,
           null,
-          orthopedicBank.CreatedAt), // No need for null on CreateAt here.
+          hub.CreatedAt), // No need for null on CreateAt here.
       items?.Select(i => new ResponseEntityItemDTO(
         i.Id,
         i.SeriaCode,

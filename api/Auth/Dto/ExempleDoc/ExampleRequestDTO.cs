@@ -11,7 +11,7 @@ public class ExampleRequestUserDTO : IExamplesProvider<RequestCreateUserDto>
       Email: "Doe@exemple.com",
       Password: "12345678",
       PhoneNumber: "11999999999",
-      OrthopedicBankId: Guid.Parse("00000000-0000-0000-0000-000000000000")
+      HubId: Guid.Parse("00000000-0000-0000-0000-000000000000")
     );
   }
 }

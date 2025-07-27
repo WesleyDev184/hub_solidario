@@ -4,7 +4,7 @@ namespace api.Auth
   using Dto.ExempleDoc;
   using Entity;
   using DB;
-  using api.Modules.OrthopedicBanks.Dto;
+  using api.Modules.Hubs.Dto;
   using Microsoft.AspNetCore.Authentication.BearerToken;
   using Microsoft.AspNetCore.Http.HttpResults;
   using Microsoft.AspNetCore.Identity;
@@ -139,7 +139,7 @@ namespace api.Auth
             Email = newUser.Email,
             Name = newUser.Name,
             PhoneNumber = newUser.PhoneNumber,
-            OrthopedicBankId = newUser.OrthopedicBankId
+            HubId = newUser.HubId
           };
 
           IdentityResult result = await userManager.CreateAsync(user, newUser.Password);
@@ -155,7 +155,7 @@ namespace api.Auth
 
           // Invalidar cache após criação bem-sucedida
           await AuthCacheService.InvalidateAllUserCaches(cache, ct);
-          await AuthCacheService.InvalidateOrthopedicBankUserCaches(cache, newUser.OrthopedicBankId, ct);
+          await AuthCacheService.InvalidateHubUserCaches(cache, newUser.HubId, ct);
 
           return Results.Created($"/user/{user.Id}", new ResponseControllerUserDTO(
             true,
@@ -193,10 +193,10 @@ namespace api.Auth
             cacheKey,
             async cancel =>
             {
-              ResponseEntityOrthopedicBankDTO? orthopedicBank = await api.OrthopedicBanks
-                .Where(o => o.Id == user.OrthopedicBankId)
+              ResponseEntityHubDTO? hub = await api.Hubs
+                .Where(o => o.Id == user.HubId)
                 .AsNoTracking()
-                .Select(o => new ResponseEntityOrthopedicBankDTO(
+                .Select(o => new ResponseEntityHubDTO(
                   o.Id,
                   o.Name,
                   o.City,
@@ -210,7 +210,7 @@ namespace api.Auth
                 user.Name ?? "",
                 user.Email ?? "",
                 user.PhoneNumber ?? "",
-                orthopedicBank,
+                hub,
                 user.CreatedAt
               );
             },
@@ -220,7 +220,7 @@ namespace api.Auth
               LocalCacheExpiration = TimeSpan.FromMinutes(5)
             },
             cancellationToken: ct,
-            tags: [$"user-{user.OrthopedicBankId}"]);
+            tags: [$"user-{user.HubId}"]);
 
           return Results.Ok(new ResponseControllerUserDTO(
             true,
@@ -306,10 +306,10 @@ namespace api.Auth
                 return new { User = (ResponseEntityUserDTO?)null, Found = false };
               }
 
-              ResponseEntityOrthopedicBankDTO? orthopedicBank = await api.OrthopedicBanks
-                .Where(o => o.Id == user.OrthopedicBankId)
+              ResponseEntityHubDTO? hub = await api.Hubs
+                .Where(o => o.Id == user.HubId)
                 .AsNoTracking()
-                .Select(o => new ResponseEntityOrthopedicBankDTO(
+                .Select(o => new ResponseEntityHubDTO(
                   o.Id,
                   o.Name,
                   o.City,
@@ -325,7 +325,7 @@ namespace api.Auth
                   user.Name ?? "",
                   user.Email ?? "",
                   user.PhoneNumber ?? "",
-                  orthopedicBank,
+                  hub,
                   user.CreatedAt
                 ),
                 Found = true
@@ -447,7 +447,7 @@ namespace api.Auth
           }
 
           var userEmail = user.Email;
-          var userOrthopedicBankId = user.OrthopedicBankId;
+          var userHubId = user.HubId;
 
           IdentityResult result = await userManager.DeleteAsync(user);
           if (!result.Succeeded)
@@ -461,9 +461,9 @@ namespace api.Auth
 
           // Invalidar cache após exclusão bem-sucedida
           await AuthCacheService.InvalidateUserCache(cache, id, ct);
-          if (userOrthopedicBankId.HasValue)
+          if (userHubId.HasValue)
           {
-            await AuthCacheService.InvalidateOrthopedicBankUserCaches(cache, userOrthopedicBankId.Value, ct);
+            await AuthCacheService.InvalidateHubUserCaches(cache, userHubId.Value, ct);
           }
 
           return Results.Ok(new ResponseControllerUserDTO(
@@ -473,25 +473,25 @@ namespace api.Auth
           ));
         }).RequireAuthorization();
 
-      // Endpoint adicional com cache por banco ortopédico
-      authRoutes.MapGet("/users/orthopedic-bank/{orthopedicBankId:guid}",
+      // Endpoint adicional com cache por hub
+      authRoutes.MapGet("/users/hub/{hubId:guid}",
         [SwaggerOperation(
-          Summary = "Get users by orthopedic bank",
-          Description = "Retrieves all users for a specific orthopedic bank."
+          Summary = "Get users by hub",
+          Description = "Retrieves all users for a specific hub."
         )]
       [SwaggerResponse(200, "Users retrieved successfully", typeof(ResponseControllerUserListDTO))]
-      [SwaggerResponse(404, "Orthopedic bank not found", typeof(ResponseControllerUserListDTO))]
-      async (Guid orthopedicBankId, UserManager<User> userManager, HybridCache cache, CancellationToken ct) =>
+      [SwaggerResponse(404, "hub not found", typeof(ResponseControllerUserListDTO))]
+      async (Guid hubId, UserManager<User> userManager, HybridCache cache, CancellationToken ct) =>
         {
-          var cacheKey = AuthCacheService.Keys.UsersByOrthopedicBank(orthopedicBankId);
+          var cacheKey = AuthCacheService.Keys.UsersByHub(hubId);
 
-          // Buscar usuários do banco ortopédico específico com cache
+          // Buscar usuários do hub específico com cache
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel =>
             {
               var users = await userManager.Users
-                .Where(u => u.OrthopedicBankId == orthopedicBankId)
+                .Where(u => u.HubId == hubId)
                 .Select(u => new ResponseEntityUserDTO(
                   u.Id,
                   u.Name ?? "",
@@ -514,7 +514,7 @@ namespace api.Auth
             true,
             cachedResponse.Count,
             cachedResponse,
-            $"Users for orthopedic bank {orthopedicBankId} retrieved successfully."
+            $"Users for hub {hubId} retrieved successfully."
           ));
         }).RequireAuthorization();
     }

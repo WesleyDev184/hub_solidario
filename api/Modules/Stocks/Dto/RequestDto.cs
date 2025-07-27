@@ -8,8 +8,8 @@ public record RequestCreateStockDto(
   string Title,
   [SwaggerParameter(Description = "Image file of the stock", Required = true)]
   IFormFile? ImageFile,
-  [SwaggerParameter(Description = "ID of the orthopedic bank to which the stock belongs", Required = true)]
-  Guid OrthopedicBankId
+  [SwaggerParameter(Description = "ID of the hub to which the stock belongs", Required = true)]
+  Guid HubId
 );
 
 public record RequestUpdateStockDto(

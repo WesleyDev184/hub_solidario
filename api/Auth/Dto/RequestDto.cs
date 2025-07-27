@@ -13,8 +13,8 @@ public record RequestCreateUserDto(
   string Password,
   [SwaggerParameter(Description = "The phone number of the user", Required = true)]
   string PhoneNumber,
-  [SwaggerParameter(Description = "The ID of the orthopedic bank associated with the user", Required = true)]
-  Guid OrthopedicBankId
+  [SwaggerParameter(Description = "The ID of the hub associated with the user", Required = true)]
+  Guid HubId
 );
 
 public record RequestUpdateUserDto(
