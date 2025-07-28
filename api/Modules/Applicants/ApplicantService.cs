@@ -120,6 +120,7 @@ namespace api.Modules.Applicants
       // Retrieve the applicant entity with related dependents (eager loading)
       Applicant? applicantEntity = await context.Applicants.AsNoTracking()
         .Include(a => a.Dependents) // Include dependents for full details
+        .Include(a => a.Hub) // Include hub for full details
         .SingleOrDefaultAsync(a => a.Id == id, ct);
 
       if (applicantEntity == null)
