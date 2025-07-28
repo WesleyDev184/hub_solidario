@@ -62,7 +62,7 @@ namespace api.Modules.Items
         {
           ResponseItemDTO response = await ItemService.CreateItem(request, context, ct);
 
-          // Invalidar cache após criação bem-sucedida
+          // Invalidar cache global após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
             await ItemCacheService.InvalidateItemCache(cache, response.Data!.Id, response.Data.StockId, ct);
@@ -133,8 +133,8 @@ namespace api.Modules.Items
             async cancel => await ItemService.GetItem(id, context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(5),
-              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+              Expiration = TimeSpan.FromMinutes(30),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -174,8 +174,8 @@ namespace api.Modules.Items
             async cancel => await ItemService.GetItems(context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(3),
-              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -208,10 +208,11 @@ namespace api.Modules.Items
             async cancel => await ItemService.GetItemsByStock(id, context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(3),
-              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
-            cancellationToken: ct);
+            cancellationToken: ct,
+            tags: ["Items"]);
 
           if (cachedResponse.Status == HttpStatusCode.NotFound)
           {
@@ -274,7 +275,7 @@ namespace api.Modules.Items
         {
           ResponseItemDTO response = await ItemService.UpdateItem(id, request, context, ct);
 
-          // Invalidar cache após atualização bem-sucedida
+          // Invalidar cache apenas do item alterado após atualização
           if (response.Status == HttpStatusCode.OK)
           {
             await ItemCacheService.InvalidateItemCache(cache, id, response.Data!.StockId, ct: ct);
@@ -323,7 +324,7 @@ namespace api.Modules.Items
         {
           var response = await ItemService.DeleteItem(id, context, ct);
 
-          // Invalidar cache após exclusão bem-sucedida
+          // Invalidar cache apenas do item excluído
           if (response.Status == HttpStatusCode.OK)
           {
             await ItemCacheService.InvalidateItemCache(cache, id, response.Id, ct);

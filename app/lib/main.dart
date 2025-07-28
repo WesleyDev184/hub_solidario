@@ -26,7 +26,7 @@ void main() async {
   final apiClient = ApiClient();
 
   await AuthService.initialize(apiClient);
-  await OrthopedicBanksService.initialize(apiClient);
+  await HubsService.initialize(apiClient);
   await StocksService.initialize(apiClient);
   await LoansService.initialize(apiClient);
   await ApplicantsService.initialize(apiClient);

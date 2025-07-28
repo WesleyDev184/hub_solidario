@@ -13,7 +13,7 @@ public static class ItemCacheService
   }
 
   /// <summary>
-  /// Invalida todos os caches relacionados a items
+  /// Invalida todos os caches relacionados a items (use apenas em operações em massa)
   /// </summary>
   public static async Task InvalidateAllItemCaches(HybridCache cache, CancellationToken ct = default)
   {
@@ -21,20 +21,19 @@ public static class ItemCacheService
   }
 
   /// <summary>
-  /// Invalida o cache de um item específico
+  /// Invalida apenas o cache de um item específico e dados relacionados
   /// </summary>
   public static async Task InvalidateItemCache(HybridCache cache, Guid itemId, Guid? StockId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.ItemById(itemId), ct);
-    await InvalidateAllItemCaches(cache, ct);
     await cache.RemoveByTagAsync("loans", ct);
     await cache.RemoveByTagAsync("stocks", ct);
+    await InvalidateAllItemCaches(cache, ct); // Garante que a listagem seja atualizada
 
     if (StockId.HasValue)
     {
       await cache.RemoveAsync(StockCacheService.Keys.StockById(StockId.Value), ct);
       await cache.RemoveAsync(Keys.ItemStockById(StockId.Value), ct);
     }
-
   }
 }

@@ -1,25 +1,24 @@
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
+import 'package:app/core/api/hubs/models/hubs_models.dart';
+import 'package:app/core/api/hubs/repositories/hubs_repository.dart';
+import 'package:app/core/api/hubs/services/hubs_cache_service.dart';
 import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
-import '../models/orthopedic_banks_models.dart';
-import '../repositories/orthopedic_banks_repository.dart';
-import '../services/orthopedic_banks_cache_service.dart';
-
-class OrthopedicBanksController extends GetxController {
+class HubsController extends GetxController {
   final AuthController authController = Get.find<AuthController>();
-  final OrthopedicBanksRepository repository;
-  final OrthopedicBanksCacheService cacheService;
+  final HubsRepository repository;
+  final HubsCacheService cacheService;
 
-  final RxList<OrthopedicBank> _banks = <OrthopedicBank>[].obs;
+  final RxList<Hub> _hubs = <Hub>[].obs;
   final RxBool _isLoading = false.obs;
   final RxString _error = RxString('');
 
-  List<OrthopedicBank> get banks => _banks.toList();
+  List<Hub> get hubs => _hubs.toList();
   bool get isLoading => _isLoading.value;
   String? get error => _error.value;
 
-  OrthopedicBanksController(this.repository, this.cacheService);
+  HubsController(this.repository, this.cacheService);
 
   @override
   void onInit() async {
@@ -28,41 +27,37 @@ class OrthopedicBanksController extends GetxController {
     // Observa mudanças no estado de autenticação
     ever(authController.stateRx, (authState) async {
       if (authState.isAuthenticated) {
-        await loadOrthopedicBanks();
+        await loadHubs();
       } else {
         _error.value = '';
         _isLoading.value = false;
-        _banks.clear();
+        _hubs.clear();
         // Limpa apenas dados locais, pois não há método de clear no cacheService
       }
     });
 
     // Carrega bancos se já estiver autenticado
     if (authController.isAuthenticated) {
-      await loadOrthopedicBanks();
+      await loadHubs();
     }
   }
 
-  AsyncResult<List<OrthopedicBank>> loadOrthopedicBanks({
-    bool forceRefresh = false,
-  }) async {
+  AsyncResult<List<Hub>> loadHubs({bool forceRefresh = false}) async {
     _setLoading(true);
     try {
       if (!forceRefresh) {
-        final cachedState = await cacheService.loadOrthopedicBanksState();
+        final cachedState = await cacheService.loadHubsState();
         if (cachedState.isNotEmpty) {
-          _banks.value = cachedState;
+          _hubs.value = cachedState;
           _setLoading(false);
           return Success(cachedState);
         }
       }
-      final result = await repository.getOrthopedicBanks(
-        forceRefresh: forceRefresh,
-      );
+      final result = await repository.getHubs(forceRefresh: forceRefresh);
       return await result.fold(
         (banks) async {
-          _banks.value = banks;
-          await cacheService.saveOrthopedicBanksState(banks);
+          _hubs.value = banks;
+          await cacheService.saveHubsState(banks);
           _setLoading(false);
           return Success(banks);
         },
@@ -79,16 +74,14 @@ class OrthopedicBanksController extends GetxController {
     }
   }
 
-  AsyncResult<String> createOrthopedicBank(
-    CreateOrthopedicBankRequest request,
-  ) async {
+  AsyncResult<String> createHub(CreateHubRequest request) async {
     _setLoading(true);
     try {
-      final result = await repository.createOrthopedicBank(request);
+      final result = await repository.createHub(request);
       return await result.fold(
         (bank) async {
-          _banks.add(bank);
-          await cacheService.saveOrthopedicBankState(bank);
+          _hubs.add(bank);
+          await cacheService.saveHubState(bank);
           _setLoading(false);
           return Success(bank.id);
         },
@@ -105,19 +98,16 @@ class OrthopedicBanksController extends GetxController {
     }
   }
 
-  AsyncResult<OrthopedicBank> updateOrthopedicBank(
-    String bankId,
-    UpdateOrthopedicBankRequest request,
-  ) async {
+  AsyncResult<Hub> updateHub(String bankId, UpdateHubRequest request) async {
     _setLoading(true);
     try {
-      final result = await repository.updateOrthopedicBank(bankId, request);
+      final result = await repository.updateHub(bankId, request);
       return await result.fold(
         (bank) async {
-          _banks.assignAll(
-            _banks.map((b) => b.id == bank.id ? bank : b).toList(),
+          _hubs.assignAll(
+            _hubs.map((b) => b.id == bank.id ? bank : b).toList(),
           );
-          await cacheService.updateOrthopedicBankState(bank);
+          await cacheService.updateHubState(bank);
           _setLoading(false);
           return Success(bank);
         },
@@ -134,15 +124,15 @@ class OrthopedicBanksController extends GetxController {
     }
   }
 
-  AsyncResult<bool> deleteOrthopedicBank(String bankId) async {
+  AsyncResult<bool> deleteHub(String bankId) async {
     _setLoading(true);
     try {
-      final result = await repository.deleteOrthopedicBank(bankId);
+      final result = await repository.deleteHub(bankId);
       return await result.fold(
         (success) async {
           if (success) {
-            _banks.assignAll(_banks.where((b) => b.id != bankId).toList());
-            await cacheService.removeOrthopedicBankState(bankId);
+            _hubs.assignAll(_hubs.where((b) => b.id != bankId).toList());
+            await cacheService.removeHubState(bankId);
           }
           _setLoading(false);
           return Success(success);

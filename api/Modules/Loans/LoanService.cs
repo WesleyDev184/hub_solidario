@@ -331,7 +331,7 @@ public static class LoanService
   /// <summary>
   /// Deletes a loan record and reverts the associated item's status to AVAILABLE, updating stock quantities.
   /// </summary>
-  public static async Task<ResponseLoanDTO> DeleteLoan(
+  public static async Task<ResponseLoanDeleteDTO> DeleteLoan(
     Guid id,
     ApiDbContext context,
     CancellationToken ct)
@@ -346,7 +346,7 @@ public static class LoanService
       if (loan == null)
       {
         await transaction.RollbackAsync(ct);
-        return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Loan with ID '{id}' not found.");
+        return new ResponseLoanDeleteDTO(HttpStatusCode.NotFound, null, $"Loan with ID '{id}' not found.");
       }
 
       context.Loans.Remove(loan);
@@ -361,13 +361,13 @@ public static class LoanService
       await transaction.CommitAsync(ct);
 
       // 200 is standard for successful DELETE operations
-      return new ResponseLoanDTO(HttpStatusCode.OK, null, "Loan deleted successfully.");
+      return new ResponseLoanDeleteDTO(HttpStatusCode.OK, loan.Item?.StockId, "Loan deleted successfully.");
     }
     catch (Exception ex)
     {
       await transaction.RollbackAsync(ct);
       Console.WriteLine($"Error deleting loan: {ex.Message} - {ex.InnerException?.Message}");
-      return new ResponseLoanDTO(HttpStatusCode.InternalServerError, null,
+      return new ResponseLoanDeleteDTO(HttpStatusCode.InternalServerError, null,
         "An unexpected error occurred while deleting the loan.");
     }
   }

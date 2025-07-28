@@ -54,6 +54,15 @@ public record ResponseLoanDTO(
   string? Message
 );
 
+public record ResponseLoanDeleteDTO(
+  [property: SwaggerSchema(Description = "HTTP status code of the response")]
+  HttpStatusCode Status,
+  [property: SwaggerSchema(Description = "Loan data", Nullable = true)]
+  Guid? StockId,
+  [property: SwaggerSchema(Description = "Additional message information", Nullable = true)]
+  string? Message
+);
+
 public record ResponseLoanListDTO(
   [property: SwaggerSchema(Description = "HTTP status code of the response")]
   HttpStatusCode Status,

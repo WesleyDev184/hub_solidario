@@ -119,8 +119,8 @@ public static class StockController
           async cancel => await StockService.GetStock(id, context, cancel),
           options: new HybridCacheEntryOptions
           {
-            Expiration = TimeSpan.FromDays(1),
-            LocalCacheExpiration = TimeSpan.FromMinutes(2)
+            Expiration = TimeSpan.FromDays(2),
+            LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
           },
           cancellationToken: ct);
 
@@ -161,7 +161,7 @@ public static class StockController
           options: new HybridCacheEntryOptions
           {
             Expiration = TimeSpan.FromDays(2),
-            LocalCacheExpiration = TimeSpan.FromMinutes(1)
+            LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
           },
           cancellationToken: ct,
           tags: ["stocks"]);

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Hybrid;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using Microsoft.EntityFrameworkCore;
 
 namespace api.Modules.Loans;
 
@@ -65,9 +64,9 @@ public static class LoanController
           var res = await LoanService.CreateLoan(request, context, userManager, ct);
 
           // Invalidar cache após criação bem-sucedida
-          if (res.Status == HttpStatusCode.Created)
+          if (res.Status == HttpStatusCode.Created && res.Data != null && res.Data.Item != null)
           {
-            await LoanCacheService.InvalidateAllLoanCaches(cache, ct);
+            await LoanCacheService.InvalidateLoanCache(cache, res.Data!.Id, res.Data.Item.StockId, ct);
           }
 
           return res.Status switch
@@ -117,7 +116,7 @@ public static class LoanController
             options: new HybridCacheEntryOptions
             {
               Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -158,8 +157,8 @@ public static class LoanController
             async cancel => await LoanService.GetLoans(context, userManager, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromDays(1),
-              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct,
             tags: new[] { "loans" }
@@ -215,9 +214,9 @@ public static class LoanController
           var res = await LoanService.UpdateLoan(id, request, context, userManager, ct);
 
           // Invalidar cache após atualização bem-sucedida
-          if (res.Status == HttpStatusCode.OK)
+          if (res.Status == HttpStatusCode.OK && res.Data != null && res.Data.Item != null)
           {
-            await LoanCacheService.InvalidateLoanCache(cache, id, ct: ct);
+            await LoanCacheService.InvalidateLoanCache(cache, id, res.Data.Item.StockId, ct);
           }
 
           return res.Status switch
@@ -263,7 +262,7 @@ public static class LoanController
           // Invalidar cache após exclusão bem-sucedida
           if (res.Status == HttpStatusCode.OK)
           {
-            await LoanCacheService.InvalidateLoanCache(cache, id, ct);
+            await LoanCacheService.InvalidateLoanCache(cache, id, res.StockId, ct);
           }
 
           return res.Status switch
@@ -271,7 +270,7 @@ public static class LoanController
             HttpStatusCode.NotFound => Results.NotFound(new ResponseControllerLoanDTO(false, null, res.Message)),
             HttpStatusCode.InternalServerError => Results.Json(new ResponseControllerLoanDTO(false, null, res.Message),
               statusCode: (int)res.Status),
-            _ => Results.Ok(new ResponseControllerLoanDTO(res.Status == HttpStatusCode.OK, res.Data, res.Message))
+            _ => Results.Ok(new ResponseControllerLoanDTO(res.Status == HttpStatusCode.OK, null, res.Message))
           };
         }).RequireAuthorization()
       .WithName("DeleteLoan");

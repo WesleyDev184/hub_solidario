@@ -1,4 +1,4 @@
-import 'package:app/core/api/orthopedic_banks/models/orthopedic_banks_models.dart';
+import 'package:app/core/api/hubs/models/hubs_models.dart';
 
 /// Modelo para requisição de login
 class LoginRequest {
@@ -51,7 +51,7 @@ class User {
   final String name;
   final String email;
   final String phoneNumber;
-  final OrthopedicBank? orthopedicBank;
+  final Hub? hub;
   final DateTime createdAt;
 
   const User({
@@ -59,7 +59,7 @@ class User {
     required this.name,
     required this.email,
     required this.phoneNumber,
-    this.orthopedicBank,
+    this.hub,
     required this.createdAt,
   });
 
@@ -68,10 +68,8 @@ class User {
     name: json['name'] as String,
     email: json['email'] as String,
     phoneNumber: json['phoneNumber'] as String,
-    orthopedicBank: json['orthopedicBank'] != null
-        ? OrthopedicBank.fromJson(
-            json['orthopedicBank'] as Map<String, dynamic>,
-          )
+    hub: json['hub'] != null
+        ? Hub.fromJson(json['hub'] as Map<String, dynamic>)
         : null,
     createdAt: DateTime.parse(json['createdAt'] as String),
   );
@@ -81,7 +79,7 @@ class User {
     'name': name,
     'email': email,
     'phoneNumber': phoneNumber,
-    'orthopedicBank': orthopedicBank?.toJson(),
+    'hub': hub?.toJson(),
     'createdAt': createdAt.toIso8601String(),
   };
 
@@ -90,7 +88,7 @@ class User {
     String? name,
     String? email,
     String? phoneNumber,
-    OrthopedicBank? orthopedicBank,
+    Hub? orthopedicBank,
     DateTime? createdAt,
   }) {
     return User(
@@ -98,7 +96,7 @@ class User {
       name: name ?? this.name,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      orthopedicBank: orthopedicBank ?? this.orthopedicBank,
+      hub: hub ?? this.hub,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -110,14 +108,14 @@ class CreateUserRequest {
   final String email;
   final String password;
   final String phoneNumber;
-  final String orthopedicBankId;
+  final String hubId;
 
   const CreateUserRequest({
     required this.name,
     required this.email,
     required this.password,
     required this.phoneNumber,
-    required this.orthopedicBankId,
+    required this.hubId,
   });
 
   factory CreateUserRequest.fromJson(Map<String, dynamic> json) =>
@@ -126,7 +124,7 @@ class CreateUserRequest {
         email: json['email'] as String,
         password: json['password'] as String,
         phoneNumber: json['phoneNumber'] as String,
-        orthopedicBankId: json['orthopedicBankId'] as String,
+        hubId: json['hubId'] as String,
       );
 
   Map<String, dynamic> toJson() => {
@@ -134,7 +132,7 @@ class CreateUserRequest {
     'email': email,
     'password': password,
     'phoneNumber': phoneNumber,
-    'orthopedicBankId': orthopedicBankId,
+    'hubId': hubId,
   };
 }
 

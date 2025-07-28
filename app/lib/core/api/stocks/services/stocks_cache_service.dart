@@ -18,40 +18,30 @@ class StocksCacheService {
   }
 
   /// Salva stocks de um banco específico no cache
-  Future<void> cacheStocksByBank(
-    String orthopedicBankId,
-    List<Stock> stocks,
-  ) async {
+  Future<void> cacheStocksByBank(String hubId, List<Stock> stocks) async {
     if (_prefs == null) return;
 
     try {
       final stocksJson = stocks.map((stock) => stock.toJson()).toList();
       final jsonString = jsonEncode(stocksJson);
 
+      await _prefs!.setString('$_stocksByBankPrefix$hubId', jsonString);
       await _prefs!.setString(
-        '$_stocksByBankPrefix$orthopedicBankId',
-        jsonString,
-      );
-      await _prefs!.setString(
-        '${_lastUpdateKey}_bank_$orthopedicBankId',
+        '${_lastUpdateKey}_bank_$hubId',
         DateTime.now().toIso8601String(),
       );
     } catch (e) {
-      debugPrint(
-        'Erro ao salvar stocks do banco $orthopedicBankId no cache: $e',
-      );
+      debugPrint('Erro ao salvar stocks do banco $hubId no cache: $e');
     }
   }
 
   /// Recupera stocks de um banco específico do cache
-  Future<List<Stock>?> getCachedStocksByBank(String orthopedicBankId) async {
+  Future<List<Stock>?> getCachedStocksByBank(String hubId) async {
     if (_prefs == null) return null;
 
     try {
       // Verifica se o cache específico do banco é válido
-      final lastUpdateStr = _prefs!.getString(
-        '${_lastUpdateKey}_bank_$orthopedicBankId',
-      );
+      final lastUpdateStr = _prefs!.getString('${_lastUpdateKey}_bank_$hubId');
       if (lastUpdateStr == null) return null;
 
       final lastUpdate = DateTime.parse(lastUpdateStr);
@@ -59,9 +49,7 @@ class StocksCacheService {
 
       if (now.difference(lastUpdate) >= _cacheExpiration) return null;
 
-      final jsonString = _prefs!.getString(
-        '$_stocksByBankPrefix$orthopedicBankId',
-      );
+      final jsonString = _prefs!.getString('$_stocksByBankPrefix$hubId');
       if (jsonString == null) return null;
 
       final stocksJson = jsonDecode(jsonString) as List<dynamic>;
@@ -69,9 +57,7 @@ class StocksCacheService {
           .map((json) => Stock.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint(
-        'Erro ao recuperar stocks do banco $orthopedicBankId do cache: $e',
-      );
+      debugPrint('Erro ao recuperar stocks do banco $hubId do cache: $e');
       return null;
     }
   }
@@ -79,8 +65,7 @@ class StocksCacheService {
   /// Salva um stock individual no cache
   Future<void> cacheStock(Stock stock) async {
     // busca a lista de stocks do cache
-    final cachedStocks =
-        await getCachedStocksByBank(stock.orthopedicBankId) ?? [];
+    final cachedStocks = await getCachedStocksByBank(stock.hubId) ?? [];
 
     try {
       // verifica se o stock já existe no cache
@@ -94,7 +79,7 @@ class StocksCacheService {
       }
 
       // salva a lista atualizada no cache
-      await cacheStocksByBank(stock.orthopedicBankId, cachedStocks);
+      await cacheStocksByBank(stock.hubId, cachedStocks);
     } catch (e) {
       debugPrint('Erro ao salvar stock ${stock.id} no cache: $e');
     }
@@ -133,30 +118,28 @@ class StocksCacheService {
   }
 
   /// Limpa cache de um banco específico
-  Future<void> clearBankCache(String orthopedicBankId) async {
+  Future<void> clearBankCache(String hubId) async {
     if (_prefs == null) return;
 
     try {
-      await _prefs!.remove('$_stocksByBankPrefix$orthopedicBankId');
-      await _prefs!.remove('${_lastUpdateKey}_bank_$orthopedicBankId');
+      await _prefs!.remove('$_stocksByBankPrefix$hubId');
+      await _prefs!.remove('${_lastUpdateKey}_bank_$hubId');
     } catch (e) {
-      debugPrint('Erro ao limpar cache do banco $orthopedicBankId: $e');
+      debugPrint('Erro ao limpar cache do banco $hubId: $e');
     }
   }
 
   /// Verifica se tem cache válido para um banco específico
-  bool hasValidBankCache(String orthopedicBankId) {
+  bool hasValidBankCache(String hubId) {
     if (_prefs == null) return false;
 
-    final lastUpdateStr = _prefs!.getString(
-      '${_lastUpdateKey}_bank_$orthopedicBankId',
-    );
+    final lastUpdateStr = _prefs!.getString('${_lastUpdateKey}_bank_$hubId');
     if (lastUpdateStr == null) return false;
 
     final lastUpdate = DateTime.parse(lastUpdateStr);
     final now = DateTime.now();
 
     return now.difference(lastUpdate) < _cacheExpiration &&
-        _prefs!.containsKey('$_stocksByBankPrefix$orthopedicBankId');
+        _prefs!.containsKey('$_stocksByBankPrefix$hubId');
   }
 }

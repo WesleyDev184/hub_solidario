@@ -1,3 +1,5 @@
+using api.Modules.Items;
+using api.Modules.Stocks;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace api.Modules.Loans;
@@ -12,22 +14,27 @@ public static class LoanCacheService
   }
 
   /// <summary>
-  /// Invalida todos os caches relacionados a loans
+  /// Invalida todos os caches relacionados a loans (use apenas em operações em massa)
   /// </summary>
   public static async Task InvalidateAllLoanCaches(HybridCache cache, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.AllLoans, ct);
-    // Invalida todos os caches de loans usando a tag genérica
-    await cache.RemoveByTagAsync("loans", ct);
   }
 
   /// <summary>
-  /// Invalida o cache de um loan específico
+  /// Invalida apenas o cache de um loan específico e dados relacionados
   /// </summary>
-  public static async Task InvalidateLoanCache(HybridCache cache, Guid loanId, CancellationToken ct = default)
+  public static async Task InvalidateLoanCache(HybridCache cache, Guid loanId, Guid? stockId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.LoanById(loanId), ct);
-    await cache.RemoveAsync(Keys.AllLoans, ct);
+    await cache.RemoveByTagAsync("stocks", ct);
+    await InvalidateAllLoanCaches(cache, ct); // Garante que a listagem seja atualizada
+
+    if (stockId.HasValue)
+    {
+      await cache.RemoveByTagAsync(ItemCacheService.Keys.ItemStockById(stockId.Value), ct);
+      await StockCacheService.InvalidateStockCache(cache, stockId.Value, null, ct);
+    }
   }
 
   /// <summary>
