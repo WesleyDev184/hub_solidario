@@ -58,7 +58,7 @@ public static class HubController
           // Invalidar cache após criação bem-sucedida
           if (res.Status == HttpStatusCode.Created)
           {
-            await HubCacheService.InvalidateAllHubCaches(cache, ct);
+            await HubCacheService.InvalidateHubCache(cache, res.Data!.Id, ct);
           }
 
           return res.Status switch
@@ -104,8 +104,8 @@ public static class HubController
             async cancel => await HubService.GetHub(id, context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromMinutes(5),
-              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+              Expiration = TimeSpan.FromMinutes(30),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -147,8 +147,8 @@ public static class HubController
             async cancel => await HubService.GetHubs(context, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromDays(3),
-              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 

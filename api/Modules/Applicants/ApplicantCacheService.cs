@@ -11,7 +11,7 @@ public static class ApplicantCacheService
   }
 
   /// <summary>
-  /// Invalida todos os caches relacionados a applicants
+  /// Invalida todos os caches relacionados a applicants (use apenas em operações em massa)
   /// </summary>
   public static async Task InvalidateAllApplicantCaches(HybridCache cache, CancellationToken ct = default)
   {
@@ -19,15 +19,18 @@ public static class ApplicantCacheService
   }
 
   /// <summary>
-  /// Invalida o cache de um applicant específico
+  /// Invalida apenas o cache de um applicant específico e dados relacionados
   /// </summary>
   public static async Task InvalidateApplicantCache(HybridCache cache, Guid applicantId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.ApplicantById(applicantId), ct);
     await cache.RemoveByTagAsync("loans", ct);
-    await InvalidateAllApplicantCaches(cache, ct);
+    await InvalidateAllApplicantCaches(cache, ct); // Garante que a listagem seja atualizada
   }
 
+  /// <summary>
+  /// Invalida o cache de um applicant relacionado a um dependent
+  /// </summary>
   public static async Task InvalidateApplicantCacheByDependent(HybridCache cache, Guid applicantId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.ApplicantById(applicantId), ct);

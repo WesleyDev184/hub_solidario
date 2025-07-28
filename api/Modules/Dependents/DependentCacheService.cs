@@ -12,7 +12,7 @@ public static class DependentCacheService
   }
 
   /// <summary>
-  /// Invalida todos os caches relacionados a dependents
+  /// Invalida todos os caches relacionados a dependents (use apenas em operações em massa)
   /// </summary>
   public static async Task InvalidateAllDependentCaches(HybridCache cache, CancellationToken ct = default)
   {
@@ -20,12 +20,12 @@ public static class DependentCacheService
   }
 
   /// <summary>
-  /// Invalida o cache de um dependent específico
+  /// Invalida apenas o cache de um dependent específico e dados relacionados
   /// </summary>
   public static async Task InvalidateDependentCache(HybridCache cache, Guid dependentId, Guid? applicantId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.DependentById(dependentId), ct);
-    await InvalidateAllDependentCaches(cache, ct);
+    await InvalidateAllDependentCaches(cache, ct); // Garante que a listagem seja atualizada
     if (applicantId.HasValue)
     {
       await ApplicantCacheService.InvalidateApplicantCacheByDependent(cache, applicantId.Value, ct);

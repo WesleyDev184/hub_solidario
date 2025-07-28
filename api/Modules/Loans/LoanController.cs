@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Hybrid;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using Microsoft.EntityFrameworkCore;
 
 namespace api.Modules.Loans;
 
@@ -67,7 +66,7 @@ public static class LoanController
           // Invalidar cache após criação bem-sucedida
           if (res.Status == HttpStatusCode.Created && res.Data != null && res.Data.Item != null)
           {
-            await LoanCacheService.InvalidateLoanCache(cache, res.Data.Id, res.Data.Item.StockId, ct);
+            await LoanCacheService.InvalidateLoanCache(cache, res.Data!.Id, res.Data.Item.StockId, ct);
           }
 
           return res.Status switch
@@ -117,7 +116,7 @@ public static class LoanController
             options: new HybridCacheEntryOptions
             {
               Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -158,8 +157,8 @@ public static class LoanController
             async cancel => await LoanService.GetLoans(context, userManager, cancel),
             options: new HybridCacheEntryOptions
             {
-              Expiration = TimeSpan.FromDays(1),
-              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+              Expiration = TimeSpan.FromDays(2),
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct,
             tags: new[] { "loans" }

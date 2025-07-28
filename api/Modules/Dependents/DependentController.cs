@@ -59,7 +59,7 @@ namespace api.Modules.Dependents
         {
           ResponseDependentDTO response = await DependentService.CreateDependent(request, context, ct);
 
-          // Invalidar cache após criação bem-sucedida
+          // Invalidar cache global após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
             await DependentCacheService.InvalidateDependentCache(cache, response.Data!.Id, response.Data.ApplicantId, ct);
@@ -111,7 +111,7 @@ namespace api.Modules.Dependents
             options: new HybridCacheEntryOptions
             {
               Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -152,7 +152,7 @@ namespace api.Modules.Dependents
             options: new HybridCacheEntryOptions
             {
               Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(1)
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -210,7 +210,7 @@ namespace api.Modules.Dependents
         {
           ResponseDependentDTO response = await DependentService.UpdateDependent(id, request, context, ct);
 
-          // Invalidar cache após atualização bem-sucedida
+          // Invalidar cache apenas do dependent alterado após atualização
           if (response.Status == HttpStatusCode.OK)
           {
             await DependentCacheService.InvalidateDependentCache(cache, id, response.Data!.ApplicantId, ct);
@@ -261,7 +261,7 @@ namespace api.Modules.Dependents
         {
           var response = await DependentService.DeleteDependent(id, context, ct);
 
-          // Invalidar cache após exclusão bem-sucedida
+          // Invalidar cache apenas do dependent excluído
           if (response.Status == HttpStatusCode.OK)
           {
             await DependentCacheService.InvalidateDependentCache(cache, id, response.ApplicantId, ct);

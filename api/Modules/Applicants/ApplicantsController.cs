@@ -50,10 +50,10 @@ namespace api.Modules.Applicants
         {
           ResponseApplicantsDTO response = await ApplicantService.CreateApplicant(request, context, ct);
 
-          // Invalidar cache após criação bem-sucedida
+          // Invalidar cache global após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
-            await ApplicantCacheService.InvalidateAllApplicantCaches(cache, ct);
+            await ApplicantCacheService.InvalidateApplicantCache(cache, response.Data!.Id, ct);
           }
 
           return response.Status switch
@@ -98,7 +98,7 @@ namespace api.Modules.Applicants
             options: new HybridCacheEntryOptions
             {
               Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(2)
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -138,7 +138,7 @@ namespace api.Modules.Applicants
             options: new HybridCacheEntryOptions
             {
               Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5)
+              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
             },
             cancellationToken: ct);
 
@@ -191,7 +191,7 @@ namespace api.Modules.Applicants
         {
           ResponseApplicantsDTO response = await ApplicantService.UpdateApplicant(id, request, context, ct);
 
-          // Invalidar cache após atualização bem-sucedida
+          // Invalidar cache apenas do applicant alterado após atualização
           if (response.Status == HttpStatusCode.OK)
           {
             await ApplicantCacheService.InvalidateApplicantCache(cache, id, ct);
@@ -238,7 +238,7 @@ namespace api.Modules.Applicants
         {
           var response = await ApplicantService.DeleteApplicant(id, context, ct);
 
-          // Invalidar cache após exclusão bem-sucedida
+          // Invalidar cache apenas do applicant excluído
           if (response.Status == HttpStatusCode.OK)
           {
             await ApplicantCacheService.InvalidateApplicantCache(cache, id, ct);

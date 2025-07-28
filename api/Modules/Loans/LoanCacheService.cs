@@ -14,7 +14,7 @@ public static class LoanCacheService
   }
 
   /// <summary>
-  /// Invalida todos os caches relacionados a loans
+  /// Invalida todos os caches relacionados a loans (use apenas em operações em massa)
   /// </summary>
   public static async Task InvalidateAllLoanCaches(HybridCache cache, CancellationToken ct = default)
   {
@@ -22,14 +22,13 @@ public static class LoanCacheService
   }
 
   /// <summary>
-  /// Invalida o cache de um loan específico
+  /// Invalida apenas o cache de um loan específico e dados relacionados
   /// </summary>
   public static async Task InvalidateLoanCache(HybridCache cache, Guid loanId, Guid? stockId, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.LoanById(loanId), ct);
-    await cache.RemoveAsync(Keys.AllLoans, ct);
-    await InvalidateAllLoanCaches(cache, ct);
     await cache.RemoveByTagAsync("stocks", ct);
+    await InvalidateAllLoanCaches(cache, ct); // Garante que a listagem seja atualizada
 
     if (stockId.HasValue)
     {
