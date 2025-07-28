@@ -52,6 +52,12 @@ public class ApiDbContext : DbContext
       .HasForeignKey(d => d.ApplicantId)
       .OnDelete(DeleteBehavior.Cascade);
 
+    modelBuilder.Entity<Applicant>()
+      .HasOne(a => a.Hub)
+      .WithMany(h => h.Applicants)
+      .HasForeignKey(a => a.HubId)
+      .OnDelete(DeleteBehavior.Restrict);
+
     modelBuilder.Entity<Loan>()
       .HasOne(l => l.Applicant)
       .WithMany()

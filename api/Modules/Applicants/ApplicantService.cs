@@ -3,6 +3,7 @@ using api.DB;
 using api.Modules.Applicants.Dto;
 using api.Modules.Applicants.Entity;
 using api.Modules.Dependents.Dto; // Needed for ResponseEntityDependentDTO mapping
+using api.Modules.Hubs.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -44,13 +45,22 @@ namespace api.Modules.Applicants
             $"Applicant with CPF '{request.CPF}' or Email '{request.Email}' already exists.");
         }
 
+        // Busca o Hub pelo HubId
+        var hubExists = await context.Hubs.AsNoTracking().AnyAsync(h => h.Id == request.HubId, ct);
+        if (!hubExists)
+        {
+          await transaction.RollbackAsync(ct);
+          return new ResponseApplicantsDTO(HttpStatusCode.BadRequest, null, $"Hub with ID '{request.HubId}' not found.");
+        }
+
         Applicant newApplicant = new(
           request.Name,
           request.CPF,
           request.Email,
           request.PhoneNumber,
           request.Address,
-          request.IsBeneficiary
+          request.IsBeneficiary,
+          request.HubId
         );
 
         context.Applicants.Add(newApplicant);
@@ -70,6 +80,33 @@ namespace api.Modules.Applicants
         return new ResponseApplicantsDTO(HttpStatusCode.InternalServerError, null,
           "An unexpected error occurred while creating the applicant.");
       }
+    }
+
+    /// <summary>
+    /// Busca todos os solicitantes de um hub específico.
+    /// </summary>
+    public static async Task<ResponseApplicantsListDTO> GetApplicantsByHub(
+      Guid hubId,
+      ApiDbContext context,
+      CancellationToken ct)
+    {
+      var applicants = await context.Applicants.AsNoTracking()
+        .Where(a => a.HubId == hubId)
+        .Select(a => new ResponseEntityApplicantsDTO(
+          a.Id,
+          a.Name,
+          a.CPF,
+          a.Email,
+          a.PhoneNumber,
+          a.Address,
+          a.IsBeneficiary,
+          a.BeneficiaryQtd,
+          a.CreatedAt,
+          null,
+          null
+        )).ToListAsync(ct);
+
+      return new ResponseApplicantsListDTO(HttpStatusCode.OK, applicants.Count, applicants, "Applicants by hub retrieved successfully.");
     }
 
     /// <summary>
@@ -118,7 +155,8 @@ namespace api.Modules.Applicants
           a.IsBeneficiary,
           a.BeneficiaryQtd,
           a.CreatedAt,
-          null // Dependents are typically not included in list views for performance
+          null,
+          null
         )).ToListAsync(ct);
 
       return new ResponseApplicantsListDTO(HttpStatusCode.OK, applicants.Count, applicants,
@@ -291,6 +329,16 @@ namespace api.Modules.Applicants
           d.CreatedAt
         )).ToArray();
 
+      ResponseEntityHubDTO? hubDto = applicant.Hub != null
+        ? new ResponseEntityHubDTO(
+          applicant.Hub.Id,
+          applicant.Hub.Name,
+          applicant.Hub.City,
+          null, // Assuming Stocks is nullable
+          applicant.Hub.CreatedAt
+        )
+        : null;
+
       return new ResponseEntityApplicantsDTO(
         applicant.Id,
         applicant.Name,
@@ -301,7 +349,8 @@ namespace api.Modules.Applicants
         applicant.IsBeneficiary,
         applicant.BeneficiaryQtd,
         applicant.CreatedAt,
-        dependentsDto
+        dependentsDto,
+        hubDto
       );
     }
   }

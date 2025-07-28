@@ -1,6 +1,9 @@
+
 using api.Modules.Dependents.Entity;
+using api.Modules.Hubs.Entity;
 
 namespace api.Modules.Applicants.Entity;
+
 
 public class Applicant
 {
@@ -15,10 +18,14 @@ public class Applicant
   public DateTime CreatedAt { get; private init; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
 
+  // Relacionamento com Hub
+  public Guid HubId { get; private set; }
+  public Hub Hub { get; private set; } = null!;
+
   // Propriedade de navegação
   public ICollection<Dependent>? Dependents { get; init; } = [];
 
-  public Applicant(string name, string cpf, string email, string phoneNumber, string address, bool isBeneficiary)
+  public Applicant(string name, string cpf, string email, string phoneNumber, string address, bool isBeneficiary, Guid hubId)
   {
     Id = Guid.NewGuid();
     Name = name;
@@ -27,6 +34,7 @@ public class Applicant
     PhoneNumber = phoneNumber;
     Address = address;
     IsBeneficiary = isBeneficiary;
+    HubId = hubId;
   }
 
   private Applicant()
@@ -38,6 +46,7 @@ public class Applicant
     PhoneNumber = string.Empty;
     Address = string.Empty;
     IsBeneficiary = false;
+    HubId = Guid.Empty;
   }
 
   public void SetName(string name)

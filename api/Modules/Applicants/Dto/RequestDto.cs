@@ -15,7 +15,9 @@ public record RequestCreateApplicantDto(
   [SwaggerParameter(Description = "The address of the applicant", Required = true)]
   string Address,
   [SwaggerParameter(Description = "Indicator if the applicant is a beneficiary", Required = true)]
-  bool IsBeneficiary
+  bool IsBeneficiary,
+  [SwaggerParameter(Description = "Hub Id", Required = true)]
+  Guid HubId
 );
 
 public record RequestUpdateApplicantDto(

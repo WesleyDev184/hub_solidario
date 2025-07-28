@@ -458,7 +458,8 @@ public static class LoanService
           applicant.IsBeneficiary,
           applicant.BeneficiaryQtd,
           applicant.CreatedAt,
-          null // Dependents not included in this nested DTO for brevity
+          null, // Dependents not included in this nested DTO for brevity
+          null
         ),
       responsibleUserDto,
       loan.CreatedAt

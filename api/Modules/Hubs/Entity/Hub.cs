@@ -2,6 +2,7 @@ using api.Modules.Stocks.Entity;
 
 namespace api.Modules.Hubs.Entity;
 
+
 public class Hub
 {
   public Guid Id { get; init; }
@@ -12,6 +13,7 @@ public class Hub
 
   // Propriedade de navegação
   public ICollection<Stock> Stocks { get; set; } = [];
+  public ICollection<api.Modules.Applicants.Entity.Applicant> Applicants { get; set; } = [];
 
   public Hub(string name, string city)
   {

@@ -35,7 +35,8 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
-            Dependents: null
+            Dependents: null,
+            Hub: null
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
@@ -82,7 +83,8 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
-            Dependents: null
+            Dependents: null,
+            Hub: null
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
@@ -221,7 +223,8 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
-            Dependents: null
+            Dependents: null,
+            Hub: null
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),

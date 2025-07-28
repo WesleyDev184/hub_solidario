@@ -12,7 +12,8 @@ public class ExampleRequestCreateApplicantDTO : IExamplesProvider<RequestCreateA
       Email: "john.doe@example.com",
       PhoneNumber: "11999999999",
       Address: "123 Main St, City",
-      IsBeneficiary: true
+      IsBeneficiary: true,
+      HubId: Guid.NewGuid() // Assuming a valid HubId is provided
     );
   }
 }

@@ -2,6 +2,7 @@ namespace api.Modules.Applicants.Dto;
 
 using System.Net;
 using api.Modules.Dependents.Dto;
+using api.Modules.Hubs.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
 // Response Services
@@ -25,7 +26,9 @@ public record ResponseEntityApplicantsDTO(
   [property: SwaggerSchema(Description = "Creation date of the applicant", Format = "date-time")]
   DateTime CreatedAt,
   [property: SwaggerSchema(Description = "Array of dependents associated with the applicant", Nullable = true)]
-  ResponseEntityDependentDTO[]? Dependents
+  ResponseEntityDependentDTO[]? Dependents,
+  [property: SwaggerSchema(Description = "Hub associated with the applicant", Nullable = true)]
+  ResponseEntityHubDTO? Hub
 );
 
 public record ResponseApplicantsDTO(
