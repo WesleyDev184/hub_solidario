@@ -211,7 +211,8 @@ namespace api.Modules.Items
               Expiration = TimeSpan.FromMinutes(3),
               LocalCacheExpiration = TimeSpan.FromMinutes(1)
             },
-            cancellationToken: ct);
+            cancellationToken: ct,
+            tags: ["Items"]);
 
           if (cachedResponse.Status == HttpStatusCode.NotFound)
           {
