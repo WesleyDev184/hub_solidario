@@ -1,8 +1,4 @@
-using System;
-using System.Net;
-using System.Collections.Generic;
 using Swashbuckle.AspNetCore.Filters;
-using api.Modules.Loans.Dto;
 using api.Modules.Items.Dto;
 using api.Modules.Applicants.Dto;
 using api.Auth.Dto;
@@ -18,6 +14,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         Success: true,
         Data: new ResponseEntityLoanDTO(
           Id: Guid.NewGuid(),
+          ImageUrl: "https://example.com/image.jpg",
           ReturnDate: DateTime.UtcNow.AddDays(7),
           Reason: "Loaning item for temporary use",
           IsActive: true,
@@ -64,6 +61,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         Success: true,
         Data: new ResponseEntityLoanDTO(
           Id: Guid.NewGuid(),
+          ImageUrl: "https://example.com/image.jpg",
           ReturnDate: DateTime.UtcNow.AddDays(7),
           Reason: "Loaning item for temporary use",
           IsActive: true,
@@ -178,6 +176,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         [
           new ResponseEntityLoanListDTO(
             Id: Guid.NewGuid(),
+            ImageUrl: "https://example.com/image.jpg",
             ReturnDate: DateTime.UtcNow.AddDays(7),
             Reason: "Loaning item for temporary use",
             IsActive: true,
@@ -201,6 +200,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         Success: true,
         Data: new ResponseEntityLoanDTO(
           Id: Guid.NewGuid(),
+          ImageUrl: "https://example.com/image.jpg",
           ReturnDate: DateTime.UtcNow.AddDays(7),
           Reason: "Loaning item for temporary use",
           IsActive: true,

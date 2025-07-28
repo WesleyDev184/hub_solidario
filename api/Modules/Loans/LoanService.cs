@@ -91,6 +91,7 @@ public static class LoanService
       )).SingleOrDefaultAsync(ct);
 
       var responseLoan = MapToResponseEntityLoanDto(
+        item.Stock?.ImageUrl,
         newLoan,
         item,
         applicant,
@@ -118,7 +119,7 @@ public static class LoanService
     CancellationToken ct)
   {
     var loan = await context.Loans
-      .Include(l => l.Item)
+      .Include(l => l.Item).ThenInclude(item => item!.Stock) // Include Stock to get ImageUrl
       .Include(l => l.Applicant)
       .AsNoTracking() // Use AsNoTracking for better performance if no updates are needed
       .SingleOrDefaultAsync(l => l.Id == id, ct); // Use SingleOrDefaultAsync directly here
@@ -141,6 +142,7 @@ public static class LoanService
       )).SingleOrDefaultAsync(ct);
 
     var responseLoan = MapToResponseEntityLoanDto(
+      loan.Item?.Stock?.ImageUrl,
       loan,
       loan.Item,
       loan.Applicant,
@@ -161,7 +163,7 @@ public static class LoanService
     // Select only necessary data to improve performance
     var loansData = await context.Loans.AsNoTracking()
       .Include(l => l.Applicant)
-      .Include(l => l.Item)
+      .Include(l => l.Item).ThenInclude(item => item!.Stock) // Include Stock to get ImageUrl
       .Where(l => l.IsActive)
       .OrderByDescending(l => l.CreatedAt)
       .Select(l => new // Project to an anonymous type first to avoid mapping issues with DTOs directly
@@ -173,7 +175,8 @@ public static class LoanService
         l.ResponsibleId,
         ItemSeriaCode = l.Item != null ? l.Item.SeriaCode : 0,
         ApplicantName = l.Applicant != null ? l.Applicant.Name : string.Empty,
-        l.CreatedAt
+        l.CreatedAt,
+        ItemImageUrl = l.Item != null && l.Item.Stock != null ? l.Item.Stock.ImageUrl : null
       })
       .ToListAsync(ct);
 
@@ -192,6 +195,7 @@ public static class LoanService
     // Map the collected data to the response DTOs
     var responseLoans = loansData.Select(l => new ResponseEntityLoanListDTO(
       l.Id,
+      l.ItemImageUrl,
       l.ReturnDate,
       l.Reason,
       l.IsActive,
@@ -311,6 +315,7 @@ public static class LoanService
         )).SingleOrDefaultAsync(ct);
 
       var responseLoan = MapToResponseEntityLoanDto(
+        loan.Item?.Stock?.ImageUrl,
         loan,
         loan.Item,
         loan.Applicant,
@@ -420,6 +425,7 @@ public static class LoanService
   /// Maps a Loan entity, its related Item and Applicant to a ResponseEntityLoanDTO.
   /// </summary>
   private static ResponseEntityLoanDTO MapToResponseEntityLoanDto(
+    string? imageUrl,
     Loan loan,
     Item? item,
     Applicant? applicant,
@@ -427,6 +433,7 @@ public static class LoanService
   {
     return new ResponseEntityLoanDTO(
       loan.Id,
+      imageUrl,
       loan.ReturnDate,
       loan.Reason,
       loan.IsActive,

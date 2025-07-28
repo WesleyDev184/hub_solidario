@@ -10,6 +10,8 @@ namespace api.Modules.Loans.Dto;
 public record ResponseEntityLoanDTO(
   [property: SwaggerSchema(Description = "Unique identifier of the loan", Format = "uuid")]
   Guid Id,
+  [property: SwaggerSchema(Description = "Image URL of the loan", Format = "string", Nullable = true)]
+  string? ImageUrl,
   [property: SwaggerSchema(Description = "Return date of the loan", Format = "date-time", Nullable = true)]
   DateTime? ReturnDate,
   [property: SwaggerSchema(Description = "Reason for the loan", Format = "string")]
@@ -29,6 +31,8 @@ public record ResponseEntityLoanDTO(
 public record ResponseEntityLoanListDTO(
   [property: SwaggerSchema(Description = "Unique identifier of the loan", Format = "uuid")]
   Guid Id,
+  [property: SwaggerSchema(Description = "Image URL of the loan", Format = "string", Nullable = true)]
+  string? ImageUrl,
   [property: SwaggerSchema(Description = "Return date of the loan", Format = "date-time", Nullable = true)]
   DateTime? ReturnDate,
   [property: SwaggerSchema(Description = "Reason for the loan", Format = "string")]
