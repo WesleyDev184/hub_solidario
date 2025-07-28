@@ -418,7 +418,7 @@ class _StockPageState extends State<StockPage> {
     return Scaffold(
       appBar: AppBarCustom(
         title: _stock?.title ?? 'Categoria',
-        path: RoutePaths.ptd.loans,
+        path: RoutePaths.ptd.stocks,
       ),
       backgroundColor: Colors.transparent,
       body: CustomScrollView(
