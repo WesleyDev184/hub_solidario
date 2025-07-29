@@ -12,7 +12,8 @@ namespace api.Modules.Dependents.Dto.ExampleDoc
         Email: "jane.doe@example.com",
         PhoneNumber: "11888888888",
         Address: "456 Secondary St, City",
-        ApplicantId: Guid.Parse("11111111-1111-1111-1111-111111111111")
+        ApplicantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+        ProfileImage: null
       );
     }
   }
@@ -26,7 +27,8 @@ namespace api.Modules.Dependents.Dto.ExampleDoc
         CPF: "10987654321",
         Email: "jane.updated@example.com",
         PhoneNumber: "11777777777",
-        Address: "789 Tertiary Ave, City"
+        Address: "789 Tertiary Ave, City",
+        ProfileImage: null
       );
     }
   }

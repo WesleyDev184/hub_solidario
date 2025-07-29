@@ -16,6 +16,7 @@ namespace api.Modules.Dependents
     public static async Task<ResponseDependentDTO> CreateDependent(
       RequestCreateDependentDto request,
       ApiDbContext context,
+      string? imageUrl,
       CancellationToken ct)
     {
       // Early exit for null request
@@ -62,7 +63,8 @@ namespace api.Modules.Dependents
           request.Email,
           request.PhoneNumber,
           request.Address,
-          request.ApplicantId
+          request.ApplicantId,
+          imageUrl
         );
 
         context.Dependents.Add(newDependent);
@@ -129,6 +131,8 @@ namespace api.Modules.Dependents
       Guid id,
       RequestUpdateDependentDto request,
       ApiDbContext context,
+      api.Services.S3.IFileStorageService fileStorageService,
+      string? newImageUrl,
       CancellationToken ct)
     {
       // Early exit for null request
@@ -138,6 +142,7 @@ namespace api.Modules.Dependents
       }
 
       await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(ct);
+      string? oldImageUrl = null;
       try
       {
         Dependent? dependent = await context.Dependents.SingleOrDefaultAsync(d => d.Id == id, ct);
@@ -145,15 +150,22 @@ namespace api.Modules.Dependents
         if (dependent == null)
         {
           await transaction.RollbackAsync(ct);
+          if (!string.IsNullOrEmpty(newImageUrl))
+          {
+            var fileName = newImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
           return new ResponseDependentDTO(HttpStatusCode.NotFound, null, $"Dependent with ID '{id}' not found.");
         }
+
+        oldImageUrl = dependent.ProfileImageUrl;
 
         if (request.Name != null)
         {
           dependent.SetName(request.Name);
         }
 
-        if (request.CPF != null && request.CPF != dependent.CPF) // Only check if CPF is provided and changed
+        if (request.CPF != null && request.CPF != dependent.CPF)
         {
           bool exists = await context.Dependents.AsNoTracking()
             .AnyAsync(d => d.CPF == request.CPF && d.Id != id, ct);
@@ -161,6 +173,11 @@ namespace api.Modules.Dependents
           if (exists)
           {
             await transaction.RollbackAsync(ct);
+            if (!string.IsNullOrEmpty(newImageUrl))
+            {
+              var fileName = newImageUrl.Split('/').Last();
+              await fileStorageService.DeleteFileAsync(fileName);
+            }
             return new ResponseDependentDTO(HttpStatusCode.Conflict, null,
               $"Dependent with CPF '{request.CPF}' already exists.");
           }
@@ -168,7 +185,7 @@ namespace api.Modules.Dependents
           dependent.SetCPF(request.CPF);
         }
 
-        if (request.Email != null && request.Email != dependent.Email) // Only check if Email is provided and changed
+        if (request.Email != null && request.Email != dependent.Email)
         {
           bool exists = await context.Dependents.AsNoTracking()
             .AnyAsync(d => d.Email == request.Email && d.Id != id, ct);
@@ -176,6 +193,11 @@ namespace api.Modules.Dependents
           if (exists)
           {
             await transaction.RollbackAsync(ct);
+            if (!string.IsNullOrEmpty(newImageUrl))
+            {
+              var fileName = newImageUrl.Split('/').Last();
+              await fileStorageService.DeleteFileAsync(fileName);
+            }
             return new ResponseDependentDTO(HttpStatusCode.Conflict, null,
               $"Dependent with Email '{request.Email}' already exists.");
           }
@@ -193,10 +215,28 @@ namespace api.Modules.Dependents
           dependent.SetAddress(request.Address);
         }
 
-        dependent.UpdateTimestamps(); // Assuming this updates the ModifiedAt timestamp
+        if (!string.IsNullOrEmpty(newImageUrl))
+        {
+          dependent.SetProfileImageUrl(newImageUrl);
+        }
+
+        dependent.UpdateTimestamps();
 
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
+
+        if (!string.IsNullOrEmpty(newImageUrl) && !string.IsNullOrEmpty(oldImageUrl))
+        {
+          try
+          {
+            var oldFileName = oldImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(oldFileName);
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine($"Warning: Failed to delete old profile image: {ex.Message}");
+          }
+        }
 
         ResponseEntityDependentDTO updatedDependentDto = MapToResponseEntityDependentDto(dependent);
         return new ResponseDependentDTO(HttpStatusCode.OK, updatedDependentDto, "Dependent updated successfully.");
@@ -204,6 +244,18 @@ namespace api.Modules.Dependents
       catch
       {
         await transaction.RollbackAsync(ct);
+        if (!string.IsNullOrEmpty(newImageUrl))
+        {
+          try
+          {
+            var fileName = newImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
+          catch (Exception deleteEx)
+          {
+            Console.WriteLine($"Error deleting uploaded profile image during rollback: {deleteEx.Message}");
+          }
+        }
         return new ResponseDependentDTO(HttpStatusCode.InternalServerError, null,
           "An unexpected error occurred while updating the dependent.");
       }
@@ -215,6 +267,7 @@ namespace api.Modules.Dependents
     public static async Task<ResponseDependentDeleteDTO> DeleteDependent(
       Guid id,
       ApiDbContext context,
+      api.Services.S3.IFileStorageService fileStorageService,
       CancellationToken ct)
     {
       await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(ct);
@@ -235,11 +288,27 @@ namespace api.Modules.Dependents
         // Only decrement if the applicant is found to avoid NullReferenceException
         applicant?.SetBeneficiaryQtd(applicant.BeneficiaryQtd - 1);
 
+        // Guardar imagem para deleção após sucesso
+        var imageUrl = dependent.ProfileImageUrl;
+
         context.Dependents.Remove(dependent);
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
-        // 204 No Content is standard for successful DELETE operations where no content is returned
+        // Deletar imagem do S3 se existir
+        if (!string.IsNullOrEmpty(imageUrl))
+        {
+          try
+          {
+            var fileName = imageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine($"Warning: Failed to delete profile image after dependent deletion: {ex.Message}");
+          }
+        }
+
         return new ResponseDependentDeleteDTO(HttpStatusCode.OK, dependent.ApplicantId, "Dependent deleted successfully.");
       }
       catch
@@ -263,6 +332,7 @@ namespace api.Modules.Dependents
         dependent.PhoneNumber,
         dependent.Address,
         dependent.ApplicantId,
+        dependent.ProfileImageUrl ?? string.Empty, // Ensure ProfileImageUrl is not null
         dependent.CreatedAt
       );
     }

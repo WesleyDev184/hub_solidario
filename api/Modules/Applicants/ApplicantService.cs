@@ -403,6 +403,7 @@ namespace api.Modules.Applicants
           d.PhoneNumber,
           d.Address,
           d.ApplicantId,
+          d.ProfileImageUrl,
           d.CreatedAt
         )).ToArray();
 

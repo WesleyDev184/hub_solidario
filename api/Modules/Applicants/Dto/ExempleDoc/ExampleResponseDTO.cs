@@ -58,6 +58,7 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
               PhoneNumber: "11999999998",
               Address: "456 Elm St, City",
               Guid.Parse("00000000-0000-0000-0000-000000000000"),
+              ProfileImageUrl: "https://example.com/dependent.jpg",
               CreatedAt: DateTime.Now)
           ],
           Hub: new ResponseEntityHubDTO(
@@ -183,6 +184,7 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
               PhoneNumber: "11999999998",
               Address: "456 Elm St, City",
               Guid.Parse("00000000-0000-0000-0000-000000000000"),
+              ProfileImageUrl: "https://example.com/dependent.jpg",
               CreatedAt: DateTime.Now)
           ],
            Hub: new ResponseEntityHubDTO(
