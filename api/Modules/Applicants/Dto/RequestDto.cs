@@ -2,6 +2,8 @@ namespace api.Modules.Applicants.Dto;
 
 using Swashbuckle.AspNetCore.Annotations;
 
+using Microsoft.AspNetCore.Http;
+
 //Create Applicant
 public record RequestCreateApplicantDto(
   [SwaggerParameter(Description = "The name of the applicant", Required = true)]
@@ -17,7 +19,9 @@ public record RequestCreateApplicantDto(
   [SwaggerParameter(Description = "Indicator if the applicant is a beneficiary", Required = true)]
   bool IsBeneficiary,
   [SwaggerParameter(Description = "Hub Id", Required = true)]
-  Guid HubId
+  Guid HubId,
+  [SwaggerParameter(Description = "Profile image file (optional)", Required = false)]
+  IFormFile? ProfileImage
 );
 
 public record RequestUpdateApplicantDto(

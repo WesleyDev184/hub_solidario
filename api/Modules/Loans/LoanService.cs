@@ -458,6 +458,7 @@ public static class LoanService
           applicant.IsBeneficiary,
           applicant.BeneficiaryQtd,
           applicant.CreatedAt,
+          applicant.ProfileImageUrl,
           null, // Dependents not included in this nested DTO for brevity
           null
         ),

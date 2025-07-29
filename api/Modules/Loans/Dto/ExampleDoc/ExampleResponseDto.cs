@@ -36,7 +36,8 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
             Dependents: null,
-            Hub: null
+            Hub: null,
+            ProfileImageUrl: "https://example.com/profile.jpg"
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
@@ -84,7 +85,8 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
             Dependents: null,
-            Hub: null
+            Hub: null,
+            ProfileImageUrl: "https://example.com/profile.jpg"
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
@@ -224,7 +226,8 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
             Dependents: null,
-            Hub: null
+            Hub: null,
+            ProfileImageUrl: "https://example.com/profile.jpg"
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),

@@ -21,6 +21,7 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
+            ProfileImageUrl: "https://bucket.s3.amazonaws.com/profile.jpg",
             Dependents: null,
             Hub: null
           ),
@@ -46,6 +47,7 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
           IsBeneficiary: true,
           BeneficiaryQtd: 1,
           CreatedAt: DateTime.UtcNow,
+          ProfileImageUrl: null,
           Dependents:
           [
             new ResponseEntityDependentDTO(
@@ -143,6 +145,7 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
+            ProfileImageUrl: null,
             Dependents: null,
             Hub:null
           )
@@ -169,6 +172,7 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
           IsBeneficiary: true,
           BeneficiaryQtd: 1,
           CreatedAt: DateTime.UtcNow,
+          ProfileImageUrl: null,
           Dependents:
           [
             new ResponseEntityDependentDTO(

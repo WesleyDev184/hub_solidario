@@ -5,6 +5,8 @@ namespace api.Modules.Applicants
   using Dto;
   using Dto.ExempleDoc;
   using Microsoft.Extensions.Caching.Hybrid;
+  using Microsoft.AspNetCore.Http;
+  using api.Services.S3;
   using Swashbuckle.AspNetCore.Annotations;
   using Swashbuckle.AspNetCore.Filters;
 
@@ -46,9 +48,29 @@ namespace api.Modules.Applicants
       [SwaggerRequestExample(
           typeof(RequestCreateApplicantDto),
           typeof(ExampleRequestCreateApplicantDTO))]
-      async (RequestCreateApplicantDto request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+      async (HttpRequest httpRequest, ApiDbContext context, HybridCache cache, IFileStorageService fileStorage, CancellationToken ct) =>
         {
-          ResponseApplicantsDTO response = await ApplicantService.CreateApplicant(request, context, ct);
+          // Bind form data
+          var form = await httpRequest.ReadFormAsync(ct);
+          var dto = new RequestCreateApplicantDto(
+            form["Name"].FirstOrDefault() ?? string.Empty,
+            form["CPF"].FirstOrDefault() ?? string.Empty,
+            form["Email"].FirstOrDefault() ?? string.Empty,
+            form["PhoneNumber"].FirstOrDefault() ?? string.Empty,
+            form["Address"].FirstOrDefault() ?? string.Empty,
+            bool.TryParse(form["IsBeneficiary"].FirstOrDefault(), out var isBeneficiary) && isBeneficiary,
+            Guid.TryParse(form["HubId"].FirstOrDefault(), out var hubId) ? hubId : Guid.Empty,
+            form.Files.GetFile("ProfileImage")
+          );
+
+          string? imageUrl = null;
+          if (dto.ProfileImage != null && dto.ProfileImage.Length > 0)
+          {
+            using var stream = dto.ProfileImage.OpenReadStream();
+            imageUrl = await fileStorage.UploadFileAsync(stream, dto.ProfileImage.FileName, dto.ProfileImage.ContentType);
+          }
+
+          ResponseApplicantsDTO response = await ApplicantService.CreateApplicant(dto, context, ct, imageUrl);
 
           // Invalidar cache global após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
@@ -68,7 +90,7 @@ namespace api.Modules.Applicants
               new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.Created, response.Data,
                 response.Message))
           };
-        }).RequireAuthorization();
+        }).Accepts<IFormFile>("multipart/form-data").RequireAuthorization();
 
       group.MapGet("/{id:guid}",
         [SwaggerOperation(
@@ -152,7 +174,7 @@ namespace api.Modules.Applicants
       group.MapPatch("/{id:guid}",
         [SwaggerOperation(
           Summary = "Update an applicant",
-          Description = "Updates an existing applicant's information in the system.")
+          Description = "Updates an existing applicant's information in the system. Accepts multipart/form-data for image update.")
         ]
       [SwaggerResponse(
           StatusCodes.Status200OK,
@@ -187,9 +209,27 @@ namespace api.Modules.Applicants
       [SwaggerRequestExample(
           typeof(RequestUpdateApplicantDto),
           typeof(ExampleRequestUpdateApplicantDTO))]
-      async (Guid id, RequestUpdateApplicantDto? request, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+      async (Guid id, HttpRequest httpRequest, ApiDbContext context, HybridCache cache, IFileStorageService fileStorage, CancellationToken ct) =>
         {
-          ResponseApplicantsDTO response = await ApplicantService.UpdateApplicant(id, request, context, ct);
+          var form = await httpRequest.ReadFormAsync(ct);
+          var dto = new RequestUpdateApplicantDto(
+            form["Name"].FirstOrDefault(),
+            form["CPF"].FirstOrDefault(),
+            form["Email"].FirstOrDefault(),
+            form["PhoneNumber"].FirstOrDefault(),
+            form["Address"].FirstOrDefault(),
+            bool.TryParse(form["IsBeneficiary"].FirstOrDefault(), out var isBeneficiary) ? isBeneficiary : (bool?)null
+          );
+
+          var profileImage = form.Files.GetFile("ProfileImage");
+          string? imageUrl = null;
+          if (profileImage != null && profileImage.Length > 0)
+          {
+            using var stream = profileImage.OpenReadStream();
+            imageUrl = await fileStorage.UploadFileAsync(stream, profileImage.FileName, profileImage.ContentType);
+          }
+
+          ResponseApplicantsDTO response = await ApplicantService.UpdateApplicant(id, dto, context, fileStorage, imageUrl, ct);
 
           // Invalidar cache apenas do applicant alterado após atualização
           if (response.Status == HttpStatusCode.OK)
@@ -210,7 +250,7 @@ namespace api.Modules.Applicants
             _ => Results.Ok(new ResponseControllerApplicantsDTO(response.Status == HttpStatusCode.OK, response.Data,
               response.Message))
           };
-        }).RequireAuthorization();
+        }).Accepts<IFormFile>("multipart/form-data").RequireAuthorization();
 
       group.MapDelete("/{id:guid}",
         [SwaggerOperation(
@@ -234,9 +274,9 @@ namespace api.Modules.Applicants
           StatusCodes.Status404NotFound, typeof(ExampleResponseApplicantNotFoundDTO))]
       [SwaggerResponseExample(
           StatusCodes.Status500InternalServerError, typeof(ExampleResponseInternalServerErrorApplicantDTO))]
-      async (Guid id, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+      async (Guid id, ApiDbContext context, HybridCache cache, IFileStorageService fileStorage, CancellationToken ct) =>
         {
-          var response = await ApplicantService.DeleteApplicant(id, context, ct);
+          var response = await ApplicantService.DeleteApplicant(id, context, fileStorage, ct);
 
           // Invalidar cache apenas do applicant excluído
           if (response.Status == HttpStatusCode.OK)
