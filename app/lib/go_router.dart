@@ -31,8 +31,12 @@ import 'app/ptd/ptd_layout.dart';
 import 'app/ptd/stocks/stock_page.dart';
 import 'app/ptd/stocks/stocks_page.dart';
 
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
+
 GoRouter createGoRouter(AuthController authController) {
   return GoRouter(
+    navigatorKey: globalNavigatorKey,
     initialLocation: RoutePaths.root,
     routes: [
       GoRoute(
