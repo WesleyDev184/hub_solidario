@@ -2,29 +2,36 @@ import 'package:app/app.dart';
 import 'package:app/core/api/api.dart';
 import 'package:app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+// Handler top-level para mensagens FCM em background/terminated
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Inicializa NotificationService para exibir notificação local
+  final notificationService = NotificationService();
+  // Cria CustomNotification a partir da mensagem recebida
+  final notification = CustomNotification(
+    id: DateTime.now().millisecondsSinceEpoch ~/ 1000, // id único simples
+    title: message.notification?.title ?? 'Nova mensagem',
+    body: message.notification?.body ?? 'Você recebeu uma nova notificação.',
+    payload: '',
+    remoteMessage: message,
+  );
+  notificationService.showLocalNotification(notification);
+}
+
 void main() async {
+  // Exibe loading enquanto inicializa
   runApp(const Center(child: CircularProgressIndicator()));
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // await windowManager.ensureInitialized();
-
-  // WindowOptions windowOptions = WindowOptions(
-  //   size: Size(412, 915), // Defina a largura e altura desejadas
-  //   center: true, // Centraliza a janela na tela
-  //   backgroundColor: Colors.transparent,
-  //   skipTaskbar: false,
-  //   titleBarStyle: TitleBarStyle.normal,
-  // );
-
-  // windowManager.waitUntilReadyToShow(windowOptions, () async {
-  //   await windowManager.show();
-  //   await windowManager.focus();
-  // });
+  // Registra o handler para mensagens FCM em background/terminated
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   final apiClient = ApiClient();
 
@@ -47,16 +54,6 @@ void main() async {
   Get.put<FirebaseMessagingService>(
     FirebaseMessagingService(notificationService, null),
     permanent: true,
-  );
-
-  // Envia notificação de boas-vindas usando o serviço global
-  notificationService.showLocalNotification(
-    CustomNotification(
-      id: 1,
-      title: 'Bem-vindo!',
-      body: 'Seja bem-vindo ao aplicativo Rotary!',
-      payload: '',
-    ),
   );
 
   runApp(const App());

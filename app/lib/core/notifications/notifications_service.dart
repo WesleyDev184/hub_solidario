@@ -24,6 +24,7 @@ class CustomNotification {
 }
 
 class NotificationService extends GetxController {
+  
   /// Solicita permissão de notificação para Android 13+ e iOS
   Future<void> ensureNotificationPermission() async {
     // Android 13+ (Tiramisu)
