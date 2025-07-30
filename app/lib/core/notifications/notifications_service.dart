@@ -24,7 +24,6 @@ class CustomNotification {
 }
 
 class NotificationService extends GetxController {
-  
   /// Solicita permissão de notificação para Android 13+ e iOS
   Future<void> ensureNotificationPermission() async {
     // Android 13+ (Tiramisu)
@@ -67,11 +66,17 @@ class NotificationService extends GetxController {
 
   Future<void> _setupTimezone() async {
     tz.initializeTimeZones();
-    final String timeZoneName = DateTime.now().timeZoneName;
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
+    String timeZoneName = DateTime.now().timeZoneName;
+    try {
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    } catch (e) {
+      // Fallback para um timezone válido caso o nome não exista
+      tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
+    }
   }
 
   _initializeNotifications() async {
+    // O ícone já está definido corretamente como '@mipmap/ic_launcher'.
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     // Fazer: macOs, iOS, Linux...
     await localNotificationsPlugin.initialize(
