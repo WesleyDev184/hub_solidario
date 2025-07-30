@@ -1,11 +1,15 @@
 import 'package:app/app.dart';
 import 'package:app/core/api/api.dart';
+import 'package:app/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:get/get.dart';
 
 void main() async {
   runApp(const Center(child: CircularProgressIndicator()));
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // await windowManager.ensureInitialized();
 
@@ -22,8 +26,6 @@ void main() async {
   //   await windowManager.focus();
   // });
 
-  usePathUrlStrategy();
-
   final apiClient = ApiClient();
 
   await AuthService.initialize(apiClient);
@@ -34,6 +36,28 @@ void main() async {
     LoansService.initialize(apiClient),
     ApplicantsService.initialize(apiClient),
   ]);
+
+  // Registra NotificationService globalmente com GetX
+  Get.put<NotificationService>(NotificationService(), permanent: true);
+  // Solicita permissão de notificação se necessário
+  final notificationService = Get.find<NotificationService>();
+  await notificationService.ensureNotificationPermission();
+
+  // Registra FirebaseMessagingService globalmente sem contexto
+  Get.put<FirebaseMessagingService>(
+    FirebaseMessagingService(notificationService, null),
+    permanent: true,
+  );
+
+  // Envia notificação de boas-vindas usando o serviço global
+  notificationService.showLocalNotification(
+    CustomNotification(
+      id: 1,
+      title: 'Bem-vindo!',
+      body: 'Seja bem-vindo ao aplicativo Rotary!',
+      payload: '',
+    ),
+  );
 
   runApp(const App());
 }

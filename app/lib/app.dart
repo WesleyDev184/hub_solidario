@@ -1,4 +1,5 @@
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
+import 'package:app/core/notifications/firebase_messaging_service.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -30,6 +31,8 @@ class _AppState extends State<App> {
     _authController.stateRx.listen((_) {
       _router.refresh();
     });
+
+    // Inicialização do FirebaseMessagingService será feita no primeiro build
   }
 
   @override
@@ -42,6 +45,13 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     debugInvertOversizedImages = true; // Ativa a depuração de imagens grandes
+
+    // Injeta o contexto e inicializa o FirebaseMessagingService no primeiro build
+    final fcmService = Get.find<FirebaseMessagingService>();
+    if (fcmService.context == null) {
+      fcmService.setContext(context);
+      fcmService.initialize();
+    }
 
     return GetMaterialApp.router(
       supportedLocales: const [Locale('pt', 'BR')],

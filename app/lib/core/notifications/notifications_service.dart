@@ -1,9 +1,9 @@
 import 'package:app/go_router.dart' show globalNavigatorKey;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -24,6 +24,21 @@ class CustomNotification {
 }
 
 class NotificationService extends GetxController {
+  /// Solicita permissão de notificação para Android 13+ e iOS
+  Future<void> ensureNotificationPermission() async {
+    // Android 13+ (Tiramisu)
+    final status = await Permission.notification.status;
+    if (status.isDenied || status.isPermanentlyDenied) {
+      await Permission.notification.request();
+    }
+    // iOS
+    await localNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
+  }
+
   late FlutterLocalNotificationsPlugin localNotificationsPlugin;
   late AndroidNotificationDetails androidDetails;
 
@@ -51,8 +66,8 @@ class NotificationService extends GetxController {
 
   Future<void> _setupTimezone() async {
     tz.initializeTimeZones();
-    final String? timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneName!));
+    final String timeZoneName = DateTime.now().timeZoneName;
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
 
   _initializeNotifications() async {

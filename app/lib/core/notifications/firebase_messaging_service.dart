@@ -1,13 +1,14 @@
 import 'package:app/core/notifications/notifications_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
-class FirebaseMessagingService {
+class FirebaseMessagingService extends GetxController {
   final NotificationService _notificationService;
-  final BuildContext context;
+  BuildContext? context;
 
-  FirebaseMessagingService(this._notificationService, this.context);
+  FirebaseMessagingService(this._notificationService, [this.context]);
 
   Future<void> initialize() async {
     await FirebaseMessaging.instance
@@ -52,8 +53,12 @@ class FirebaseMessagingService {
 
   _goToPageAfterMessage(message) {
     final String route = message.data['route'] ?? '';
-    if (route.isNotEmpty) {
-      GoRouter.of(context).go(route);
+    if (route.isNotEmpty && context != null) {
+      GoRouter.of(context!).go(route);
     }
+  }
+
+  void setContext(BuildContext ctx) {
+    context = ctx;
   }
 }
