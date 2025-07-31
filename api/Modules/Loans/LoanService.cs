@@ -12,6 +12,8 @@ using api.Modules.Loans.Dto;
 using api.Modules.Loans.Entity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using api.Modules.Dependents.Dto;
+using api.Modules.Dependents.Entity;
 
 namespace api.Modules.Loans;
 
@@ -32,6 +34,20 @@ public static class LoanService
         string.IsNullOrWhiteSpace(request.Reason))
     {
       return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "All required fields must be provided.");
+    }
+
+    // Se DependentId for informado, validar existência e relação com o Applicant
+    if (request.DependentId.HasValue)
+    {
+      var dependent = await context.Dependents.SingleOrDefaultAsync(d => d.Id == request.DependentId.Value, ct);
+      if (dependent == null)
+      {
+        return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Dependent with ID '{request.DependentId}' not found.");
+      }
+      if (dependent.ApplicantId != request.ApplicantId)
+      {
+        return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "The specified dependent does not belong to the given applicant.");
+      }
     }
 
     await using var transaction = await context.Database.BeginTransactionAsync(ct);
@@ -64,11 +80,26 @@ public static class LoanService
           $"Applicant with ID '{request.ApplicantId}' not found.");
       }
 
+      // verify if dependent exists if provided
+      var dependent = await context.Dependents.SingleOrDefaultAsync(d => d.Id == request.DependentId.Value, ct);
+      if (dependent == null)
+      {
+        await transaction.RollbackAsync(ct);
+        return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Dependent with ID '{request.DependentId}' not found.");
+      }
+      if (dependent.ApplicantId != request.ApplicantId)
+      {
+        await transaction.RollbackAsync(ct);
+        return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "The specified dependent does not belong to the given applicant.");
+      }
+
       var newLoan = new Loan(
         request.ApplicantId,
         request.ResponsibleId,
         request.ItemId,
-        request.Reason);
+        request.Reason,
+        request.DependentId
+      );
 
       context.Loans.Add(newLoan);
 
@@ -95,6 +126,7 @@ public static class LoanService
         newLoan,
         item,
         applicant,
+        dependent,
         responsibleDto
       );
 
@@ -120,7 +152,8 @@ public static class LoanService
   {
     var loan = await context.Loans
       .Include(l => l.Item).ThenInclude(item => item!.Stock) // Include Stock to get ImageUrl
-      .Include(l => l.Applicant)
+      .Include(l => l.Applicant) // Include dependents if needed, with null check
+      .Include(l => l.Dependent) // Include dependent if needed
       .AsNoTracking() // Use AsNoTracking for better performance if no updates are needed
       .SingleOrDefaultAsync(l => l.Id == id, ct); // Use SingleOrDefaultAsync directly here
 
@@ -146,6 +179,7 @@ public static class LoanService
       loan,
       loan.Item,
       loan.Applicant,
+      loan.Dependent,
       responsibleDto
     );
 
@@ -163,6 +197,7 @@ public static class LoanService
     // Select only necessary data to improve performance
     var loansData = await context.Loans.AsNoTracking()
       .Include(l => l.Applicant)
+      .Include(l => l.Dependent) // Include dependent if needed
       .Include(l => l.Item).ThenInclude(item => item!.Stock) // Include Stock to get ImageUrl
       .Where(l => l.IsActive)
       .OrderByDescending(l => l.CreatedAt)
@@ -175,6 +210,7 @@ public static class LoanService
         l.ResponsibleId,
         ItemSeriaCode = l.Item != null ? l.Item.SeriaCode : 0,
         ApplicantName = l.Applicant != null ? l.Applicant.Name : string.Empty,
+        DependentName = l.Dependent != null ? l.Dependent.Name : (l.Applicant != null ? l.Applicant.Name : string.Empty),
         l.CreatedAt,
         ItemImageUrl = l.Item != null && l.Item.Stock != null ? l.Item.Stock.ImageUrl : null
       })
@@ -201,6 +237,7 @@ public static class LoanService
       l.IsActive,
       l.ItemSeriaCode,
       l.ApplicantName,
+      l.DependentName,
       responsibleNames.GetValueOrDefault(l.ResponsibleId, string.Empty) ??
       string.Empty, // Handle potential null Name from UserManager
       l.CreatedAt
@@ -230,6 +267,7 @@ public static class LoanService
       var loan = await context.Loans
         .Include(l => l.Item).ThenInclude(item => item!.Stock) // Include item to potentially update its status
         .Include(l => l.Applicant) // Include applicant for mapping response
+        .Include(l => l.Dependent) // Include dependent if needed
         .SingleOrDefaultAsync(l => l.Id == id, ct);
 
       if (loan == null)
@@ -319,6 +357,7 @@ public static class LoanService
         loan,
         loan.Item,
         loan.Applicant,
+        loan.Dependent,
         responsibleDto
       );
 
@@ -429,6 +468,7 @@ public static class LoanService
     Loan loan,
     Item? item,
     Applicant? applicant,
+    Dependent? dependent,
     ResponseEntityUserDTO? responsibleUserDto)
   {
     return new ResponseEntityLoanDTO(
@@ -459,8 +499,20 @@ public static class LoanService
           applicant.BeneficiaryQtd,
           applicant.CreatedAt,
           applicant.ProfileImageUrl,
-          null, // Dependents not included in this nested DTO for brevity
+          null,
           null
+        ),
+      dependent == null
+        ? null : new ResponseEntityDependentDTO(
+          dependent.Id,
+          dependent.Name,
+          dependent.CPF,
+          dependent.Email,
+          dependent.PhoneNumber,
+          dependent.Address,
+          dependent.ApplicantId,
+          dependent.ProfileImageUrl,
+          dependent.CreatedAt
         ),
       responsibleUserDto,
       loan.CreatedAt

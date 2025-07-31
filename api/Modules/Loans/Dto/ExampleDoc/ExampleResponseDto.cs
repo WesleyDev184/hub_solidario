@@ -2,6 +2,7 @@ using Swashbuckle.AspNetCore.Filters;
 using api.Modules.Items.Dto;
 using api.Modules.Applicants.Dto;
 using api.Auth.Dto;
+using api.Modules.Dependents.Dto;
 
 namespace api.Modules.Loans.Dto.ExampleDoc
 {
@@ -38,6 +39,17 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Dependents: null,
             Hub: null,
             ProfileImageUrl: "https://example.com/profile.jpg"
+          ),
+          Dependent: new ResponseEntityDependentDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Doe",
+            CPF: "98765432100",
+            Email: "jane.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "456 Elm St",
+            ApplicantId: Guid.NewGuid(),
+            ProfileImageUrl: null,
+            CreatedAt: DateTime.UtcNow
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
@@ -87,6 +99,17 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Dependents: null,
             Hub: null,
             ProfileImageUrl: "https://example.com/profile.jpg"
+          ),
+          Dependent: new ResponseEntityDependentDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Doe",
+            CPF: "98765432100",
+            Email: "jane.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "456 Elm St",
+            ApplicantId: Guid.NewGuid(),
+            ProfileImageUrl: null,
+            CreatedAt: DateTime.UtcNow
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
@@ -187,6 +210,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Item: 12345,
             Applicant: "John Doe",
             Responsible: "Jane Smith",
+            Dependent: "Jane Doe",
             CreatedAt: DateTime.UtcNow
           )
         ],
@@ -228,6 +252,17 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Dependents: null,
             Hub: null,
             ProfileImageUrl: "https://example.com/profile.jpg"
+          ),
+           Dependent: new ResponseEntityDependentDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Doe",
+            CPF: "98765432100",
+            Email: "jane.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "456 Elm St",
+            ApplicantId: Guid.NewGuid(),
+            ProfileImageUrl: null,
+            CreatedAt: DateTime.UtcNow
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),

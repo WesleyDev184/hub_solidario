@@ -1,6 +1,7 @@
 using System.Net;
 using api.Auth.Dto;
 using api.Modules.Applicants.Dto;
+using api.Modules.Dependents.Dto;
 using api.Modules.Items.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -22,6 +23,8 @@ public record ResponseEntityLoanDTO(
   ResponseEntityItemDTO? Item,
   [property: SwaggerSchema(Description = "Applicant data related to the loan", Nullable = true)]
   ResponseEntityApplicantsDTO? Applicant,
+  [property: SwaggerSchema(Description = "Dependent data related to the loan", Nullable = true)]
+  ResponseEntityDependentDTO? Dependent,
   [property: SwaggerSchema(Description = "User responsible for the loan", Nullable = true)]
   ResponseEntityUserDTO? Responsible,
   [property: SwaggerSchema(Description = "Creation date of the loan", Format = "date-time")]
@@ -43,6 +46,8 @@ public record ResponseEntityLoanListDTO(
   int? Item,
   [property: SwaggerSchema(Description = "Name of the applicant", Format = "string", Nullable = true)]
   string? Applicant,
+  [property: SwaggerSchema(Description = "Name of the dependent", Format = "string", Nullable = true)]
+  string? Dependent,
   [property: SwaggerSchema(Description = "Name of the responsible user", Format = "string", Nullable = true)]
   string? Responsible,
   [property: SwaggerSchema(Description = "Creation date of the loan", Format = "date-time")]
