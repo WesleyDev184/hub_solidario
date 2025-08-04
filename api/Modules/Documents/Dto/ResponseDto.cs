@@ -9,8 +9,7 @@ public record ResponseEntityDocumentsDTO(
   string StorageUrl,
   Guid ApplicantId,
   Guid? DependentId,
-  DateTime CreatedAt,
-  DateTime UpdatedAt
+  DateTime CreatedAt
 );
 
 //Controller Response

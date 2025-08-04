@@ -30,7 +30,6 @@ public class ExampleResponseCreateDocumentDTO : IExamplesProvider<ResponseContro
         "https://storage.example.com/documents/3fa85f64-5717-4562-b3fc-2c963f66afa8.pdf",
         Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
         Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa7"),
-        DateTime.UtcNow,
         DateTime.UtcNow
       ),
       "Document created successfully."
@@ -51,7 +50,6 @@ public class ExampleResponseGetDocumentDTO : IExamplesProvider<ResponseControlle
         "https://storage.example.com/documents/3fa85f64-5717-4562-b3fc-2c963f66afa8.pdf",
         Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
         Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa7"),
-        DateTime.UtcNow,
         DateTime.UtcNow
       ),
       "Document retrieved successfully."
@@ -73,7 +71,6 @@ public class ExampleResponseListDocumentsDTO : IExamplesProvider<ResponseDocumen
           "https://storage.example.com/documents/3fa85f64-5717-4562-b3fc-2c963f66afa8.pdf",
           Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
           Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa7"),
-          DateTime.UtcNow,
           DateTime.UtcNow
         ),
         new ResponseEntityDocumentsDTO(
@@ -82,7 +79,6 @@ public class ExampleResponseListDocumentsDTO : IExamplesProvider<ResponseDocumen
           "https://storage.example.com/documents/3fa85f64-5717-4562-b3fc-2c963f66afa9.pdf",
           Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
           null,
-          DateTime.UtcNow,
           DateTime.UtcNow
         )
       ],

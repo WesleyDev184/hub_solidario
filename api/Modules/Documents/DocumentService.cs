@@ -19,27 +19,49 @@ public static class DocumentService
       document.StorageUrl,
       document.ApplicantId,
       document.DependentId,
-      document.CreatedAt,
-      document.UpdatedAt
+      document.CreatedAt
     );
   }
 
   // Criar um novo documento
   public static async Task<ResponseControllerDocumentsDTO> CreateDocument(
     RequestCreateDocumentDto request,
-    string documentUrl,
     ApiDbContext context,
+    IFileStorageService fileStorageService,
     CancellationToken ct)
   {
+    if (request == null)
+    {
+      return new ResponseControllerDocumentsDTO(HttpStatusCode.BadRequest, null, "Invalid request data provided.");
+    }
+
+    // Validação básica do arquivo
+    if (request.DocumentFile == null || request.DocumentFile.Length == 0)
+    {
+      return new ResponseControllerDocumentsDTO(HttpStatusCode.BadRequest, null, "Document file is required.");
+    }
+
     await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(ct);
+    string? documentUrl = null;
 
     try
     {
+      // Upload do documento para o storage
+      await using (var stream = request.DocumentFile.OpenReadStream())
+      {
+        documentUrl = await fileStorageService.UploadFileAsync(
+          stream,
+          request.DocumentFile.FileName,
+          request.DocumentFile.ContentType);
+      }
+
       // Verificar se o applicant existe
       bool applicantExists = await context.Applicants.AsNoTracking().AnyAsync(a => a.Id == request.ApplicantId, ct);
       if (!applicantExists)
       {
         await transaction.RollbackAsync(ct);
+        // Deletar arquivo do storage em caso de erro
+        await CleanupStorageFile(fileStorageService, documentUrl);
         return new ResponseControllerDocumentsDTO(HttpStatusCode.BadRequest, null, "Applicant not found.");
       }
 
@@ -50,8 +72,25 @@ public static class DocumentService
         if (!dependentExists)
         {
           await transaction.RollbackAsync(ct);
+          // Deletar arquivo do storage em caso de erro
+          await CleanupStorageFile(fileStorageService, documentUrl);
           return new ResponseControllerDocumentsDTO(HttpStatusCode.BadRequest, null, "Dependent not found.");
         }
+      }
+
+      // Verificar se já existe um documento com o mesmo nome para este applicant/dependent
+      bool documentExists = await context.Documents.AsNoTracking()
+        .AnyAsync(d => d.OriginalFileName == request.DocumentFile.FileName &&
+                      d.ApplicantId == request.ApplicantId &&
+                      d.DependentId == request.DependentId, ct);
+
+      if (documentExists)
+      {
+        await transaction.RollbackAsync(ct);
+        // Deletar arquivo do storage em caso de erro
+        await CleanupStorageFile(fileStorageService, documentUrl);
+        return new ResponseControllerDocumentsDTO(HttpStatusCode.Conflict, null,
+          "Document with this name already exists for this applicant/dependent combination.");
       }
 
       // Criar o documento
@@ -72,6 +111,11 @@ public static class DocumentService
     catch (Exception ex)
     {
       await transaction.RollbackAsync(ct);
+      // Deletar arquivo do storage em caso de erro
+      if (!string.IsNullOrEmpty(documentUrl))
+      {
+        await CleanupStorageFile(fileStorageService, documentUrl);
+      }
       Console.WriteLine($"Error creating document: {ex.Message}");
       return new ResponseControllerDocumentsDTO(HttpStatusCode.InternalServerError, null, "An unexpected error occurred while creating the document.");
     }
@@ -178,7 +222,6 @@ public static class DocumentService
     RequestUpdateDocumentDto? request,
     ApiDbContext context,
     IFileStorageService fileStorageService,
-    string? newDocumentUrl,
     CancellationToken ct)
   {
     if (request == null)
@@ -188,6 +231,7 @@ public static class DocumentService
 
     await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(ct);
     string? oldDocumentUrl = null;
+    string? newDocumentUrl = null;
 
     try
     {
@@ -196,24 +240,30 @@ public static class DocumentService
       if (document == null)
       {
         await transaction.RollbackAsync(ct);
-        // Se fez upload de novo documento, deleta do storage
-        if (!string.IsNullOrEmpty(newDocumentUrl))
-        {
-          try
-          {
-            var fileName = newDocumentUrl.Split('/').Last();
-            await fileStorageService.DeleteFileAsync(fileName);
-          }
-          catch (Exception ex)
-          {
-            Console.WriteLine($"Warning: Failed to delete uploaded document after rollback: {ex.Message}");
-          }
-        }
         return new ResponseControllerDocumentsDTO(HttpStatusCode.NotFound, null, "Document not found.");
       }
 
       // Armazenar URL antiga para possível cleanup
       oldDocumentUrl = document.StorageUrl;
+
+      // Upload de novo documento se fornecido
+      if (request.DocumentFile != null && request.DocumentFile.Length > 0)
+      {
+        try
+        {
+          await using var stream = request.DocumentFile.OpenReadStream();
+          newDocumentUrl = await fileStorageService.UploadFileAsync(
+            stream,
+            request.DocumentFile.FileName,
+            request.DocumentFile.ContentType);
+        }
+        catch (Exception ex)
+        {
+          await transaction.RollbackAsync(ct);
+          Console.WriteLine($"Error uploading new document: {ex.Message}");
+          return new ResponseControllerDocumentsDTO(HttpStatusCode.InternalServerError, null, "Failed to upload new document.");
+        }
+      }
 
       // Verificar se o dependent existe (se fornecido)
       if (request.DependentId.HasValue)
@@ -222,6 +272,11 @@ public static class DocumentService
         if (!dependentExists)
         {
           await transaction.RollbackAsync(ct);
+          // Cleanup do novo arquivo se foi feito upload
+          if (!string.IsNullOrEmpty(newDocumentUrl))
+          {
+            await CleanupStorageFile(fileStorageService, newDocumentUrl);
+          }
           return new ResponseControllerDocumentsDTO(HttpStatusCode.BadRequest, null, "Dependent not found.");
         }
         document.SetDependentId(request.DependentId);
@@ -245,15 +300,7 @@ public static class DocumentService
       // Se houve novo documento, deleta o antigo
       if (!string.IsNullOrEmpty(newDocumentUrl) && !string.IsNullOrEmpty(oldDocumentUrl))
       {
-        try
-        {
-          var oldFileName = oldDocumentUrl.Split('/').Last();
-          await fileStorageService.DeleteFileAsync(oldFileName);
-        }
-        catch (Exception ex)
-        {
-          Console.WriteLine($"Warning: Failed to delete old document: {ex.Message}");
-        }
+        await CleanupStorageFile(fileStorageService, oldDocumentUrl);
       }
 
       ResponseEntityDocumentsDTO updatedDocumentDto = MapToResponseEntityDocumentsDto(document);
@@ -262,6 +309,11 @@ public static class DocumentService
     catch (Exception ex)
     {
       await transaction.RollbackAsync(ct);
+      // Cleanup do novo arquivo se foi feito upload
+      if (!string.IsNullOrEmpty(newDocumentUrl))
+      {
+        await CleanupStorageFile(fileStorageService, newDocumentUrl);
+      }
       Console.WriteLine($"Error updating document: {ex.Message}");
       return new ResponseControllerDocumentsDTO(HttpStatusCode.InternalServerError, null, "An unexpected error occurred while updating the document.");
     }
@@ -313,6 +365,22 @@ public static class DocumentService
       await transaction.RollbackAsync(ct);
       Console.WriteLine($"Error deleting document: {ex.Message}");
       return new ResponseControllerDocumentsDTO(HttpStatusCode.InternalServerError, null, "An unexpected error occurred while deleting the document.");
+    }
+  }
+
+  // Método auxiliar para limpar arquivos do storage em caso de erro
+  private static async Task CleanupStorageFile(IFileStorageService fileStorageService, string? fileUrl)
+  {
+    if (string.IsNullOrEmpty(fileUrl)) return;
+
+    try
+    {
+      var fileName = fileUrl.Split('/').Last();
+      await fileStorageService.DeleteFileAsync(fileName);
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"Warning: Failed to cleanup storage file: {ex.Message}");
     }
   }
 }

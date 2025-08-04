@@ -53,27 +53,8 @@ namespace api.Modules.Documents
       {
         try
         {
-          // Validação básica
-          if (request.DocumentFile == null || request.DocumentFile.Length == 0)
-          {
-            return Results.BadRequest(new ResponseControllerDocumentsDTO(
-              HttpStatusCode.BadRequest,
-              null,
-              "Document file is required."));
-          }
-
-          // Upload do documento para o storage
-          string documentUrl;
-          await using (var stream = request.DocumentFile.OpenReadStream())
-          {
-            documentUrl = await fileStorageService.UploadFileAsync(
-              stream,
-              request.DocumentFile.FileName,
-              request.DocumentFile.ContentType);
-          }
-
-          // Criar documento no banco
-          var response = await DocumentService.CreateDocument(request, documentUrl, context, ct);
+          // Criar documento (a lógica de upload agora está no service)
+          var response = await DocumentService.CreateDocument(request, context, fileStorageService, ct);
 
           if (response.StatusCode == HttpStatusCode.Created && response.Data != null)
           {
@@ -84,20 +65,6 @@ namespace api.Modules.Documents
               response.Data.DependentId);
 
             return Results.Created($"/documents/{response.Data.Id}", response);
-          }
-
-          // Se houve erro, deletar o arquivo do storage
-          if (!string.IsNullOrEmpty(documentUrl))
-          {
-            try
-            {
-              var fileName = documentUrl.Split('/').Last();
-              await fileStorageService.DeleteFileAsync(fileName);
-            }
-            catch (Exception ex)
-            {
-              Console.WriteLine($"Warning: Failed to delete uploaded document after error: {ex.Message}");
-            }
           }
 
           return response.StatusCode switch
@@ -296,20 +263,8 @@ namespace api.Modules.Documents
       {
         try
         {
-          string? newDocumentUrl = null;
-
-          // Upload novo documento se fornecido
-          if (request.DocumentFile != null && request.DocumentFile.Length > 0)
-          {
-            await using var stream = request.DocumentFile.OpenReadStream();
-            newDocumentUrl = await fileStorageService.UploadFileAsync(
-              stream,
-              request.DocumentFile.FileName,
-              request.DocumentFile.ContentType);
-          }
-
-          // Atualizar documento
-          var response = await DocumentService.UpdateDocument(id, request, context, fileStorageService, newDocumentUrl, ct);
+          // Atualizar documento (a lógica de upload agora está no service)
+          var response = await DocumentService.UpdateDocument(id, request, context, fileStorageService, ct);
 
           if (response.StatusCode == HttpStatusCode.OK && response.Data != null)
           {
