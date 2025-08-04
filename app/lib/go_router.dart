@@ -56,28 +56,6 @@ Page<T> slideTransition<T extends Object?>(
   );
 }
 
-Page<T> scaleTransition<T extends Object?>(
-  BuildContext context,
-  GoRouterState state,
-  Widget child,
-) {
-  return CustomTransitionPage<T>(
-    key: state.pageKey,
-    child: child,
-    transitionDuration: const Duration(milliseconds: 300),
-    reverseTransitionDuration: const Duration(milliseconds: 300),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return ScaleTransition(
-        scale: Tween<double>(
-          begin: 0.8,
-          end: 1.0,
-        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
-        child: FadeTransition(opacity: animation, child: child),
-      );
-    },
-  );
-}
-
 Page<T> popupTransition<T extends Object?>(
   BuildContext context,
   GoRouterState state,
@@ -107,6 +85,42 @@ Page<T> popupTransition<T extends Object?>(
     opaque: false,
     barrierColor: Colors.black54,
     barrierDismissible: true,
+  );
+}
+
+Page<T> sharedAxisTransition<T extends Object?>(
+  BuildContext context,
+  GoRouterState state,
+  Widget child,
+) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.2, 1.0, curve: Curves.easeInOut),
+          ),
+        ),
+        child: SlideTransition(
+          position:
+              Tween<Offset>(
+                begin: const Offset(0.0, 0.05),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: const Interval(0.0, 0.8, curve: Curves.easeInOut),
+                ),
+              ),
+          child: child,
+        ),
+      );
+    },
   );
 }
 
@@ -140,7 +154,7 @@ GoRouter createGoRouter(AuthController authController) {
           GoRoute(
             path: RoutePaths.ptd.stocks,
             pageBuilder: (context, state) =>
-                scaleTransition(context, state, const StocksPage()),
+                sharedAxisTransition(context, state, const StocksPage()),
             routes: [
               GoRoute(
                 path: 'detail/:id',
@@ -217,13 +231,13 @@ GoRouter createGoRouter(AuthController authController) {
           GoRoute(
             path: RoutePaths.ptd.info,
             pageBuilder: (context, state) =>
-                scaleTransition(context, state, const InfoPage()),
+                sharedAxisTransition(context, state, const InfoPage()),
           ),
 
           GoRoute(
             path: RoutePaths.ptd.loans,
             pageBuilder: (context, state) =>
-                scaleTransition(context, state, const LoansPage()),
+                sharedAxisTransition(context, state, const LoansPage()),
             routes: [
               GoRoute(
                 path: 'detail/:id',
@@ -254,7 +268,7 @@ GoRouter createGoRouter(AuthController authController) {
           GoRoute(
             path: RoutePaths.ptd.applicants,
             pageBuilder: (context, state) =>
-                scaleTransition(context, state, const ApplicantsPage()),
+                sharedAxisTransition(context, state, const ApplicantsPage()),
             routes: [
               GoRoute(
                 path: 'detail/:id',
