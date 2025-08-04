@@ -126,7 +126,7 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
         title: "Criar Solicitante",
         path: RoutePaths.ptd.applicants,
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFE8F5E8), // Verde claro
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -291,9 +291,7 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
                         child: OutlinedButton(
                           onPressed: isLoading
                               ? null
-                              : () => context.go(
-                                  RoutePaths.ptd.applicants,
-                                ),
+                              : () => context.go(RoutePaths.ptd.applicants),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             side: BorderSide(color: Colors.grey[400]!),

@@ -27,7 +27,7 @@ class _LoansPageState extends State<LoansPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Empréstimos Ativos", initialRoute: true),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFF3E0), // Laranja claro para loans
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

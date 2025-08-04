@@ -188,7 +188,7 @@ class _EditDependentPageState extends State<EditDependentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: 'Editar Dependente'),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFF8E1), // Amarelo claro
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

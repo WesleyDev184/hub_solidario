@@ -420,7 +420,8 @@ class _StockPageState extends State<StockPage> {
         title: _stock?.title ?? 'Categoria',
         path: RoutePaths.ptd.stocks,
       ),
-      backgroundColor: Colors.transparent,
+                        backgroundColor: const Color(0xFFF1F8E9), // Verde muito claro
+
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(), // Adiciona a animação de bounce
         slivers: [

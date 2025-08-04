@@ -62,7 +62,7 @@ class _DependentPageState extends State<DependentPage> {
   void _showActionsMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFE8EAF6),
       builder: (BuildContext context) {
         return ActionMenuDependent(
           onEditPressed: () => {

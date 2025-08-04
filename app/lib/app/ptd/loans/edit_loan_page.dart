@@ -151,7 +151,7 @@ class _EditLoanPageState extends State<EditLoanPage> {
         title: "Editar Empréstimo",
         path: RoutePaths.ptd.loanId(widget.loanId),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFF8E1), // Amarelo claro
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

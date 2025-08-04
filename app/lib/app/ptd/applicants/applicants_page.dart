@@ -34,7 +34,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Solicitantes", initialRoute: true),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFE0F2F1),
       floatingActionButton: FloatingActionButton(
         heroTag: "applicants_list_fab",
         onPressed: () {

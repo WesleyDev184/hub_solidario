@@ -115,7 +115,7 @@ class _DeleteApplicantPageState extends State<DeleteApplicantPage> {
         title: "Deletar Solicitante",
         path: RoutePaths.ptd.applicantId(widget.applicantId),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFEBEE), // Vermelho claro
       body: Obx(() {
         final applicant = _applicantsController.allApplicants.firstWhere(
           (applicant) => applicant.id == widget.applicantId,

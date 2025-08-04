@@ -40,7 +40,7 @@ class _StocksPageState extends State<StocksPage> {
     return Scaffold(
       appBar: AppBarCustom(title: 'Produtos', initialRoute: true),
       floatingActionButton: _buildFloatingActionButton(),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFE1F5FE), // Azul claro para stocks
       body: Column(
         children: [
           Padding(

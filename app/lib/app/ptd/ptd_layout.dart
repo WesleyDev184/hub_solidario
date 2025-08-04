@@ -1,4 +1,3 @@
-import 'package:app/core/widgets/background_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -58,7 +57,7 @@ class _PtdLayoutState extends State<PtdLayout> {
       }
     }
     return Scaffold(
-      body: BackgroundWrapper(child: widget.child),
+      body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: _onItemTapped,

@@ -75,7 +75,7 @@ class _DeleteItemPageState extends State<DeleteItemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Deletar Item"),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFEBEE), // Vermelho claro
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

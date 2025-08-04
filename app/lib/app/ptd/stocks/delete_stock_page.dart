@@ -56,7 +56,8 @@ class _DeleteStockPageState extends State<DeleteStockPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Deletar Categoria"),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFEBEE), // Vermelho claro
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

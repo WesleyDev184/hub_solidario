@@ -73,7 +73,7 @@ class _LoanPageState extends State<LoanPage> {
         title: 'Detalhes do Empréstimo',
         path: RoutePaths.ptd.loans,
       ),
-      backgroundColor: CustomColors.white,
+      backgroundColor: const Color(0xFFFFF8E1),
       body: Container(
         decoration: BoxDecoration(
           gradient: RadialGradient(
