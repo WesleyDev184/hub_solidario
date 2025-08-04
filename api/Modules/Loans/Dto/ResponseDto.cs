@@ -1,6 +1,6 @@
 using System.Net;
-using api.Auth.Dto;
 using api.Modules.Applicants.Dto;
+using api.Modules.Auth.Dto;
 using api.Modules.Dependents.Dto;
 using api.Modules.Items.Dto;
 using Swashbuckle.AspNetCore.Annotations;

@@ -2,7 +2,7 @@ using api.Modules.Hubs.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Filters;
 
-namespace api.Auth.Dto.ExempleDoc;
+namespace api.Modules.Auth.Dto.ExempleDoc;
 
 //Response 201 Create
 public class ExampleResponseCreateUserDTO : IExamplesProvider<ResponseControllerUserDTO>
@@ -96,6 +96,7 @@ public class ExampleResponseGetAllUserDTO : IExamplesProvider<ResponseController
           "John Doe",
           "Doe@Exemple.com",
           "11999999999",
+          "device_token_example",
           null,
           DateTime.UtcNow
         )
@@ -117,6 +118,7 @@ public class ExampleResponseGetUserDTO : IExamplesProvider<ResponseControllerUse
         "John Doe",
         "Doe@exemple.com",
         "11999999999",
+        "device_token_example",
         new ResponseEntityHubDTO(
           Guid.Parse("00000000-0000-0000-0000-000000000000"),
           "Hub Name",

@@ -1,6 +1,6 @@
 using System.Net;
-using api.Auth.Entity;
 using api.DB;
+using api.Modules.Auth.Entity;
 using api.Modules.Loans.Dto;
 using api.Modules.Loans.Dto.ExampleDoc;
 using Microsoft.AspNetCore.Identity;

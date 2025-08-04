@@ -1,4 +1,5 @@
 using api.Modules.Applicants.Entity;
+using api.Modules.Documents.Entity;
 
 namespace api.Modules.Dependents.Entity;
 
@@ -18,6 +19,7 @@ public class Dependent
 
   // Propriedade de navegação
   public Applicant? Applicant { get; init; }
+  public ICollection<Document>? Documents { get; init; } = [];
 
   public Dependent(string name, string cpf, string email, string phoneNumber, string address, Guid applicantId, string? profileImageUrl = null)
   {

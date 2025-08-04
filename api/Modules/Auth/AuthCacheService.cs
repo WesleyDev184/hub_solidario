@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Caching.Hybrid;
 
-namespace api.Auth;
+namespace api.Modules.Auth;
 
 public static class AuthCacheService
 {

@@ -1,6 +1,4 @@
 using System.Net;
-using api.Auth.Dto;
-using api.Auth.Entity;
 using api.DB;
 using api.Modules.Applicants.Dto;
 using api.Modules.Applicants.Entity;
@@ -14,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using api.Modules.Dependents.Dto;
 using api.Modules.Dependents.Entity;
+using api.Modules.Auth.Entity;
+using api.Modules.Auth.Dto;
 
 namespace api.Modules.Loans;
 
@@ -81,16 +81,20 @@ public static class LoanService
       }
 
       // verify if dependent exists if provided
-      var dependent = await context.Dependents.SingleOrDefaultAsync(d => d.Id == request.DependentId.Value, ct);
-      if (dependent == null)
+      Dependent? dependent = null;
+      if (request.DependentId.HasValue)
       {
-        await transaction.RollbackAsync(ct);
-        return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Dependent with ID '{request.DependentId}' not found.");
-      }
-      if (dependent.ApplicantId != request.ApplicantId)
-      {
-        await transaction.RollbackAsync(ct);
-        return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "The specified dependent does not belong to the given applicant.");
+        dependent = await context.Dependents.SingleOrDefaultAsync(d => d.Id == request.DependentId.Value, ct);
+        if (dependent == null)
+        {
+          await transaction.RollbackAsync(ct);
+          return new ResponseLoanDTO(HttpStatusCode.NotFound, null, $"Dependent with ID '{request.DependentId}' not found.");
+        }
+        if (dependent.ApplicantId != request.ApplicantId)
+        {
+          await transaction.RollbackAsync(ct);
+          return new ResponseLoanDTO(HttpStatusCode.BadRequest, null, "The specified dependent does not belong to the given applicant.");
+        }
       }
 
       var newLoan = new Loan(
@@ -117,6 +121,7 @@ public static class LoanService
         u.Name ?? string.Empty,
         u.Email ?? string.Empty,
         u.PhoneNumber ?? string.Empty,
+        u.DeviceToken ?? string.Empty, // Assuming DeviceToken is a field in User
         null, // Roles not included here for simplicity, adjust as needed
         u.CreatedAt
       )).SingleOrDefaultAsync(ct);
@@ -170,6 +175,7 @@ public static class LoanService
         u.Name ?? string.Empty,
         u.Email ?? string.Empty,
         u.PhoneNumber ?? string.Empty,
+        u.DeviceToken ?? string.Empty, // Assuming DeviceToken is a field in User
         null, // Roles not included here for simplicity, adjust as needed
         u.CreatedAt
       )).SingleOrDefaultAsync(ct);
@@ -348,6 +354,7 @@ public static class LoanService
           u.Name ?? string.Empty,
           u.Email ?? string.Empty,
           u.PhoneNumber ?? string.Empty,
+          u.DeviceToken ?? string.Empty, // Assuming DeviceToken is a field in User
           null, // Roles not included here for simplicity, adjust as needed
           u.CreatedAt
         )).SingleOrDefaultAsync(ct);

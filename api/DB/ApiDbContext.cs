@@ -2,6 +2,7 @@ namespace api.DB;
 
 using api.Modules.Applicants.Entity;
 using api.Modules.Dependents.Entity;
+using api.Modules.Documents.Entity;
 using api.Modules.Items.Entity;
 using api.Modules.Loans.Entity;
 using api.Modules.Hubs.Entity;
@@ -17,6 +18,7 @@ public class ApiDbContext : DbContext
   public DbSet<Applicant> Applicants { get; set; }
   public DbSet<Dependent> Dependents { get; set; }
   public DbSet<Loan> Loans { get; set; }
+  public DbSet<Document> Documents { get; set; }
 
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
@@ -68,6 +70,19 @@ public class ApiDbContext : DbContext
       .HasOne(l => l.Item)
       .WithMany()
       .HasForeignKey(l => l.ItemId)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    // Relacionamentos Document
+    modelBuilder.Entity<Document>()
+      .HasOne(d => d.Applicant)
+      .WithMany(a => a.Documents)
+      .HasForeignKey(d => d.ApplicantId)
+      .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<Document>()
+      .HasOne(d => d.Dependent)
+      .WithMany(dep => dep.Documents)
+      .HasForeignKey(d => d.DependentId)
       .OnDelete(DeleteBehavior.Cascade);
 
     modelBuilder.Entity<Applicant>()

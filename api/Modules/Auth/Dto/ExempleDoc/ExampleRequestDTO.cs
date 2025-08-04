@@ -1,6 +1,6 @@
 using Swashbuckle.AspNetCore.Filters;
 
-namespace api.Auth.Dto.ExempleDoc;
+namespace api.Modules.Auth.Dto.ExempleDoc;
 
 public class ExampleRequestUserDTO : IExamplesProvider<RequestCreateUserDto>
 {
@@ -11,7 +11,8 @@ public class ExampleRequestUserDTO : IExamplesProvider<RequestCreateUserDto>
       Email: "Doe@exemple.com",
       Password: "12345678",
       PhoneNumber: "11999999999",
-      HubId: Guid.Parse("00000000-0000-0000-0000-000000000000")
+      HubId: Guid.Parse("00000000-0000-0000-0000-000000000000"),
+      DeviceToken: "device_token_example"
     );
   }
 }
@@ -35,6 +36,8 @@ public class ExampleRequestLoginUserDTO : IExamplesProvider<RequestLoginUserDto>
   {
     return new RequestLoginUserDto(
       Email: "Doe@exemple.com",
-      Password: "12345678");
+      Password: "12345678",
+      DeviceToken: "device_token_example"
+    );
   }
 }

@@ -1,6 +1,5 @@
-namespace api.Auth.Dto;
+namespace api.Modules.Auth.Dto;
 
-using api.Auth.Entity;
 using Swashbuckle.AspNetCore.Annotations;
 
 //Create User
@@ -14,7 +13,9 @@ public record RequestCreateUserDto(
   [SwaggerParameter(Description = "The phone number of the user", Required = true)]
   string PhoneNumber,
   [SwaggerParameter(Description = "The ID of the hub associated with the user", Required = true)]
-  Guid HubId
+  Guid HubId,
+  [SwaggerParameter(Description = "The device token of the user", Required = false)]
+  string DeviceToken
 );
 
 public record RequestUpdateUserDto(
@@ -33,4 +34,7 @@ public record RequestLoginUserDto(
   [SwaggerParameter(Description = "The email of the user", Required = true)]
   string Email,
   [SwaggerParameter(Description = "The password of the user", Required = true)]
-  string Password);
+  string Password,
+  [SwaggerParameter(Description = "The device token of the user", Required = false)]
+  string? DeviceToken
+);

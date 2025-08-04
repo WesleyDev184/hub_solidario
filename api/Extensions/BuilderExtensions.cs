@@ -1,7 +1,7 @@
 using Amazon.Runtime;
 using Amazon.S3;
-using api.Auth.Entity;
 using api.DB;
+using api.Modules.Auth.Entity;
 using api.Services.S3;
 using api.Swagger;
 using DotNetEnv;

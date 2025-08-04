@@ -1,8 +1,8 @@
 using Swashbuckle.AspNetCore.Filters;
 using api.Modules.Items.Dto;
 using api.Modules.Applicants.Dto;
-using api.Auth.Dto;
 using api.Modules.Dependents.Dto;
+using api.Modules.Auth.Dto;
 
 namespace api.Modules.Loans.Dto.ExampleDoc
 {
@@ -56,6 +56,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
+            DeviceToken: "exampleDeviceToken",
             Hub: null,
             CreatedAt: DateTime.UtcNow
           ),
@@ -116,6 +117,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
+             DeviceToken: "exampleDeviceToken",
             Hub: null,
             CreatedAt: DateTime.UtcNow
           ),
@@ -269,6 +271,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
+             DeviceToken: "exampleDeviceToken",
             Hub: null,
             CreatedAt: DateTime.UtcNow
           ),

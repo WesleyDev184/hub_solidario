@@ -1,5 +1,6 @@
 
 using api.Modules.Dependents.Entity;
+using api.Modules.Documents.Entity;
 using api.Modules.Hubs.Entity;
 
 namespace api.Modules.Applicants.Entity;
@@ -27,6 +28,7 @@ public class Applicant
 
   // Propriedade de navegação
   public ICollection<Dependent>? Dependents { get; init; } = [];
+  public ICollection<Document>? Documents { get; init; } = [];
 
   public Applicant(string name, string cpf, string email, string phoneNumber, string address, bool isBeneficiary, Guid hubId, string? profileImageUrl = null)
   {
