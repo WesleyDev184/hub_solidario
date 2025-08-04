@@ -1,5 +1,7 @@
 using api.Modules.Applicants.Entity;
+
 using api.Modules.Items.Entity;
+using api.Modules.Dependents.Entity;
 
 namespace api.Modules.Loans.Entity;
 
@@ -9,6 +11,9 @@ public class Loan
   public Guid ApplicantId { get; init; }
   public Guid ResponsibleId { get; init; }
   public Guid ItemId { get; init; }
+
+  // Dependente relacionado ao empréstimo (opcional)
+  public Guid? DependentId { get; init; }
   public DateTime ReturnDate { get; set; }
   public string Reason { get; set; }
   public bool IsActive { get; set; } = true;
@@ -18,14 +23,17 @@ public class Loan
   // navegação
   public Applicant? Applicant { get; init; }
   public Item? Item { get; init; }
+  public Dependent? Dependent { get; init; }
 
-  public Loan(Guid applicantId, Guid responsibleId, Guid itemId, string reason)
+
+  public Loan(Guid applicantId, Guid responsibleId, Guid itemId, string reason, Guid? dependentId = null)
   {
     Id = Guid.NewGuid();
     ApplicantId = applicantId;
     ResponsibleId = responsibleId;
     ItemId = itemId;
     Reason = reason;
+    DependentId = dependentId;
     ReturnDate = DateTime.UtcNow.AddMonths(3);
   }
 
@@ -36,6 +44,7 @@ public class Loan
     ResponsibleId = Guid.Empty;
     ItemId = Guid.Empty;
     Reason = string.Empty;
+    DependentId = null;
     ReturnDate = DateTime.UtcNow.AddMonths(3);
   }
 

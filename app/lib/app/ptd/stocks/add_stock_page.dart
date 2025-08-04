@@ -163,7 +163,7 @@ class _AddStockPageState extends State<AddStockPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Novo Estoque", path: RoutePaths.ptd.stocks),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFE8F5E8), // Verde claro
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(

@@ -1,6 +1,4 @@
 import 'package:app/core/api/api_client.dart';
-import 'package:app/core/api/hubs/repositories/hubs_repository.dart';
-import 'package:app/core/api/hubs/services/hubs_cache_service.dart';
 import 'package:get/get.dart';
 
 import 'hubs.dart';

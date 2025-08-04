@@ -19,6 +19,8 @@ public record ResponseEntityDependentDTO(
   string Address,
   [property: SwaggerSchema(Description = "Identifier of the associated applicant", Format = "uuid")]
   Guid ApplicantId,
+  [property: SwaggerSchema(Description = "Profile image URL of the dependent", Nullable = true)]
+  string? ProfileImageUrl,
   [property: SwaggerSchema(Description = "Creation date of the dependent", Format = "date-time")]
   DateTime CreatedAt
 );

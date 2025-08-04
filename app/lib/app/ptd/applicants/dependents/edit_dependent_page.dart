@@ -188,7 +188,7 @@ class _EditDependentPageState extends State<EditDependentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: 'Editar Dependente'),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFF8E1), // Amarelo claro
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -326,7 +326,9 @@ class _EditDependentPageState extends State<EditDependentPage> {
                       child: OutlinedButton(
                         onPressed: _applicantsController.isLoading
                             ? null
-                            : () => Navigator.pop(context),
+                            : () => context.go(
+                                RoutePaths.ptd.applicantId(widget.applicantId),
+                              ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           side: BorderSide(color: Colors.grey[400]!),

@@ -17,6 +17,7 @@ namespace api.Modules.Dependents.Dto.ExampleDoc
           PhoneNumber: "11888888888",
           Address: "456 Secondary St, City",
           ApplicantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+          ProfileImageUrl: "https://bucket.s3.amazonaws.com/profile.jpg",
           CreatedAt: DateTime.UtcNow
         ),
         Message: "Dependent created successfully"
@@ -39,6 +40,7 @@ namespace api.Modules.Dependents.Dto.ExampleDoc
           PhoneNumber: "11777777777",
           Address: "789 Tertiary Ave, City",
           ApplicantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+          ProfileImageUrl: null,
           CreatedAt: DateTime.UtcNow
         ),
         Message: "Dependent updated successfully"
@@ -140,6 +142,7 @@ namespace api.Modules.Dependents.Dto.ExampleDoc
             PhoneNumber: "11888888888",
             Address: "456 Secondary St, City",
             ApplicantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            ProfileImageUrl: "https://example.com/profile.jpg",
             CreatedAt: DateTime.UtcNow
           )
         },
@@ -163,6 +166,7 @@ namespace api.Modules.Dependents.Dto.ExampleDoc
           PhoneNumber: "11888888888",
           Address: "456 Secondary St, City",
           ApplicantId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
+          ProfileImageUrl: "https://example.com/profile.jpg",
           CreatedAt: DateTime.UtcNow
         ),
         Message: "Dependent retrieved successfully"

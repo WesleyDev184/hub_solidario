@@ -31,8 +31,102 @@ import 'app/ptd/ptd_layout.dart';
 import 'app/ptd/stocks/stock_page.dart';
 import 'app/ptd/stocks/stocks_page.dart';
 
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
+
+// Transições personalizadas
+Page<T> slideTransition<T extends Object?>(
+  BuildContext context,
+  GoRouterState state,
+  Widget child,
+) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      const curve = Curves.easeInOut;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(position: animation.drive(tween), child: child);
+    },
+  );
+}
+
+Page<T> popupTransition<T extends Object?>(
+  BuildContext context,
+  GoRouterState state,
+  Widget child,
+) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 350),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return ScaleTransition(
+        scale: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+        ),
+        child: FadeTransition(
+          opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+            ),
+          ),
+          child: child,
+        ),
+      );
+    },
+    opaque: false,
+    barrierColor: Colors.black54,
+    barrierDismissible: true,
+  );
+}
+
+Page<T> sharedAxisTransition<T extends Object?>(
+  BuildContext context,
+  GoRouterState state,
+  Widget child,
+) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.2, 1.0, curve: Curves.easeInOut),
+          ),
+        ),
+        child: SlideTransition(
+          position:
+              Tween<Offset>(
+                begin: const Offset(0.0, 0.05),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: const Interval(0.0, 0.8, curve: Curves.easeInOut),
+                ),
+              ),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 GoRouter createGoRouter(AuthController authController) {
   return GoRouter(
+    navigatorKey: globalNavigatorKey,
     initialLocation: RoutePaths.root,
     routes: [
       GoRoute(
@@ -41,148 +135,213 @@ GoRouter createGoRouter(AuthController authController) {
       ),
       GoRoute(
         path: RoutePaths.auth.signin,
-        builder: (context, state) => const SigninPage(),
+        pageBuilder: (context, state) =>
+            slideTransition(context, state, const SigninPage()),
       ),
       GoRoute(
         path: RoutePaths.auth.signup,
-        builder: (context, state) => const SignUpPage(),
+        pageBuilder: (context, state) =>
+            slideTransition(context, state, const SignUpPage()),
       ),
       GoRoute(
         path: RoutePaths.auth.forgotPassword,
-        builder: (context, state) => const ForgotPasswordPage(),
+        pageBuilder: (context, state) =>
+            slideTransition(context, state, const ForgotPasswordPage()),
       ),
       ShellRoute(
         builder: (context, state, child) => PtdLayout(child: child),
         routes: [
           GoRoute(
             path: RoutePaths.ptd.stocks,
-            builder: (context, state) => const StocksPage(),
+            pageBuilder: (context, state) =>
+                sharedAxisTransition(context, state, const StocksPage()),
             routes: [
               GoRoute(
                 path: 'detail/:id',
-                builder: (context, state) =>
-                    StockPage(id: state.pathParameters['id']!),
+                pageBuilder: (context, state) => slideTransition(
+                  context,
+                  state,
+                  StockPage(id: state.pathParameters['id']!),
+                ),
               ),
               GoRoute(
                 path: 'edit/:id',
-                builder: (context, state) =>
-                    EditStockPage(stockId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  EditStockPage(stockId: state.pathParameters['id']!),
+                ),
               ),
               GoRoute(
                 path: 'delete/:id',
-                builder: (context, state) =>
-                    DeleteStockPage(stockId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  DeleteStockPage(stockId: state.pathParameters['id']!),
+                ),
               ),
 
               GoRoute(
                 path: 'add_item/:id',
-                builder: (context, state) =>
-                    AddItemPage(stockId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  AddItemPage(stockId: state.pathParameters['id']!),
+                ),
               ),
 
               GoRoute(
                 path: 'edit_item/:id/:stockId',
-                builder: (context, state) => EditItemPage(
-                  itemId: state.pathParameters['id']!,
-                  stockId: state.pathParameters['stockId']!,
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  EditItemPage(
+                    itemId: state.pathParameters['id']!,
+                    stockId: state.pathParameters['stockId']!,
+                  ),
                 ),
               ),
               GoRoute(
                 path: 'delete_item/:id/:stockId',
-                builder: (context, state) => DeleteItemPage(
-                  itemId: state.pathParameters['id']!,
-                  stockId: state.pathParameters['stockId']!,
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  DeleteItemPage(
+                    itemId: state.pathParameters['id']!,
+                    stockId: state.pathParameters['stockId']!,
+                  ),
                 ),
               ),
               GoRoute(
                 path: 'borrow_item/:id',
-                builder: (context, state) =>
-                    BorrowItemPage(stockId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  BorrowItemPage(stockId: state.pathParameters['id']!),
+                ),
               ),
               GoRoute(
                 path: 'add',
-                builder: (context, state) => const AddStockPage(),
+                pageBuilder: (context, state) =>
+                    popupTransition(context, state, const AddStockPage()),
               ),
             ],
           ),
 
           GoRoute(
             path: RoutePaths.ptd.info,
-            builder: (context, state) => const InfoPage(),
+            pageBuilder: (context, state) =>
+                sharedAxisTransition(context, state, const InfoPage()),
           ),
 
           GoRoute(
             path: RoutePaths.ptd.loans,
-            builder: (context, state) => const LoansPage(),
+            pageBuilder: (context, state) =>
+                sharedAxisTransition(context, state, const LoansPage()),
             routes: [
               GoRoute(
                 path: 'detail/:id',
-                builder: (context, state) =>
-                    LoanPage(loanId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => slideTransition(
+                  context,
+                  state,
+                  LoanPage(loanId: state.pathParameters['id']!),
+                ),
               ),
               GoRoute(
                 path: 'finalize/:id',
-                builder: (context, state) =>
-                    FinalizeLoanPage(loanId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  FinalizeLoanPage(loanId: state.pathParameters['id']!),
+                ),
               ),
               GoRoute(
                 path: 'edit/:id',
-                builder: (context, state) =>
-                    EditLoanPage(loanId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  EditLoanPage(loanId: state.pathParameters['id']!),
+                ),
               ),
             ],
           ),
           GoRoute(
             path: RoutePaths.ptd.applicants,
-            builder: (context, state) => const ApplicantsPage(),
+            pageBuilder: (context, state) =>
+                sharedAxisTransition(context, state, const ApplicantsPage()),
             routes: [
               GoRoute(
                 path: 'detail/:id',
-                builder: (context, state) =>
-                    ApplicantPage(applicantId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => slideTransition(
+                  context,
+                  state,
+                  ApplicantPage(applicantId: state.pathParameters['id']!),
+                ),
                 routes: [
                   GoRoute(
                     path: 'dependents/detail/:dependentId',
-                    builder: (context, state) => DependentPage(
-                      applicantId: state.pathParameters['id']!,
-                      dependentId: state.pathParameters['dependentId']!,
+                    pageBuilder: (context, state) => slideTransition(
+                      context,
+                      state,
+                      DependentPage(
+                        applicantId: state.pathParameters['id']!,
+                        dependentId: state.pathParameters['dependentId']!,
+                      ),
                     ),
                   ),
                   GoRoute(
                     path: 'dependents/add',
-                    builder: (context, state) => AddDependentPage(
-                      applicantId: state.pathParameters['id']!,
+                    pageBuilder: (context, state) => popupTransition(
+                      context,
+                      state,
+                      AddDependentPage(
+                        applicantId: state.pathParameters['id']!,
+                      ),
                     ),
                   ),
                   GoRoute(
                     path: 'dependents/edit/:dependentId',
-                    builder: (context, state) => EditDependentPage(
-                      applicantId: state.pathParameters['id']!,
-                      dependentId: state.pathParameters['dependentId']!,
+                    pageBuilder: (context, state) => popupTransition(
+                      context,
+                      state,
+                      EditDependentPage(
+                        applicantId: state.pathParameters['id']!,
+                        dependentId: state.pathParameters['dependentId']!,
+                      ),
                     ),
                   ),
                   GoRoute(
                     path: 'dependents/delete/:dependentId',
-                    builder: (context, state) => DeleteDependentPage(
-                      applicantId: state.pathParameters['id']!,
-                      dependentId: state.pathParameters['dependentId']!,
+                    pageBuilder: (context, state) => popupTransition(
+                      context,
+                      state,
+                      DeleteDependentPage(
+                        applicantId: state.pathParameters['id']!,
+                        dependentId: state.pathParameters['dependentId']!,
+                      ),
                     ),
                   ),
                 ],
               ),
               GoRoute(
                 path: 'add',
-                builder: (context, state) => AddApplicantPage(),
+                pageBuilder: (context, state) =>
+                    popupTransition(context, state, AddApplicantPage()),
               ),
               GoRoute(
                 path: 'edit/:id',
-                builder: (context, state) =>
-                    EditApplicantPage(applicantId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  EditApplicantPage(applicantId: state.pathParameters['id']!),
+                ),
               ),
               GoRoute(
                 path: 'delete/:id',
-                builder: (context, state) => DeleteApplicantPage(
-                  applicantId: state.pathParameters['id']!,
+                pageBuilder: (context, state) => popupTransition(
+                  context,
+                  state,
+                  DeleteApplicantPage(applicantId: state.pathParameters['id']!),
                 ),
               ),
             ],

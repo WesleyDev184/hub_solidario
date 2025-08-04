@@ -46,6 +46,9 @@ namespace api.Migrations.app
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("HubId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsBeneficiary")
                         .HasColumnType("boolean");
 
@@ -57,6 +60,9 @@ namespace api.Migrations.app
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -64,6 +70,8 @@ namespace api.Migrations.app
 
                     b.HasIndex("CPF")
                         .IsUnique();
+
+                    b.HasIndex("HubId");
 
                     b.ToTable("Applicants");
                 });
@@ -100,6 +108,9 @@ namespace api.Migrations.app
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -111,6 +122,41 @@ namespace api.Migrations.app
                         .IsUnique();
 
                     b.ToTable("Dependents");
+                });
+
+            modelBuilder.Entity("api.Modules.Documents.Entity.Document", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DependentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StorageUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicantId");
+
+                    b.HasIndex("DependentId");
+
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("api.Modules.Hubs.Entity.Hub", b =>
@@ -178,6 +224,9 @@ namespace api.Migrations.app
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("DependentId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -200,6 +249,8 @@ namespace api.Migrations.app
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicantId");
+
+                    b.HasIndex("DependentId");
 
                     b.HasIndex("ItemId");
 
@@ -250,6 +301,17 @@ namespace api.Migrations.app
                     b.ToTable("Stocks");
                 });
 
+            modelBuilder.Entity("api.Modules.Applicants.Entity.Applicant", b =>
+                {
+                    b.HasOne("api.Modules.Hubs.Entity.Hub", "Hub")
+                        .WithMany("Applicants")
+                        .HasForeignKey("HubId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Hub");
+                });
+
             modelBuilder.Entity("api.Modules.Dependents.Entity.Dependent", b =>
                 {
                     b.HasOne("api.Modules.Applicants.Entity.Applicant", "Applicant")
@@ -259,6 +321,24 @@ namespace api.Migrations.app
                         .IsRequired();
 
                     b.Navigation("Applicant");
+                });
+
+            modelBuilder.Entity("api.Modules.Documents.Entity.Document", b =>
+                {
+                    b.HasOne("api.Modules.Applicants.Entity.Applicant", "Applicant")
+                        .WithMany("Documents")
+                        .HasForeignKey("ApplicantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Modules.Dependents.Entity.Dependent", "Dependent")
+                        .WithMany("Documents")
+                        .HasForeignKey("DependentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Applicant");
+
+                    b.Navigation("Dependent");
                 });
 
             modelBuilder.Entity("api.Modules.Items.Entity.Item", b =>
@@ -280,6 +360,10 @@ namespace api.Migrations.app
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("api.Modules.Dependents.Entity.Dependent", "Dependent")
+                        .WithMany()
+                        .HasForeignKey("DependentId");
+
                     b.HasOne("api.Modules.Items.Entity.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
@@ -287,6 +371,8 @@ namespace api.Migrations.app
                         .IsRequired();
 
                     b.Navigation("Applicant");
+
+                    b.Navigation("Dependent");
 
                     b.Navigation("Item");
                 });
@@ -305,10 +391,19 @@ namespace api.Migrations.app
             modelBuilder.Entity("api.Modules.Applicants.Entity.Applicant", b =>
                 {
                     b.Navigation("Dependents");
+
+                    b.Navigation("Documents");
+                });
+
+            modelBuilder.Entity("api.Modules.Dependents.Entity.Dependent", b =>
+                {
+                    b.Navigation("Documents");
                 });
 
             modelBuilder.Entity("api.Modules.Hubs.Entity.Hub", b =>
                 {
+                    b.Navigation("Applicants");
+
                     b.Navigation("Stocks");
                 });
 

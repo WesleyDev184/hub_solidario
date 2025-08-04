@@ -1,8 +1,5 @@
-namespace api.Auth
+namespace api.Modules.Auth
 {
-  using Dto;
-  using Dto.ExempleDoc;
-  using Entity;
   using DB;
   using api.Modules.Hubs.Dto;
   using Microsoft.AspNetCore.Authentication.BearerToken;
@@ -15,7 +12,9 @@ namespace api.Auth
   using Microsoft.OpenApi.Models;
   using Swashbuckle.AspNetCore.Annotations;
   using Swashbuckle.AspNetCore.Filters;
-
+  using api.Modules.Auth.Entity;
+  using api.Modules.Auth.Dto;
+  using api.Modules.Auth.Dto.ExempleDoc;
 
   public static class AuthController
   {
@@ -56,6 +55,24 @@ namespace api.Auth
             {
               return TypedResults.Problem(result.ToString(),
                 statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            // atualizar o token do usuário
+            User? user = await signInManager.UserManager.FindByEmailAsync(login.Email);
+            if (user == null)
+            {
+              return TypedResults.Problem("User not found", statusCode: StatusCodes.Status404NotFound);
+            }
+
+            if (login.DeviceToken != null)
+            {
+              user.DeviceToken = login.DeviceToken;
+              IdentityResult updateResult = await signInManager.UserManager.UpdateAsync(user);
+              if (!updateResult.Succeeded)
+              {
+                return TypedResults.Problem("Error updating user device token",
+                  statusCode: StatusCodes.Status500InternalServerError);
+              }
             }
 
             return TypedResults.Empty;
@@ -139,6 +156,7 @@ namespace api.Auth
             Email = newUser.Email,
             Name = newUser.Name,
             PhoneNumber = newUser.PhoneNumber,
+            DeviceToken = newUser.DeviceToken,
             HubId = newUser.HubId
           };
 
@@ -210,6 +228,7 @@ namespace api.Auth
                 user.Name ?? "",
                 user.Email ?? "",
                 user.PhoneNumber ?? "",
+                user.DeviceToken,
                 hub,
                 user.CreatedAt
               );
@@ -253,6 +272,7 @@ namespace api.Auth
                 u.Name ?? "",
                 u.Email ?? "",
                 u.PhoneNumber ?? "",
+                u.DeviceToken,
                 null,
                 u.CreatedAt
               )).ToList();
@@ -325,6 +345,7 @@ namespace api.Auth
                   user.Name ?? "",
                   user.Email ?? "",
                   user.PhoneNumber ?? "",
+                  user.DeviceToken,
                   hub,
                   user.CreatedAt
                 ),
@@ -497,6 +518,7 @@ namespace api.Auth
                   u.Name ?? "",
                   u.Email ?? "",
                   u.PhoneNumber ?? "",
+                  u.DeviceToken,
                   null, // Não incluir dados do banco ortopédico para evitar referência circular
                   u.CreatedAt))
                 .ToListAsync(cancel);

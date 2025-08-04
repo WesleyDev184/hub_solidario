@@ -151,7 +151,7 @@ class _EditLoanPageState extends State<EditLoanPage> {
         title: "Editar Empréstimo",
         path: RoutePaths.ptd.loanId(widget.loanId),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFF8E1), // Amarelo claro
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -221,7 +221,9 @@ class _EditLoanPageState extends State<EditLoanPage> {
                       child: OutlinedButton(
                         onPressed: _loansController.isLoading
                             ? null
-                            : () => Navigator.pop(context),
+                            : () => context.go(
+                                RoutePaths.ptd.loanId(widget.loanId),
+                              ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           side: BorderSide(color: Colors.grey[400]!),

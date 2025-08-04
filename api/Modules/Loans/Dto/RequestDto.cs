@@ -11,7 +11,9 @@ public record RequestCreateLoanDto(
   [SwaggerParameter(Description = "Identifier of the item being loaned", Required = true)]
   Guid ItemId,
   [SwaggerParameter(Description = "Reason for the loan", Required = true)]
-  string Reason
+  string Reason,
+  [SwaggerParameter(Description = "Identifier for the dependent (optional)", Required = false)]
+  Guid? DependentId = null
 );
 
 public record RequestUpdateLoanDto(

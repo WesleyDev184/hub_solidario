@@ -1,6 +1,6 @@
 namespace api.DB;
 
-using api.Auth.Entity;
+using api.Modules.Auth.Entity;
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

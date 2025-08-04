@@ -1,4 +1,5 @@
 using api.Modules.Applicants.Entity;
+using api.Modules.Documents.Entity;
 
 namespace api.Modules.Dependents.Entity;
 
@@ -10,14 +11,17 @@ public class Dependent
   public string Email { get; private set; }
   public string PhoneNumber { get; private set; }
   public string Address { get; private set; }
+
   public Guid ApplicantId { get; init; }
+  public string? ProfileImageUrl { get; private set; }
   public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
 
   // Propriedade de navegação
   public Applicant? Applicant { get; init; }
+  public ICollection<Document>? Documents { get; init; } = [];
 
-  public Dependent(string name, string cpf, string email, string phoneNumber, string address, Guid applicantId)
+  public Dependent(string name, string cpf, string email, string phoneNumber, string address, Guid applicantId, string? profileImageUrl = null)
   {
     Id = Guid.NewGuid();
     Name = name;
@@ -26,6 +30,7 @@ public class Dependent
     PhoneNumber = phoneNumber;
     Address = address;
     ApplicantId = applicantId;
+    ProfileImageUrl = profileImageUrl;
   }
 
   private Dependent()
@@ -36,6 +41,12 @@ public class Dependent
     Email = string.Empty;
     PhoneNumber = string.Empty;
     Address = string.Empty;
+    ProfileImageUrl = null;
+  }
+
+  public void SetProfileImageUrl(string? url)
+  {
+    ProfileImageUrl = url;
   }
 
   public void SetName(string name)

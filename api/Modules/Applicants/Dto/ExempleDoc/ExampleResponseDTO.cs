@@ -1,4 +1,5 @@
 using api.Modules.Dependents.Dto;
+using api.Modules.Hubs.Dto;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace api.Modules.Applicants.Dto.ExempleDoc
@@ -20,7 +21,9 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
-            Dependents: null
+            ProfileImageUrl: "https://bucket.s3.amazonaws.com/profile.jpg",
+            Dependents: null,
+            Hub: null
           ),
         Message: "Applicant created successfully"
       );
@@ -44,6 +47,7 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
           IsBeneficiary: true,
           BeneficiaryQtd: 1,
           CreatedAt: DateTime.UtcNow,
+          ProfileImageUrl: null,
           Dependents:
           [
             new ResponseEntityDependentDTO(
@@ -54,8 +58,16 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
               PhoneNumber: "11999999998",
               Address: "456 Elm St, City",
               Guid.Parse("00000000-0000-0000-0000-000000000000"),
+              ProfileImageUrl: "https://example.com/dependent.jpg",
               CreatedAt: DateTime.Now)
-          ]
+          ],
+          Hub: new ResponseEntityHubDTO(
+            Id: Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            Name: "Main Hub",
+            City: "Downtown",
+            Stocks: null,
+            CreatedAt: DateTime.UtcNow
+          )
         ),
         Message: "Applicant updated successfully"
       );
@@ -134,7 +146,9 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
-            Dependents: null
+            ProfileImageUrl: null,
+            Dependents: null,
+            Hub:null
           )
         ],
         Message: "Applicants retrieved successfully"
@@ -159,6 +173,7 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
           IsBeneficiary: true,
           BeneficiaryQtd: 1,
           CreatedAt: DateTime.UtcNow,
+          ProfileImageUrl: null,
           Dependents:
           [
             new ResponseEntityDependentDTO(
@@ -169,8 +184,16 @@ namespace api.Modules.Applicants.Dto.ExempleDoc
               PhoneNumber: "11999999998",
               Address: "456 Elm St, City",
               Guid.Parse("00000000-0000-0000-0000-000000000000"),
+              ProfileImageUrl: "https://example.com/dependent.jpg",
               CreatedAt: DateTime.Now)
-          ]
+          ],
+           Hub: new ResponseEntityHubDTO(
+            Id: Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            Name: "Main Hub",
+            City: "Downtown",
+            Stocks: null,
+            CreatedAt: DateTime.UtcNow
+          )
         ),
         Message: "Applicant retrieved successfully"
       );

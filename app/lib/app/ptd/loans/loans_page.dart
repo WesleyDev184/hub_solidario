@@ -3,11 +3,9 @@ import 'package:app/core/api/loans/controllers/loans_controller.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-// ...existing code...
 class LoansPage extends StatefulWidget {
   const LoansPage({super.key});
 
@@ -29,7 +27,7 @@ class _LoansPageState extends State<LoansPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Empréstimos Ativos", initialRoute: true),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFF3E0), // Laranja claro para loans
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -77,33 +75,22 @@ class _LoansPageState extends State<LoansPage> {
                     ),
                   );
                 }
-                return AnimationLimiter(
-                  child: ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: filteredLoans.length,
-                    itemBuilder: (context, index) {
-                      final loan = filteredLoans[index];
-                      return AnimationConfiguration.staggeredList(
-                        position: index,
-                        duration: const Duration(milliseconds: 500),
-                        child: SlideAnimation(
-                          verticalOffset: 50.0,
-                          child: FadeInAnimation(
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
-                              child: LoanCard(
-                                id: loan.id.toString(),
-                                imageUrl: "assets/images/cr.jpg", // URL padrão
-                                loan: loan,
-                                loadData: () => loansController.loadLoans(),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                return ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: filteredLoans.length,
+                  itemBuilder: (context, index) {
+                    final loan = filteredLoans[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 5.0),
+                      child: LoanCard(
+                        id: loan.id.toString(),
+                        imageUrl: "assets/images/cr.jpg", // URL padrão
+                        loan: loan,
+                        loadData: () => loansController.loadLoans(),
+                      ),
+                    );
+                  },
                 );
               }),
             ),

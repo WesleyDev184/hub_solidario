@@ -1,6 +1,6 @@
 using System.Net;
-using api.Auth.Entity;
 using api.DB;
+using api.Modules.Auth.Entity;
 using api.Modules.Loans.Dto;
 using api.Modules.Loans.Dto.ExampleDoc;
 using Microsoft.AspNetCore.Identity;
@@ -52,14 +52,12 @@ public static class LoanController
           typeof(ExampleResponseErrorDto))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound,
           typeof(ExampleResponseLoanItemOrApplicantNotFoundDto))]
-    [
-          SwaggerResponseExample(StatusCodes.Status409Conflict,
+    [SwaggerResponseExample(StatusCodes.Status409Conflict,
             typeof(ExampleResponseItemNotAvailableDto))]
     [SwaggerRequestExample(
           typeof(RequestCreateLoanDto),
           typeof(ExampleRequestCreateLoanDto))]
     async (RequestCreateLoanDto request, UserManager<User> userManager, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
-
         {
           var res = await LoanService.CreateLoan(request, context, userManager, ct);
 

@@ -1,11 +1,8 @@
-using System;
-using System.Net;
-using System.Collections.Generic;
 using Swashbuckle.AspNetCore.Filters;
-using api.Modules.Loans.Dto;
 using api.Modules.Items.Dto;
 using api.Modules.Applicants.Dto;
-using api.Auth.Dto;
+using api.Modules.Dependents.Dto;
+using api.Modules.Auth.Dto;
 
 namespace api.Modules.Loans.Dto.ExampleDoc
 {
@@ -18,6 +15,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         Success: true,
         Data: new ResponseEntityLoanDTO(
           Id: Guid.NewGuid(),
+          ImageUrl: "https://example.com/image.jpg",
           ReturnDate: DateTime.UtcNow.AddDays(7),
           Reason: "Loaning item for temporary use",
           IsActive: true,
@@ -38,13 +36,27 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
-            Dependents: null
+            Dependents: null,
+            Hub: null,
+            ProfileImageUrl: "https://example.com/profile.jpg"
+          ),
+          Dependent: new ResponseEntityDependentDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Doe",
+            CPF: "98765432100",
+            Email: "jane.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "456 Elm St",
+            ApplicantId: Guid.NewGuid(),
+            ProfileImageUrl: null,
+            CreatedAt: DateTime.UtcNow
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
+            DeviceToken: "exampleDeviceToken",
             Hub: null,
             CreatedAt: DateTime.UtcNow
           ),
@@ -64,6 +76,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         Success: true,
         Data: new ResponseEntityLoanDTO(
           Id: Guid.NewGuid(),
+          ImageUrl: "https://example.com/image.jpg",
           ReturnDate: DateTime.UtcNow.AddDays(7),
           Reason: "Loaning item for temporary use",
           IsActive: true,
@@ -84,13 +97,27 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
-            Dependents: null
+            Dependents: null,
+            Hub: null,
+            ProfileImageUrl: "https://example.com/profile.jpg"
+          ),
+          Dependent: new ResponseEntityDependentDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Doe",
+            CPF: "98765432100",
+            Email: "jane.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "456 Elm St",
+            ApplicantId: Guid.NewGuid(),
+            ProfileImageUrl: null,
+            CreatedAt: DateTime.UtcNow
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
+             DeviceToken: "exampleDeviceToken",
             Hub: null,
             CreatedAt: DateTime.UtcNow
           ),
@@ -178,12 +205,14 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         [
           new ResponseEntityLoanListDTO(
             Id: Guid.NewGuid(),
+            ImageUrl: "https://example.com/image.jpg",
             ReturnDate: DateTime.UtcNow.AddDays(7),
             Reason: "Loaning item for temporary use",
             IsActive: true,
             Item: 12345,
             Applicant: "John Doe",
             Responsible: "Jane Smith",
+            Dependent: "Jane Doe",
             CreatedAt: DateTime.UtcNow
           )
         ],
@@ -201,6 +230,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         Success: true,
         Data: new ResponseEntityLoanDTO(
           Id: Guid.NewGuid(),
+          ImageUrl: "https://example.com/image.jpg",
           ReturnDate: DateTime.UtcNow.AddDays(7),
           Reason: "Loaning item for temporary use",
           IsActive: true,
@@ -221,13 +251,27 @@ namespace api.Modules.Loans.Dto.ExampleDoc
             IsBeneficiary: true,
             BeneficiaryQtd: 1,
             CreatedAt: DateTime.UtcNow,
-            Dependents: null
+            Dependents: null,
+            Hub: null,
+            ProfileImageUrl: "https://example.com/profile.jpg"
+          ),
+           Dependent: new ResponseEntityDependentDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Doe",
+            CPF: "98765432100",
+            Email: "jane.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "456 Elm St",
+            ApplicantId: Guid.NewGuid(),
+            ProfileImageUrl: null,
+            CreatedAt: DateTime.UtcNow
           ),
           Responsible: new ResponseEntityUserDTO(
             Id: Guid.NewGuid(),
             Name: "Jane Smith",
             Email: "jane.smith@example.com",
             PhoneNumber: "11888888888",
+             DeviceToken: "exampleDeviceToken",
             Hub: null,
             CreatedAt: DateTime.UtcNow
           ),

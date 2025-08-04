@@ -4,7 +4,6 @@ import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -35,7 +34,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Solicitantes", initialRoute: true),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFE0F2F1),
       floatingActionButton: FloatingActionButton(
         heroTag: "applicants_list_fab",
         onPressed: () {
@@ -99,56 +98,41 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                   ),
                 );
               }
-              return AnimationLimiter(
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: filteredApplicants.length,
-                  itemBuilder: (context, index) {
-                    final applicant = filteredApplicants[index];
-                    return AnimationConfiguration.staggeredList(
-                      position: index,
-                      duration: const Duration(milliseconds: 500),
-                      child: SlideAnimation(
-                        verticalOffset: 50.0,
-                        child: FadeInAnimation(
-                          child: InkWell(
-                            onTap: () {
-                              context.go(
-                                RoutePaths.ptd.applicantId(applicant.id),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 15.0,
-                                vertical: 8.0,
-                              ),
-                              child: ApplicantsCard(
-                                id: applicant.id,
-                                imageUrl: 'assets/images/dog.jpg',
-                                name: applicant.name ?? '',
-                                qtd: applicant.beneficiaryQtd,
-                                beneficiary: applicant.isBeneficiary,
-                                onEdit: () {
-                                  context.go(
-                                    RoutePaths.ptd.applicantEdit(applicant.id),
-                                  );
-                                },
-                                onDelete: () {
-                                  context.go(
-                                    RoutePaths.ptd.applicantDelete(
-                                      applicant.id,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
+              return ListView.builder(
+                scrollDirection: Axis.vertical,
+                physics: const BouncingScrollPhysics(),
+                itemCount: filteredApplicants.length,
+                itemBuilder: (context, index) {
+                  final applicant = filteredApplicants[index];
+                  return InkWell(
+                    onTap: () {
+                      context.go(RoutePaths.ptd.applicantId(applicant.id));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15.0,
+                        vertical: 8.0,
                       ),
-                    );
-                  },
-                ),
+                      child: ApplicantsCard(
+                        id: applicant.id,
+                        imageUrl: 'assets/images/dog.jpg',
+                        name: applicant.name ?? '',
+                        qtd: applicant.beneficiaryQtd,
+                        beneficiary: applicant.isBeneficiary,
+                        onEdit: () {
+                          context.go(
+                            RoutePaths.ptd.applicantEdit(applicant.id),
+                          );
+                        },
+                        onDelete: () {
+                          context.go(
+                            RoutePaths.ptd.applicantDelete(applicant.id),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
               );
             }),
           ),

@@ -26,9 +26,10 @@ public static class DependentCacheService
   {
     await cache.RemoveAsync(Keys.DependentById(dependentId), ct);
     await InvalidateAllDependentCaches(cache, ct); // Garante que a listagem seja atualizada
+
     if (applicantId.HasValue)
     {
-      await ApplicantCacheService.InvalidateApplicantCacheByDependent(cache, applicantId.Value, ct);
+      await ApplicantCacheService.InvalidateApplicantCache(cache, applicantId.Value, ct);
     }
   }
 

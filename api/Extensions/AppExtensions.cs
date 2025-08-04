@@ -1,14 +1,15 @@
-using api.Auth;
 using api.Middlewares;
 using Scalar.AspNetCore;
 using api.Modules.Applicants;
 using api.Modules.Dependents;
+using api.Modules.Documents;
 using api.Modules.Items;
 using api.Modules.Loans;
 using api.Modules.Hubs;
 using api.Modules.Stocks;
 using Microsoft.EntityFrameworkCore;
 using api.DB;
+using api.Modules.Auth;
 
 namespace api.Extensions
 {
@@ -112,6 +113,7 @@ namespace api.Extensions
       app.ApplicantRoutes();
       app.DependentRoutes();
       app.LoanRoutes();
+      app.DocumentRoutes();
     }
   }
 }

@@ -75,7 +75,7 @@ class _DeleteItemPageState extends State<DeleteItemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Deletar Item"),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFEBEE), // Vermelho claro
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -210,7 +210,9 @@ class _DeleteItemPageState extends State<DeleteItemPage> {
                     child: OutlinedButton(
                       onPressed: isLoading
                           ? null
-                          : () => Navigator.pop(context),
+                          : () => context.go(
+                              RoutePaths.ptd.stockId(widget.stockId),
+                            ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: Colors.grey[400]!),

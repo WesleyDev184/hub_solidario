@@ -1,6 +1,10 @@
+
 using api.Modules.Dependents.Entity;
+using api.Modules.Documents.Entity;
+using api.Modules.Hubs.Entity;
 
 namespace api.Modules.Applicants.Entity;
+
 
 public class Applicant
 {
@@ -15,10 +19,18 @@ public class Applicant
   public DateTime CreatedAt { get; private init; } = DateTime.UtcNow;
   public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
 
+  // URL da foto de perfil
+  public string? ProfileImageUrl { get; private set; }
+
+  // Relacionamento com Hub
+  public Guid HubId { get; private set; }
+  public Hub Hub { get; private set; } = null!;
+
   // Propriedade de navegação
   public ICollection<Dependent>? Dependents { get; init; } = [];
+  public ICollection<Document>? Documents { get; init; } = [];
 
-  public Applicant(string name, string cpf, string email, string phoneNumber, string address, bool isBeneficiary)
+  public Applicant(string name, string cpf, string email, string phoneNumber, string address, bool isBeneficiary, Guid hubId, string? profileImageUrl = null)
   {
     Id = Guid.NewGuid();
     Name = name;
@@ -27,6 +39,8 @@ public class Applicant
     PhoneNumber = phoneNumber;
     Address = address;
     IsBeneficiary = isBeneficiary;
+    HubId = hubId;
+    ProfileImageUrl = profileImageUrl;
   }
 
   private Applicant()
@@ -38,6 +52,12 @@ public class Applicant
     PhoneNumber = string.Empty;
     Address = string.Empty;
     IsBeneficiary = false;
+    HubId = Guid.Empty;
+    ProfileImageUrl = null;
+  }
+  public void SetProfileImageUrl(string? url)
+  {
+    ProfileImageUrl = url;
   }
 
   public void SetName(string name)

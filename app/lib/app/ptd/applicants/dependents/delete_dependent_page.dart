@@ -113,7 +113,7 @@ class _DeleteDependentPageState extends State<DeleteDependentPage> {
           widget.dependentId,
         ),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFFFEBEE),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

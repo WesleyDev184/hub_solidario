@@ -2,6 +2,7 @@ namespace api.Modules.Applicants.Dto;
 
 using System.Net;
 using api.Modules.Dependents.Dto;
+using api.Modules.Hubs.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
 // Response Services
@@ -24,8 +25,12 @@ public record ResponseEntityApplicantsDTO(
   int BeneficiaryQtd,
   [property: SwaggerSchema(Description = "Creation date of the applicant", Format = "date-time")]
   DateTime CreatedAt,
+  [property: SwaggerSchema(Description = "Profile image URL of the applicant", Nullable = true)]
+  string? ProfileImageUrl,
   [property: SwaggerSchema(Description = "Array of dependents associated with the applicant", Nullable = true)]
-  ResponseEntityDependentDTO[]? Dependents
+  ResponseEntityDependentDTO[]? Dependents,
+  [property: SwaggerSchema(Description = "Hub associated with the applicant", Nullable = true)]
+  ResponseEntityHubDTO? Hub
 );
 
 public record ResponseApplicantsDTO(

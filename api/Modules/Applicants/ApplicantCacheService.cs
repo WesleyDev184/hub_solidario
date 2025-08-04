@@ -27,12 +27,4 @@ public static class ApplicantCacheService
     await cache.RemoveByTagAsync("loans", ct);
     await InvalidateAllApplicantCaches(cache, ct); // Garante que a listagem seja atualizada
   }
-
-  /// <summary>
-  /// Invalida o cache de um applicant relacionado a um dependent
-  /// </summary>
-  public static async Task InvalidateApplicantCacheByDependent(HybridCache cache, Guid applicantId, CancellationToken ct = default)
-  {
-    await cache.RemoveAsync(Keys.ApplicantById(applicantId), ct);
-  }
 }

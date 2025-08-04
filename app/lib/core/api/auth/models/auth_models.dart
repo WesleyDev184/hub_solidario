@@ -96,7 +96,7 @@ class User {
       name: name ?? this.name,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      hub: hub ?? this.hub,
+      hub: hub ?? hub,
       createdAt: createdAt ?? this.createdAt,
     );
   }

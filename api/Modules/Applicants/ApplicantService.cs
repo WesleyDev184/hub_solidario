@@ -3,8 +3,10 @@ using api.DB;
 using api.Modules.Applicants.Dto;
 using api.Modules.Applicants.Entity;
 using api.Modules.Dependents.Dto; // Needed for ResponseEntityDependentDTO mapping
+using api.Modules.Hubs.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using api.Services.S3;
 
 namespace api.Modules.Applicants
 {
@@ -16,7 +18,8 @@ namespace api.Modules.Applicants
     public static async Task<ResponseApplicantsDTO> CreateApplicant(
       RequestCreateApplicantDto request,
       ApiDbContext context,
-      CancellationToken ct)
+      CancellationToken ct,
+      string? imageUrl = null)
     {
       // Early exit for null request
       if (request == null)
@@ -44,13 +47,23 @@ namespace api.Modules.Applicants
             $"Applicant with CPF '{request.CPF}' or Email '{request.Email}' already exists.");
         }
 
+        // Busca o Hub pelo HubId
+        var hubExists = await context.Hubs.AsNoTracking().AnyAsync(h => h.Id == request.HubId, ct);
+        if (!hubExists)
+        {
+          await transaction.RollbackAsync(ct);
+          return new ResponseApplicantsDTO(HttpStatusCode.BadRequest, null, $"Hub with ID '{request.HubId}' not found.");
+        }
+
         Applicant newApplicant = new(
           request.Name,
           request.CPF,
           request.Email,
           request.PhoneNumber,
           request.Address,
-          request.IsBeneficiary
+          request.IsBeneficiary,
+          request.HubId,
+          imageUrl
         );
 
         context.Applicants.Add(newApplicant);
@@ -73,6 +86,34 @@ namespace api.Modules.Applicants
     }
 
     /// <summary>
+    /// Busca todos os solicitantes de um hub específico.
+    /// </summary>
+    public static async Task<ResponseApplicantsListDTO> GetApplicantsByHub(
+      Guid hubId,
+      ApiDbContext context,
+      CancellationToken ct)
+    {
+      var applicants = await context.Applicants.AsNoTracking()
+        .Where(a => a.HubId == hubId)
+        .Select(a => new ResponseEntityApplicantsDTO(
+          a.Id,
+          a.Name,
+          a.CPF,
+          a.Email,
+          a.PhoneNumber,
+          a.Address,
+          a.IsBeneficiary,
+          a.BeneficiaryQtd,
+          a.CreatedAt,
+          a.ProfileImageUrl,
+          null,
+          null
+        )).ToListAsync(ct);
+
+      return new ResponseApplicantsListDTO(HttpStatusCode.OK, applicants.Count, applicants, "Applicants by hub retrieved successfully.");
+    }
+
+    /// <summary>
     /// Retrieves a single applicant by their ID, including their associated dependents.
     /// </summary>
     public static async Task<ResponseApplicantsDTO> GetApplicant(
@@ -83,6 +124,7 @@ namespace api.Modules.Applicants
       // Retrieve the applicant entity with related dependents (eager loading)
       Applicant? applicantEntity = await context.Applicants.AsNoTracking()
         .Include(a => a.Dependents) // Include dependents for full details
+        .Include(a => a.Hub) // Include hub for full details
         .SingleOrDefaultAsync(a => a.Id == id, ct);
 
       if (applicantEntity == null)
@@ -118,7 +160,9 @@ namespace api.Modules.Applicants
           a.IsBeneficiary,
           a.BeneficiaryQtd,
           a.CreatedAt,
-          null // Dependents are typically not included in list views for performance
+          a.ProfileImageUrl,
+          null,
+          null
         )).ToListAsync(ct);
 
       return new ResponseApplicantsListDTO(HttpStatusCode.OK, applicants.Count, applicants,
@@ -132,6 +176,8 @@ namespace api.Modules.Applicants
       Guid id,
       RequestUpdateApplicantDto? request,
       ApiDbContext context,
+      IFileStorageService fileStorageService,
+      string? newImageUrl,
       CancellationToken ct)
     {
       // Early exit for null request
@@ -141,6 +187,7 @@ namespace api.Modules.Applicants
       }
 
       await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(ct);
+      string? oldImageUrl = null;
       try
       {
         Applicant? applicant = await context.Applicants.SingleOrDefaultAsync(a => a.Id == id, ct);
@@ -148,8 +195,17 @@ namespace api.Modules.Applicants
         if (applicant == null)
         {
           await transaction.RollbackAsync(ct);
+          // Se fez upload de nova imagem, deleta do storage
+          if (!string.IsNullOrEmpty(newImageUrl))
+          {
+            var fileName = newImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
           return new ResponseApplicantsDTO(HttpStatusCode.NotFound, null, $"Applicant with ID '{id}' not found.");
         }
+
+        // Guardar imagem antiga para possível deleção
+        oldImageUrl = applicant.ProfileImageUrl;
 
         // Only update if the request property is not null/empty AND different from current value
         if (!string.IsNullOrWhiteSpace(request.Name))
@@ -166,6 +222,11 @@ namespace api.Modules.Applicants
           if (exists)
           {
             await transaction.RollbackAsync(ct);
+            if (!string.IsNullOrEmpty(newImageUrl))
+            {
+              var fileName = newImageUrl.Split('/').Last();
+              await fileStorageService.DeleteFileAsync(fileName);
+            }
             return new ResponseApplicantsDTO(HttpStatusCode.Conflict, null,
               $"Applicant with CPF '{request.CPF}' already exists.");
           }
@@ -182,6 +243,11 @@ namespace api.Modules.Applicants
           if (exists)
           {
             await transaction.RollbackAsync(ct);
+            if (!string.IsNullOrEmpty(newImageUrl))
+            {
+              var fileName = newImageUrl.Split('/').Last();
+              await fileStorageService.DeleteFileAsync(fileName);
+            }
             return new ResponseApplicantsDTO(HttpStatusCode.Conflict, null,
               $"Applicant with Email '{request.Email}' already exists.");
           }
@@ -204,18 +270,50 @@ namespace api.Modules.Applicants
           applicant.SetIsBeneficiary(request.IsBeneficiary.Value);
         }
 
-        applicant.UpdateTimestamps(); // Assuming this updates the ModifiedAt timestamp
+        // Atualizar imagem se veio nova
+        if (!string.IsNullOrEmpty(newImageUrl))
+        {
+          applicant.SetProfileImageUrl(newImageUrl);
+        }
+
+        applicant.UpdateTimestamps();
 
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
-        // Return the updated applicant's data in the response
+        // Se houve nova imagem, deleta a antiga
+        if (!string.IsNullOrEmpty(newImageUrl) && !string.IsNullOrEmpty(oldImageUrl))
+        {
+          try
+          {
+            var oldFileName = oldImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(oldFileName);
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine($"Warning: Failed to delete old profile image: {ex.Message}");
+          }
+        }
+
         ResponseEntityApplicantsDTO updatedApplicantDto = MapToResponseEntityApplicantsDto(applicant);
         return new ResponseApplicantsDTO(HttpStatusCode.OK, updatedApplicantDto, "Applicant updated successfully.");
       }
       catch (Exception ex)
       {
         await transaction.RollbackAsync(ct);
+        // Se fez upload de nova imagem, deleta do storage
+        if (!string.IsNullOrEmpty(newImageUrl))
+        {
+          try
+          {
+            var fileName = newImageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
+          catch (Exception deleteEx)
+          {
+            Console.WriteLine($"Error deleting uploaded profile image during rollback: {deleteEx.Message}");
+          }
+        }
         Console.WriteLine($"Error updating applicant: {ex.Message} - {ex.InnerException?.Message}");
         return new ResponseApplicantsDTO(HttpStatusCode.InternalServerError, null,
           "An unexpected error occurred while updating the applicant.");
@@ -230,6 +328,7 @@ namespace api.Modules.Applicants
     public static async Task<ResponseApplicantsDTO> DeleteApplicant(
       Guid id,
       ApiDbContext context,
+      IFileStorageService fileStorageService,
       CancellationToken ct)
     {
       await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(ct);
@@ -257,11 +356,27 @@ namespace api.Modules.Applicants
 
         var applicantId = applicant.Id;
 
+        // Guardar imagem para deleção após sucesso
+        var imageUrl = applicant.ProfileImageUrl;
+
         context.Applicants.Remove(applicant);
         await context.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
-        // 204 No Content is standard for successful DELETE operations where no content is returned
+        // Deletar imagem do S3 se existir
+        if (!string.IsNullOrEmpty(imageUrl))
+        {
+          try
+          {
+            var fileName = imageUrl.Split('/').Last();
+            await fileStorageService.DeleteFileAsync(fileName);
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine($"Warning: Failed to delete profile image after applicant deletion: {ex.Message}");
+          }
+        }
+
         return new ResponseApplicantsDTO(HttpStatusCode.OK, null, "Applicant deleted successfully.");
       }
       catch (Exception ex)
@@ -288,8 +403,19 @@ namespace api.Modules.Applicants
           d.PhoneNumber,
           d.Address,
           d.ApplicantId,
+          d.ProfileImageUrl,
           d.CreatedAt
         )).ToArray();
+
+      ResponseEntityHubDTO? hubDto = applicant.Hub != null
+        ? new ResponseEntityHubDTO(
+          applicant.Hub.Id,
+          applicant.Hub.Name,
+          applicant.Hub.City,
+          null, // Assuming Stocks is nullable
+          applicant.Hub.CreatedAt
+        )
+        : null;
 
       return new ResponseEntityApplicantsDTO(
         applicant.Id,
@@ -301,7 +427,9 @@ namespace api.Modules.Applicants
         applicant.IsBeneficiary,
         applicant.BeneficiaryQtd,
         applicant.CreatedAt,
-        dependentsDto
+        applicant.ProfileImageUrl,
+        dependentsDto,
+        hubDto
       );
     }
   }

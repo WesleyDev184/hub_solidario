@@ -2,7 +2,7 @@ using System.Net;
 using api.Modules.Hubs.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace api.Auth.Dto;
+namespace api.Modules.Auth.Dto;
 
 //Response Services
 public record ResponseEntityUserDTO(
@@ -14,6 +14,8 @@ public record ResponseEntityUserDTO(
   string Email,
   [property: SwaggerSchema(Description = "Phone number of the user", Format = "string")]
   string PhoneNumber,
+  [property: SwaggerSchema(Description = "Device token of the user", Format = "string")]
+  string? DeviceToken,
   [property: SwaggerSchema(Description = "Hub associated with the user")]
   ResponseEntityHubDTO? Hub,
   [property: SwaggerSchema(Description = "Creation date of the user", Format = "date-time")]
