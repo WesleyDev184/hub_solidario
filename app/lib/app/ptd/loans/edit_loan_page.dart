@@ -221,7 +221,9 @@ class _EditLoanPageState extends State<EditLoanPage> {
                       child: OutlinedButton(
                         onPressed: _loansController.isLoading
                             ? null
-                            : () => Navigator.pop(context),
+                            : () => context.go(
+                                RoutePaths.ptd.loanId(widget.loanId),
+                              ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           side: BorderSide(color: Colors.grey[400]!),

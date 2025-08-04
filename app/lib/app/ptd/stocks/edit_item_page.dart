@@ -266,7 +266,9 @@ class _EditItemPageState extends State<EditItemPage> {
                         child: OutlinedButton(
                           onPressed: isLoading
                               ? null
-                              : () => Navigator.pop(context, false),
+                              : () => context.go(
+                                  RoutePaths.ptd.stockId(widget.stockId),
+                                ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             side: BorderSide(color: CustomColors.border),

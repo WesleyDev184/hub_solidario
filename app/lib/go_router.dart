@@ -90,10 +90,9 @@ Page<T> popupTransition<T extends Object?>(
     reverseTransitionDuration: const Duration(milliseconds: 250),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       return ScaleTransition(
-        scale: Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(CurvedAnimation(parent: animation, curve: Curves.elasticOut)),
+        scale: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+        ),
         child: FadeTransition(
           opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
             CurvedAnimation(
@@ -209,32 +208,22 @@ GoRouter createGoRouter(AuthController authController) {
               ),
               GoRoute(
                 path: 'add',
-                pageBuilder: (context, state) => popupTransition(
-                  context,
-                  state,
-                  const AddStockPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    popupTransition(context, state, const AddStockPage()),
               ),
             ],
           ),
 
           GoRoute(
             path: RoutePaths.ptd.info,
-            pageBuilder: (context, state) => scaleTransition(
-              context,
-              state,
-              const InfoPage(),
-            ),
+            pageBuilder: (context, state) =>
+                scaleTransition(context, state, const InfoPage()),
           ),
 
           GoRoute(
             path: RoutePaths.ptd.loans,
-            pageBuilder: (context, state) => scaleTransition(
-              context,
-              state,
-              const LoansPage(),
-            
-            ),
+            pageBuilder: (context, state) =>
+                scaleTransition(context, state, const LoansPage()),
             routes: [
               GoRoute(
                 path: 'detail/:id',
@@ -264,11 +253,8 @@ GoRouter createGoRouter(AuthController authController) {
           ),
           GoRoute(
             path: RoutePaths.ptd.applicants,
-            pageBuilder: (context, state) => scaleTransition(
-              context,
-              state,
-              const ApplicantsPage(),
-            ),
+            pageBuilder: (context, state) =>
+                scaleTransition(context, state, const ApplicantsPage()),
             routes: [
               GoRoute(
                 path: 'detail/:id',
@@ -325,11 +311,8 @@ GoRouter createGoRouter(AuthController authController) {
               ),
               GoRoute(
                 path: 'add',
-                pageBuilder: (context, state) => popupTransition(
-                  context,
-                  state,
-                  AddApplicantPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    popupTransition(context, state, AddApplicantPage()),
               ),
               GoRoute(
                 path: 'edit/:id',

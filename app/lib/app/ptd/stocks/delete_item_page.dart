@@ -210,7 +210,9 @@ class _DeleteItemPageState extends State<DeleteItemPage> {
                     child: OutlinedButton(
                       onPressed: isLoading
                           ? null
-                          : () => Navigator.pop(context),
+                          : () => context.go(
+                              RoutePaths.ptd.stockId(widget.stockId),
+                            ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: Colors.grey[400]!),

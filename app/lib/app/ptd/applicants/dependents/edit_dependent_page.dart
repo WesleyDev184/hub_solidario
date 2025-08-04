@@ -326,7 +326,9 @@ class _EditDependentPageState extends State<EditDependentPage> {
                       child: OutlinedButton(
                         onPressed: _applicantsController.isLoading
                             ? null
-                            : () => Navigator.pop(context),
+                            : () => context.go(
+                                RoutePaths.ptd.applicantId(widget.applicantId),
+                              ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           side: BorderSide(color: Colors.grey[400]!),
