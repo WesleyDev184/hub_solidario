@@ -12,6 +12,7 @@ class CustomColors {
   static const Color error = Color(0xFFFF5151);
   static const Color warning = Color(0xFFD9C96F);
   static const Color white = Color(0xFFFFFFFF);
+  static const Color info = Color(0xFF3B82F6);
 
   // Caso precise de um MaterialColor para, por exemplo, definir o tema:
   static MaterialColor primarySwatch =

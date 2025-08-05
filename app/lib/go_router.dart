@@ -6,6 +6,7 @@ import 'package:app/app/ptd/applicants/dependents/add_dependent_page.dart';
 import 'package:app/app/ptd/applicants/dependents/delete_dependent_page.dart';
 import 'package:app/app/ptd/applicants/dependents/dependent_page.dart';
 import 'package:app/app/ptd/applicants/dependents/edit_dependent_page.dart';
+import 'package:app/app/ptd/applicants/documents/documents_page.dart';
 import 'package:app/app/ptd/applicants/edit_applicant_page.dart';
 import 'package:app/app/ptd/loans/edit_loan_page.dart';
 import 'package:app/app/ptd/loans/finalize_loan_page.dart';
@@ -278,6 +279,17 @@ GoRouter createGoRouter(AuthController authController) {
                   ApplicantPage(applicantId: state.pathParameters['id']!),
                 ),
                 routes: [
+                  // Documents route
+                  GoRoute(
+                    path: 'documents',
+                    pageBuilder: (context, state) => slideTransition(
+                      context,
+                      state,
+                      DocumentsPage(applicantId: state.pathParameters['id']!),
+                    ),
+                  ),
+
+                  // Dependents routes
                   GoRoute(
                     path: 'dependents/detail/:dependentId',
                     pageBuilder: (context, state) => slideTransition(
@@ -447,4 +459,8 @@ class _PtdPaths {
       '/ptd/applicants/detail/$applicantId/dependents/edit/$id';
   String dependentDelete(String applicantId, String id) =>
       '/ptd/applicants/detail/$applicantId/dependents/delete/$id';
+
+  // Documents
+  String applicantDocuments(String applicantId) =>
+      '/ptd/applicants/detail/$applicantId/documents';
 }

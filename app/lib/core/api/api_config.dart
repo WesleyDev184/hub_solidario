@@ -57,4 +57,12 @@ class ApiEndpoints {
   // Loans endpoints
   static const String loans = '/loans';
   static String loanById(String id) => '/loans/$id';
+
+  // Documents endpoints
+  static const String documents = '/documents';
+  static String documentById(String id) => '/documents/$id';
+  static String documentsByApplicant(String applicantId) =>
+      '/documents/applicant/$applicantId';
+  static String documentsByDependent(String dependentId) =>
+      '/documents/dependent/$dependentId';
 }

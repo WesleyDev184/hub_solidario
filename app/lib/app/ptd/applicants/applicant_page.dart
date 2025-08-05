@@ -80,6 +80,10 @@ class _ApplicantPageState extends State<ApplicantPage> {
               RoutePaths.ptd.applicantDelete(widget.applicantId),
             ); // ajuste conforme sua rota
           },
+          documentsViewPressed: () {
+            // Navega para tela de documentos
+            context.go(RoutePaths.ptd.applicantDocuments(widget.applicantId));
+          },
         );
       },
     );
