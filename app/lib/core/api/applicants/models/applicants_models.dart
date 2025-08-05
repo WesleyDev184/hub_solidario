@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 /// Modelo para representar um requerente/candidato
 class Applicant {
   final String id;
@@ -219,7 +222,9 @@ class CreateApplicantRequest {
   final String? phoneNumber;
   final String? address;
   final bool isBeneficiary;
-  
+  final File? imageFile;
+  final Uint8List? imageBytes;
+  final String? imageFileName;
 
   const CreateApplicantRequest({
     this.name,
@@ -228,6 +233,9 @@ class CreateApplicantRequest {
     this.phoneNumber,
     this.address,
     required this.isBeneficiary,
+    this.imageFile,
+    this.imageBytes,
+    this.imageFileName,
   });
 
   /// Converte para JSON
@@ -241,6 +249,9 @@ class CreateApplicantRequest {
       'isBeneficiary': isBeneficiary,
     };
   }
+
+  /// Verifica se tem imagem para upload
+  bool get hasImage => imageFile != null || imageBytes != null;
 
   /// Cria instância a partir de JSON
   factory CreateApplicantRequest.fromJson(Map<String, dynamic> json) {
@@ -263,6 +274,9 @@ class UpdateApplicantRequest {
   final String? phoneNumber;
   final String? address;
   final bool? isBeneficiary;
+  final File? imageFile;
+  final Uint8List? imageBytes;
+  final String? imageFileName;
 
   const UpdateApplicantRequest({
     this.name,
@@ -271,6 +285,9 @@ class UpdateApplicantRequest {
     this.phoneNumber,
     this.address,
     this.isBeneficiary,
+    this.imageFile,
+    this.imageBytes,
+    this.imageFileName,
   });
 
   /// Converte para JSON
@@ -306,7 +323,11 @@ class UpdateApplicantRequest {
       email != null ||
       phoneNumber != null ||
       address != null ||
-      isBeneficiary != null;
+      isBeneficiary != null ||
+      hasImage;
+
+  /// Verifica se tem imagem para upload
+  bool get hasImage => imageFile != null || imageBytes != null;
 }
 
 /// Request para criar um novo dependente
@@ -317,6 +338,9 @@ class CreateDependentRequest {
   final String? phoneNumber;
   final String? address;
   final String applicantId;
+  final File? imageFile;
+  final Uint8List? imageBytes;
+  final String? imageFileName;
 
   const CreateDependentRequest({
     this.name,
@@ -325,6 +349,9 @@ class CreateDependentRequest {
     this.phoneNumber,
     this.address,
     required this.applicantId,
+    this.imageFile,
+    this.imageBytes,
+    this.imageFileName,
   });
 
   /// Converte para JSON
@@ -338,6 +365,9 @@ class CreateDependentRequest {
       'applicantId': applicantId,
     };
   }
+
+  /// Verifica se tem imagem para upload
+  bool get hasImage => imageFile != null || imageBytes != null;
 
   /// Cria instância a partir de JSON
   factory CreateDependentRequest.fromJson(Map<String, dynamic> json) {
@@ -359,6 +389,9 @@ class UpdateDependentRequest {
   final String? email;
   final String? phoneNumber;
   final String? address;
+  final File? imageFile;
+  final Uint8List? imageBytes;
+  final String? imageFileName;
 
   const UpdateDependentRequest({
     this.name,
@@ -366,6 +399,9 @@ class UpdateDependentRequest {
     this.email,
     this.phoneNumber,
     this.address,
+    this.imageFile,
+    this.imageBytes,
+    this.imageFileName,
   });
 
   /// Converte para JSON
@@ -398,7 +434,11 @@ class UpdateDependentRequest {
       cpf != null ||
       email != null ||
       phoneNumber != null ||
-      address != null;
+      address != null ||
+      hasImage;
+
+  /// Verifica se tem imagem para upload
+  bool get hasImage => imageFile != null || imageBytes != null;
 }
 
 /// Response para criação de candidato

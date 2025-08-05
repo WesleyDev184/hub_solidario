@@ -1,7 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:app/core/api/applicants/controllers/applicants_controller.dart';
 import 'package:app/core/api/applicants/models/applicants_models.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
+import 'package:app/core/widgets/image_uploader.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +31,10 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
   final TextEditingController _addressController = TextEditingController();
   bool _isBeneficiary = false;
   Applicant? _applicant;
+
+  // Variáveis para gerenciar a imagem
+  File? _selectedImageFile;
+  Uint8List? _selectedImageBytes;
 
   final _applicantsController = Get.find<ApplicantsController>();
 
@@ -76,6 +84,20 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
     super.dispose();
   }
 
+  void _onImageSelected(File? file, Uint8List? bytes) {
+    setState(() {
+      _selectedImageFile = file;
+      _selectedImageBytes = bytes;
+    });
+  }
+
+  void _onImageRemoved() {
+    setState(() {
+      _selectedImageFile = null;
+      _selectedImageBytes = null;
+    });
+  }
+
   String? _validateName(String? value) {
     if (value != null && value.trim().isNotEmpty && value.trim().length < 2) {
       return 'Nome deve ter pelo menos 2 caracteres';
@@ -119,7 +141,9 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
         _emailController.text.trim() != _applicant?.email ||
         _phoneController.text.trim() != _applicant?.phoneNumber ||
         _addressController.text.trim() != _applicant?.address ||
-        _isBeneficiary != _applicant?.isBeneficiary;
+        _isBeneficiary != _applicant?.isBeneficiary ||
+        _selectedImageFile != null ||
+        _selectedImageBytes != null;
   }
 
   Future<void> _updateApplicant() async {
@@ -156,6 +180,9 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
       isBeneficiary: _isBeneficiary != _applicant?.isBeneficiary
           ? _isBeneficiary
           : null,
+      imageFile: _selectedImageFile,
+      imageBytes: _selectedImageBytes,
+      imageFileName: _selectedImageFile?.path.split('/').last,
     );
 
     final result = await _applicantsController.updateApplicant(
@@ -361,6 +388,33 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
                                     vertical: 8,
                                   ),
                                 ),
+                              ),
+                              const SizedBox(height: 24),
+                              // Imagem do perfil
+                              const Text(
+                                'Foto do Perfil',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Selecione uma nova foto ou mantenha a atual',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              ImageUploader(
+                                initialImageUrl: _applicant?.profileImageUrl,
+                                onImageSelected: _onImageSelected,
+                                onImageRemoved: _onImageRemoved,
+                                hint: 'Toque para selecionar uma nova foto',
+                                height: 150,
                               ),
                               const SizedBox(height: 32),
                             ],

@@ -1,7 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:app/core/api/applicants/controllers/applicants_controller.dart';
 import 'package:app/core/api/applicants/models/applicants_models.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
+import 'package:app/core/widgets/image_uploader.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +32,10 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
   final TextEditingController _addressController = TextEditingController();
   bool _isBeneficiary = false;
 
+  // Variáveis para gerenciar a imagem
+  File? _selectedImageFile;
+  Uint8List? _selectedImageBytes;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -36,6 +44,20 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
     _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
+  }
+
+  void _onImageSelected(File? file, Uint8List? bytes) {
+    setState(() {
+      _selectedImageFile = file;
+      _selectedImageBytes = bytes;
+    });
+  }
+
+  void _onImageRemoved() {
+    setState(() {
+      _selectedImageFile = null;
+      _selectedImageBytes = null;
+    });
   }
 
   Future<void> _createApplicant() async {
@@ -48,6 +70,9 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
       phoneNumber: _phoneController.text.trim(),
       address: _addressController.text.trim(),
       isBeneficiary: _isBeneficiary,
+      imageFile: _selectedImageFile,
+      imageBytes: _selectedImageBytes,
+      imageFileName: _selectedImageFile?.path.split('/').last,
     );
 
     final result = await _applicantsController.createApplicant(request);
@@ -283,6 +308,32 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
                         vertical: 8,
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Imagem do perfil
+                  const Text(
+                    'Foto do Perfil',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Selecione uma foto para o perfil (opcional)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ImageUploader(
+                    onImageSelected: _onImageSelected,
+                    onImageRemoved: _onImageRemoved,
+                    hint: 'Selecione uma foto para o perfil',
+                    height: 150,
                   ),
                   const SizedBox(height: 32),
                   Row(

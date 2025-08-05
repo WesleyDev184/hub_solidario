@@ -89,7 +89,7 @@ class _DependentPageState extends State<DependentPage> {
   @override
   Widget build(BuildContext context) {
     final dependent = _dependent;
-    final imageUrl = 'assets/images/dog.jpg';
+    final imageUrl = dependent?.profileImageUrl ?? '';
     final dependentName = dependent?.name ?? '';
     final dependentCpf = dependent?.cpf ?? '';
     final dependentPhone = dependent?.phoneNumber ?? '';
@@ -110,7 +110,7 @@ class _DependentPageState extends State<DependentPage> {
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Avatar(imageUrl: imageUrl, size: 150),
+                Avatar(imageUrl: imageUrl, size: 150, isNetworkImage: true),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

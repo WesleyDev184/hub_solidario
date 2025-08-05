@@ -115,9 +115,11 @@ class _ApplicantPageState extends State<ApplicantPage> {
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // TODO: Implementar a lógica de exibição da imagem do solicitante
-                // Exemplo de imagem estática
-                Avatar(imageUrl: 'assets/images/dog.jpg', size: 150),
+                Avatar(
+                  imageUrl: currentApplicant.profileImageUrl,
+                  size: 150,
+                  isNetworkImage: true,
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -251,7 +253,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                             },
                             child: DependentCard(
                               dependent: dependent,
-                              imageUrl: 'assets/images/dog.jpg',
+                              imageUrl: dependent.profileImageUrl,
                               applicantName: applicant?.name ?? 'Solicitante',
                               onEdit: () {
                                 context.go(
