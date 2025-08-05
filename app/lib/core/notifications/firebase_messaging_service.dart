@@ -22,11 +22,12 @@ class FirebaseMessagingService extends GetxController {
     _onMessageOpenedApp();
   }
 
-  getDeviceFirebaseToken() async {
+  Future<String> getDeviceFirebaseToken() async {
     final token = await FirebaseMessaging.instance.getToken();
     debugPrint('=======================================');
     debugPrint('TOKEN: $token');
     debugPrint('=======================================');
+    return token!;
   }
 
   _onMessage() {

@@ -8,6 +8,7 @@ class Applicant {
   final String? address;
   final bool isBeneficiary;
   final int beneficiaryQtd;
+  final String? profileImageUrl;
   final DateTime createdAt;
   final List<Dependent>? dependents;
 
@@ -22,6 +23,7 @@ class Applicant {
     required this.beneficiaryQtd,
     required this.createdAt,
     this.dependents,
+    this.profileImageUrl,
   });
 
   /// Cria instância a partir de JSON
@@ -35,13 +37,13 @@ class Applicant {
       address: json['address'] as String?,
       isBeneficiary: json['isBeneficiary'] as bool? ?? false,
       beneficiaryQtd: json['beneficiaryQtd'] as int? ?? 0,
+      profileImageUrl: json['profileImageUrl'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      dependents:
-          json['dependents'] != null
-              ? (json['dependents'] as List)
-                  .map((dep) => Dependent.fromJson(dep as Map<String, dynamic>))
-                  .toList()
-              : null,
+      dependents: json['dependents'] != null
+          ? (json['dependents'] as List)
+                .map((dep) => Dependent.fromJson(dep as Map<String, dynamic>))
+                .toList()
+          : null,
     );
   }
 
@@ -56,6 +58,7 @@ class Applicant {
       'address': address,
       'isBeneficiary': isBeneficiary,
       'beneficiaryQtd': beneficiaryQtd,
+      'profileImageUrl': profileImageUrl,
       'createdAt': createdAt.toIso8601String(),
       'dependents': dependents?.map((dep) => dep.toJson()).toList(),
     };
@@ -71,6 +74,7 @@ class Applicant {
     String? address,
     bool? isBeneficiary,
     int? beneficiaryQtd,
+    String? profileImageUrl,
     DateTime? createdAt,
     List<Dependent>? dependents,
   }) {
@@ -83,6 +87,7 @@ class Applicant {
       address: address ?? this.address,
       isBeneficiary: isBeneficiary ?? this.isBeneficiary,
       beneficiaryQtd: beneficiaryQtd ?? this.beneficiaryQtd,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       createdAt: createdAt ?? this.createdAt,
       dependents: dependents ?? this.dependents,
     );
@@ -118,6 +123,7 @@ class Dependent {
   final String? phoneNumber;
   final String? address;
   final String applicantId;
+  final String? profileImageUrl;
   final DateTime createdAt;
 
   const Dependent({
@@ -129,6 +135,7 @@ class Dependent {
     this.address,
     required this.applicantId,
     required this.createdAt,
+    this.profileImageUrl,
   });
 
   /// Cria instância a partir de JSON
@@ -141,6 +148,7 @@ class Dependent {
       phoneNumber: json['phoneNumber'] as String?,
       address: json['address'] as String?,
       applicantId: json['applicantId'] as String,
+      profileImageUrl: json['profileImageUrl'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
@@ -155,6 +163,7 @@ class Dependent {
       'phoneNumber': phoneNumber,
       'address': address,
       'applicantId': applicantId,
+      'profileImageUrl': profileImageUrl,
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -168,6 +177,7 @@ class Dependent {
     String? phoneNumber,
     String? address,
     String? applicantId,
+    String? profileImageUrl,
     DateTime? createdAt,
   }) {
     return Dependent(
@@ -178,6 +188,7 @@ class Dependent {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       address: address ?? this.address,
       applicantId: applicantId ?? this.applicantId,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -208,6 +219,7 @@ class CreateApplicantRequest {
   final String? phoneNumber;
   final String? address;
   final bool isBeneficiary;
+  
 
   const CreateApplicantRequest({
     this.name,
@@ -427,10 +439,9 @@ class UpdateApplicantResponse {
   factory UpdateApplicantResponse.fromJson(Map<String, dynamic> json) {
     return UpdateApplicantResponse(
       success: json['success'] as bool? ?? false,
-      applicant:
-          json['data'] != null
-              ? Applicant.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      applicant: json['data'] != null
+          ? Applicant.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       message: json['message'] as String?,
     );
   }
@@ -490,10 +501,9 @@ class UpdateDependentResponse {
   factory UpdateDependentResponse.fromJson(Map<String, dynamic> json) {
     return UpdateDependentResponse(
       success: json['success'] as bool? ?? false,
-      dependent:
-          json['data'] != null
-              ? Dependent.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      dependent: json['data'] != null
+          ? Dependent.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       message: json['message'] as String?,
     );
   }
