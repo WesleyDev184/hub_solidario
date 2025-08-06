@@ -7,6 +7,7 @@ import 'package:app/app/ptd/applicants/dependents/delete_dependent_page.dart';
 import 'package:app/app/ptd/applicants/dependents/dependent_page.dart';
 import 'package:app/app/ptd/applicants/dependents/edit_dependent_page.dart';
 import 'package:app/app/ptd/applicants/documents/add_document_page.dart';
+import 'package:app/app/ptd/applicants/documents/delete_documente_page.dart';
 import 'package:app/app/ptd/applicants/documents/documents_page.dart';
 import 'package:app/app/ptd/applicants/documents/edit_document_page.dart';
 import 'package:app/app/ptd/applicants/edit_applicant_page.dart';
@@ -309,6 +310,17 @@ GoRouter createGoRouter(AuthController authController) {
                       ),
                     ),
                   ),
+                  GoRoute(
+                    path: 'documents/delete/:documentId',
+                    pageBuilder: (context, state) => popupTransition(
+                      context,
+                      state,
+                      DeleteDocumentPage(
+                        applicantId: state.pathParameters['id']!,
+                        documentId: state.pathParameters['documentId']!,
+                      ),
+                    ),
+                  ),
 
                   // Dependents routes
                   GoRoute(
@@ -488,4 +500,6 @@ class _PtdPaths {
       '/ptd/applicants/detail/$applicantId/documents/add';
   String documentEdit(String applicantId, String documentId) =>
       '/ptd/applicants/detail/$applicantId/documents/edit/$documentId';
+  String documentDelete(String applicantId, String documentId) =>
+      '/ptd/applicants/detail/$applicantId/documents/delete/$documentId';
 }

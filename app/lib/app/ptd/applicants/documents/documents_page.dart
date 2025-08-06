@@ -125,7 +125,14 @@ class DocumentsPageState extends State<DocumentsPage> {
                               ),
                             );
                           },
-                          onDelete: () {},
+                          onDelete: () {
+                            context.go(
+                              RoutePaths.ptd.documentDelete(
+                                widget.applicantId,
+                                doc.id,
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
