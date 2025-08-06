@@ -1,4 +1,5 @@
 import 'package:app/app.dart';
+import 'package:app/app/ptd/applicants/documents/widgets/download_widget.dart';
 import 'package:app/core/api/api.dart';
 import 'package:app/core/notifications/firebase_messaging_service.dart';
 import 'package:app/core/notifications/notifications_service.dart';
@@ -31,6 +32,9 @@ void main() async {
   // Solicita permissão de notificação se necessário
   final notificationService = Get.find<NotificationService>();
   await notificationService.ensureNotificationPermission();
+
+  // Solicita permissões de armazenamento para downloads
+  await DownloadUtils.ensureStoragePermission();
 
   // Registra FirebaseMessagingService globalmente sem contexto
   Get.put<FirebaseMessagingService>(

@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'widgets/document_card.dart';
+import 'widgets/download_widget.dart';
 
 class DocumentsPage extends StatefulWidget {
   final String applicantId;
@@ -77,6 +78,14 @@ class DocumentsPageState extends State<DocumentsPage> {
     }
   }
 
+  void _downloadDocument(Document doc) {
+    DownloadUtils.showDownloadConfirmation(
+      context: context,
+      url: doc.storageUrl,
+      originalFileName: doc.originalFileName,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,7 +125,7 @@ class DocumentsPageState extends State<DocumentsPage> {
                               DateTime.tryParse(doc.createdAt) ??
                               DateTime.now(),
                           isDependentDoc: doc.dependentId != null,
-                          onDownload: () {},
+                          onDownload: () => _downloadDocument(doc),
                           onEdit: () {
                             context.go(
                               RoutePaths.ptd.documentEdit(
