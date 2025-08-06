@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:app/core/api/applicants/controllers/applicants_controller.dart';
 import 'package:app/core/api/documents/controllers/documents_controller.dart';
 import 'package:app/core/api/documents/models/documents_models.dart';
@@ -70,7 +69,7 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
       documentFile: _selectedFile,
       documentBytes: _webBytes,
       documentFileName: _fileNameController.text.trim().isNotEmpty
-          ? _fileNameController.text.trim()
+          ? '${_fileNameController.text.trim()}.${_selectedFile!.path.split('.').last}'
           : _selectedFile?.path.split('/').last ?? 'documento',
     );
 
@@ -80,7 +79,9 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
         Navigator.of(context).pop(doc);
       },
       (error) {
-        // O erro já é definido no controller
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao adicionar documento: $error')),
+        );
       },
     );
   }
