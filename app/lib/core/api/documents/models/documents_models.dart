@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 class Document {
   final String id;
   final String originalFileName;
@@ -25,7 +28,7 @@ class Document {
       createdAt: json['createdAt'] as String,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -35,6 +38,62 @@ class Document {
       'storageUrl': storageUrl,
       'createdAt': createdAt,
     };
+  }
+}
+
+/// Request para criar um novo documento
+class CreateDocumentRequest {
+  final String applicantId;
+  final String? dependentId;
+  final File? documentFile;
+  final Uint8List? documentBytes;
+  final String? documentFileName;
+
+  const CreateDocumentRequest({
+    required this.applicantId,
+    this.dependentId,
+    this.documentFile,
+    this.documentBytes,
+    this.documentFileName,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'applicantId': applicantId,
+      if (dependentId != null) 'dependentId': dependentId,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'CreateDocumentRequest(applicantId: $applicantId, dependentId: $dependentId)';
+  }
+}
+
+/// Request para atualizar um documento existente
+class UpdateDocumentRequest {
+  final String? dependentId;
+  final File? documentFile;
+  final Uint8List? documentBytes;
+  final String documentFileName = "documentFile";
+
+  const UpdateDocumentRequest({
+    this.dependentId,
+    this.documentFile,
+    this.documentBytes,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    if (dependentId != null) data['dependentId'] = dependentId;
+    return data;
+  }
+
+  bool get hasFile => documentFile != null || documentBytes != null;
+
+  @override
+  String toString() {
+    return 'UpdateDocumentRequest(dependentId: $dependentId)';
   }
 }
 

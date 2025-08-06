@@ -16,7 +16,7 @@ class DocumentsRepository {
         ApiEndpoints.documentsByApplicant(applicantId),
         useAuth: true,
       );
-      
+
       return result.fold((data) {
         try {
           final response = DocumentListResponse.fromJson(data);
@@ -66,12 +66,15 @@ class DocumentsRepository {
     }
   }
 
-  /// Cria um novo documento
-  AsyncResult<Document> createDocument(Map<String, dynamic> data) async {
+  /// Cria um novo documento via multipart (suporte a arquivo)
+  AsyncResult<Document> createDocument(CreateDocumentRequest request) async {
     try {
-      final result = await _apiClient.post(
+      final result = await _apiClient.postMultipart(
         ApiEndpoints.documents,
-        data,
+        request.toJson(),
+        file: request.documentFile,
+        bytes: request.documentBytes,
+        fileName: request.documentFileName,
         useAuth: true,
       );
       return result.fold((data) {
@@ -95,15 +98,18 @@ class DocumentsRepository {
     }
   }
 
-  /// Atualiza um documento
+  /// Atualiza um documento via multipart (suporte a arquivo)
   AsyncResult<Document> updateDocument(
     String documentId,
-    Map<String, dynamic> data,
+    UpdateDocumentRequest request,
   ) async {
     try {
-      final result = await _apiClient.patch(
+      final result = await _apiClient.postMultipart(
         ApiEndpoints.documentById(documentId),
-        data,
+        request.toJson(),
+        file: request.documentFile,
+        bytes: request.documentBytes,
+        fileName: request.documentFileName,
         useAuth: true,
       );
       return result.fold((data) {

@@ -66,6 +66,79 @@ class DocumentsController extends GetxController {
     }
   }
 
+  AsyncResult<Document> createDocument(CreateDocumentRequest request) async {
+    try {
+      _isLoading.value = true;
+      final result = await repository.createDocument(request);
+      return result.fold(
+        (doc) async {
+          await cacheService.cacheDocument(request.applicantId, doc);
+          _isLoading.value = false;
+          return Success(doc);
+        },
+        (error) {
+          _isLoading.value = false;
+          this.error = error.toString();
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      _isLoading.value = false;
+      error = e.toString();
+      return Failure(Exception('Erro ao criar documento: $e'));
+    }
+  }
+
+  AsyncResult<Document> updateDocument(
+    String applicantId,
+    String documentId,
+    UpdateDocumentRequest request,
+  ) async {
+    try {
+      _isLoading.value = true;
+      final result = await repository.updateDocument(documentId, request);
+      return result.fold(
+        (doc) async {
+          await cacheService.updateDocument(applicantId, doc);
+          _isLoading.value = false;
+          return Success(doc);
+        },
+        (error) {
+          _isLoading.value = false;
+          this.error = error.toString();
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      _isLoading.value = false;
+      error = e.toString();
+      return Failure(Exception('Erro ao atualizar documento: $e'));
+    }
+  }
+
+  AsyncResult<void> deleteDocument(String applicantId, String documentId) async {
+    try {
+      _isLoading.value = true;
+      final result = await repository.deleteDocument(documentId);
+      return result.fold(
+        (success) async {
+          await cacheService.deleteDocument(applicantId, documentId);
+          _isLoading.value = false;
+          return Success(success);
+        },
+        (error) {
+          _isLoading.value = false;
+          this.error = error.toString();  
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      _isLoading.value = false;
+      error = e.toString(); 
+      return Failure(Exception('Erro ao deletar documento: $e'));
+    }
+  }
+
   Future<void> clearData() async {
     await cacheService.clearAllCache();
   }

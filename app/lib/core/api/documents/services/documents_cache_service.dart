@@ -57,11 +57,35 @@ class DocumentsCacheService {
     }
   }
 
-  /// Limpa o cache de documentos
-  Future<void> clearCache(String applicantId) async {
+  Future<void> cacheDocument(String applicantId, Document document) async {
     if (_prefs == null) return;
-    await _prefs!.remove('$_documentsPrefix$applicantId');
-    await _prefs!.remove('${_lastUpdateKey}_$applicantId');
+    final cachedDocs = await getCachedDocuments(applicantId) ?? [];
+    final index = cachedDocs.indexWhere((doc) => doc.id == document.id);
+    if (index >= 0) {
+      cachedDocs[index] = document;
+    } else {
+      cachedDocs.add(document);
+    }
+    await cacheDocuments(applicantId, cachedDocs);
+  }
+
+  /// Atualiza um documento no cache
+  Future<void> updateDocument(String applicantId, Document document) async {
+    if (_prefs == null) return;
+    final cachedDocs = await getCachedDocuments(applicantId) ?? [];
+    final index = cachedDocs.indexWhere((doc) => doc.id == document.id);
+    if (index >= 0) {
+      cachedDocs[index] = document;
+      await cacheDocuments(applicantId, cachedDocs);
+    }
+  }
+
+  /// Limpa o cache de documentos
+  Future<void> deleteDocument(String applicantId, String documentId) async {
+    if (_prefs == null) return;
+    final cachedDocs = await getCachedDocuments(applicantId) ?? [];
+    cachedDocs.removeWhere((doc) => doc.id == documentId);
+    await cacheDocuments(applicantId, cachedDocs);
   }
 
   /// Limpa todo o cache de documentos
