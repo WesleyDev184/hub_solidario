@@ -1,3 +1,4 @@
+import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/api/documents/models/documents_models.dart';
 import 'package:app/core/api/documents/repositories/documents_repository.dart';
 import 'package:app/core/api/documents/services/documents_cache_service.dart';
@@ -8,6 +9,7 @@ import 'package:result_dart/result_dart.dart';
 class DocumentsController extends GetxController {
   late final DocumentsRepository repository;
   late final DocumentsCacheService cacheService;
+  final AuthController authController = Get.find<AuthController>();
 
   final RxBool _isLoading = false.obs;
   final RxString _error = ''.obs;
@@ -18,6 +20,16 @@ class DocumentsController extends GetxController {
   String? get error => _error.value.isEmpty ? null : _error.value;
   set error(String? value) {
     _error.value = value ?? '';
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    ever(authController.stateRx, (authState) async {
+      if (!authState.isAuthenticated) {
+        await clearData();
+      }
+    });
   }
 
   AsyncResult<List<Document>> loadDocuments(
@@ -49,12 +61,12 @@ class DocumentsController extends GetxController {
       );
     } catch (e) {
       _isLoading.value = false;
-      this.error = e.toString();
+      error = e.toString();
       return Failure(Exception('Erro ao carregar documentos: $e'));
     }
   }
 
   Future<void> clearData() async {
-    await cacheService.clearCache('all');
+    await cacheService.clearAllCache();
   }
 }

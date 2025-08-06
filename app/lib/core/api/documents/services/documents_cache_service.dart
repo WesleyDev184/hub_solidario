@@ -18,7 +18,10 @@ class DocumentsCacheService {
   }
 
   /// Salva documentos no cache
-  Future<void> cacheDocuments(String applicantId, List<Document> documents) async {
+  Future<void> cacheDocuments(
+    String applicantId,
+    List<Document> documents,
+  ) async {
     if (_prefs == null) return;
     try {
       final docsJson = documents.map((doc) => doc.toJson()).toList();
@@ -55,9 +58,20 @@ class DocumentsCacheService {
   }
 
   /// Limpa o cache de documentos
-  Future<void> clearCache(String key) async {
+  Future<void> clearCache(String applicantId) async {
     if (_prefs == null) return;
-    await _prefs!.remove('$_documentsPrefix$key');
-    await _prefs!.remove('${_lastUpdateKey}_$key');
+    await _prefs!.remove('$_documentsPrefix$applicantId');
+    await _prefs!.remove('${_lastUpdateKey}_$applicantId');
+  }
+
+  /// Limpa todo o cache de documentos
+  Future<void> clearAllCache() async {
+    if (_prefs == null) return;
+    final keys = _prefs!.getKeys();
+    for (final key in keys) {
+      if (key.startsWith(_documentsPrefix) || key.startsWith(_lastUpdateKey)) {
+        await _prefs!.remove(key);
+      }
+    }
   }
 }
