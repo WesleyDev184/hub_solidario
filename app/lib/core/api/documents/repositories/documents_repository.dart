@@ -75,6 +75,7 @@ class DocumentsRepository {
         file: request.documentFile,
         bytes: request.documentBytes,
         fileName: request.documentFileName,
+        fileFieldName: 'documentFile',
         useAuth: true,
       );
       return result.fold((data) {
@@ -110,6 +111,7 @@ class DocumentsRepository {
         file: request.documentFile,
         bytes: request.documentBytes,
         fileName: request.documentFileName,
+        fileFieldName: 'documentFile',
         useAuth: true,
       );
       return result.fold((data) {

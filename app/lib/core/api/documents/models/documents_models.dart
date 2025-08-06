@@ -75,12 +75,13 @@ class UpdateDocumentRequest {
   final String? dependentId;
   final File? documentFile;
   final Uint8List? documentBytes;
-  final String documentFileName = "documentFile";
+  final String? documentFileName;
 
   const UpdateDocumentRequest({
     this.dependentId,
     this.documentFile,
     this.documentBytes,
+    this.documentFileName,
   });
 
   Map<String, dynamic> toJson() {

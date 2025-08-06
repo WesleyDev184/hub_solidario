@@ -5,7 +5,9 @@ import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import 'widgets/document_card.dart';
 
 class DocumentsPage extends StatefulWidget {
@@ -26,7 +28,9 @@ class DocumentsPageState extends State<DocumentsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchDocuments();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchDocuments();
+    });
   }
 
   Future<void> _fetchDocuments() async {
@@ -34,15 +38,18 @@ class DocumentsPageState extends State<DocumentsPage> {
     final result = await docController.loadDocuments(widget.applicantId);
     result.fold(
       (docs) {
-        setState(() {
-          _allDocuments = docs;
-        });
+        if (mounted) {
+          setState(() {
+            _allDocuments = docs;
+          });
+        }
       },
       (error) {
-        // Handle error, e.g., show a snackbar or dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar documentos: $error')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao carregar documentos: $error')),
+          );
+        }
       },
     );
   }
@@ -79,7 +86,9 @@ class DocumentsPageState extends State<DocumentsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "documents_applicants_list_fab",
-        onPressed: () {},
+        onPressed: () {
+          context.go(RoutePaths.ptd.addDocument(widget.applicantId));
+        },
         child: const Icon(LucideIcons.plus),
       ),
       body: Padding(
@@ -120,5 +129,3 @@ class DocumentsPageState extends State<DocumentsPage> {
     );
   }
 }
-
-// Removido _DocumentMock, agora usando Document do modelo da API
