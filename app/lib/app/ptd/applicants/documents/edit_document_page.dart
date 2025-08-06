@@ -14,23 +14,62 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
-class AddDocumentPage extends StatefulWidget {
+class EditDocumentPage extends StatefulWidget {
   final String applicantId;
-  const AddDocumentPage({super.key, required this.applicantId});
+  final String documentId;
+
+  const EditDocumentPage({
+    super.key,
+    required this.applicantId,
+    required this.documentId,
+  });
 
   @override
-  State<AddDocumentPage> createState() => _AddDocumentPageState();
+  State<EditDocumentPage> createState() => _EditDocumentPageState();
 }
 
-class _AddDocumentPageState extends State<AddDocumentPage> {
+class _EditDocumentPageState extends State<EditDocumentPage> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedDependentId;
   File? _selectedFile;
   Uint8List? _webBytes;
+  Document? document;
 
   final _docController = Get.find<DocumentsController>();
   final _applicantsController = Get.find<ApplicantsController>();
   final TextEditingController _fileNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadDocument();
+    });
+  }
+
+  void loadDocument() async {
+    final result = await _docController.loadDocument(
+      widget.documentId,
+      widget.applicantId,
+    );
+    result.fold(
+      (doc) {
+        setState(() {
+          document = doc;
+          _fileNameController.text = doc.originalFileName.split('.').first;
+          _selectedDependentId = doc.dependentId;
+          _selectedFile = null; // Reset selected file
+          _webBytes = null; // Reset web bytes
+          _docController.error = null; // Clear any previous error
+        });
+      },
+      (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar documento: $error')),
+        );
+      },
+    );
+  }
 
   List<Map<String, String>> get _dependents {
     final applicant = _applicantsController.allApplicants.firstWhereOrNull(
@@ -46,13 +85,12 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
     setState(() {
       _selectedFile = file;
       _webBytes = bytes;
-      // Limpar erro quando um arquivo é selecionado
       _docController.error = null;
     });
   }
 
   String? _validateDependent(String? value) {
-    return null; // opcional
+    return null;
   }
 
   Future<void> _submit() async {
@@ -63,22 +101,25 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
 
     _docController.error = null;
 
-    final request = CreateDocumentRequest(
-      applicantId: widget.applicantId,
+    final request = UpdateDocumentRequest(
       dependentId: _selectedDependentId,
       documentFile: _selectedFile,
       documentBytes: _webBytes,
       documentFileName: _fileNameController.text.trim().isNotEmpty
-          ? '${_fileNameController.text.trim()}.${_selectedFile!.path.split('.').last}'
-          : _selectedFile?.path.split('/').last ?? 'documento',
+          ? '${_fileNameController.text.trim()}.${_selectedFile?.path.split('.').last ?? document?.originalFileName.split('.').last}'
+          : _selectedFile?.path.split('/').last ?? document?.originalFileName,
     );
 
-    final result = await _docController.createDocument(request);
+    final result = await _docController.updateDocument(
+      widget.applicantId,
+      widget.documentId,
+      request,
+    );
     result.fold(
       (doc) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Documento adicionado com sucesso!'),
+            content: Text('Documento atualizado com sucesso!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -86,7 +127,7 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
       },
       (error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao adicionar documento: $error')),
+          SnackBar(content: Text('Erro ao editar documento: $error')),
         );
       },
     );
@@ -96,7 +137,7 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(
-        title: "Novo Documento",
+        title: "Editar Documento",
         path: RoutePaths.ptd.applicantDocuments(widget.applicantId),
       ),
       backgroundColor: const Color(0xFFE8F5E8),
@@ -111,7 +152,7 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
               children: [
                 const SizedBox(height: 24),
                 const Text(
-                  'Adicionar Documento',
+                  'Editar Documento',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -120,12 +161,11 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Preencha os dados para adicionar um novo documento',
+                  'Atualize os dados do documento',
                   style: TextStyle(fontSize: 16, color: Colors.black54),
                 ),
                 const SizedBox(height: 32),
 
-                // Campo Nome do Arquivo
                 const Text(
                   'Nome do documento',
                   style: TextStyle(
@@ -321,7 +361,7 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
                                   ),
                                 )
                               : const Text(
-                                  'Salvar Documento',
+                                  'Salvar Alterações',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,

@@ -117,7 +117,14 @@ class DocumentsPageState extends State<DocumentsPage> {
                               DateTime.now(),
                           isDependentDoc: doc.dependentId != null,
                           onDownload: () {},
-                          onEdit: () {},
+                          onEdit: () {
+                            context.go(
+                              RoutePaths.ptd.documentEdit(
+                                widget.applicantId,
+                                doc.id,
+                              ),
+                            );
+                          },
                           onDelete: () {},
                         );
                       },

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/core/api/documents/models/documents_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Serviço de cache para documentos usando SharedPreferences
@@ -53,6 +54,22 @@ class DocumentsCacheService {
           .toList();
     } catch (e) {
       debugPrint('Erro ao recuperar documentos do cache: $e');
+      return null;
+    }
+  }
+
+  // recupera um documento específico do cache
+  Future<Document?> getCachedDocument(
+    String documentId,
+    String applicantId,
+  ) async {
+    if (_prefs == null) return null;
+    try {
+      final cachedDocs = await getCachedDocuments(applicantId);
+      if (cachedDocs == null) return null;
+      return cachedDocs.firstWhereOrNull((doc) => doc.id == documentId);
+    } catch (e) {
+      debugPrint('Erro ao recuperar documento do cache: $e');
       return null;
     }
   }

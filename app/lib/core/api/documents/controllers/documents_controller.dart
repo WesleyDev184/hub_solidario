@@ -66,6 +66,41 @@ class DocumentsController extends GetxController {
     }
   }
 
+  AsyncResult<Document> loadDocument(
+    String documentId,
+    String applicantId,
+  ) async {
+    try {
+      _isLoading.value = true;
+      final cachedDoc = await cacheService.getCachedDocument(
+        documentId,
+        applicantId,
+      );
+      if (cachedDoc != null) {
+        _isLoading.value = false;
+        return Success(cachedDoc);
+      }
+
+      final result = await repository.getDocument(documentId);
+      return result.fold(
+        (doc) async {
+          await cacheService.cacheDocument(doc.applicantId, doc);
+          _isLoading.value = false;
+          return Success(doc);
+        },
+        (error) {
+          _isLoading.value = false;
+          this.error = error.toString();
+          return Failure(error);
+        },
+      );
+    } catch (e) {
+      _isLoading.value = false;
+      error = e.toString();
+      return Failure(Exception('Erro ao carregar documento: $e'));
+    }
+  }
+
   AsyncResult<Document> createDocument(CreateDocumentRequest request) async {
     try {
       _isLoading.value = true;
@@ -116,7 +151,10 @@ class DocumentsController extends GetxController {
     }
   }
 
-  AsyncResult<void> deleteDocument(String applicantId, String documentId) async {
+  AsyncResult<void> deleteDocument(
+    String applicantId,
+    String documentId,
+  ) async {
     try {
       _isLoading.value = true;
       final result = await repository.deleteDocument(documentId);
@@ -128,13 +166,13 @@ class DocumentsController extends GetxController {
         },
         (error) {
           _isLoading.value = false;
-          this.error = error.toString();  
+          this.error = error.toString();
           return Failure(error);
         },
       );
     } catch (e) {
       _isLoading.value = false;
-      error = e.toString(); 
+      error = e.toString();
       return Failure(Exception('Erro ao deletar documento: $e'));
     }
   }

@@ -45,6 +45,7 @@ class DocumentsRepository {
         ApiEndpoints.documentById(documentId),
         useAuth: true,
       );
+
       return result.fold((data) {
         try {
           final response = DocumentResponse.fromJson(data);
@@ -105,7 +106,7 @@ class DocumentsRepository {
     UpdateDocumentRequest request,
   ) async {
     try {
-      final result = await _apiClient.postMultipart(
+      final result = await _apiClient.patchMultipart(
         ApiEndpoints.documentById(documentId),
         request.toJson(),
         file: request.documentFile,

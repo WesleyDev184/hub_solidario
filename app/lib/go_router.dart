@@ -8,6 +8,7 @@ import 'package:app/app/ptd/applicants/dependents/dependent_page.dart';
 import 'package:app/app/ptd/applicants/dependents/edit_dependent_page.dart';
 import 'package:app/app/ptd/applicants/documents/add_document_page.dart';
 import 'package:app/app/ptd/applicants/documents/documents_page.dart';
+import 'package:app/app/ptd/applicants/documents/edit_document_page.dart';
 import 'package:app/app/ptd/applicants/edit_applicant_page.dart';
 import 'package:app/app/ptd/loans/edit_loan_page.dart';
 import 'package:app/app/ptd/loans/finalize_loan_page.dart';
@@ -297,6 +298,17 @@ GoRouter createGoRouter(AuthController authController) {
                       AddDocumentPage(applicantId: state.pathParameters['id']!),
                     ),
                   ),
+                  GoRoute(
+                    path: 'documents/edit/:documentId',
+                    pageBuilder: (context, state) => popupTransition(
+                      context,
+                      state,
+                      EditDocumentPage(
+                        applicantId: state.pathParameters['id']!,
+                        documentId: state.pathParameters['documentId']!,
+                      ),
+                    ),
+                  ),
 
                   // Dependents routes
                   GoRoute(
@@ -474,4 +486,6 @@ class _PtdPaths {
       '/ptd/applicants/detail/$applicantId/documents';
   String addDocument(String applicantId) =>
       '/ptd/applicants/detail/$applicantId/documents/add';
+  String documentEdit(String applicantId, String documentId) =>
+      '/ptd/applicants/detail/$applicantId/documents/edit/$documentId';
 }
