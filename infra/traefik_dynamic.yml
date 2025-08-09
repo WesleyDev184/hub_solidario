@@ -1,8 +1,0 @@
-# Middlewares de autenticação
-http:
-  middlewares:
-    # Autenticação para o dashboard do Traefik
-    dashboard-auth:
-      basicAuth:
-        users:
-          - "admin:$apr1$he4jsf2w$tIto8VM7/bj86jrhOkc8Y."
