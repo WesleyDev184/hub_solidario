@@ -2,6 +2,10 @@ using api.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+
+// Add HealthChecks service
+builder.Services.AddHealthChecks();
+
 // Service Configuration Extension.
 builder.BuilderConfig();
 
