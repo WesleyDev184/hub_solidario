@@ -19,6 +19,7 @@ spec:
       containers:
         - name: api
           image: ghcr.io/wesleydev184/rotary:main
+          imagePullPolicy: Always
           ports:
             - containerPort: 5001
           envFrom:
