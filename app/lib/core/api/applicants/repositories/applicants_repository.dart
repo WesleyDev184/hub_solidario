@@ -91,31 +91,63 @@ class ApplicantsRepository {
   /// Cria um novo applicant
   AsyncResult<Applicant> createApplicant(CreateApplicantRequest request) async {
     try {
-      final result = await _apiClient.post(
-        '/applicants',
-        request.toJson(),
-        useAuth: true,
-      );
+      // Se tem imagem, usa multipart
+      if (request.hasImage) {
+        final result = await _apiClient.postMultipart(
+          '/applicants',
+          request.toJson(),
+          file: request.imageFile,
+          bytes: request.imageBytes,
+          fileName: request.imageFileName,
+          fileFieldName: 'profileImage',
+          useAuth: true,
+        );
 
-      return result.fold((data) {
-        try {
-          if (data['success'] == true && data['data'] != null) {
-            // A API retorna o objeto completo do applicant, extrair o ID
-            final applicantData = Applicant.fromJson(
-              data['data'] as Map<String, dynamic>,
-            );
-            return Success(applicantData);
-          } else {
+        return result.fold((data) {
+          try {
+            if (data['success'] == true && data['data'] != null) {
+              final applicantData = Applicant.fromJson(
+                data['data'] as Map<String, dynamic>,
+              );
+              return Success(applicantData);
+            } else {
+              return Failure(
+                Exception(data['message'] ?? 'Erro ao criar candidato'),
+              );
+            }
+          } catch (e) {
             return Failure(
-              Exception(data['message'] ?? 'Erro ao criar candidato'),
+              Exception('Erro ao processar resposta da criação: $e'),
             );
           }
-        } catch (e) {
-          return Failure(
-            Exception('Erro ao processar resposta da criação: $e'),
-          );
-        }
-      }, (error) => Failure(error));
+        }, (error) => Failure(error));
+      } else {
+        // Sem imagem, usa POST normal
+        final result = await _apiClient.post(
+          '/applicants',
+          request.toJson(),
+          useAuth: true,
+        );
+
+        return result.fold((data) {
+          try {
+            if (data['success'] == true && data['data'] != null) {
+              final applicantData = Applicant.fromJson(
+                data['data'] as Map<String, dynamic>,
+              );
+              return Success(applicantData);
+            } else {
+              return Failure(
+                Exception(data['message'] ?? 'Erro ao criar candidato'),
+              );
+            }
+          } catch (e) {
+            return Failure(
+              Exception('Erro ao processar resposta da criação: $e'),
+            );
+          }
+        }, (error) => Failure(error));
+      }
     } catch (e) {
       return Failure(Exception('Erro na comunicação com a API: $e'));
     }
@@ -133,30 +165,63 @@ class ApplicantsRepository {
         );
       }
 
-      final result = await _apiClient.patch(
-        '/applicants/$applicantId',
-        request.toJson(),
-        useAuth: true,
-      );
+      // Se tem imagem, usa multipart
+      if (request.hasImage) {
+        final result = await _apiClient.patchMultipart(
+          '/applicants/$applicantId',
+          request.toJson(),
+          file: request.imageFile,
+          bytes: request.imageBytes,
+          fileName: request.imageFileName,
+          fileFieldName: 'profileImage',
+          useAuth: true,
+        );
 
-      return result.fold((data) {
-        try {
-          if (data['success'] == true && data['data'] != null) {
-            final applicant = Applicant.fromJson(
-              data['data'] as Map<String, dynamic>,
-            );
-            return Success(applicant);
-          } else {
+        return result.fold((data) {
+          try {
+            if (data['success'] == true && data['data'] != null) {
+              final applicant = Applicant.fromJson(
+                data['data'] as Map<String, dynamic>,
+              );
+              return Success(applicant);
+            } else {
+              return Failure(
+                Exception(data['message'] ?? 'Erro ao atualizar candidato'),
+              );
+            }
+          } catch (e) {
             return Failure(
-              Exception(data['message'] ?? 'Erro ao atualizar candidato'),
+              Exception('Erro ao processar resposta da atualização: $e'),
             );
           }
-        } catch (e) {
-          return Failure(
-            Exception('Erro ao processar resposta da atualização: $e'),
-          );
-        }
-      }, (error) => Failure(error));
+        }, (error) => Failure(error));
+      } else {
+        // Sem imagem, usa PATCH normal
+        final result = await _apiClient.patch(
+          '/applicants/$applicantId',
+          request.toJson(),
+          useAuth: true,
+        );
+
+        return result.fold((data) {
+          try {
+            if (data['success'] == true && data['data'] != null) {
+              final applicant = Applicant.fromJson(
+                data['data'] as Map<String, dynamic>,
+              );
+              return Success(applicant);
+            } else {
+              return Failure(
+                Exception(data['message'] ?? 'Erro ao atualizar candidato'),
+              );
+            }
+          } catch (e) {
+            return Failure(
+              Exception('Erro ao processar resposta da atualização: $e'),
+            );
+          }
+        }, (error) => Failure(error));
+      }
     } catch (e) {
       return Failure(Exception('Erro na comunicação com a API: $e'));
     }
@@ -262,30 +327,63 @@ class ApplicantsRepository {
   /// Cria um novo dependent
   AsyncResult<Dependent> createDependent(CreateDependentRequest request) async {
     try {
-      final result = await _apiClient.post(
-        '/dependents',
-        request.toJson(),
-        useAuth: true,
-      );
+      // Se tem imagem, usa multipart
+      if (request.hasImage) {
+        final result = await _apiClient.postMultipart(
+          '/dependents',
+          request.toJson(),
+          file: request.imageFile,
+          bytes: request.imageBytes,
+          fileName: request.imageFileName,
+          fileFieldName: 'profileImage',
+          useAuth: true,
+        );
 
-      return result.fold((data) {
-        try {
-          if (data['success'] == true && data['data'] != null) {
-            final dependentData = Dependent.fromJson(
-              data['data'] as Map<String, dynamic>,
-            );
-            return Success(dependentData);
-          } else {
+        return result.fold((data) {
+          try {
+            if (data['success'] == true && data['data'] != null) {
+              final dependentData = Dependent.fromJson(
+                data['data'] as Map<String, dynamic>,
+              );
+              return Success(dependentData);
+            } else {
+              return Failure(
+                Exception(data['message'] ?? 'Erro ao criar dependente'),
+              );
+            }
+          } catch (e) {
             return Failure(
-              Exception(data['message'] ?? 'Erro ao criar dependente'),
+              Exception('Erro ao processar resposta da criação: $e'),
             );
           }
-        } catch (e) {
-          return Failure(
-            Exception('Erro ao processar resposta da criação: $e'),
-          );
-        }
-      }, (error) => Failure(error));
+        }, (error) => Failure(error));
+      } else {
+        // Sem imagem, usa POST normal
+        final result = await _apiClient.post(
+          '/dependents',
+          request.toJson(),
+          useAuth: true,
+        );
+
+        return result.fold((data) {
+          try {
+            if (data['success'] == true && data['data'] != null) {
+              final dependentData = Dependent.fromJson(
+                data['data'] as Map<String, dynamic>,
+              );
+              return Success(dependentData);
+            } else {
+              return Failure(
+                Exception(data['message'] ?? 'Erro ao criar dependente'),
+              );
+            }
+          } catch (e) {
+            return Failure(
+              Exception('Erro ao processar resposta da criação: $e'),
+            );
+          }
+        }, (error) => Failure(error));
+      }
     } catch (e) {
       return Failure(Exception('Erro na comunicação com a API: $e'));
     }
@@ -303,30 +401,63 @@ class ApplicantsRepository {
         );
       }
 
-      final result = await _apiClient.patch(
-        '/dependents/$dependentId',
-        request.toJson(),
-        useAuth: true,
-      );
+      // Se tem imagem, usa multipart
+      if (request.hasImage) {
+        final result = await _apiClient.patchMultipart(
+          '/dependents/$dependentId',
+          request.toJson(),
+          file: request.imageFile,
+          bytes: request.imageBytes,
+          fileName: request.imageFileName,
+          fileFieldName: 'profileImage',
+          useAuth: true,
+        );
 
-      return result.fold((data) {
-        try {
-          if (data['success'] == true && data['data'] != null) {
-            final dependent = Dependent.fromJson(
-              data['data'] as Map<String, dynamic>,
-            );
-            return Success(dependent);
-          } else {
+        return result.fold((data) {
+          try {
+            if (data['success'] == true && data['data'] != null) {
+              final dependent = Dependent.fromJson(
+                data['data'] as Map<String, dynamic>,
+              );
+              return Success(dependent);
+            } else {
+              return Failure(
+                Exception(data['message'] ?? 'Erro ao atualizar dependente'),
+              );
+            }
+          } catch (e) {
             return Failure(
-              Exception(data['message'] ?? 'Erro ao atualizar dependente'),
+              Exception('Erro ao processar resposta da atualização: $e'),
             );
           }
-        } catch (e) {
-          return Failure(
-            Exception('Erro ao processar resposta da atualização: $e'),
-          );
-        }
-      }, (error) => Failure(error));
+        }, (error) => Failure(error));
+      } else {
+        // Sem imagem, usa PATCH normal
+        final result = await _apiClient.patch(
+          '/dependents/$dependentId',
+          request.toJson(),
+          useAuth: true,
+        );
+
+        return result.fold((data) {
+          try {
+            if (data['success'] == true && data['data'] != null) {
+              final dependent = Dependent.fromJson(
+                data['data'] as Map<String, dynamic>,
+              );
+              return Success(dependent);
+            } else {
+              return Failure(
+                Exception(data['message'] ?? 'Erro ao atualizar dependente'),
+              );
+            }
+          } catch (e) {
+            return Failure(
+              Exception('Erro ao processar resposta da atualização: $e'),
+            );
+          }
+        }, (error) => Failure(error));
+      }
     } catch (e) {
       return Failure(Exception('Erro na comunicação com a API: $e'));
     }

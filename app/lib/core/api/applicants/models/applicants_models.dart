@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 /// Modelo para representar um requerente/candidato
 class Applicant {
   final String id;
@@ -8,6 +11,7 @@ class Applicant {
   final String? address;
   final bool isBeneficiary;
   final int beneficiaryQtd;
+  final String? profileImageUrl;
   final DateTime createdAt;
   final List<Dependent>? dependents;
 
@@ -22,6 +26,7 @@ class Applicant {
     required this.beneficiaryQtd,
     required this.createdAt,
     this.dependents,
+    this.profileImageUrl,
   });
 
   /// Cria instância a partir de JSON
@@ -35,13 +40,13 @@ class Applicant {
       address: json['address'] as String?,
       isBeneficiary: json['isBeneficiary'] as bool? ?? false,
       beneficiaryQtd: json['beneficiaryQtd'] as int? ?? 0,
+      profileImageUrl: json['profileImageUrl'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      dependents:
-          json['dependents'] != null
-              ? (json['dependents'] as List)
-                  .map((dep) => Dependent.fromJson(dep as Map<String, dynamic>))
-                  .toList()
-              : null,
+      dependents: json['dependents'] != null
+          ? (json['dependents'] as List)
+                .map((dep) => Dependent.fromJson(dep as Map<String, dynamic>))
+                .toList()
+          : null,
     );
   }
 
@@ -56,6 +61,7 @@ class Applicant {
       'address': address,
       'isBeneficiary': isBeneficiary,
       'beneficiaryQtd': beneficiaryQtd,
+      'profileImageUrl': profileImageUrl,
       'createdAt': createdAt.toIso8601String(),
       'dependents': dependents?.map((dep) => dep.toJson()).toList(),
     };
@@ -71,6 +77,7 @@ class Applicant {
     String? address,
     bool? isBeneficiary,
     int? beneficiaryQtd,
+    String? profileImageUrl,
     DateTime? createdAt,
     List<Dependent>? dependents,
   }) {
@@ -83,6 +90,7 @@ class Applicant {
       address: address ?? this.address,
       isBeneficiary: isBeneficiary ?? this.isBeneficiary,
       beneficiaryQtd: beneficiaryQtd ?? this.beneficiaryQtd,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       createdAt: createdAt ?? this.createdAt,
       dependents: dependents ?? this.dependents,
     );
@@ -118,6 +126,7 @@ class Dependent {
   final String? phoneNumber;
   final String? address;
   final String applicantId;
+  final String? profileImageUrl;
   final DateTime createdAt;
 
   const Dependent({
@@ -129,6 +138,7 @@ class Dependent {
     this.address,
     required this.applicantId,
     required this.createdAt,
+    this.profileImageUrl,
   });
 
   /// Cria instância a partir de JSON
@@ -141,6 +151,7 @@ class Dependent {
       phoneNumber: json['phoneNumber'] as String?,
       address: json['address'] as String?,
       applicantId: json['applicantId'] as String,
+      profileImageUrl: json['profileImageUrl'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
@@ -155,6 +166,7 @@ class Dependent {
       'phoneNumber': phoneNumber,
       'address': address,
       'applicantId': applicantId,
+      'profileImageUrl': profileImageUrl,
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -168,6 +180,7 @@ class Dependent {
     String? phoneNumber,
     String? address,
     String? applicantId,
+    String? profileImageUrl,
     DateTime? createdAt,
   }) {
     return Dependent(
@@ -178,6 +191,7 @@ class Dependent {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       address: address ?? this.address,
       applicantId: applicantId ?? this.applicantId,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -208,6 +222,9 @@ class CreateApplicantRequest {
   final String? phoneNumber;
   final String? address;
   final bool isBeneficiary;
+  final File? imageFile;
+  final Uint8List? imageBytes;
+  final String? imageFileName;
 
   const CreateApplicantRequest({
     this.name,
@@ -216,6 +233,9 @@ class CreateApplicantRequest {
     this.phoneNumber,
     this.address,
     required this.isBeneficiary,
+    this.imageFile,
+    this.imageBytes,
+    this.imageFileName,
   });
 
   /// Converte para JSON
@@ -229,6 +249,9 @@ class CreateApplicantRequest {
       'isBeneficiary': isBeneficiary,
     };
   }
+
+  /// Verifica se tem imagem para upload
+  bool get hasImage => imageFile != null || imageBytes != null;
 
   /// Cria instância a partir de JSON
   factory CreateApplicantRequest.fromJson(Map<String, dynamic> json) {
@@ -251,6 +274,9 @@ class UpdateApplicantRequest {
   final String? phoneNumber;
   final String? address;
   final bool? isBeneficiary;
+  final File? imageFile;
+  final Uint8List? imageBytes;
+  final String? imageFileName;
 
   const UpdateApplicantRequest({
     this.name,
@@ -259,6 +285,9 @@ class UpdateApplicantRequest {
     this.phoneNumber,
     this.address,
     this.isBeneficiary,
+    this.imageFile,
+    this.imageBytes,
+    this.imageFileName,
   });
 
   /// Converte para JSON
@@ -294,7 +323,11 @@ class UpdateApplicantRequest {
       email != null ||
       phoneNumber != null ||
       address != null ||
-      isBeneficiary != null;
+      isBeneficiary != null ||
+      hasImage;
+
+  /// Verifica se tem imagem para upload
+  bool get hasImage => imageFile != null || imageBytes != null;
 }
 
 /// Request para criar um novo dependente
@@ -305,6 +338,9 @@ class CreateDependentRequest {
   final String? phoneNumber;
   final String? address;
   final String applicantId;
+  final File? imageFile;
+  final Uint8List? imageBytes;
+  final String? imageFileName;
 
   const CreateDependentRequest({
     this.name,
@@ -313,6 +349,9 @@ class CreateDependentRequest {
     this.phoneNumber,
     this.address,
     required this.applicantId,
+    this.imageFile,
+    this.imageBytes,
+    this.imageFileName,
   });
 
   /// Converte para JSON
@@ -326,6 +365,9 @@ class CreateDependentRequest {
       'applicantId': applicantId,
     };
   }
+
+  /// Verifica se tem imagem para upload
+  bool get hasImage => imageFile != null || imageBytes != null;
 
   /// Cria instância a partir de JSON
   factory CreateDependentRequest.fromJson(Map<String, dynamic> json) {
@@ -347,6 +389,9 @@ class UpdateDependentRequest {
   final String? email;
   final String? phoneNumber;
   final String? address;
+  final File? imageFile;
+  final Uint8List? imageBytes;
+  final String? imageFileName;
 
   const UpdateDependentRequest({
     this.name,
@@ -354,6 +399,9 @@ class UpdateDependentRequest {
     this.email,
     this.phoneNumber,
     this.address,
+    this.imageFile,
+    this.imageBytes,
+    this.imageFileName,
   });
 
   /// Converte para JSON
@@ -386,7 +434,11 @@ class UpdateDependentRequest {
       cpf != null ||
       email != null ||
       phoneNumber != null ||
-      address != null;
+      address != null ||
+      hasImage;
+
+  /// Verifica se tem imagem para upload
+  bool get hasImage => imageFile != null || imageBytes != null;
 }
 
 /// Response para criação de candidato
@@ -427,10 +479,9 @@ class UpdateApplicantResponse {
   factory UpdateApplicantResponse.fromJson(Map<String, dynamic> json) {
     return UpdateApplicantResponse(
       success: json['success'] as bool? ?? false,
-      applicant:
-          json['data'] != null
-              ? Applicant.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      applicant: json['data'] != null
+          ? Applicant.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       message: json['message'] as String?,
     );
   }
@@ -490,10 +541,9 @@ class UpdateDependentResponse {
   factory UpdateDependentResponse.fromJson(Map<String, dynamic> json) {
     return UpdateDependentResponse(
       success: json['success'] as bool? ?? false,
-      dependent:
-          json['data'] != null
-              ? Dependent.fromJson(json['data'] as Map<String, dynamic>)
-              : null,
+      dependent: json['data'] != null
+          ? Dependent.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       message: json['message'] as String?,
     );
   }

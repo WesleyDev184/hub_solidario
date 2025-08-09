@@ -1,0 +1,13 @@
+# Você precisa criar um arquivo .env.api na raiz do projeto
+# Este ConfigMap deve ser criado a partir do arquivo .env.api
+# Execute: kubectl create configmap api-config --from-env-file=.env.api -n rotary
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+data:
+  # Adicione suas variáveis de ambiente aqui
+  # DATABASE_URL: "postgresql://postgres:postgres@db:5432/hubdb"
+  # REDIS_URL: "redis://redis:6379"
+  # MINIO_ENDPOINT: "minio-api:9000"
+  # etc...

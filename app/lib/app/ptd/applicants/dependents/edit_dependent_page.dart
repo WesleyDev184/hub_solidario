@@ -1,7 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:app/core/api/applicants/controllers/applicants_controller.dart';
 import 'package:app/core/api/applicants/models/applicants_models.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
+import 'package:app/core/widgets/image_uploader.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +37,12 @@ class _EditDependentPageState extends State<EditDependentPage> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
 
+  // Variáveis para gerenciar a imagem
+  File? _selectedImageFile;
+  Uint8List? _selectedImageBytes;
+
   String? _applicantName;
+  Dependent? _currentDependent;
 
   @override
   void initState() {
@@ -72,6 +81,7 @@ class _EditDependentPageState extends State<EditDependentPage> {
     result.fold(
       (dependent) {
         setState(() {
+          _currentDependent = dependent;
           _nameController.text = dependent.name ?? '';
           _cpfController.text = dependent.cpf ?? '';
           _emailController.text = dependent.email ?? '';
@@ -99,6 +109,20 @@ class _EditDependentPageState extends State<EditDependentPage> {
     super.dispose();
   }
 
+  void _onImageSelected(File? file, Uint8List? bytes) {
+    setState(() {
+      _selectedImageFile = file;
+      _selectedImageBytes = bytes;
+    });
+  }
+
+  void _onImageRemoved() {
+    setState(() {
+      _selectedImageFile = null;
+      _selectedImageBytes = null;
+    });
+  }
+
   Future<void> _updateDependent() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -108,6 +132,9 @@ class _EditDependentPageState extends State<EditDependentPage> {
       email: _emailController.text.trim(),
       phoneNumber: _phoneController.text.trim(),
       address: _addressController.text.trim(),
+      imageFile: _selectedImageFile,
+      imageBytes: _selectedImageBytes,
+      imageFileName: _selectedImageFile?.path.split('/').last,
     );
 
     final result = await _applicantsController.updateDependent(
@@ -311,6 +338,34 @@ class _EditDependentPageState extends State<EditDependentPage> {
                         controller: _addressController,
                         hint: 'Digite o endereço (opcional)',
                         icon: LucideIcons.mapPin,
+                      ),
+
+                      const SizedBox(height: 24),
+                      // Imagem do perfil
+                      const Text(
+                        'Foto do Perfil',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Selecione uma nova foto ou mantenha a atual',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ImageUploader(
+                        initialImageUrl: _currentDependent?.profileImageUrl,
+                        onImageSelected: _onImageSelected,
+                        onImageRemoved: _onImageRemoved,
+                        hint: 'Toque para selecionar uma nova foto',
+                        height: 150,
                       ),
 
                       const SizedBox(height: 32),

@@ -115,7 +115,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
                       ),
                       child: ApplicantsCard(
                         id: applicant.id,
-                        imageUrl: 'assets/images/dog.jpg',
+                        imageUrl: applicant.profileImageUrl,
                         name: applicant.name ?? '',
                         qtd: applicant.beneficiaryQtd,
                         beneficiary: applicant.isBeneficiary,

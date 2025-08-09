@@ -13,14 +13,19 @@ class AuthRepository {
   /// Realiza login do usuário
   AsyncResult<AccessTokenResponse> login(
     String email,
-    String password, {
+    String password,
+    String deviceToken, {
     bool useCookies = false,
     bool useSessionCookies = false,
   }) async {
     try {
       debugPrint('Attempting login for: $email');
 
-      final request = LoginRequest(email: email, password: password);
+      final request = LoginRequest(
+        email: email,
+        password: password,
+        deviceToken: deviceToken,
+      );
 
       // Constrói query parameters se necessário
       Map<String, String>? queryParams;

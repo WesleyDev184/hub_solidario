@@ -4,15 +4,25 @@ import 'package:app/core/api/hubs/models/hubs_models.dart';
 class LoginRequest {
   final String email;
   final String password;
+  final String deviceToken;
 
-  const LoginRequest({required this.email, required this.password});
+  const LoginRequest({
+    required this.email,
+    required this.password,
+    required this.deviceToken,
+  });
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) => LoginRequest(
     email: json['email'] as String,
     password: json['password'] as String,
+    deviceToken: json['deviceToken'] as String,
   );
 
-  Map<String, dynamic> toJson() => {'email': email, 'password': password};
+  Map<String, dynamic> toJson() => {
+    'email': email,
+    'password': password,
+    'deviceToken': deviceToken,
+  };
 }
 
 /// Modelo para resposta de token de acesso

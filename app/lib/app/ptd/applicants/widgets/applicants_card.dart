@@ -33,7 +33,7 @@ class ApplicantsCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Avatar(imageUrl: imageUrl, size: 48),
+            Avatar(imageUrl: imageUrl, size: 48, isNetworkImage: true),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

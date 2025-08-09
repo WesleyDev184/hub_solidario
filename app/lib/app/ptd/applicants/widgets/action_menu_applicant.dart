@@ -6,6 +6,7 @@ class ActionMenuApplicant extends StatelessWidget {
   final VoidCallback? onEditPressed;
   final VoidCallback? onDeletePressed;
   final VoidCallback? onCreatedPressed;
+  final VoidCallback? documentsViewPressed;
   final String title;
 
   const ActionMenuApplicant({
@@ -13,6 +14,7 @@ class ActionMenuApplicant extends StatelessWidget {
     this.onEditPressed,
     this.onDeletePressed,
     this.onCreatedPressed,
+    this.documentsViewPressed,
     this.title = 'Ações',
   });
 
@@ -56,6 +58,17 @@ class ActionMenuApplicant extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               onCreatedPressed?.call();
+            },
+          ),
+          _buildActionItem(
+            context,
+            icon: LucideIcons.fileText,
+            title: 'Ver documentos',
+            subtitle: "Veja os documentos do solicitante",
+            color: CustomColors.info,
+            onTap: () {
+              Navigator.pop(context);
+              documentsViewPressed?.call();
             },
           ),
           _buildActionItem(

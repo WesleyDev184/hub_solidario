@@ -1,3 +1,4 @@
+import 'package:app/core/notifications/firebase_messaging_service.dart';
 import 'package:get/get.dart';
 import 'package:result_dart/result_dart.dart';
 
@@ -55,7 +56,10 @@ class AuthController extends GetxController {
   AsyncResult<User> login(String email, String password) async {
     _setLoading(true);
     try {
-      final loginResult = await repository.login(email, password);
+      final firebase = Get.find<FirebaseMessagingService>();
+      final deviceToken = await firebase.getDeviceFirebaseToken();
+
+      final loginResult = await repository.login(email, password, deviceToken);
 
       return await loginResult.fold(
         (tokenResponse) async {
