@@ -36,5 +36,7 @@ public record RequestUpdateApplicantDto(
   [SwaggerParameter(Description = "The address of the applicant", Required = false)]
   string? Address,
   [SwaggerParameter(Description = "Indicator if the applicant is a beneficiary", Required = false)]
-  bool? IsBeneficiary
+  bool? IsBeneficiary,
+  [SwaggerParameter(Description = "Profile image file (optional)", Required = false)]
+  IFormFile? ProfileImage
 );
