@@ -10,4 +10,7 @@ WebApplication app = builder.Build();
 // App Configuration Extension.
 await app.AppConfig();
 
+// rota de health check
+app.MapHealthChecks("/health");
+
 app.Run();
