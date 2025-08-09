@@ -29,7 +29,8 @@ public class ExampleRequestUpdateApplicantDTO : IExamplesProvider<RequestUpdateA
       Email: "john.updated@example.com",
       PhoneNumber: "11888888888",
       Address: "456 Another St, City",
-      IsBeneficiary: false
+      IsBeneficiary: false,
+      ProfileImage: null // Exemplo sem imagem
     );
   }
 }

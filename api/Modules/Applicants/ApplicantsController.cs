@@ -218,7 +218,8 @@ namespace api.Modules.Applicants
             form["Email"].FirstOrDefault(),
             form["PhoneNumber"].FirstOrDefault(),
             form["Address"].FirstOrDefault(),
-            bool.TryParse(form["IsBeneficiary"].FirstOrDefault(), out var isBeneficiary) ? isBeneficiary : (bool?)null
+            bool.TryParse(form["IsBeneficiary"].FirstOrDefault(), out var isBeneficiary) ? isBeneficiary : (bool?)null,
+            form.Files.GetFile("ProfileImage")
           );
 
           var profileImage = form.Files.GetFile("ProfileImage");

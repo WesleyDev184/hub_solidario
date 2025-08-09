@@ -40,3 +40,4 @@ public record RequestUpdateApplicantDto(
   [SwaggerParameter(Description = "Profile image file (optional)", Required = false)]
   IFormFile? ProfileImage
 );
+

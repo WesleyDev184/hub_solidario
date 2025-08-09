@@ -33,7 +33,7 @@ restart-api:
 # Get pod status
 status:
 	ssh $(server) "kubectl get pods -n $(namespace)"
-
+  
 # Get all resources
 get-all:
 	ssh $(server) "kubectl get all -n $(namespace)"
