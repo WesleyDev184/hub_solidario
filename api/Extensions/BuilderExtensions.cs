@@ -93,7 +93,7 @@ namespace api.Extensions
             new OpenApiInfo
             {
               Title = "Hub API",
-              Version = "v1.5",
+              Version = "v1.1",
               Description = "API for Hub Solidario loan management system.",
             });
           c.EnableAnnotations();
