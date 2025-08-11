@@ -75,4 +75,9 @@ class HubsCacheService {
       return [];
     }
   }
+
+  /// Limpa o cache dos hubs
+  Future<void> clearHubsCache() async {
+    await _prefs.remove(_hubsKey);
+  }
 }

@@ -255,7 +255,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                             LucideIcons.logOut,
                                             color: CustomColors.white,
                                           ),
-                                          backgroundColor: CustomColors.error,
+                                          color: CustomColors.error,
                                           onPressed: _handleLogout,
                                         ),
                                         Padding(

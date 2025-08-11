@@ -188,7 +188,7 @@ class LoanCard extends StatelessWidget {
                               LucideIcons.info,
                               color: CustomColors.white,
                             ),
-                            backgroundColor: CustomColors.border,
+                            color: CustomColors.border,
                           ),
                           const SizedBox(width: 8),
                           Button(
@@ -199,7 +199,7 @@ class LoanCard extends StatelessWidget {
                               LucideIcons.arrowLeft,
                               color: Colors.white,
                             ),
-                            backgroundColor: CustomColors.success,
+                            color: CustomColors.success,
                           ),
                         ],
                       ),

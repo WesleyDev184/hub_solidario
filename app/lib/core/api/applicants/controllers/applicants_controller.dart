@@ -213,9 +213,12 @@ class ApplicantsController extends GetxController {
             (a) => a.id == request.applicantId,
           );
           if (applicant != null) {
-            applicant.dependents?.add(dependent);
-            _cacheService.updateApplicantInCache(applicant);
-            updateApplicantInList(applicant);
+            final updatedApplicant = applicant.copyWith(
+              beneficiaryQtd: applicant.beneficiaryQtd + 1,
+              dependents: [...?applicant.dependents, dependent],
+            );
+            _cacheService.updateApplicantInCache(updatedApplicant);
+            updateApplicantInList(updatedApplicant);
           }
 
           return Success(dependent.id);

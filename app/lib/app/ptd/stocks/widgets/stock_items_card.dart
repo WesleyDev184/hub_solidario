@@ -78,17 +78,24 @@ class StockItemsCard extends StatelessWidget {
 
             Row(
               children: [
-                IconButton(
-                  onPressed: () {
-                    context.go(RoutePaths.ptd.deleteItem(id, stockId));
-                  },
-                  icon: Icon(LucideIcons.trash, color: Colors.red),
-                ),
+                if (status != ItemStatus.unavailable) ...[
+                  IconButton(
+                    onPressed: () {
+                      context.go(RoutePaths.ptd.deleteItem(id, stockId));
+                    },
+                    icon: Icon(LucideIcons.trash, color: CustomColors.error),
+                  ),
+                ] else ...[
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(LucideIcons.trash, color: Colors.grey),
+                  ),
+                ],
                 IconButton(
                   onPressed: () {
                     context.go(RoutePaths.ptd.editItem(id, stockId));
                   },
-                  icon: Icon(LucideIcons.pen, color: Colors.amber),
+                  icon: Icon(LucideIcons.pen, color: CustomColors.warning),
                 ),
               ],
             ),
