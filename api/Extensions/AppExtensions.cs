@@ -92,7 +92,7 @@ namespace api.Extensions
         opt.ShowSidebar = true;
         opt.Theme = ScalarTheme.DeepSpace;
         opt.Favicon =
-          "https://clubrunner.blob.core.windows.net/00000002427/PhotoAlbum/branding/Mark-of-Excellence-4992.png";
+          "https://s3.core.hubsolidario.com/hub/HUBS_blue.svg";
         opt.HideDarkModeToggle = true;
         opt.HideClientButton = true;
         opt.HideModels = true;
