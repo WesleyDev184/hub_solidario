@@ -1,7 +1,6 @@
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:flutter/material.dart';
 
-import 'widgets/header_logo.dart';
 import 'widgets/signup_form.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -45,7 +44,7 @@ class SignUpPage extends StatelessWidget {
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
                       padding: const EdgeInsets.only(top: 70),
-                      child: const HeaderLogo(),
+                      child: Image.asset('assets/images/hubs.png', width: 200),
                     ),
                     collapseMode: CollapseMode.parallax,
                   ),

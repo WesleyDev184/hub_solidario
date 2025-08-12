@@ -44,8 +44,6 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    debugInvertOversizedImages = true; // Ativa a depuração de imagens grandes
-
     // Injeta o contexto e inicializa o FirebaseMessagingService no primeiro build
     final fcmService = Get.find<FirebaseMessagingService>();
     if (fcmService.context == null) {

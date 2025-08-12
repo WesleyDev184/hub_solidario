@@ -2,8 +2,6 @@ import 'package:app/app/auth/widgets/signin_form.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:flutter/material.dart';
 
-import 'widgets/header_logo.dart';
-
 class SigninPage extends StatelessWidget {
   const SigninPage({super.key});
 
@@ -40,9 +38,9 @@ class SigninPage extends StatelessWidget {
                 // Header fixo com logo
                 Container(
                   height: 220,
-                  width: double.infinity,
+                  width: 300,
                   padding: const EdgeInsets.only(top: 70),
-                  child: const HeaderLogo(),
+                  child: Image.asset('assets/images/hubs.png', width: 200),
                 ),
                 // Formulário fixo no fundo
                 Expanded(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppPage extends StatelessWidget {
-  const AppPage({super.key, this.title = 'Rotary App'});
+  const AppPage({super.key, this.title = 'HS App'});
 
   final String title;
 
