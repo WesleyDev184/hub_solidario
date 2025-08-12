@@ -1,4 +1,5 @@
 import 'package:app/core/api/api.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +114,7 @@ class _DeleteDependentPageState extends State<DeleteDependentPage> {
           widget.dependentId,
         ),
       ),
-      backgroundColor: const Color(0xFFFFEBEE),
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

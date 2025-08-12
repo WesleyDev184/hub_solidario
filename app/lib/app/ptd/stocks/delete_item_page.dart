@@ -1,4 +1,5 @@
 import 'package:app/core/api/api.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/utils/utils.dart' as CoreUtils;
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/go_router.dart';
@@ -75,7 +76,7 @@ class _DeleteItemPageState extends State<DeleteItemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Deletar Item"),
-      backgroundColor: const Color(0xFFFFEBEE), // Vermelho claro
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

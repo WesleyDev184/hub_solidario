@@ -2,6 +2,7 @@ import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/api/auth/models/auth_models.dart';
 import 'package:app/core/api/hubs/controllers/hubs_controller.dart';
 import 'package:app/core/theme/custom_colors.dart';
+import 'package:app/core/widgets/button.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
 import 'package:app/core/widgets/select_field.dart';
@@ -510,26 +511,12 @@ class _SignUpFormState extends State<SignUpForm> {
                 const SizedBox(height: 20),
 
                 // Botão principal
-                ElevatedButton(
+                Button(
+                  text: 'Criar conta',
                   onPressed: () => _handleSignUp(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CustomColors.success,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Criar conta',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
+                  color: CustomColors.success,
+                  icon: LucideIcons.userPlus,
                 ),
-
                 const SizedBox(height: 16),
 
                 // Link de navegação

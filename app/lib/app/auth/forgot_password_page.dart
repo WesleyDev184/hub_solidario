@@ -2,8 +2,6 @@ import 'package:app/app/auth/widgets/forgot_password_form.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:flutter/material.dart';
 
-import 'widgets/header_logo.dart';
-
 class ForgotPasswordPage extends StatelessWidget {
   const ForgotPasswordPage({super.key});
 
@@ -19,7 +17,7 @@ class ForgotPasswordPage extends StatelessWidget {
             : 857;
         return Container(
           decoration: BoxDecoration(
-            color: CustomColors.primary,
+            color: CustomColors.secondary,
             image: DecorationImage(
               image: ResizeImage(
                 const AssetImage("assets/images/bg.jpg"),
@@ -39,10 +37,10 @@ class ForgotPasswordPage extends StatelessWidget {
               children: [
                 // Header fixo com logo
                 Container(
-                  height: 200,
-                  width: double.infinity,
+                  height: 220,
+                  width: 300,
                   padding: const EdgeInsets.only(top: 70),
-                  child: const HeaderLogo(),
+                  child: Image.asset('assets/images/hubs.png', width: 200),
                 ),
                 // Formulário fixo no fundo
                 Expanded(

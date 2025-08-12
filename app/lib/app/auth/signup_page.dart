@@ -1,7 +1,6 @@
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:flutter/material.dart';
 
-import 'widgets/header_logo.dart';
 import 'widgets/signup_form.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -19,7 +18,7 @@ class SignUpPage extends StatelessWidget {
             : 857;
         return Container(
           decoration: BoxDecoration(
-            color: CustomColors.primary,
+            color: CustomColors.secondary,
             image: DecorationImage(
               image: ResizeImage(
                 const AssetImage("assets/images/bg.jpg"),
@@ -45,7 +44,12 @@ class SignUpPage extends StatelessWidget {
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
                       padding: const EdgeInsets.only(top: 70),
-                      child: const HeaderLogo(),
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/hubs.png',
+                          width: 300, // A imagem respeitará essa largura
+                        ),
+                      ),
                     ),
                     collapseMode: CollapseMode.parallax,
                   ),

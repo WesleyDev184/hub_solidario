@@ -144,7 +144,7 @@ class _EditItemPageState extends State<EditItemPage> {
         title: "Editar Item",
         path: RoutePaths.ptd.stockId(widget.stockId),
       ),
-      backgroundColor: const Color(0xFFFFF8E1), // Amarelo claro
+      backgroundColor: CustomColors.background,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(

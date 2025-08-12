@@ -1,4 +1,5 @@
 import 'package:app/core/theme/custom_colors.dart';
+import 'package:app/core/widgets/button.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -158,40 +159,11 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
               const SizedBox(height: 24),
 
               // Botão principal
-              ElevatedButton(
+              Button(
+                text: isLoading ? 'Enviando...' : 'Enviar email',
                 onPressed: isLoading ? null : _sendResetEmail,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(LucideIcons.send, color: Colors.white, size: 18),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Enviar instruções',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+                color: CustomColors.primary,
+                icon: isLoading ? null : LucideIcons.send,
               ),
 
               const SizedBox(height: 16),

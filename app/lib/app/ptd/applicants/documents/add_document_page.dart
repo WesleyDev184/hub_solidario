@@ -99,7 +99,7 @@ class _AddDocumentPageState extends State<AddDocumentPage> {
         title: "Novo Documento",
         path: RoutePaths.ptd.applicantDocuments(widget.applicantId),
       ),
-      backgroundColor: const Color(0xFFE8F5E8),
+      backgroundColor: CustomColors.background,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(

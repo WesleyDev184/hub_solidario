@@ -1,5 +1,6 @@
 import 'package:app/app/ptd/applicants/widgets/applicants_card.dart';
 import 'package:app/core/api/applicants/controllers/applicants_controller.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
@@ -34,7 +35,7 @@ class _ApplicantsPageState extends State<ApplicantsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Solicitantes", initialRoute: true),
-      backgroundColor: const Color(0xFFE0F2F1),
+      backgroundColor: CustomColors.background,
       floatingActionButton: FloatingActionButton(
         heroTag: "applicants_list_fab",
         onPressed: () {

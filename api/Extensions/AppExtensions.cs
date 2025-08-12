@@ -88,7 +88,7 @@ namespace api.Extensions
       });
       app.MapScalarApiReference(opt =>
       {
-        opt.Title = "Rotary API Reference";
+        opt.Title = "HubS API Reference";
         opt.ShowSidebar = true;
         opt.Theme = ScalarTheme.DeepSpace;
         opt.Favicon =

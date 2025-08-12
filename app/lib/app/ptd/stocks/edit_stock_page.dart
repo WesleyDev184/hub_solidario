@@ -178,7 +178,7 @@ class _EditStockPageState extends State<EditStockPage> {
         title: "Editar Categoria",
         path: RoutePaths.ptd.stockId(widget.stockId),
       ),
-      backgroundColor: const Color(0xFFFFF8E1), // Amarelo claro
+      backgroundColor: CustomColors.background,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(

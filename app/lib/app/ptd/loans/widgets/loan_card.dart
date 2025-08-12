@@ -184,10 +184,7 @@ class LoanCard extends StatelessWidget {
                             onPressed: () {
                               context.go(RoutePaths.ptd.loanId(loan.id));
                             },
-                            icon: Icon(
-                              LucideIcons.info,
-                              color: CustomColors.white,
-                            ),
+                            icon: LucideIcons.info,
                             color: CustomColors.border,
                           ),
                           const SizedBox(width: 8),
@@ -195,10 +192,7 @@ class LoanCard extends StatelessWidget {
                             onPressed: () {
                               context.go(RoutePaths.ptd.loanFinalize(loan.id));
                             },
-                            icon: Icon(
-                              LucideIcons.arrowLeft,
-                              color: Colors.white,
-                            ),
+                            icon: LucideIcons.arrowLeft,
                             color: CustomColors.success,
                           ),
                         ],

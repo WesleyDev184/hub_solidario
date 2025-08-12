@@ -3,7 +3,6 @@ import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -161,13 +160,16 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                       children: [
                                         Container(
                                           color: CustomColors.background,
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 24,
+                                          padding: const EdgeInsets.fromLTRB(
+                                            0,
+                                            45,
+                                            0,
+                                            24,
                                           ),
                                           child: Center(
-                                            child: SvgPicture.asset(
-                                              'assets/images/rotary.svg',
-                                              width: 150,
+                                            child: Image.asset(
+                                              'assets/images/hubs.png',
+                                              width: 180,
                                             ),
                                           ),
                                         ),
@@ -251,10 +253,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                         const SizedBox(height: 16),
                                         Button(
                                           text: "Sair",
-                                          icon: Icon(
-                                            LucideIcons.logOut,
-                                            color: CustomColors.white,
-                                          ),
+                                          icon: LucideIcons.logOut,
                                           color: CustomColors.error,
                                           onPressed: _handleLogout,
                                         ),

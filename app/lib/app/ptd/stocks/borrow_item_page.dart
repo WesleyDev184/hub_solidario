@@ -255,7 +255,7 @@ class _BorrowItemPageState extends State<BorrowItemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Criar Empréstimo"),
-      backgroundColor: const Color(0xFFE3F2FD), // Azul claro
+      backgroundColor: CustomColors.background,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(

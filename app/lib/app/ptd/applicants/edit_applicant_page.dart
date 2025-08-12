@@ -222,7 +222,7 @@ class _EditApplicantPageState extends State<EditApplicantPage> {
         title: "Editar Solicitante",
         path: RoutePaths.ptd.applicantId(widget.applicantId),
       ),
-      backgroundColor: const Color(0xFFFFF8E1), // Amarelo claro
+      backgroundColor: CustomColors.background,
       body: Obx(() {
         final isLoading = _applicantsController.isLoading;
         return isLoading
