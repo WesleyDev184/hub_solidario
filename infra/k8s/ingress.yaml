@@ -55,12 +55,12 @@ spec:
   tls:
     certResolver: letsencrypt
 ---
-# --- Harbor Registry IngressRoute (Docker API) ---
+# --- Registry IngressRoute ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: harbor-registry-ingressroute
-  namespace: harbor
+  name: registry-ingressroute
+  namespace: core
 spec:
   entryPoints:
     - websecure
@@ -69,45 +69,7 @@ spec:
     - match: Host(`registry.core.hubsolidario.com`)
       kind: Rule
       services:
-        - name: harbor-registry
+        - name: registry
           port: 5000
-  tls:
-    certResolver: letsencrypt
----
-# --- Harbor Portal IngressRoute (Web UI) ---
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: harbor-portal-ingressroute
-  namespace: harbor
-spec:
-  entryPoints:
-    - websecure
-    - web
-  routes:
-    - match: Host(`harbor.core.hubsolidario.com`)
-      kind: Rule
-      services:
-        - name: harbor-portal
-          port: 8080
-  tls:
-    certResolver: letsencrypt
----
-# --- Harbor Core API IngressRoute ---
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: harbor-core-ingressroute
-  namespace: harbor
-spec:
-  entryPoints:
-    - websecure
-    - web
-  routes:
-    - match: Host(`harbor-api.core.hubsolidario.com`)
-      kind: Rule
-      services:
-        - name: harbor-core
-          port: 8080
   tls:
     certResolver: letsencrypt
