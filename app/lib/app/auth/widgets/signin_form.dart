@@ -1,5 +1,6 @@
 import 'package:app/core/api/auth/controllers/auth_controller.dart';
 import 'package:app/core/theme/custom_colors.dart';
+import 'package:app/core/widgets/button.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/core/widgets/password_field.dart';
 import 'package:flutter/material.dart';
@@ -217,33 +218,12 @@ class _SigninFormState extends State<SigninForm> {
                 const SizedBox(height: 16),
 
                 // Botão principal
-                ElevatedButton(
+                Button(
+                  text: 'Entrar',
                   onPressed: _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CustomColors.success,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(LucideIcons.logIn, color: Colors.white, size: 18),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Entrar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
+                  color: CustomColors.success,
+                  icon: LucideIcons.logIn,
                 ),
-
                 const SizedBox(height: 16),
 
                 // Link de navegação

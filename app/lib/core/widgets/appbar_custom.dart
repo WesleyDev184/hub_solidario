@@ -251,10 +251,7 @@ class _AppBarCustomState extends State<AppBarCustom> {
                                         const SizedBox(height: 16),
                                         Button(
                                           text: "Sair",
-                                          icon: Icon(
-                                            LucideIcons.logOut,
-                                            color: CustomColors.white,
-                                          ),
+                                          icon: LucideIcons.logOut,
                                           color: CustomColors.error,
                                           onPressed: _handleLogout,
                                         ),
