@@ -124,7 +124,7 @@ class _AddItemPageState extends State<AddItemPage> {
         title: "Adicionar Item",
         path: RoutePaths.ptd.stockId(widget.stockId),
       ),
-      backgroundColor: const Color(0xFFE8F5E8), // Verde claro
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

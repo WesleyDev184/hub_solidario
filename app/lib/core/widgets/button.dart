@@ -36,7 +36,8 @@ class Button extends StatelessWidget {
           // Mostra o ícone apenas se ele for fornecido
           if (icon != null) ...[
             Icon(icon, color: Colors.white, size: 22.0),
-            const SizedBox(width: 10.0), // Espaçamento entre o ícone e o text
+            if (text != null)
+              const SizedBox(width: 10.0), // Espaçamento entre o ícone e o text
           ],
           if (text != null) ...[
             Text(

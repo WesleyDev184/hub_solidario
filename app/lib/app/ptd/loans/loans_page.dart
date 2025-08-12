@@ -1,5 +1,6 @@
 import 'package:app/app/ptd/loans/widgets/loan_card.dart';
 import 'package:app/core/api/loans/controllers/loans_controller.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class _LoansPageState extends State<LoansPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Empréstimos Ativos", initialRoute: true),
-      backgroundColor: const Color(0xFFFFF3E0), // Laranja claro para loans
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

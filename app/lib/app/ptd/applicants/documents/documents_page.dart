@@ -1,5 +1,6 @@
 import 'package:app/core/api/documents/controllers/documents_controller.dart';
 import 'package:app/core/api/documents/models/documents_models.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
@@ -100,6 +101,7 @@ class DocumentsPageState extends State<DocumentsPage> {
         },
         child: const Icon(LucideIcons.plus),
       ),
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

@@ -17,7 +17,7 @@ class ForgotPasswordPage extends StatelessWidget {
             : 857;
         return Container(
           decoration: BoxDecoration(
-            color: CustomColors.primary,
+            color: CustomColors.secondary,
             image: DecorationImage(
               image: ResizeImage(
                 const AssetImage("assets/images/bg.jpg"),
@@ -36,7 +36,7 @@ class ForgotPasswordPage extends StatelessWidget {
             body: Column(
               children: [
                 // Header fixo com logo
-               Container(
+                Container(
                   height: 220,
                   width: 300,
                   padding: const EdgeInsets.only(top: 70),

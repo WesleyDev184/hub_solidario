@@ -110,7 +110,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
         title: currentApplicant.name ?? 'Solicitante',
         path: RoutePaths.ptd.applicants,
       ),
-      backgroundColor: const Color(0xFFF1F8E9), // Verde muito claro
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

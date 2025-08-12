@@ -140,7 +140,7 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
         title: "Editar Documento",
         path: RoutePaths.ptd.applicantDocuments(widget.applicantId),
       ),
-      backgroundColor: const Color(0xFFE8F5E8),
+      backgroundColor: CustomColors.background,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(

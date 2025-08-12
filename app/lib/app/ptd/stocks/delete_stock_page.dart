@@ -1,4 +1,5 @@
 import 'package:app/core/api/stocks/stocks.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
@@ -56,8 +57,7 @@ class _DeleteStockPageState extends State<DeleteStockPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarCustom(title: "Deletar Categoria"),
-      backgroundColor: const Color(0xFFFFEBEE), // Vermelho claro
-
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

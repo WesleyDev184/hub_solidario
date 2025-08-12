@@ -101,7 +101,7 @@ class _DependentPageState extends State<DependentPage> {
         title: dependentName,
         path: RoutePaths.ptd.applicantId(widget.applicantId),
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

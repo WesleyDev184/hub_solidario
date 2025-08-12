@@ -17,7 +17,7 @@ class SigninPage extends StatelessWidget {
             : 857;
         return Container(
           decoration: BoxDecoration(
-            color: CustomColors.primary,
+            color: CustomColors.secondary,
             image: DecorationImage(
               image: ResizeImage(
                 const AssetImage("assets/images/bg.jpg"),

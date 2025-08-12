@@ -181,7 +181,7 @@ class _AddDependentPageState extends State<AddDependentPage> {
         title: 'Criar Dependente',
         path: RoutePaths.ptd.applicantId(widget.applicantId),
       ),
-      backgroundColor: const Color(0xFFE8F5E8), // Verde claro
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

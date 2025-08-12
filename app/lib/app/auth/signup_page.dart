@@ -18,7 +18,7 @@ class SignUpPage extends StatelessWidget {
             : 857;
         return Container(
           decoration: BoxDecoration(
-            color: CustomColors.primary,
+            color: CustomColors.secondary,
             image: DecorationImage(
               image: ResizeImage(
                 const AssetImage("assets/images/bg.jpg"),
@@ -44,7 +44,12 @@ class SignUpPage extends StatelessWidget {
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
                       padding: const EdgeInsets.only(top: 70),
-                      child: Image.asset('assets/images/hubs.png', width: 200),
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/hubs.png',
+                          width: 300, // A imagem respeitará essa largura
+                        ),
+                      ),
                     ),
                     collapseMode: CollapseMode.parallax,
                   ),

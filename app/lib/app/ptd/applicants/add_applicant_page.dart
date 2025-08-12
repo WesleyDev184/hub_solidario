@@ -152,7 +152,7 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
         title: "Criar Solicitante",
         path: RoutePaths.ptd.applicants,
       ),
-      backgroundColor: const Color(0xFFE8F5E8), // Verde claro
+      backgroundColor: CustomColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

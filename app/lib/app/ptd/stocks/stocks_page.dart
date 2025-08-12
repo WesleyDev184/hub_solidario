@@ -1,5 +1,6 @@
 import 'package:app/app/ptd/stocks/widgets/stock_card.dart';
 import 'package:app/core/api/stocks/controllers/stocks_controller.dart';
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/input_field.dart';
 import 'package:app/go_router.dart';
@@ -40,7 +41,7 @@ class _StocksPageState extends State<StocksPage> {
     return Scaffold(
       appBar: AppBarCustom(title: 'Produtos', initialRoute: true),
       floatingActionButton: _buildFloatingActionButton(),
-      backgroundColor: const Color(0xFFE1F5FE), // Azul claro para stocks
+      backgroundColor: CustomColors.background, 
       body: Column(
         children: [
           Padding(
