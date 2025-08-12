@@ -52,9 +52,7 @@ class StocksController extends GetxController {
       final hubId = authController.getHubId;
       if (hubId == null) {
         _isLoading.value = false;
-        return Failure(
-          Exception('Usuário não possui hub associado.'),
-        );
+        return Failure(Exception('Usuário não possui hub associado.'));
       }
       if (!forceRefresh) {
         final cachedStocks = await cacheService.getCachedStocksByBank(hubId);
@@ -214,6 +212,9 @@ class StocksController extends GetxController {
         if (stockTemp != null) {
           // Atualiza o stock na lista com o novo item
           final updatedStock = stockTemp.copyWith(
+            availableQtd:
+                stockTemp.availableQtd +
+                (item.status == ItemStatus.available ? 1 : 0),
             items: [...?stockTemp.items, item],
           );
           _stocks[_stocks.indexOf(stockTemp)] = updatedStock;

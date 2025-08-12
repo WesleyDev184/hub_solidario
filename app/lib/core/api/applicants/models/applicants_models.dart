@@ -225,6 +225,7 @@ class CreateApplicantRequest {
   final File? imageFile;
   final Uint8List? imageBytes;
   final String? imageFileName;
+  final String? hubId;
 
   const CreateApplicantRequest({
     this.name,
@@ -236,6 +237,7 @@ class CreateApplicantRequest {
     this.imageFile,
     this.imageBytes,
     this.imageFileName,
+    this.hubId,
   });
 
   /// Converte para JSON
@@ -247,6 +249,7 @@ class CreateApplicantRequest {
       'phoneNumber': phoneNumber,
       'address': address,
       'isBeneficiary': isBeneficiary,
+      'hubId': hubId,
     };
   }
 
@@ -262,6 +265,7 @@ class CreateApplicantRequest {
       phoneNumber: json['phoneNumber'] as String?,
       address: json['address'] as String?,
       isBeneficiary: json['isBeneficiary'] as bool? ?? false,
+      hubId: json['hubId'] as String?,
     );
   }
 }

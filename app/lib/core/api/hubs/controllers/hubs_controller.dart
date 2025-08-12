@@ -29,10 +29,7 @@ class HubsController extends GetxController {
       if (authState.isAuthenticated) {
         await loadHubs();
       } else {
-        _error.value = '';
-        _isLoading.value = false;
-        _hubs.clear();
-        // Limpa apenas dados locais, pois não há método de clear no cacheService
+        clearData();
       }
     });
 
@@ -154,5 +151,12 @@ class HubsController extends GetxController {
     if (_isLoading.value != loading) {
       _isLoading.value = loading;
     }
+  }
+
+  void clearData() {
+    _hubs.clear();
+    _error.value = '';
+    _isLoading.value = false;
+    cacheService.clearHubsCache();
   }
 }

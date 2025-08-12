@@ -221,42 +221,44 @@ class _EditItemPageState extends State<EditItemPage> {
                   mask: InputMask.serialCode,
                   validator: _validateSerialCode,
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Status',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: CustomColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<ItemStatus>(
-                  value: _selectedStatus,
-                  items: ItemStatus.values
-                      .where((status) => status != ItemStatus.unavailable)
-                      .map((status) {
-                        return DropdownMenuItem(
-                          value: status,
-                          child: Text(
-                            CoreUtils.StatusUtils.getStatusText(status.value),
-                          ),
-                        );
-                      })
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedStatus = value;
-                      });
-                    }
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
+
+                if (_currentItem?.status != ItemStatus.unavailable) ...[
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Status',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: CustomColors.textPrimary,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<ItemStatus>(
+                    value: _selectedStatus,
+                    items: ItemStatus.values.map((status) {
+                      return DropdownMenuItem<ItemStatus>(
+                        value: status,
+                        child: Text(status.name.capitalizeFirst!),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedStatus = value;
+                        });
+                      }
+                    },
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: CustomColors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: CustomColors.border),
+                      ),
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: 32),
                 Obx(() {
                   final isLoading = _stocksController.isLoading;

@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:app/core/api/applicants/controllers/applicants_controller.dart';
-import 'package:app/core/api/applicants/models/applicants_models.dart';
+import 'package:app/core/api/api.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/image_uploader.dart';
@@ -62,6 +61,7 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
 
   Future<void> _createApplicant() async {
     if (!_formKey.currentState!.validate()) return;
+    final hubId = Get.find<AuthController>().getHubId;
 
     final request = CreateApplicantRequest(
       name: _nameController.text.trim(),
@@ -73,6 +73,7 @@ class _AddApplicantPageState extends State<AddApplicantPage> {
       imageFile: _selectedImageFile,
       imageBytes: _selectedImageBytes,
       imageFileName: _selectedImageFile?.path.split('/').last,
+      hubId: hubId,
     );
 
     final result = await _applicantsController.createApplicant(request);

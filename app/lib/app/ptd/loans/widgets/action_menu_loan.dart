@@ -1,6 +1,6 @@
+import 'package:app/core/theme/custom_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:app/core/theme/custom_colors.dart';
 
 class ActionMenuLoan extends StatelessWidget {
   final VoidCallback? onEditPressed;
@@ -50,6 +50,7 @@ class ActionMenuLoan extends StatelessWidget {
             icon: LucideIcons.pen,
             title: 'Editar empréstimo',
             subtitle: "Edite o empréstimo atual",
+            color: CustomColors.warning,
             onTap: () {
               Navigator.pop(context);
               onEditPressed?.call();
@@ -59,6 +60,7 @@ class ActionMenuLoan extends StatelessWidget {
             context,
             icon: LucideIcons.cornerDownLeft,
             title: 'Finalizar empréstimo',
+            color: CustomColors.success,
             subtitle: "Finalize o empréstimo atual",
             onTap: () {
               Navigator.pop(context);
@@ -76,6 +78,7 @@ class ActionMenuLoan extends StatelessWidget {
     required IconData icon,
     required String title,
     required String subtitle,
+    required Color color,
     required VoidCallback onTap,
   }) {
     return ListTile(
@@ -83,10 +86,10 @@ class ActionMenuLoan extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: CustomColors.primary.withOpacity(0.1),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: CustomColors.primary, size: 20),
+        child: Icon(icon, color: color, size: 20),
       ),
       title: Text(
         title,
