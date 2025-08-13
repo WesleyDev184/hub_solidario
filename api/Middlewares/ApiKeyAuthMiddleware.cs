@@ -44,6 +44,9 @@ public class ApiKeyAuthMiddleware
 
     var apiKey = Environment.GetEnvironmentVariable("API_KEY");
 
+    /// printa o valor da chave API_KEY
+    Console.WriteLine($"API_KEY: {apiKey}");
+
     if (apiKey == null || !apiKey.Equals(extractedApiKey))
     {
       context.Response.StatusCode = 401;
