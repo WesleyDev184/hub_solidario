@@ -27,7 +27,7 @@ func main() {
 	// O token de registro do dispositivo para o qual você deseja enviar a notificação.
 	// Este token é gerado pelo SDK do Firebase no seu aplicativo cliente.
 	// Você precisará obtê-lo do seu aplicativo cliente e enviá-lo para o seu servidor.
-	registrationToken := "SEU_TOKEN_DE_REGISTRO_DO_DISPOSITIVO"
+	registrationToken := "dBzbyoOZRrye-_jn3APqSd:APA91bEv_nSGAv6yBA-MgyoZCi52DqbYh5t4K-pb13t3r2iggOroup1pKqoR3js5kWBp55zmmo8cl95CP1y02GeZqG0l_a02MWsy7UCZBz8-jXCUR6et7ec"
 
 	// Crie a mensagem a ser enviada
 	message := &messaging.Message{
