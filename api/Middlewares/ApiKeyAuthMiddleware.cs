@@ -44,13 +44,17 @@ public class ApiKeyAuthMiddleware
 
     var apiKey = Environment.GetEnvironmentVariable("API_KEY");
 
-    /// printa o valor da chave API_KEY 
+    // printa o valor da chave API_KEY
     Console.WriteLine($"API_KEY: {apiKey}, Extracted API Key: {extractedApiKey}");
 
-    if (apiKey == null || !apiKey.Equals(extractedApiKey))
+    // Tratar espaços e quebras de linha
+    var apiKeyTrimmed = apiKey?.Trim();
+    var extractedApiKeyTrimmed = extractedApiKey.ToString().Trim();
+
+    if (string.IsNullOrEmpty(apiKeyTrimmed) || !apiKeyTrimmed.Equals(extractedApiKeyTrimmed))
     {
       context.Response.StatusCode = 401;
-      await context.Response.WriteAsync("Invalid API Key.");
+      await context.Response.WriteAsync($"Invalid API Key.\nAPI_KEY: {apiKeyTrimmed}, Extracted API Key: {extractedApiKeyTrimmed}");
       return;
     }
 
