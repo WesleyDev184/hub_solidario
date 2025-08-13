@@ -11,11 +11,9 @@ final ThemeData appTheme = ThemeData(
         errorColor: CustomColors.error,
       ).copyWith(
         secondary: CustomColors.secondary,
-        background: CustomColors.background,
         surface: CustomColors.white,
         onPrimary: CustomColors.white,
         onSecondary: CustomColors.white,
-        onBackground: CustomColors.textPrimary,
         onSurface: CustomColors.textPrimary,
         onError: CustomColors.white,
       ),

@@ -6,7 +6,6 @@ public class ApiKeyAuthMiddleware
 {
   private readonly RequestDelegate _next;
   private readonly IConfiguration _configuration;
-  private const string ApiKey = "API_KEY";
   private const string ApiKeyHeader = "X-Api-Key";
 
   public ApiKeyAuthMiddleware(RequestDelegate next, IConfiguration configuration)
@@ -43,7 +42,7 @@ public class ApiKeyAuthMiddleware
       return;
     }
 
-    var apiKey = _configuration.GetValue<string>(ApiKey);
+    var apiKey = Environment.GetEnvironmentVariable("API_KEY");
 
     if (apiKey == null || !apiKey.Equals(extractedApiKey))
     {
