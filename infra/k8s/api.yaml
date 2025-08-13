@@ -15,16 +15,16 @@ spec:
         app: api
     spec:
       imagePullSecrets:
-        - name: ghcr
+        - name: registry-auth-container
       containers:
         - name: api
-          image: ghcr.io/wesleydev184/rotary:main
+          image: registry.core.hubsolidario.com/hubs/api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5001
           envFrom:
-            - configMapRef:
-                name: api-config
+            - secretRef:
+                name: api-env-secret
           resources:
             requests:
               memory: "256Mi"
