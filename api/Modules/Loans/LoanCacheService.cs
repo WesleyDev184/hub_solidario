@@ -9,6 +9,7 @@ public static class LoanCacheService
   public static class Keys
   {
     public const string AllLoans = "loans-all";
+    public const string AllLoansFullData = "loans-all-full-data";
     public static string LoanById(Guid id) => $"loan-{id}";
     public static string LoanByApplicantId(Guid applicantId) => $"loan-applicant-{applicantId}";
   }
@@ -19,6 +20,7 @@ public static class LoanCacheService
   public static async Task InvalidateAllLoanCaches(HybridCache cache, CancellationToken ct = default)
   {
     await cache.RemoveAsync(Keys.AllLoans, ct);
+    await cache.RemoveAsync(Keys.AllLoansFullData, ct);
   }
 
   /// <summary>
@@ -43,6 +45,6 @@ public static class LoanCacheService
   public static async Task InvalidateLoanCacheByApplicant(HybridCache cache, Guid applicantId, CancellationToken ct = default)
   {
     await cache.RemoveByTagAsync(Keys.LoanByApplicantId(applicantId), ct);
-    await cache.RemoveAsync(Keys.AllLoans, ct);
+    await InvalidateAllLoanCaches(cache, ct); // Garante que a listagem seja atualizada
   }
 }

@@ -83,6 +83,17 @@ public record ResponseLoanListDTO(
   string? Message
 );
 
+public record ResponseLoanListFullDataDTO(
+  [property: SwaggerSchema(Description = "HTTP status code of the response")]
+  HttpStatusCode Status,
+  [property: SwaggerSchema(Description = "Count of loans returned", Format = "int32")]
+  int Count,
+  [property: SwaggerSchema(Description = "List of loan data", Nullable = true)]
+  List<ResponseEntityLoanDTO>? Data,
+  [property: SwaggerSchema(Description = "Additional message information", Nullable = true)]
+  string? Message
+);
+
 // Response Controller
 public record ResponseControllerLoanDTO(
   [property: SwaggerSchema(Description = "Indicates whether the operation was successful")]
@@ -101,6 +112,18 @@ public record ResponseControllerLoanListDTO(
   int Count,
   [property: SwaggerSchema(Description = "List of loan data if the operation was successful", Nullable = true)]
   List<ResponseEntityLoanListDTO>? Data,
+  [property:
+    SwaggerSchema(Description = "Message providing additional information about the operation", Nullable = true)]
+  string? Message
+);
+
+public record ResponseControllerLoanListFullDataDTO(
+  [property: SwaggerSchema(Description = "Indicates whether the operation was successful")]
+  bool Success,
+  [property: SwaggerSchema(Description = "Count of loans returned", Format = "int32")]
+  int Count,
+  [property: SwaggerSchema(Description = "List of loan data if the operation was successful", Nullable = true)]
+  List<ResponseEntityLoanDTO>? Data,
   [property:
     SwaggerSchema(Description = "Message providing additional information about the operation", Nullable = true)]
   string? Message
