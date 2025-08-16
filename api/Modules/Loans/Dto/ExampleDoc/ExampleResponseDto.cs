@@ -230,7 +230,7 @@ namespace api.Modules.Loans.Dto.ExampleDoc
         Count: 1,
         Data: [new ResponseEntityLoanDTO(
           Id: Guid.NewGuid(),
-          ImageUrl: "https://example.com/image.jpg",
+          ImageUrl: null,
           ReturnDate: DateTime.UtcNow.AddDays(7),
           Reason: "Loaning item for temporary use",
           IsActive: true,
