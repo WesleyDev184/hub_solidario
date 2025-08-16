@@ -181,7 +181,7 @@ public static class LoanController
       typeof(ResponseControllerLoanListFullDataDTO))]
     [SwaggerResponseExample(
       StatusCodes.Status200OK,
-      typeof(ExampleResponseGetAllLoanDto))]
+      typeof(ExampleResponseGetLoansFullDataDto))]
     async (UserManager<User> userManager, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
     {
       var cacheKey = LoanCacheService.Keys.AllLoansFullData;
