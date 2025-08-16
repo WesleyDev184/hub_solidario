@@ -44,9 +44,6 @@ public class ApiKeyAuthMiddleware
 
     var apiKey = Environment.GetEnvironmentVariable("API_KEY");
 
-    // printa o valor da chave API_KEY
-    Console.WriteLine($"API_KEY: {apiKey}, Extracted API Key: {extractedApiKey}");
-
     // Tratar espaços e quebras de linha
     var apiKeyTrimmed = apiKey?.Trim();
     var extractedApiKeyTrimmed = extractedApiKey.ToString().Trim();

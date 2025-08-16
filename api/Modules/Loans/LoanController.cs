@@ -170,6 +170,43 @@ public static class LoanController
         }).RequireAuthorization()
       .WithName("GetLoans");
 
+    loanGroup.MapGet("/full-data",
+    [SwaggerOperation(
+      Summary = "Get all loans with full data",
+      Description = "Retrieves a list of all loans in the system with full data.")
+    ]
+    [SwaggerResponse(
+      StatusCodes.Status200OK,
+      "Loans retrieved successfully.",
+      typeof(ResponseControllerLoanListFullDataDTO))]
+    [SwaggerResponseExample(
+      StatusCodes.Status200OK,
+      typeof(ExampleResponseGetAllLoanDto))]
+    async (UserManager<User> userManager, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+    {
+      var cacheKey = LoanCacheService.Keys.AllLoansFullData;
+
+      // Tentar obter do cache primeiro
+      var cachedResponse = await cache.GetOrCreateAsync(
+        cacheKey,
+        async cancel => await LoanService.GetLoansFullData(context, userManager, cancel),
+        options: new HybridCacheEntryOptions
+        {
+          Expiration = TimeSpan.FromDays(2),
+          LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
+        },
+        cancellationToken: ct,
+        tags: new[] { "loans" }
+        );
+
+      return Results.Ok(new ResponseControllerLoanListFullDataDTO(
+        cachedResponse.Status == HttpStatusCode.OK,
+        cachedResponse.Count,
+        cachedResponse.Data,
+        cachedResponse.Message));
+    }).RequireAuthorization()
+  .WithName("GetLoansFullData");
+
     loanGroup.MapPatch("/{id:guid}",
         [
           SwaggerOperation(

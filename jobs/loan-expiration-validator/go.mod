@@ -1,4 +1,4 @@
-module notificador-firebase
+module exv
 
 go 1.25.0
 

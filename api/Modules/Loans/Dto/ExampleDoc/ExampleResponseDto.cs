@@ -221,6 +221,68 @@ namespace api.Modules.Loans.Dto.ExampleDoc
     }
   }
 
+  public class ExampleResponseGetLoansFullDataDto : IExamplesProvider<ResponseControllerLoanListFullDataDTO>
+  {
+    public ResponseControllerLoanListFullDataDTO GetExamples()
+    {
+      return new ResponseControllerLoanListFullDataDTO(
+        Success: true,
+        Count: 1,
+        Data: [new ResponseEntityLoanDTO(
+          Id: Guid.NewGuid(),
+          ImageUrl: "https://example.com/image.jpg",
+          ReturnDate: DateTime.UtcNow.AddDays(7),
+          Reason: "Loaning item for temporary use",
+          IsActive: true,
+          Item: new ResponseEntityItemDTO(
+            Id: Guid.NewGuid(),
+            SeriaCode: 12345,
+            Status: "Available",
+            StockId: Guid.NewGuid(),
+            CreatedAt: DateTime.UtcNow
+          ),
+          Applicant: new ResponseEntityApplicantsDTO(
+            Id: Guid.NewGuid(),
+            Name: "John Doe",
+            CPF: "12345678901",
+            Email: "john.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "123 Main St",
+            IsBeneficiary: true,
+            BeneficiaryQtd: 1,
+            CreatedAt: DateTime.UtcNow,
+            Dependents: null,
+            Hub: null,
+            ProfileImageUrl: "https://example.com/profile.jpg"
+          ),
+           Dependent: new ResponseEntityDependentDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Doe",
+            CPF: "98765432100",
+            Email: "jane.doe@example.com",
+            PhoneNumber: "11999999999",
+            Address: "456 Elm St",
+            ApplicantId: Guid.NewGuid(),
+            ProfileImageUrl: null,
+            CreatedAt: DateTime.UtcNow
+          ),
+          Responsible: new ResponseEntityUserDTO(
+            Id: Guid.NewGuid(),
+            Name: "Jane Smith",
+            Email: "jane.smith@example.com",
+            PhoneNumber: "11888888888",
+             DeviceToken: "exampleDeviceToken",
+            Hub: null,
+            CreatedAt: DateTime.UtcNow
+          ),
+          CreatedAt: DateTime.UtcNow
+        )],
+        Message: "Loan retrieved successfully"
+      );
+    }
+  }
+
+
   // Example for Get Single Loan response (HTTP 200)
   public class ExampleResponseGetLoanDto : IExamplesProvider<ResponseControllerLoanDTO>
   {

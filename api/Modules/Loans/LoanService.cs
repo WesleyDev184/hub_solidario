@@ -195,6 +195,65 @@ public static class LoanService
   /// <summary>
   /// Retrieves a list of all active loans, including summarized details of related item, applicant, and responsible user.
   /// </summary>
+  public static async Task<ResponseLoanListFullDataDTO> GetLoansFullData(
+    ApiDbContext context,
+    UserManager<User> userManager,
+    CancellationToken ct)
+  {
+    // Select only necessary data to improve performance
+    var loansData = await context.Loans.AsNoTracking()
+      .Include(l => l.Applicant)
+      .Include(l => l.Dependent) // Include dependent if needed
+      .Include(l => l.Item)
+      .Where(l => l.IsActive)
+      .OrderByDescending(l => l.CreatedAt)
+      .ToListAsync(ct);
+
+    if (loansData.Count == 0)
+    {
+      return new ResponseLoanListFullDataDTO(HttpStatusCode.OK, 0, new List<ResponseEntityLoanDTO>(),
+        "No active loans found.");
+    }
+
+    // Efficiently fetch all responsible user names in one go
+    var responsibleIds = loansData.Select(l => l.ResponsibleId).Distinct().ToList();
+    var responsibleInfo = await userManager.Users
+      .Where(u => responsibleIds.Contains(u.Id))
+      .ToDictionaryAsync(
+      u => u.Id,
+      u => new
+      {
+        u.Name,
+        u.Email,
+        u.PhoneNumber,
+        u.DeviceToken,
+        u.CreatedAt
+      }, ct);
+
+    // Map the collected data to the response DTOs
+    var responseLoans = loansData.Select(l => MapToResponseEntityLoanDto(
+      null, // ImageUrl is not included in this version
+      l,
+      l.Item,
+      l.Applicant,
+      l.Dependent,
+       new ResponseEntityUserDTO(
+        l.ResponsibleId,
+        responsibleInfo.GetValueOrDefault(l.ResponsibleId)?.Name ?? string.Empty,
+        responsibleInfo.GetValueOrDefault(l.ResponsibleId)?.Email ?? string.Empty,
+        responsibleInfo.GetValueOrDefault(l.ResponsibleId)?.PhoneNumber ?? string.Empty,
+        responsibleInfo.GetValueOrDefault(l.ResponsibleId)?.DeviceToken ?? string.Empty,
+        null, // Roles not included here for simplicity, adjust as needed
+        responsibleInfo.GetValueOrDefault(l.ResponsibleId)?.CreatedAt ?? DateTime.UtcNow
+    )
+    )).ToList();
+
+    return new ResponseLoanListFullDataDTO(HttpStatusCode.OK, loansData.Count, responseLoans, "Loans retrieved successfully.");
+  }
+
+  /// <summary>
+  /// Retrieves a list of all active loans, including summarized details of related item, applicant, and responsible user.
+  /// </summary>
   public static async Task<ResponseLoanListDTO> GetLoans(
     ApiDbContext context,
     UserManager<User> userManager,
