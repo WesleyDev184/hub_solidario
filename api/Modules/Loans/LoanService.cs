@@ -203,7 +203,6 @@ public static class LoanService
     // Select only necessary data to improve performance
     var loansData = await context.Loans.AsNoTracking()
       .Include(l => l.Applicant)
-      .Include(l => l.Dependent) // Include dependent if needed
       .Include(l => l.Item)
       .Where(l => l.IsActive)
       .OrderByDescending(l => l.CreatedAt)
@@ -236,7 +235,7 @@ public static class LoanService
       l,
       l.Item,
       l.Applicant,
-      l.Dependent,
+      null,
        new ResponseEntityUserDTO(
         l.ResponsibleId,
         responsibleInfo.GetValueOrDefault(l.ResponsibleId)?.Name ?? string.Empty,
