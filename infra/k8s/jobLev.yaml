@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: loan-expiration-validator
+spec:
+  schedule: "0 18 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: loan-expiration-validator
+              image: registry.core.hubsolidario.com/hubs/lev-job:latest
+              env:
+                - name: API_URL
+                  value: https://api.core.hubsolidario.com/loans
+                - name: API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: api-env-secret
+                      key: API_KEY
+              volumeMounts:
+                - name: hubapp-config
+                  mountPath: /app/hubapp.json
+                  subPath: hubapp.json
+          volumes:
+            - name: hubapp-config
+              secret:
+                secretName: hubapp-secret
