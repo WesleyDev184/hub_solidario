@@ -1,2 +1,2 @@
 .env*
-k8s/api-secret.yaml
+k8s/secrets.yaml
