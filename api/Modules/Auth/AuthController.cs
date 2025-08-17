@@ -61,19 +61,20 @@ namespace api.Modules.Auth
             User? user = await signInManager.UserManager.FindByEmailAsync(login.Email);
             if (user == null)
             {
-              return TypedResults.Problem("User not found", statusCode: StatusCodes.Status404NotFound);
-            }
+                return TypedResults.Problem("User not found", statusCode: StatusCodes.Status404NotFound);
+              }
 
-            if (login.DeviceToken != null)
-            {
-              user.DeviceToken = login.DeviceToken;
-              IdentityResult updateResult = await signInManager.UserManager.UpdateAsync(user);
-              if (!updateResult.Succeeded)
+              // Só atualiza se DeviceToken foi realmente enviado e é diferente do atual
+              if (!string.IsNullOrWhiteSpace(login.DeviceToken) && login.DeviceToken != user.DeviceToken)
               {
+                user.DeviceToken = login.DeviceToken;
+                IdentityResult updateResult = await signInManager.UserManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
                 return TypedResults.Problem("Error updating user device token",
                   statusCode: StatusCodes.Status500InternalServerError);
+                }
               }
-            }
 
             return TypedResults.Empty;
           })
