@@ -36,6 +36,7 @@ func main() {
 		loansByToken[loan.DeviceToken] = append(loansByToken[loan.DeviceToken], loan)
 	}
 
+	// enviar caso de empréstimos próximos do vencimento
 	for token, loans := range loansByToken {
 		body := "Os seguintes empréstimos estão para finalizar:\n"
 		for _, loan := range loans {
