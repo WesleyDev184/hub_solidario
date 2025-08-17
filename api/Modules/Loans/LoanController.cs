@@ -167,7 +167,7 @@ public static class LoanController
             cachedResponse.Count,
             cachedResponse.Data,
             cachedResponse.Message));
-        }).RequireAuthorization()
+        })
       .WithName("GetLoans");
 
     loanGroup.MapPatch("/{id:guid}",
@@ -273,4 +273,5 @@ public static class LoanController
         }).RequireAuthorization()
       .WithName("DeleteLoan");
   }
+
 }
