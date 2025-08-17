@@ -25,4 +25,11 @@ func main() {
 		log.Fatalln(err)
 	}
 	log.Println("Notificação enviada com sucesso:", response)
+
+	loans, err := modules.FetchLoans()
+	if err != nil {
+		log.Fatalf("erro ao buscar empréstimos: %v\n", err)
+	}
+
+	log.Println("Empréstimos encontrados:", loans)
 }
