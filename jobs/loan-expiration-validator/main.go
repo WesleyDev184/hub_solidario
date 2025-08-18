@@ -32,8 +32,8 @@ func main() {
 		}
 		daysLeft := returnDate.Sub(now).Hours() / 24
 		if daysLeft <= 7 && daysLeft >= 0 {
+			loansByToken[loan.DeviceToken] = append(loansByToken[loan.DeviceToken], loan)
 		}
-		loansByToken[loan.DeviceToken] = append(loansByToken[loan.DeviceToken], loan)
 	}
 
 	// enviar caso de empréstimos próximos do vencimento
