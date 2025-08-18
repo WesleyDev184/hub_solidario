@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -46,7 +47,7 @@ func FetchLoans() ([]Loan, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("x-api-key", apiKey)
+	req.Header.Set("x-api-key", strings.TrimSpace(apiKey))
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
