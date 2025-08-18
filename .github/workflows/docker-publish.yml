@@ -176,9 +176,9 @@ jobs:
         run: |
           kubectl rollout restart deployment/api -n core
 
-      # - name: Restart CronJob
-      #   run: |
-      #     # create a Job from the CronJob with a timestamped name to avoid name collisions
-      #     # the Pod will use the image and imagePullPolicy defined in the CronJob (imagePullPolicy: Always)
-      #     TS=$(date +%s)
-      #     kubectl create job loan-expiration-validator-${TS} --from=cronjob/loan-expiration-validator -n core
+      - name: Restart CronJob
+        run: |
+          # create a Job from the CronJob with a timestamped name to avoid name collisions
+          # the Pod will use the image and imagePullPolicy defined in the CronJob (imagePullPolicy: Always)
+          TS=$(date +%s)
+          kubectl create job loan-expiration-validator-${TS} --from=cronjob/loan-expiration-validator -n core

@@ -19,8 +19,6 @@ func main() {
 		log.Fatalf("erro ao buscar empréstimos: %v\n", err)
 	}
 
-	log.Println("Empréstimos encontrados:", loans)
-
 	// Notificar empréstimos próximos do vencimento
 	loansByToken := make(map[string][]modules.Loan)
 	now := time.Now()
@@ -32,8 +30,8 @@ func main() {
 		}
 		daysLeft := returnDate.Sub(now).Hours() / 24
 		if daysLeft <= 7 && daysLeft >= 0 {
+			loansByToken[loan.DeviceToken] = append(loansByToken[loan.DeviceToken], loan)
 		}
-		loansByToken[loan.DeviceToken] = append(loansByToken[loan.DeviceToken], loan)
 	}
 
 	// enviar caso de empréstimos próximos do vencimento
