@@ -3,14 +3,19 @@ kind: CronJob
 metadata:
   name: loan-expiration-validator
 spec:
-  schedule: "0 18 * * *"
+  schedule: "* * * * *"
+  timeZone: "America/Sao_Paulo"
   jobTemplate:
     spec:
       template:
         spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: registry-auth-container
           containers:
             - name: loan-expiration-validator
               image: registry.core.hubsolidario.com/hubs/lev-job:latest
+              imagePullPolicy: Always
               env:
                 - name: API_URL
                   value: https://api.core.hubsolidario.com/loans
@@ -19,6 +24,7 @@ spec:
                     secretKeyRef:
                       name: api-env-secret
                       key: API_KEY
+
               volumeMounts:
                 - name: hubapp-config
                   mountPath: /app/hubapp.json
