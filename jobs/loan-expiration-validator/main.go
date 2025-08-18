@@ -19,8 +19,6 @@ func main() {
 		log.Fatalf("erro ao buscar empréstimos: %v\n", err)
 	}
 
-	log.Println("Empréstimos encontrados:", loans)
-
 	// Notificar empréstimos próximos do vencimento
 	loansByToken := make(map[string][]modules.Loan)
 	now := time.Now()
