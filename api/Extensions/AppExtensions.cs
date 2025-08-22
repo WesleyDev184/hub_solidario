@@ -35,7 +35,7 @@ namespace api.Extensions
 
     private static async Task ApplyMigrationsAsync(this WebApplication app)
     {
-      var shouldRunMigrations = Environment.GetEnvironmentVariable("RUN_MIGRATIONS")?.ToLower() == "true";
+      var shouldRunMigrations = DotNetEnv.Env.GetString("RUN_MIGRATIONS")?.Trim().ToLower() == "true";
       if (!shouldRunMigrations)
       {
         Console.WriteLine("Migrations disabled. Set RUN_MIGRATIONS=true to enable.");
