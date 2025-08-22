@@ -86,7 +86,9 @@ class _LoansPageState extends State<LoansPage> {
                       padding: const EdgeInsets.only(bottom: 5.0),
                       child: LoanCard(
                         id: loan.id.toString(),
-                        imageUrl: "assets/images/cr.jpg", // URL padrão
+                        imageUrl:
+                            loan.imageUrl ??
+                            "assets/images/cr.jpg", // URL padrão
                         loan: loan,
                         loadData: () => loansController.loadLoans(),
                       ),

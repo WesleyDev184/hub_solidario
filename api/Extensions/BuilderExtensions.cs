@@ -17,7 +17,7 @@ namespace api.Extensions
       Env.Load();
 
       // Adicionar a chave de API ao IConfiguration
-      builder.Configuration["API_KEY"] = Env.GetString("API_KEY");
+      builder.Configuration["API_KEY"] = Env.GetString("API_KEY")?.Trim();
 
       builder.AddCaching();
       builder.AddSwagger();
@@ -32,10 +32,10 @@ namespace api.Extensions
     {
       var s3Config = new S3Config
       {
-        ServiceURL = Env.GetString("S3_SERVICE_URL"),
-        BucketName = Env.GetString("S3_DEFAULT_BUCKET"),
-        AccessKey = Env.GetString("S3_ACCESS_KEY"),
-        SecretKey = Env.GetString("S3_SECRET_KEY")
+        ServiceURL = Env.GetString("S3_SERVICE_URL")?.Trim() ?? string.Empty,
+        BucketName = Env.GetString("S3_DEFAULT_BUCKET")?.Trim() ?? string.Empty,
+        AccessKey = Env.GetString("S3_ACCESS_KEY")?.Trim() ?? string.Empty,
+        SecretKey = Env.GetString("S3_SECRET_KEY")?.Trim() ?? string.Empty
       };
 
       // 3. (Opcional mas recomendado) Valida se todas as variáveis foram carregadas
@@ -70,7 +70,7 @@ namespace api.Extensions
 
     private static void AddCaching(this WebApplicationBuilder builder)
     {
-      var redisConnectionString = Env.GetString("REDIS_URL");
+      var redisConnectionString = Env.GetString("REDIS_URL")?.Trim();
       builder.Services.AddMemoryCache();
       builder.Services.AddStackExchangeRedisCache(options =>
       {

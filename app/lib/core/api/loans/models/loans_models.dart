@@ -5,6 +5,7 @@ import 'package:app/core/api/stocks/models/items_models.dart';
 /// Modelo de Loan (Empréstimo) - Versão completa
 class Loan {
   final String id;
+  final String? imageUrl;
   final String? reason;
   final bool isActive;
   final DateTime? returnDate;
@@ -17,6 +18,7 @@ class Loan {
 
   const Loan({
     required this.id,
+    this.imageUrl,
     this.reason,
     required this.isActive,
     this.returnDate,
@@ -30,6 +32,7 @@ class Loan {
     try {
       return Loan(
         id: json['id'] as String,
+        imageUrl: json['imageUrl'] as String?,
         reason: json['reason'] as String?,
         isActive: json['isActive'] as bool? ?? true,
         returnDate: json['returnDate'] != null
@@ -58,6 +61,7 @@ class Loan {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'imageUrl': imageUrl,
       'reason': reason,
       'isActive': isActive,
       'returnDate': returnDate?.toIso8601String(),
@@ -106,6 +110,7 @@ class Loan {
 
   Loan copyWith({
     String? id,
+    String? imageUrl,
     String? reason,
     bool? isActive,
     DateTime? returnDate,
@@ -117,6 +122,7 @@ class Loan {
   }) {
     return Loan(
       id: id ?? this.id,
+      imageUrl: imageUrl ?? this.imageUrl,
       reason: reason ?? this.reason,
       isActive: isActive ?? this.isActive,
       returnDate: returnDate ?? this.returnDate,
@@ -146,6 +152,7 @@ class Loan {
 /// Otimizado para diferentes formatos de resposta da API
 class LoanListItem {
   final String id;
+  final String? imageUrl;
   final String? reason;
   final bool isActive;
   final DateTime? returnDate;
@@ -156,6 +163,7 @@ class LoanListItem {
 
   const LoanListItem({
     required this.id,
+    this.imageUrl,
     this.reason,
     required this.isActive,
     this.returnDate,
@@ -169,6 +177,7 @@ class LoanListItem {
   factory LoanListItem.fromLoan(Loan loan) {
     return LoanListItem(
       id: loan.id,
+      imageUrl: loan.imageUrl,
       reason: loan.reason,
       isActive: loan.isActive,
       returnDate: loan.returnDate,
@@ -190,6 +199,7 @@ class LoanListItem {
   factory LoanListItem.fromJson(Map<String, dynamic> json) {
     return LoanListItem(
       id: json['id'] as String,
+      imageUrl: json['imageUrl'] as String?,
       reason: json['reason'] as String?,
       isActive: json['isActive'] as bool? ?? true,
       returnDate: json['returnDate'] != null
@@ -206,6 +216,7 @@ class LoanListItem {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'imageUrl': imageUrl,
       'reason': reason,
       'isActive': isActive,
       'returnDate': returnDate?.toIso8601String(),

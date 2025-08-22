@@ -13,7 +13,7 @@ public class AuthDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     if (!optionsBuilder.IsConfigured)
     {
       Env.Load();
-      var connectionString = Env.GetString("DB_URL");
+      var connectionString = Env.GetString("DB_URL")?.Trim();
       optionsBuilder.UseNpgsql(connectionString);
 
       optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
