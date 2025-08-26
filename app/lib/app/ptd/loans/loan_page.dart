@@ -97,12 +97,18 @@ class _LoanPageState extends State<LoanPage> {
               backgroundColor: CustomColors.primary.withOpacity(0.03),
               elevation: 0,
               flexibleSpace: FlexibleSpaceBar(
-                background: Image.asset(
-                  'assets/images/cr.jpg',
-                  fit: BoxFit.contain,
-                  cacheWidth: 412,
-                  cacheHeight: 220,
-                ),
+                background: _currentLoan != null
+                    ? _buildImageSection(_currentLoan!.imageUrl ?? '')
+                    : Container(
+                        color: CustomColors.primary.withOpacity(0.05),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              CustomColors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
                 collapseMode: CollapseMode.parallax,
               ),
             ),
@@ -436,5 +442,24 @@ class _LoanPageState extends State<LoanPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildImageSection(String imageUrl) {
+    final isAsset = !imageUrl.startsWith('http');
+    return isAsset
+        ? Image.asset(
+            imageUrl,
+            fit: BoxFit.contain,
+            width: double.infinity,
+            height: 220,
+          )
+        : Image.network(
+            imageUrl,
+            fit: BoxFit.contain,
+            width: double.infinity,
+            height: 220,
+            cacheWidth: 412,
+            cacheHeight: 220,
+          );
   }
 }
