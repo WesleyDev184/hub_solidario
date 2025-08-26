@@ -73,3 +73,71 @@ spec:
           port: 5000
   tls:
     certResolver: letsencrypt
+---
+# --- WAHA IngressRoute ---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: waha-ingressroute
+  namespace: core
+spec:
+  entryPoints:
+    - websecure
+    - web
+  routes:
+    - match: Host(`waha.core.hubsolidario.com`)
+      kind: Rule
+      middlewares:
+        - name: basic-auth
+          namespace: core
+      services:
+        - name: waha
+          port: 3000
+  tls:
+    certResolver: letsencrypt
+---
+# --- N8N IngressRoute ---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: n8n-ingressroute
+  namespace: core
+spec:
+  entryPoints:
+    - websecure
+    - web
+  routes:
+    - match: Host(`n8n.core.hubsolidario.com`)
+      kind: Rule
+      middlewares:
+        - name: basic-auth
+          namespace: core
+      services:
+        - name: n8n
+          port: 5678
+  tls:
+    certResolver: letsencrypt
+
+---
+# --- Traefik Middlewares for Basic Auth ---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: basic-auth
+  namespace: core
+spec:
+  basicAuth:
+    # Reference to a Kubernetes Secret in the same namespace that contains the htpasswd users
+    # Using a single shared secret so both apps use the same credentials
+    secret: basic-auth-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: basic-auth-secret
+  namespace: core
+type: Opaque
+data:
+  # Replace the value below with a base64-encoded htpasswd line (one or more users, one per line)
+  # Example decoded format: "admin:$2y$..." or "user:$apr1$..."
+  users: "YWRtaW46JDJ5JDA1JDJpbGJ2bmZUcWt5RWd6WklUcy9GQU9UcURkV2JqQ0JZQi84cFBEci5VMFVBcTFCMWJ1bUoy"

@@ -126,10 +126,58 @@ services:
       db:
         condition: service_healthy
 
+  waha:
+    image: devlikeapro/waha:latest
+    platform: linux/amd64
+    restart: always
+    networks:
+      - proxy
+    environment:
+      WHATSAPP_HOOK_URL: https://n8n.prod.hubsolidario.com/webhook/webhook
+      WHATSAPP_DEFAULT_ENGINE: GOWS
+      WHATSAPP_HOOK_EVENTS: message
+    volumes:
+      - waha_sessions:/app/.sessions
+      - waha_media:/app/.media
+    ports:
+      - "3000:3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.waha.rule=Host(`waha.prod.hubsolidario.com`)"
+      - "traefik.http.services.waha.loadbalancer.server.port=3000"
+      - "traefik.http.routers.waha.entrypoints=websecure"
+      - "traefik.http.routers.waha.tls.certresolver=myresolver"
+
+  n8n:
+    image: n8nio/n8n:latest
+    platform: linux/amd64
+    restart: always
+    networks:
+      - proxy
+    environment:
+      WEBHOOK_URL: https://n8n.prod.hubsolidario.com
+      N8N_HOST: 0.0.0.0
+      GENERIC_TIMEZONE: America/Sao_Paulo
+      N8N_LOG_LEVEL: debug
+      N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE: true
+    volumes:
+      - n8n_data:/home/node/.n8n
+    ports:
+      - "5678:5678"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.prod.hubsolidario.com`)"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.tls.certresolver=myresolver"
+
 volumes:
   postgres-data:
   letsencrypt:
   minio-data:
+  waha_sessions:
+  waha_media:
+  n8n_data:
 
 networks:
   proxy:

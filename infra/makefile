@@ -30,6 +30,22 @@ logs:
 restart-api:
 	ssh $(server) "kubectl rollout restart deployment/api -n $(namespace)"
 
+restart-waha:
+	ssh $(server) "kubectl rollout restart deployment/waha -n $(namespace)"
+
+restart-n8n:
+	ssh $(server) "kubectl rollout restart deployment/n8n -n $(namespace)"
+
+# View logs for specific services
+logs-api:
+	ssh $(server) "kubectl logs -f deployment/api -n $(namespace)"
+
+logs-waha:
+	ssh $(server) "kubectl logs -f deployment/waha -n $(namespace)"
+
+logs-n8n:
+	ssh $(server) "kubectl logs -f deployment/n8n -n $(namespace)"
+
 # Get pod status
 status:
 	ssh $(server) "kubectl get pods -n $(namespace)"
