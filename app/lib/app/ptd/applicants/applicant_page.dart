@@ -4,8 +4,10 @@ import 'package:app/core/api/applicants/controllers/applicants_controller.dart';
 import 'package:app/core/api/applicants/models/applicants_models.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/utils/utils.dart' as utils;
+import 'package:app/core/widgets/accordion_section.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/avatar.dart';
+import 'package:app/core/widgets/info_row.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,8 +27,6 @@ class _ApplicantPageState extends State<ApplicantPage> {
   final _applicantsController = Get.find<ApplicantsController>();
 
   Applicant? applicant;
-  // Track expanded/collapsed state per section title (accordion behavior)
-  final Map<String, bool> _sectionExpanded = {};
 
   @override
   void initState() {
@@ -112,7 +112,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
             // Header with avatar included
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: _buildHeader(currentApplicant),
+              child: _buildHeader(),
             ),
 
             // Sections
@@ -120,126 +120,142 @@ class _ApplicantPageState extends State<ApplicantPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  _buildSectionCard('Contato', LucideIcons.phone, [
-                    _buildInfoRow(
-                      LucideIcons.idCard,
-                      'CPF',
-                      currentApplicant.cpf ?? 'CPF não informado',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      LucideIcons.phone,
-                      'Telefone',
-                      currentApplicant.phoneNumber ?? 'Telefone não informado',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      LucideIcons.mail,
-                      'Email',
-                      currentApplicant.email ?? 'Email não informado',
-                    ),
-                  ]),
+                  AccordionSection(
+                    title: 'Contato',
+                    icon: LucideIcons.phone,
+                    children: [
+                      InfoRow(
+                        icon: LucideIcons.idCard,
+                        label: 'CPF',
+                        value: currentApplicant.cpf ?? 'CPF não informado',
+                      ),
+                      const SizedBox(height: 12),
+                      InfoRow(
+                        icon: LucideIcons.phone,
+                        label: 'Telefone',
+                        value:
+                            currentApplicant.phoneNumber ??
+                            'Telefone não informado',
+                      ),
+                      const SizedBox(height: 12),
+                      InfoRow(
+                        icon: LucideIcons.mail,
+                        label: 'Email',
+                        value: currentApplicant.email ?? 'Email não informado',
+                      ),
+                    ],
+                  ),
 
-                  _buildSectionCard('Endereço', LucideIcons.house, [
-                    if (currentApplicant.address != null &&
-                        currentApplicant.address!.isNotEmpty)
-                      ...currentApplicant.address!
-                          .split('\n')
-                          .map(
-                            (line) => Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: Text(
-                                line,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: CustomColors.textPrimary,
+                  AccordionSection(
+                    title: 'Endereço',
+                    icon: LucideIcons.house,
+                    children: [
+                      if (currentApplicant.address != null &&
+                          currentApplicant.address!.isNotEmpty)
+                        ...currentApplicant.address!
+                            .split('\n')
+                            .map(
+                              (line) => Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  line,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: CustomColors.textPrimary,
+                                  ),
                                 ),
                               ),
-                            ),
-                          )
-                    else
-                      const Text(
-                        'Endereço não informado',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                  ]),
-
-                  _buildSectionCard('Dependentes', LucideIcons.users, [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${currentApplicant.dependents?.length ?? 0} dependente(s)',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: CustomColors.textSecondary,
-                          ),
+                            )
+                      else
+                        const Text(
+                          'Endereço não informado',
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (currentApplicant.dependents == null ||
-                        currentApplicant.dependents!.isEmpty)
-                      Center(
-                        child: Column(
-                          children: const [
-                            Icon(
-                              LucideIcons.users,
-                              size: 48,
-                              color: Colors.grey,
+                    ],
+                  ),
+
+                  AccordionSection(
+                    title: 'Dependentes',
+                    icon: LucideIcons.users,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '${currentApplicant.dependents?.length ?? 0} dependente(s)',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: CustomColors.textSecondary,
                             ),
-                            SizedBox(height: 12),
-                            Text(
-                              'Nenhum dependente cadastrado',
-                              style: TextStyle(
-                                fontSize: 14,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (currentApplicant.dependents == null ||
+                          currentApplicant.dependents!.isEmpty)
+                        Center(
+                          child: Column(
+                            children: const [
+                              Icon(
+                                LucideIcons.users,
+                                size: 48,
                                 color: Colors.grey,
                               ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      Column(
-                        children: currentApplicant.dependents!.map((dependent) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: InkWell(
-                              onTap: () {
-                                context.go(
-                                  RoutePaths.ptd.dependentId(
-                                    widget.applicantId,
-                                    dependent.id,
-                                  ),
-                                );
-                              },
-                              child: DependentCard(
-                                dependent: dependent,
-                                imageUrl: dependent.profileImageUrl,
-                                applicantName: applicant?.name ?? 'Solicitante',
-                                onEdit: () {
-                                  context.go(
-                                    RoutePaths.ptd.dependentEdit(
-                                      widget.applicantId,
-                                      dependent.id,
-                                    ),
-                                  );
-                                },
-                                onDelete: () {
-                                  context.go(
-                                    RoutePaths.ptd.dependentDelete(
-                                      widget.applicantId,
-                                      dependent.id,
-                                    ),
-                                  );
-                                },
+                              SizedBox(height: 12),
+                              Text(
+                                'Nenhum dependente cadastrado',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
                               ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                  ]),
-
+                            ],
+                          ),
+                        )
+                      else
+                        Column(
+                          children: currentApplicant.dependents!.map((
+                            dependent,
+                          ) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: InkWell(
+                                onTap: () {
+                                  context.go(
+                                    RoutePaths.ptd.dependentId(
+                                      widget.applicantId,
+                                      dependent.id,
+                                    ),
+                                  );
+                                },
+                                child: DependentCard(
+                                  dependent: dependent,
+                                  imageUrl: dependent.profileImageUrl,
+                                  applicantName:
+                                      applicant?.name ?? 'Solicitante',
+                                  onEdit: () {
+                                    context.go(
+                                      RoutePaths.ptd.dependentEdit(
+                                        widget.applicantId,
+                                        dependent.id,
+                                      ),
+                                    );
+                                  },
+                                  onDelete: () {
+                                    context.go(
+                                      RoutePaths.ptd.dependentDelete(
+                                        widget.applicantId,
+                                        dependent.id,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
                   const SizedBox(height: 100),
                 ],
               ),
@@ -257,69 +273,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: CustomColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: CustomColors.textSecondary.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: CustomColors.primary.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  CustomColors.primary.withOpacity(0.12),
-                  CustomColors.primary.withOpacity(0.06),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: CustomColors.primary, size: 18),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: CustomColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: CustomColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(Applicant currentApplicant) {
+  Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -349,7 +303,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Avatar(
-                imageUrl: currentApplicant.profileImageUrl,
+                imageUrl: applicant?.profileImageUrl ?? '',
                 size: 72,
                 isNetworkImage: true,
               ),
@@ -359,7 +313,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      currentApplicant.name ?? 'Solicitante',
+                      applicant?.name ?? 'Solicitante',
                       // allow long names to wrap to multiple lines instead of
                       // being truncated; keep styling the same
                       softWrap: true,
@@ -399,7 +353,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
                     ],
                   ),
                   child: Text(
-                    currentApplicant.isBeneficiary
+                    (applicant != null && applicant!.isBeneficiary)
                         ? 'Beneficiário'
                         : 'Não Beneficiário',
                     overflow: TextOverflow.ellipsis,
@@ -416,7 +370,7 @@ class _ApplicantPageState extends State<ApplicantPage> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Desde: ${utils.DateUtils.formatDateBR(currentApplicant.createdAt)}',
+            'Desde: ${utils.DateUtils.formatDateBR(applicant?.createdAt ?? DateTime.now())}',
             style: TextStyle(
               fontSize: 13,
               color: CustomColors.white.withOpacity(0.85),
@@ -431,117 +385,5 @@ class _ApplicantPageState extends State<ApplicantPage> {
     return (applicant != null && applicant!.isBeneficiary)
         ? CustomColors.success
         : CustomColors.error;
-  }
-
-  Widget _buildSectionCard(
-    String title,
-    IconData titleIcon,
-    List<Widget> children, {
-    bool collapsible = true,
-    bool initiallyExpanded = true,
-  }) {
-    final expanded = _sectionExpanded[title] ?? initiallyExpanded;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: CustomColors.primary.withOpacity(0.015),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: CustomColors.primary.withOpacity(0.06),
-          width: 0.8,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: CustomColors.primary.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header: tappable when collapsible
-          InkWell(
-            onTap: collapsible
-                ? () {
-                    setState(() {
-                      _sectionExpanded[title] = !expanded;
-                    });
-                  }
-                : null,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    CustomColors.primary.withOpacity(0.05),
-                    CustomColors.primary.withOpacity(0.01),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  topRight: Radius.circular(18),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: CustomColors.primary.withOpacity(0.06),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      titleIcon,
-                      color: CustomColors.primary.withOpacity(0.7),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: CustomColors.primary.withOpacity(0.7),
-                      ),
-                    ),
-                  ),
-                  if (collapsible)
-                    Icon(
-                      expanded
-                          ? LucideIcons.chevronUp
-                          : LucideIcons.chevronDown,
-                      color: CustomColors.primary.withOpacity(0.7),
-                      size: 20,
-                    ),
-                ],
-              ),
-            ),
-          ),
-
-          // Animated body
-          AnimatedCrossFade(
-            firstChild: const SizedBox.shrink(),
-            secondChild: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(children: children),
-            ),
-            crossFadeState: expanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 200),
-            firstCurve: Curves.easeInOut,
-            secondCurve: Curves.easeInOut,
-          ),
-        ],
-      ),
-    );
   }
 }
