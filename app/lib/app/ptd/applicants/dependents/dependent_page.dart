@@ -91,7 +91,6 @@ class _DependentPageState extends State<DependentPage> {
   @override
   Widget build(BuildContext context) {
     final dependent = _dependent;
-    final imageUrl = dependent?.profileImageUrl ?? '';
     final dependentName = dependent?.name ?? '';
     final dependentCpf = dependent?.cpf ?? '';
     final dependentPhone = dependent?.phoneNumber ?? '';
