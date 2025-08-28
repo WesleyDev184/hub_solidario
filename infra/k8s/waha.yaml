@@ -21,6 +21,8 @@ spec:
           env:
             - name: WHATSAPP_HOOK_URL
               value: "http://n8n:5678/webhook/webhook"
+            - name: WHATSAPP_HOOK_EVENTS
+              value: "message.any"
             - name: WHATSAPP_DEFAULT_ENGINE
               value: "GOWS"
             - name: WHATSAPP_HOOK_EVENTS
