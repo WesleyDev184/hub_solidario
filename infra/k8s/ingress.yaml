@@ -109,9 +109,6 @@ spec:
   routes:
     - match: Host(`n8n.core.hubsolidario.com`)
       kind: Rule
-      middlewares:
-        - name: basic-auth
-          namespace: core
       services:
         - name: n8n
           port: 5678
