@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HUB Solidário - Gestão que Transforma</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .hero-bg {
+      background-color: #f0f4ff;
+    }
+
+    .text-primary {
+      color: #0052cc;
+    }
+
+    .bg-primary {
+      background-color: #0052cc;
+    }
+
+    .border-primary {
+      border-color: #0052cc;
+    }
+
+    .hover\:bg-primary-dark:hover {
+      background-color: #0041a3;
+    }
+
+    .feature-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+
+<body class="bg-white text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="#" class="flex items-center space-x-2">
+        <img src="https://s3.core.hubsolidario.com/mock/HUBS_blue.png" alt="Logo HUB Solidário" class="h-10 w-10">
+        <span class="text-2xl font-bold text-primary">HUB Solidário</span>
+      </a>
+      <div class="flex items-center justify-end flex-1">
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="#inicio" class="text-gray-600 hover:text-primary transition">Início</a>
+          <a href="#recursos" class="text-gray-600 hover:text-primary transition">Recursos</a>
+          <a href="#sobre" class="text-gray-600 hover:text-primary transition">Sobre Nós</a>
+          <a href="#contato" class="text-gray-600 hover:text-primary transition">Contato</a>
+        </nav>
+        <button id="mobile-menu-button"
+          class="md:hidden p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100 focus:outline-none ml-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-2">
+      <a href="#inicio" class="block text-gray-600 hover:text-primary transition py-2">Início</a>
+      <a href="#recursos" class="block text-gray-600 hover:text-primary transition py-2">Recursos</a>
+      <a href="#sobre" class="block text-gray-600 hover:text-primary transition py-2">Sobre Nós</a>
+      <a href="#contato" class="block text-gray-600 hover:text-primary transition py-2">Contato</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section id="inicio" class="hero-bg py-20 lg:py-32">
+      <div class="container mx-auto px-6 text-center lg:text-left grid lg:grid-cols-2 gap-12 items-center">
+        <div class="wow fadeInUp" data-wow-delay="0.2s">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+            <span class="text-primary">Gestão que Transforma:</span> Simplificando o dia a dia.
+          </h1>
+          <p class="text-lg text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0">
+            O HUB Solidário centraliza o controle de doações, empréstimos, estoque e pessoas em uma plataforma
+            intuitiva e poderosa.
+          </p>
+          <a href="#"
+            class="bg-primary text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-primary-dark transition shadow-lg transform hover:scale-105">
+            Comece a usar agora
+          </a>
+        </div>
+        <div class="wow fadeInUp" data-wow-delay="0.4s">
+          <div class="relative mx-auto" style="max-width: 450px;">
+            <div class="absolute -top-4 -left-4 w-full h-full bg-primary rounded-lg transform rotate-[-3deg]"></div>
+            <img src="https://s3.core.hubsolidario.com/mock/stocks.jpeg" alt="Mockup do Aplicativo"
+              class="rounded-lg shadow-2xl relative z-10 w-full h-auto" style="max-width: 400px;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="recursos" class="py-20">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold text-gray-900">Tudo que você precisa em um só lugar</h2>
+          <p class="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">Gerencie todos os aspectos da sua organização de forma
+            integrada e eficiente.</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <!-- Feature 1 -->
+          <div class="feature-card bg-white p-8 rounded-xl shadow-md border border-gray-100">
+            <div class="flex justify-center mb-6">
+              <div
+                class="bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-lg transition-transform hover:scale-105 hover:shadow-2xl"
+                style="width:120px; height:240px; display:flex; align-items:center; justify-content:center;">
+                <img src="https://s3.core.hubsolidario.com/mock/stock.jpeg" alt="[Imagem do estoque de bota ortopédica]"
+                  class="rounded-lg w-auto h-full object-contain">
+              </div>
+            </div>
+            <h3 class="text-2xl font-semibold text-gray-900 mb-3 text-center">Estoque Inteligente</h3>
+            <p class="text-gray-600 text-center">Controle total sobre seus itens, desde doações recebidas até a
+              disponibilidade para empréstimo ou entrega definitiva.</p>
+          </div>
+          <!-- Feature 2 -->
+          <div class="feature-card bg-white p-8 rounded-xl shadow-md border border-gray-100">
+            <div class="flex justify-center mb-6">
+              <div
+                class="bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-lg transition-transform hover:scale-105 hover:shadow-2xl"
+                style="width:120px; height:240px; display:flex; align-items:center; justify-content:center;">
+                <img src="https://s3.core.hubsolidario.com/mock/loans.jpeg" alt="[Imagem de empréstimos ativos]"
+                  class="rounded-lg w-auto h-full object-contain">
+              </div>
+            </div>
+            <h3 class="text-2xl font-semibold text-gray-900 mb-3 text-center">Empréstimos Ativos</h3>
+            <p class="text-gray-600 text-center">Acompanhe todos os empréstimos em tempo real, com históricos
+              detalhados, prazos de devolução e status atualizados.</p>
+          </div>
+          <!-- Feature 3 -->
+          <div class="feature-card bg-white p-8 rounded-xl shadow-md border border-gray-100">
+            <div class="flex justify-center mb-6">
+              <div
+                class="bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-lg transition-transform hover:scale-105 hover:shadow-2xl"
+                style="width:120px; height:240px; display:flex; align-items:center; justify-content:center;">
+                <img src="https://s3.core.hubsolidario.com/mock/applicant.jpeg"
+                  alt="[Imagem do perfil de um solicitante]" class="rounded-lg w-auto h-full object-contain">
+              </div>
+            </div>
+            <h3 class="text-2xl font-semibold text-gray-900 mb-3 text-center">Gestão de Pessoas</h3>
+            <p class="text-gray-600 text-center">Mantenha um cadastro completo de solicitantes e seus dependentes,
+              facilitando o atendimento e o acompanhamento.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="sobre" class="hero-bg py-20">
+      <div class="container mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <img src="https://s3.core.hubsolidario.com/mock/HUBS(text)_blue.png"
+            alt="Logo com texto HUB Solidário - Gestão que Transforma" class="max-w-md mx-auto">
+        </div>
+        <div>
+          <h2 class="text-4xl font-bold text-gray-900 mb-6">Nossa Missão</h2>
+          <p class="text-lg text-gray-600 mb-4">
+            Acreditamos no poder da tecnologia para impulsionar o bem. O HUB Solidário nasceu com a missão de fortalecer
+            organizações beneficentes, oferecendo uma ferramenta que otimiza a gestão de recursos e libera mais tempo
+            para o que realmente importa: cuidar das pessoas.
+          </p>
+          <p class="text-lg text-gray-600">
+            Queremos ser o parceiro tecnológico que ajuda sua causa a alcançar ainda mais vidas, com organização,
+            transparência e eficiência.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-primary text-white py-20">
+      <div class="container mx-auto px-6 text-center">
+        <h2 class="text-4xl font-bold mb-4">Pronto para transformar a gestão da sua ONG?</h2>
+        <p class="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">Junte-se a nós e leve a sua organização para o próximo
+          nível.</p>
+        <a href="https://wa.me/6692471746?text=Ol%C3%A1,%20gostaria%20de%20saber%20mais%20sobre%20o%20sistema."
+          class="bg-white text-primary font-bold py-3 px-8 rounded-full text-lg hover:bg-gray-100 transition shadow-lg transform hover:scale-105">
+          Fale com um especialista
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer id="contato" class="bg-gray-900 text-white">
+    <div class="container mx-auto px-6 py-12">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div>
+          <a href="#" class="flex items-center space-x-2 mb-4">
+            <img src="https://s3.core.hubsolidario.com/mock/HUBS_blue.png" alt="Logo HUB Solidário" class="h-10 w-10">
+            <span class="text-2xl font-bold">HUB Solidário</span>
+          </a>
+          <p class="text-gray-400">Gestão que Transforma.</p>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Links Rápidos</h4>
+          <ul>
+            <li class="mb-2"><a href="#inicio" class="hover:text-primary transition">Início</a></li>
+            <li class="mb-2"><a href="#recursos" class="hover:text-primary transition">Recursos</a></li>
+            <li class="mb-2"><a href="#sobre" class="hover:text-primary transition">Sobre Nós</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold mb-4">Contato</h4>
+          <p class="text-gray-400 mb-2">contato@hubsolidario.com</p>
+          <p class="text-gray-400">Barra do Garças, MT, Brasil</p>
+          <div class="flex space-x-4 mt-4">
+            <a href="#" class="text-gray-400 hover:text-white"><i data-lucide="facebook"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i data-lucide="instagram"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i data-lucide="linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+        <p>&copy; 2025 HUB Solidário. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Lucide Icons
+    lucide.createIcons();
+
+    // Mobile Menu Toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Close mobile menu when a link is clicked
+    const mobileMenuLinks = document.querySelectorAll('#mobile-menu a');
+    mobileMenuLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      });
+    });
+  </script>
+
+</body>
+
+</html>
