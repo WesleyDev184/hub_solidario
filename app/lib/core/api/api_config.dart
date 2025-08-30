@@ -1,6 +1,6 @@
 /// Configurações da API Rotary
 class ApiConfig {
-  static const String baseUrl = 'https://api.core.hubsolidario.com';
+  static const String baseUrl = 'https://api.hubsolidario.com';
   static const String apiKeyHeader = 'x-api-key';
 
   // Headers padrão
