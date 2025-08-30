@@ -1,4 +1,4 @@
-server = wesley@ssh.core.hubsolidario.com
+server = wesley@ssh.hubsolidario.com
 project_path = $(shell basename $(shell pwd))
 namespace = core
 
