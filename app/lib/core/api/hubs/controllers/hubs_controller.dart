@@ -10,11 +10,9 @@ class HubsController extends GetxController {
   final HubsRepository repository;
   final HubsCacheService cacheService;
 
-  final RxList<Hub> _hubs = <Hub>[].obs;
   final RxBool _isLoading = false.obs;
   final RxString _error = RxString('');
 
-  List<Hub> get hubs => _hubs.toList();
   bool get isLoading => _isLoading.value;
   String? get error => _error.value;
 
@@ -45,7 +43,6 @@ class HubsController extends GetxController {
       if (!forceRefresh) {
         final cachedState = await cacheService.loadHubsState();
         if (cachedState.isNotEmpty) {
-          _hubs.value = cachedState;
           _setLoading(false);
           return Success(cachedState);
         }
@@ -53,7 +50,6 @@ class HubsController extends GetxController {
       final result = await repository.getHubs(forceRefresh: forceRefresh);
       return await result.fold(
         (banks) async {
-          _hubs.value = banks;
           await cacheService.saveHubsState(banks);
           _setLoading(false);
           return Success(banks);
@@ -77,7 +73,6 @@ class HubsController extends GetxController {
       final result = await repository.createHub(request);
       return await result.fold(
         (bank) async {
-          _hubs.add(bank);
           await cacheService.saveHubState(bank);
           _setLoading(false);
           return Success(bank.id);
@@ -101,9 +96,6 @@ class HubsController extends GetxController {
       final result = await repository.updateHub(bankId, request);
       return await result.fold(
         (bank) async {
-          _hubs.assignAll(
-            _hubs.map((b) => b.id == bank.id ? bank : b).toList(),
-          );
           await cacheService.updateHubState(bank);
           _setLoading(false);
           return Success(bank);
@@ -128,7 +120,6 @@ class HubsController extends GetxController {
       return await result.fold(
         (success) async {
           if (success) {
-            _hubs.assignAll(_hubs.where((b) => b.id != bankId).toList());
             await cacheService.removeHubState(bankId);
           }
           _setLoading(false);
@@ -154,7 +145,6 @@ class HubsController extends GetxController {
   }
 
   void clearData() {
-    _hubs.clear();
     _error.value = '';
     _isLoading.value = false;
     cacheService.clearHubsCache();

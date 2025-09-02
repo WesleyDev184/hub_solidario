@@ -74,7 +74,7 @@ public static class StockController
         // Invalidar cache após criação bem-sucedida
         if (response.Status == HttpStatusCode.Created)
         {
-          await StockCacheService.InvalidateStockCache(cache, response.Data!.Id, response.Data.HubId, ct);
+          await StockCacheService.InvalidateStockCache(cache, response.Data!.Id, response.Data.HubId, null, ct);
         }
 
         return response.Status switch
@@ -117,11 +117,7 @@ public static class StockController
         var cachedResponse = await cache.GetOrCreateAsync(
           cacheKey,
           async cancel => await StockService.GetStock(id, context, cancel),
-          options: new HybridCacheEntryOptions
-          {
-            Expiration = TimeSpan.FromDays(2),
-            LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-          },
+          options: StockCacheService.CacheOptions.LongTerm,
           cancellationToken: ct);
 
         if (cachedResponse.Status == HttpStatusCode.NotFound)
@@ -158,13 +154,9 @@ public static class StockController
         var cachedResponse = await cache.GetOrCreateAsync(
           cacheKey,
           async cancel => await StockService.GetStocks(context, cancel),
-          options: new HybridCacheEntryOptions
-          {
-            Expiration = TimeSpan.FromDays(2),
-            LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-          },
+          options: StockCacheService.CacheOptions.LongTerm,
           cancellationToken: ct,
-          tags: ["stocks"]);
+          tags: new[] { StockCacheService.Tags.Stocks });
 
         return Results.Ok(new ResponseControllerStockListDTO(
           cachedResponse.Status == HttpStatusCode.OK,
@@ -231,7 +223,7 @@ public static class StockController
         // Invalidar cache após atualização bem-sucedida
         if (response.Status == HttpStatusCode.OK)
         {
-          await StockCacheService.InvalidateStockCache(cache, id, response.Data!.HubId, ct);
+          await StockCacheService.InvalidateStockCache(cache, id, response.Data!.HubId, null, ct);
         }
 
         return response.Status switch
@@ -287,7 +279,7 @@ public static class StockController
         // Invalidar cache após exclusão bem-sucedida
         if (response.Status == HttpStatusCode.OK)
         {
-          await StockCacheService.InvalidateStockCache(cache, id, response.HubId, ct);
+          await StockCacheService.InvalidateStockCache(cache, id, response.HubId, null, ct);
         }
 
         return response.Status switch
@@ -323,12 +315,9 @@ public static class StockController
         var cachedResponse = await cache.GetOrCreateAsync(
           cacheKey,
           async cancel => await StockService.GetStocksByHub(HubId, context, cancel),
-          options: new HybridCacheEntryOptions
-          {
-            Expiration = TimeSpan.FromMinutes(5),
-            LocalCacheExpiration = TimeSpan.FromMinutes(2)
-          },
-          cancellationToken: ct, tags: ["stocks"]);
+          options: StockCacheService.CacheOptions.Short,
+          cancellationToken: ct,
+          tags: new[] { StockCacheService.Tags.Stocks, StockCacheService.Tags.StocksByHub(HubId) });
 
         if (cachedResponse.Status == HttpStatusCode.NotFound)
         {

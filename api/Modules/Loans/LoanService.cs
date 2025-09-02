@@ -253,6 +253,67 @@ public static class LoanService
   }
 
   /// <summary>
+  /// Retrieves a list of all active loans for a specific hub, including summarized details of related item, applicant, and responsible user.
+  /// </summary>
+  public static async Task<ResponseLoanListDTO> GetLoansByHub(
+    Guid hubId,
+    ApiDbContext context,
+    UserManager<User> userManager,
+    CancellationToken ct)
+  {
+    // Select only necessary data to improve performance
+    var loansData = await context.Loans.AsNoTracking()
+      .Include(l => l.Applicant)
+      .Include(l => l.Dependent) // Include dependent if needed
+      .Include(l => l.Item).ThenInclude(item => item!.Stock) // Include Stock to get ImageUrl
+      .Where(l => l.IsActive && l.Applicant != null && l.Applicant.HubId == hubId)
+      .OrderByDescending(l => l.CreatedAt)
+      .Select(l => new // Project to an anonymous type first to avoid mapping issues with DTOs directly
+      {
+        l.Id,
+        l.ReturnDate,
+        l.Reason,
+        l.IsActive,
+        l.ResponsibleId,
+        ItemSeriaCode = l.Item != null ? l.Item.SeriaCode : 0,
+        ApplicantName = l.Applicant != null ? l.Applicant.Name : string.Empty,
+        DependentName = l.Dependent != null ? l.Dependent.Name : (l.Applicant != null ? l.Applicant.Name : string.Empty),
+        l.CreatedAt,
+        ItemImageUrl = l.Item != null && l.Item.Stock != null ? l.Item.Stock.ImageUrl : null
+      })
+      .ToListAsync(ct);
+
+    if (loansData.Count == 0)
+    {
+      return new ResponseLoanListDTO(HttpStatusCode.OK, 0, new List<ResponseEntityLoanListDTO>(),
+        "No active loans found.");
+    }
+
+    // Efficiently fetch all responsible user names in one go
+    var responsibleIds = loansData.Select(l => l.ResponsibleId).Distinct().ToList();
+    var responsibleNames = await userManager.Users
+      .Where(u => responsibleIds.Contains(u.Id))
+      .ToDictionaryAsync(u => u.Id, u => (u.Name, u.DeviceToken), ct);
+
+    // Map the collected data to the response DTOs
+    var responseLoans = loansData.Select(l => new ResponseEntityLoanListDTO(
+      l.Id,
+      l.ItemImageUrl,
+      l.ReturnDate,
+      l.Reason,
+      l.IsActive,
+      l.ItemSeriaCode,
+      l.ApplicantName,
+      l.DependentName,
+      responsibleNames.GetValueOrDefault(l.ResponsibleId, (string.Empty, string.Empty)).Item1 ?? string.Empty,
+      responsibleNames.GetValueOrDefault(l.ResponsibleId, (string.Empty, string.Empty)).Item2 ?? string.Empty,
+      l.CreatedAt
+    )).ToList();
+
+    return new ResponseLoanListDTO(HttpStatusCode.OK, loansData.Count, responseLoans, "Loans retrieved successfully.");
+  }
+
+  /// <summary>
   /// Updates an existing loan's information.
   /// </summary>
   public static async Task<ResponseLoanDTO> UpdateLoan(

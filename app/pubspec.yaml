@@ -1,5 +1,5 @@
 name: app
-description: "A new Flutter project."
+description: "Hub Solidário app"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.8.1
@@ -108,7 +108,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/images/logo.png"
+  adaptive_icon_foreground: "assets/images/logo.png"
+  adaptive_icon_background: "#F8F8F8" # Cor de fundo cinza escuro - você pode alterar para qualquer cor hexadecimal

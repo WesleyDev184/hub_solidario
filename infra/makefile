@@ -1,4 +1,4 @@
-server = wesley@ssh.core.hubsolidario.com
+server = wesley@ssh.hubsolidario.com
 project_path = $(shell basename $(shell pwd))
 namespace = core
 
@@ -29,6 +29,22 @@ logs:
 # Restart specific deployment
 restart-api:
 	ssh $(server) "kubectl rollout restart deployment/api -n $(namespace)"
+
+restart-waha:
+	ssh $(server) "kubectl rollout restart deployment/waha -n $(namespace)"
+
+restart-n8n:
+	ssh $(server) "kubectl rollout restart deployment/n8n -n $(namespace)"
+
+# View logs for specific services
+logs-api:
+	ssh $(server) "kubectl logs -f deployment/api -n $(namespace)"
+
+logs-waha:
+	ssh $(server) "kubectl logs -f deployment/waha -n $(namespace)"
+
+logs-n8n:
+	ssh $(server) "kubectl logs -f deployment/n8n -n $(namespace)"
 
 # Get pod status
 status:

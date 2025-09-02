@@ -2,6 +2,8 @@ import 'package:app/app/ptd/applicants/dependents/widgets/action_menu_dependent.
 import 'package:app/core/api/applicants/controllers/applicants_controller.dart';
 import 'package:app/core/api/applicants/models/applicants_models.dart';
 import 'package:app/core/theme/custom_colors.dart';
+import 'package:app/core/utils/utils.dart' as utils;
+import 'package:app/core/widgets/accordion_section.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
 import 'package:app/core/widgets/avatar.dart';
 import 'package:app/core/widgets/info_row.dart';
@@ -89,7 +91,6 @@ class _DependentPageState extends State<DependentPage> {
   @override
   Widget build(BuildContext context) {
     final dependent = _dependent;
-    final imageUrl = dependent?.profileImageUrl ?? '';
     final dependentName = dependent?.name ?? '';
     final dependentCpf = dependent?.cpf ?? '';
     final dependentPhone = dependent?.phoneNumber ?? '';
@@ -102,69 +103,67 @@ class _DependentPageState extends State<DependentPage> {
         path: RoutePaths.ptd.applicantId(widget.applicantId),
       ),
       backgroundColor: CustomColors.background,
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Avatar(imageUrl: imageUrl, size: 150, isNetworkImage: true),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      dependentName,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header com avatar
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Informações
-            InfoRow(icon: LucideIcons.idCard, label: dependentCpf),
-            const SizedBox(height: 5),
-            InfoRow(icon: LucideIcons.phone, label: dependentPhone),
-            const SizedBox(height: 5),
-            InfoRow(icon: LucideIcons.mail, label: dependentEmail),
-
-            const SizedBox(height: 24),
-            const Text(
-              'Endereço:',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: CustomColors.primary,
+                child: _buildHeader(),
               ),
-            ),
-            const SizedBox(height: 8),
 
-            InfoRow(
-              icon: LucideIcons.house,
-              label: 'Residência de $dependentName',
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 36),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // Accordion: Informações de contato
+              AccordionSection(
+                title: 'Contato',
+                icon: LucideIcons.phone,
                 children: [
-                  if (dependentAddress != null && dependentAddress.isNotEmpty)
-                    ...dependentAddress
-                        .split(',')
-                        .map((section) => Text('${section.trim()},'))
-                  else
-                    const Text('Endereço não informado'),
+                  InfoRow(
+                    icon: LucideIcons.idCard,
+                    label: 'CPF',
+                    value: dependentCpf,
+                  ),
+                  const SizedBox(height: 12),
+                  InfoRow(
+                    icon: LucideIcons.phone,
+                    label: 'Telefone',
+                    value: dependentPhone,
+                  ),
+                  const SizedBox(height: 12),
+                  InfoRow(
+                    icon: LucideIcons.mail,
+                    label: 'Email',
+                    value: dependentEmail,
+                  ),
                 ],
               ),
-            ),
-          ],
+
+              // Accordion: Endereço
+              AccordionSection(
+                title: 'Endereço',
+                icon: LucideIcons.house,
+                children: [
+                  InfoRow(
+                    icon: LucideIcons.house,
+                    label: 'Residência de $dependentName',
+                    value:
+                        (dependentAddress != null &&
+                            dependentAddress.isNotEmpty)
+                        ? dependentAddress
+                        : 'Endereço não informado',
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -172,6 +171,82 @@ class _DependentPageState extends State<DependentPage> {
         onPressed: () => _showActionsMenu(context),
         backgroundColor: CustomColors.primary,
         child: const Icon(LucideIcons.menu, color: CustomColors.white),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [CustomColors.primary.withOpacity(0.9), CustomColors.primary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: CustomColors.primary.withOpacity(0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: CustomColors.primary.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Avatar(
+                imageUrl: _dependent?.profileImageUrl,
+                size: 72,
+                isNetworkImage: true,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _dependent?.name ?? 'Dependente',
+                      // allow long names to wrap to multiple lines instead of
+                      // being truncated; keep styling the same
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: CustomColors.white.withOpacity(0.95),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${_dependent != null ? _dependent!.phoneNumber : 'Carregando...'}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: CustomColors.white.withOpacity(0.85),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Desde: ${utils.DateUtils.formatDateBR(_dependent?.createdAt ?? DateTime.now())}',
+            style: TextStyle(
+              fontSize: 13,
+              color: CustomColors.white.withOpacity(0.85),
+            ),
+          ),
+        ],
       ),
     );
   }

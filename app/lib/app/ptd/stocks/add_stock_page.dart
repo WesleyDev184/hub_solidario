@@ -36,28 +36,44 @@ class _AddStockPageState extends State<AddStockPage> {
   Uint8List? _selectedImageBytes;
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
 
     final hubsController = Get.find<HubsController>();
 
-    orthopedicBankItems = hubsController.hubs.map((hub) {
-      return DropdownMenuItem<String>(
-        value: hub.id,
-        child: Text('${hub.name} - ${hub.city}'),
-      );
-    }).toList();
+    final result = await hubsController.loadHubs();
 
-    // Seleciona automaticamente o primeiro item da lista
-    if (orthopedicBankItems.isNotEmpty && _selectedOrthopedicBankId == null) {
-      _selectedOrthopedicBankId = orthopedicBankItems.first.value;
-    }
+    result.fold(
+      (hubs) {
+        orthopedicBankItems = <DropdownMenuItem<String>>[
+          for (var hub in hubs) ...[
+            DropdownMenuItem<String>(
+              value: hub.id,
+              child: Text('${hub.name} - ${hub.city}'),
+            ),
+          ],
+        ];
+      },
+      (error) {
+        // Lida com o erro ao carregar os hubs
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar bancos ortopédicos: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+    );
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     super.dispose();
+    // Seleciona automaticamente o primeiro item da lista
+    if (orthopedicBankItems.isNotEmpty && _selectedOrthopedicBankId == null) {
+      _selectedOrthopedicBankId = orthopedicBankItems.first.value;
+    }
   }
 
   String? _validateTitle(String? value) {

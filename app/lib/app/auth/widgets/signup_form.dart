@@ -137,8 +137,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
   String? selectedOrthopedicBankId;
   List<DropdownMenuItem<String>> orthopedicBankItems = [];
-  bool isLoadingBanks = false;
-  bool hasErrorLoadingBanks = false;
+  late final HubsController hubsController;
 
   // Métodos de validação
   String? _validateName(String? value) {
@@ -213,51 +212,58 @@ class _SignUpFormState extends State<SignUpForm> {
     confirmPasswordController = TextEditingController();
 
     // Carrega os bancos ortopédicos ao iniciar o formulário
+    hubsController = Get.find<HubsController>();
     _loadOrthopedicBanks();
   }
 
   // Método para carregar bancos ortopédicos
   Future<void> _loadOrthopedicBanks() async {
-    if (isLoadingBanks) return;
-
-    setState(() {
-      isLoadingBanks = true;
-      hasErrorLoadingBanks = false;
-    });
-
     try {
-      final controller = Get.find<HubsController>();
-
-      setState(() {
-        orthopedicBankItems = controller.hubs.map((hub) {
-          return DropdownMenuItem<String>(
-            value: hub.id,
-            child: Text('${hub.name} - ${hub.city}'),
-          );
-        }).toList();
-        isLoadingBanks = false;
-        hasErrorLoadingBanks = false;
-      });
+      final result = await hubsController.loadHubs();
+      result.fold(
+        (hubs) {
+          setState(() {
+            orthopedicBankItems = hubs
+                .map(
+                  (hub) => DropdownMenuItem<String>(
+                    value: hub.id,
+                    child: Text('${hub.name} - ${hub.city}'),
+                  ),
+                )
+                .toList();
+          });
+        },
+        (error) {
+          setState(() {
+            orthopedicBankItems = [];
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Erro ao carregar bancos ortopédicos: ${error.toString()}',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+      );
     } catch (e) {
       setState(() {
-        _setErrorState();
-        isLoadingBanks = false;
-        hasErrorLoadingBanks = true;
+        orthopedicBankItems = [];
       });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro ao carregar bancos ortopédicos: ${e.toString()}',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
-  }
-
-  // Método para definir estado de erro
-  void _setErrorState() {
-    orthopedicBankItems = [
-      DropdownMenuItem<String>(
-        value: null,
-        child: Text(
-          'Erro ao carregar bancos ortopédicos',
-          style: TextStyle(color: Colors.red[400], fontStyle: FontStyle.italic),
-        ),
-      ),
-    ];
   }
 
   @override
@@ -398,74 +404,84 @@ class _SignUpFormState extends State<SignUpForm> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                SelectField<String>(
-                  value: selectedOrthopedicBankId,
-                  hint: isLoadingBanks
-                      ? 'Carregando bancos ortopédicos...'
-                      : hasErrorLoadingBanks
-                      ? 'Erro ao carregar dados'
-                      : 'Selecione um banco ortopédico',
-                  icon: LucideIcons.building2,
-                  items: orthopedicBankItems,
-                  onChanged: (isLoadingBanks || hasErrorLoadingBanks)
-                      ? null
-                      : (value) {
-                          setState(() {
-                            selectedOrthopedicBankId = value;
-                          });
-                        },
-                  validator: (value) {
-                    if (hasErrorLoadingBanks) {
-                      return 'Não foi possível carregar os bancos ortopédicos. Tente novamente.';
-                    }
-                    if (value == null || value.isEmpty) {
-                      return 'Selecione um banco ortopédico';
-                    }
-                    return null;
-                  },
-                ),
+                Obx(() {
+                  final loading = hubsController.isLoading;
+                  final error = hubsController.error;
+                  return SelectField<String>(
+                    value: selectedOrthopedicBankId,
+                    hint: loading
+                        ? 'Carregando bancos ortopédicos...'
+                        : (error != null && error.isNotEmpty)
+                        ? 'Erro ao carregar dados'
+                        : 'Selecione um banco ortopédico',
+                    icon: LucideIcons.building2,
+                    items: orthopedicBankItems,
+                    onChanged: (loading || (error != null && error.isNotEmpty))
+                        ? null
+                        : (value) {
+                            setState(() {
+                              selectedOrthopedicBankId = value;
+                            });
+                          },
+                    validator: (value) {
+                      if (hubsController.error != null &&
+                          hubsController.error!.isNotEmpty) {
+                        return 'Não foi possível carregar os bancos ortopédicos. Tente novamente.';
+                      }
+                      if (value == null || value.isEmpty) {
+                        return 'Selecione um banco ortopédico';
+                      }
+                      return null;
+                    },
+                  );
+                }),
 
-                // Botão para tentar carregar novamente em caso de erro
-                if (hasErrorLoadingBanks) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 16,
-                        color: Colors.red[400],
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Falha ao carregar bancos ortopédicos',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.red[400],
+                // Botão para tentar carregar novamente em caso de erro (usa reatividade do controller)
+                Obx(() {
+                  final error = hubsController.error;
+                  if (error == null || error.isEmpty)
+                    return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 16,
+                          color: Colors.red[400],
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Falha ao carregar bancos ortopédicos',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.red[400],
+                            ),
                           ),
                         ),
-                      ),
-                      TextButton(
-                        onPressed: _loadOrthopedicBanks,
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
+                        TextButton(
+                          onPressed: _loadOrthopedicBanks,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          'Tentar novamente',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).primaryColor,
+                          child: Text(
+                            'Tentar novamente',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).primaryColor,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  );
+                }),
 
                 const SizedBox(height: 16),
 

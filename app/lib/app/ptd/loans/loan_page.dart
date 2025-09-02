@@ -2,7 +2,9 @@ import 'package:app/app/ptd/loans/widgets/action_menu_loan.dart';
 import 'package:app/core/api/api.dart';
 import 'package:app/core/theme/custom_colors.dart';
 import 'package:app/core/utils/utils.dart' as utils;
+import 'package:app/core/widgets/accordion_section.dart';
 import 'package:app/core/widgets/appbar_custom.dart';
+import 'package:app/core/widgets/info_row.dart';
 import 'package:app/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -97,12 +99,18 @@ class _LoanPageState extends State<LoanPage> {
               backgroundColor: CustomColors.primary.withOpacity(0.03),
               elevation: 0,
               flexibleSpace: FlexibleSpaceBar(
-                background: Image.asset(
-                  'assets/images/cr.jpg',
-                  fit: BoxFit.contain,
-                  cacheWidth: 412,
-                  cacheHeight: 220,
-                ),
+                background: _currentLoan != null
+                    ? _buildImageSection(_currentLoan!.imageUrl ?? '')
+                    : Container(
+                        color: CustomColors.primary.withOpacity(0.05),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              CustomColors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
                 collapseMode: CollapseMode.parallax,
               ),
             ),
@@ -137,49 +145,62 @@ class _LoanPageState extends State<LoanPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  _buildSectionCard('Pessoas Envolvidas', LucideIcons.users, [
-                    _buildInfoRow(
-                      LucideIcons.userCheck,
-                      'Responsável',
-                      _currentLoan?.responsible ?? '',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      LucideIcons.user,
-                      'Solicitante',
-                      _currentLoan?.applicant ?? '',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      LucideIcons.heart,
-                      'Beneficiado',
-                      _currentLoan?.applicant ?? '',
-                    ),
-                  ]),
-                  _buildSectionCard('Cronograma', LucideIcons.calendar, [
-                    _buildInfoRow(
-                      LucideIcons.calendarDays,
-                      'Data do Empréstimo',
-                      utils.DateUtils.formatDateBR(
-                        _currentLoan?.createdAt ?? DateTime.now(),
+                  AccordionSection(
+                    title: 'Pessoas Envolvidas',
+                    icon: LucideIcons.users,
+                    children: [
+                      InfoRow(
+                        icon: LucideIcons.userCheck,
+                        label: 'Responsável',
+                        value: _currentLoan?.responsible ?? '',
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      LucideIcons.calendarClock,
-                      'Data de Devolução',
-                      utils.DateUtils.formatDateBR(
-                        _currentLoan?.returnDate ?? DateTime.now(),
+                      const SizedBox(height: 12),
+                      InfoRow(
+                        icon: LucideIcons.user,
+                        label: 'Solicitante',
+                        value: _currentLoan?.applicant ?? '',
                       ),
-                    ),
-                  ]),
-                  _buildSectionCard('Detalhes', LucideIcons.fileText, [
-                    _buildInfoRow(
-                      LucideIcons.messageSquare,
-                      'Motivo',
-                      _currentLoan?.reason ?? 'Nenhum motivo informado',
-                    ),
-                  ]),
+                      const SizedBox(height: 12),
+                      InfoRow(
+                        icon: LucideIcons.heart,
+                        label: 'Beneficiado',
+                        value: _currentLoan?.applicant ?? '',
+                      ),
+                    ],
+                  ),
+                  AccordionSection(
+                    title: 'Cronograma',
+                    icon: LucideIcons.calendar,
+                    children: [
+                      InfoRow(
+                        icon: LucideIcons.calendarDays,
+                        label: 'Data do Empréstimo',
+                        value: utils.DateUtils.formatDateBR(
+                          _currentLoan?.createdAt ?? DateTime.now(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      InfoRow(
+                        icon: LucideIcons.calendarClock,
+                        label: 'Data de Devolução',
+                        value: utils.DateUtils.formatDateBR(
+                          _currentLoan?.returnDate ?? DateTime.now(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  AccordionSection(
+                    title: 'Detalhes',
+                    icon: LucideIcons.fileText,
+                    children: [
+                      InfoRow(
+                        icon: LucideIcons.messageSquare,
+                        label: 'Motivo',
+                        value:
+                            _currentLoan?.reason ?? 'Nenhum motivo informado',
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 100),
                 ]),
               ),
@@ -193,69 +214,6 @@ class _LoanPageState extends State<LoanPage> {
         onPressed: () => _showActionsMenu(context),
         backgroundColor: CustomColors.primary,
         child: const Icon(LucideIcons.menu, color: Colors.white),
-      ),
-    );
-  }
-
-  // Helper methods now use _currentLoan to display data
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: CustomColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: CustomColors.textSecondary.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: CustomColors.primary.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  CustomColors.primary.withOpacity(0.12),
-                  CustomColors.primary.withOpacity(0.06),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: CustomColors.primary, size: 18),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: CustomColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: CustomColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -362,79 +320,24 @@ class _LoanPageState extends State<LoanPage> {
         : CustomColors.error;
   }
 
-  Widget _buildSectionCard(
-    String title,
-    IconData titleIcon,
-    List<Widget> children,
-  ) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: CustomColors.primary.withOpacity(0.015),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: CustomColors.primary.withOpacity(0.06),
-          width: 0.8,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: CustomColors.primary.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  CustomColors.primary.withOpacity(0.05),
-                  CustomColors.primary.withOpacity(0.01),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                topRight: Radius.circular(18),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: CustomColors.primary.withOpacity(0.06),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    titleIcon,
-                    color: CustomColors.primary.withOpacity(0.7),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: CustomColors.primary.withOpacity(0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(children: children),
-          ),
-        ],
-      ),
-    );
+  // ...existing code...
+
+  Widget _buildImageSection(String imageUrl) {
+    final isAsset = !imageUrl.startsWith('http');
+    return isAsset
+        ? Image.asset(
+            imageUrl,
+            fit: BoxFit.contain,
+            width: double.infinity,
+            height: 220,
+          )
+        : Image.network(
+            imageUrl,
+            fit: BoxFit.contain,
+            width: double.infinity,
+            height: 220,
+            cacheWidth: 412,
+            cacheHeight: 220,
+          );
   }
 }

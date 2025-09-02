@@ -59,10 +59,12 @@ namespace api.Modules.Documents
           if (response.StatusCode == HttpStatusCode.Created && response.Data != null)
           {
             // Invalidar caches relacionados
-            await cache.InvalidateAllDocumentCaches(
+            await DocumentCacheService.InvalidateAllDocumentRelatedCaches(
+              cache,
               response.Data.Id,
               response.Data.ApplicantId,
-              response.Data.DependentId);
+              response.Data.DependentId,
+              ct);
 
             return Results.Created($"/documents/{response.Data.Id}", response);
           }
@@ -111,10 +113,13 @@ namespace api.Modules.Documents
       {
         try
         {
-          var cachedResponse = await cache.GetOrSetDocumentCache(
-            id,
+          var cacheKey = DocumentCacheService.Keys.DocumentById(id);
+          
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
             async cancel => await DocumentService.GetDocumentById(id, context, cancel),
-            ct: ct);
+            options: DocumentCacheService.CacheOptions.Default,
+            cancellationToken: ct);
 
           if (cachedResponse.StatusCode == HttpStatusCode.NotFound)
           {
@@ -161,10 +166,14 @@ namespace api.Modules.Documents
       {
         try
         {
-          var cachedResponse = await cache.GetOrSetDocumentsByApplicantCache(
-            applicantId,
+          var cacheKey = DocumentCacheService.Keys.DocumentsByApplicant(applicantId);
+          
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
             async cancel => await DocumentService.GetDocumentsByApplicant(applicantId, context, cancel),
-            ct: ct);
+            options: DocumentCacheService.CacheOptions.Short,
+            cancellationToken: ct,
+            tags: new[] { DocumentCacheService.Tags.Documents, DocumentCacheService.Tags.DocumentsByApplicant(applicantId) });
 
           if (cachedResponse.StatusCode == HttpStatusCode.NotFound)
           {
@@ -211,10 +220,14 @@ namespace api.Modules.Documents
       {
         try
         {
-          var cachedResponse = await cache.GetOrSetDocumentsByDependentCache(
-            dependentId,
+          var cacheKey = DocumentCacheService.Keys.DocumentsByDependent(dependentId);
+          
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
             async cancel => await DocumentService.GetDocumentsByDependent(dependentId, context, cancel),
-            ct: ct);
+            options: DocumentCacheService.CacheOptions.Short,
+            cancellationToken: ct,
+            tags: new[] { DocumentCacheService.Tags.Documents, DocumentCacheService.Tags.DocumentsByDependent(dependentId) });
 
           if (cachedResponse.StatusCode == HttpStatusCode.NotFound)
           {
@@ -269,10 +282,12 @@ namespace api.Modules.Documents
           if (response.StatusCode == HttpStatusCode.OK && response.Data != null)
           {
             // Invalidar caches relacionados
-            await cache.InvalidateAllDocumentCaches(
+            await DocumentCacheService.InvalidateAllDocumentRelatedCaches(
+              cache,
               response.Data.Id,
               response.Data.ApplicantId,
-              response.Data.DependentId);
+              response.Data.DependentId,
+              ct);
 
             return Results.Ok(response);
           }
@@ -334,7 +349,12 @@ namespace api.Modules.Documents
           if (response.StatusCode == HttpStatusCode.OK)
           {
             // Invalidar caches relacionados
-            await cache.InvalidateAllDocumentCaches(id, applicantId, dependentId);
+            await DocumentCacheService.InvalidateAllDocumentRelatedCaches(
+              cache,
+              id,
+              applicantId,
+              dependentId,
+              ct);
 
             return Results.Ok(response);
           }

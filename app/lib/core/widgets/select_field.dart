@@ -29,60 +29,18 @@ class SelectField<T> extends StatelessWidget {
       decoration: InputDecoration(
         labelText: hint,
         suffixIcon: Icon(icon),
-        border:
-            underlineVariant
-                ? const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                )
-                : const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-        enabledBorder:
-            underlineVariant
-                ? const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                )
-                : const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-        focusedBorder:
-            underlineVariant
-                ? const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
-                )
-                : const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
-                ),
-        contentPadding:
-            underlineVariant
-                ? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0)
-                : const EdgeInsets.all(16.0),
-      ),
-      items:
-          items.map((item) {
-            // Wrap the child in a flexible container to handle overflow
-            return DropdownMenuItem<T>(
-              value: item.value,
-              child: SizedBox(
-                width: double.infinity,
-                child: _wrapWithOverflowHandling(item.child),
+        border: underlineVariant
+            ? const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+              )
+            : const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
-            );
-          }).toList(),
+      ),
+      items: items.map((item) {
+        return DropdownMenuItem<T>(value: item.value, child: item.child);
+      }).toList(),
       onChanged: onChanged,
     );
-  }
-
-  Widget _wrapWithOverflowHandling(Widget child) {
-    if (child is Text) {
-      return Text(
-        child.data ?? '',
-        style: child.style,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
-      );
-    }
-    return child;
   }
 }

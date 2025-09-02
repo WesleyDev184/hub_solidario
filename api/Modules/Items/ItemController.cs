@@ -65,7 +65,7 @@ namespace api.Modules.Items
           // Invalidar cache global após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
-            await ItemCacheService.InvalidateItemCache(cache, response.Data!.Id, response.Data.StockId, ct);
+            await ItemCacheService.InvalidateItemCache(cache, response.Data!.Id, response.Data.StockId, null, null, ct);
           }
 
           switch (response.Status)
@@ -131,11 +131,7 @@ namespace api.Modules.Items
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await ItemService.GetItem(id, context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
+            options: ItemCacheService.CacheOptions.Default,
             cancellationToken: ct);
 
           if (cachedResponse.Status == HttpStatusCode.NotFound)
@@ -172,12 +168,9 @@ namespace api.Modules.Items
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await ItemService.GetItems(context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
-            cancellationToken: ct);
+            options: ItemCacheService.CacheOptions.VeryLongTerm,
+            cancellationToken: ct,
+            tags: new[] { ItemCacheService.Tags.Items });
 
           return Results.Ok(new ResponseControllerItemListDTO(
             cachedResponse.Status == HttpStatusCode.OK,
@@ -206,13 +199,9 @@ namespace api.Modules.Items
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await ItemService.GetItemsByStock(id, context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
+            options: ItemCacheService.CacheOptions.LongTerm,
             cancellationToken: ct,
-            tags: ["Items"]);
+            tags: new[] { ItemCacheService.Tags.Items, ItemCacheService.Tags.Stocks });
 
           if (cachedResponse.Status == HttpStatusCode.NotFound)
           {
@@ -278,7 +267,7 @@ namespace api.Modules.Items
           // Invalidar cache apenas do item alterado após atualização
           if (response.Status == HttpStatusCode.OK)
           {
-            await ItemCacheService.InvalidateItemCache(cache, id, response.Data!.StockId, ct: ct);
+            await ItemCacheService.InvalidateItemCache(cache, id, response.Data!.StockId, null, null, ct);
           }
 
           return response.Status switch
@@ -327,7 +316,7 @@ namespace api.Modules.Items
           // Invalidar cache apenas do item excluído
           if (response.Status == HttpStatusCode.OK)
           {
-            await ItemCacheService.InvalidateItemCache(cache, id, response.Id, ct);
+            await ItemCacheService.InvalidateItemCache(cache, id, response.Id, null, null, ct);
           }
 
           return response.Status switch

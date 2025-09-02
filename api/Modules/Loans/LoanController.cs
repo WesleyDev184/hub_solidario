@@ -64,7 +64,7 @@ public static class LoanController
           // Invalidar cache após criação bem-sucedida
           if (res.Status == HttpStatusCode.Created && res.Data != null && res.Data.Item != null)
           {
-            await LoanCacheService.InvalidateLoanCache(cache, res.Data!.Id, res.Data.Item.StockId, ct);
+            await LoanCacheService.InvalidateLoanCache(cache, res.Data!.Id, res.Data.Item.StockId, null, ct);
           }
 
           return res.Status switch
@@ -111,11 +111,7 @@ public static class LoanController
               var result = await LoanService.GetLoan(id, context, userManager, cancel);
               return result;
             },
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
+            options: LoanCacheService.CacheOptions.Default,
             cancellationToken: ct);
 
           if (cachedResponse.Status == HttpStatusCode.NotFound)
@@ -153,13 +149,9 @@ public static class LoanController
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await LoanService.GetLoans(context, userManager, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
+            options: LoanCacheService.CacheOptions.LongTerm,
             cancellationToken: ct,
-            tags: new[] { "loans" }
+            tags: new[] { LoanCacheService.Tags.Loans }
             );
 
           return Results.Ok(new ResponseControllerLoanListDTO(
@@ -169,6 +161,38 @@ public static class LoanController
             cachedResponse.Message));
         })
       .WithName("GetLoans");
+
+    loanGroup.MapGet("/hub/{hubId:guid}",
+        [SwaggerOperation(
+          Summary = "Get all loans by hub",
+          Description = "Retrieves a list of all loans in the system for a specific hub.")
+        ]
+    [SwaggerResponse(
+          StatusCodes.Status200OK,
+          "Loans retrieved successfully.",
+          typeof(ResponseControllerLoanListDTO))]
+    [SwaggerResponseExample(
+          StatusCodes.Status200OK,
+          typeof(ExampleResponseGetAllLoanDto))]
+    async (Guid hubId, UserManager<User> userManager, ApiDbContext context, HybridCache cache, CancellationToken ct) =>
+        {
+          var cacheKey = LoanCacheService.Keys.LoansByHubId(hubId);
+
+          // Tentar obter do cache primeiro
+          var cachedResponse = await cache.GetOrCreateAsync(
+            cacheKey,
+            async cancel => await LoanService.GetLoansByHub(hubId, context, userManager, cancel),
+            options: LoanCacheService.CacheOptions.LongTerm,
+            cancellationToken: ct,
+            tags: new[] { LoanCacheService.Tags.Loans, LoanCacheService.Tags.LoansByHub(hubId) }
+            );
+
+          return Results.Ok(new ResponseControllerLoanListDTO(
+            cachedResponse.Status == HttpStatusCode.OK,
+            cachedResponse.Count,
+            cachedResponse.Data,
+            cachedResponse.Message));
+        });
 
     loanGroup.MapPatch("/{id:guid}",
         [
@@ -214,7 +238,7 @@ public static class LoanController
           // Invalidar cache após atualização bem-sucedida
           if (res.Status == HttpStatusCode.OK && res.Data != null && res.Data.Item != null)
           {
-            await LoanCacheService.InvalidateLoanCache(cache, id, res.Data.Item.StockId, ct);
+            await LoanCacheService.InvalidateLoanCache(cache, id, res.Data.Item.StockId, null, ct);
           }
 
           return res.Status switch
@@ -260,7 +284,7 @@ public static class LoanController
           // Invalidar cache após exclusão bem-sucedida
           if (res.Status == HttpStatusCode.OK)
           {
-            await LoanCacheService.InvalidateLoanCache(cache, id, res.StockId, ct);
+            await LoanCacheService.InvalidateLoanCache(cache, id, res.StockId, null, ct);
           }
 
           return res.Status switch

@@ -1,101 +1,121 @@
-namespace api.Modules.Documents;
-
-using Dto;
 using Microsoft.Extensions.Caching.Hybrid;
+
+namespace api.Modules.Documents;
 
 public static class DocumentCacheService
 {
-  private const string CacheKeyPrefix = "document:";
-  private const string ListCacheKeyPrefix = "documents:applicant:";
-  private const string DependentListCacheKeyPrefix = "documents:dependent:";
-
-  // Invalidar cache de um documento específico
-  public static async Task InvalidateDocumentCache(this HybridCache cache, Guid documentId)
+  public static class Keys
   {
-    await cache.RemoveAsync($"{CacheKeyPrefix}{documentId}");
+    public const string AllDocuments = "documents-all";
+    public static string DocumentById(Guid id) => $"document-{id}";
+    public static string DocumentsByApplicant(Guid applicantId) => $"documents-applicant-{applicantId}";
+    public static string DocumentsByDependent(Guid dependentId) => $"documents-dependent-{dependentId}";
   }
 
-  // Invalidar cache de lista de documentos por applicant
-  public static async Task InvalidateDocumentsByApplicantCache(this HybridCache cache, Guid applicantId)
+  public static class Tags
   {
-    await cache.RemoveAsync($"{ListCacheKeyPrefix}{applicantId}");
+    public const string Documents = "documents";
+    public const string Applicants = "applicants";
+    public const string Dependents = "dependents";
+    public static string DocumentsByApplicant(Guid applicantId) => $"documents-applicant-{applicantId}";
+    public static string DocumentsByDependent(Guid dependentId) => $"documents-dependent-{dependentId}";
   }
 
-  // Invalidar cache de lista de documentos por dependent
-  public static async Task InvalidateDocumentsByDependentCache(this HybridCache cache, Guid dependentId)
+  public static class CacheOptions
   {
-    await cache.RemoveAsync($"{DependentListCacheKeyPrefix}{dependentId}");
+    public static readonly HybridCacheEntryOptions Default = new()
+    {
+      Expiration = TimeSpan.FromMinutes(30),
+      LocalCacheExpiration = TimeSpan.FromMinutes(5)
+    };
+
+    public static readonly HybridCacheEntryOptions Short = new()
+    {
+      Expiration = TimeSpan.FromMinutes(15),
+      LocalCacheExpiration = TimeSpan.FromMinutes(3)
+    };
+
+    public static readonly HybridCacheEntryOptions LongTerm = new()
+    {
+      Expiration = TimeSpan.FromHours(4),
+      LocalCacheExpiration = TimeSpan.FromMinutes(5)
+    };
   }
 
-  // Invalidar todos os caches relacionados ao documento
-  public static async Task InvalidateAllDocumentCaches(this HybridCache cache, Guid documentId, Guid applicantId, Guid? dependentId = null)
+  /// <summary>
+  /// Invalida todos os caches relacionados a documents (use apenas em operações em massa)
+  /// </summary>
+  public static async Task InvalidateAllDocumentCaches(HybridCache cache, CancellationToken ct = default)
   {
-    await cache.InvalidateDocumentCache(documentId);
-    await cache.InvalidateDocumentsByApplicantCache(applicantId);
+    await cache.RemoveByTagAsync(Tags.Documents, ct);
+    await cache.RemoveAsync(Keys.AllDocuments, ct);
+  }
 
+  /// <summary>
+  /// Invalida cache de um documento específico
+  /// </summary>
+  public static async Task InvalidateDocumentCache(HybridCache cache, Guid documentId, CancellationToken ct = default)
+  {
+    await cache.RemoveAsync(Keys.DocumentById(documentId), ct);
+  }
+
+  /// <summary>
+  /// Invalida cache de lista de documentos por applicant
+  /// </summary>
+  public static async Task InvalidateDocumentsByApplicantCache(HybridCache cache, Guid applicantId, CancellationToken ct = default)
+  {
+    await cache.RemoveAsync(Keys.DocumentsByApplicant(applicantId), ct);
+    await cache.RemoveByTagAsync(Tags.DocumentsByApplicant(applicantId), ct);
+  }
+
+  /// <summary>
+  /// Invalida cache de lista de documentos por dependent
+  /// </summary>
+  public static async Task InvalidateDocumentsByDependentCache(HybridCache cache, Guid dependentId, CancellationToken ct = default)
+  {
+    await cache.RemoveAsync(Keys.DocumentsByDependent(dependentId), ct);
+    await cache.RemoveByTagAsync(Tags.DocumentsByDependent(dependentId), ct);
+  }
+
+  /// <summary>
+  /// Invalida todos os caches relacionados ao documento
+  /// </summary>
+  public static async Task InvalidateAllDocumentRelatedCaches(HybridCache cache, Guid documentId, Guid? applicantId = null, Guid? dependentId = null, CancellationToken ct = default)
+  {
+    // Remove cache específico do documento
+    await InvalidateDocumentCache(cache, documentId, ct);
+
+    // Remove caches relacionados
+    await cache.RemoveByTagAsync(Tags.Documents, ct);
+
+    // Se applicantId foi fornecido, remove caches relacionados
+    if (applicantId.HasValue)
+    {
+      await InvalidateDocumentsByApplicantCache(cache, applicantId.Value, ct);
+    }
+
+    // Se dependentId foi fornecido, remove caches relacionados
     if (dependentId.HasValue)
     {
-      await cache.InvalidateDocumentsByDependentCache(dependentId.Value);
+      await InvalidateDocumentsByDependentCache(cache, dependentId.Value, ct);
     }
   }
 
-  // Buscar documento no cache ou executar função de fallback
-  public static async Task<ResponseControllerDocumentsDTO> GetOrSetDocumentCache(
-    this HybridCache cache,
-    Guid documentId,
-    Func<CancellationToken, ValueTask<ResponseControllerDocumentsDTO>> factory,
-    TimeSpan? expiry = null,
-    CancellationToken ct = default)
+  /// <summary>
+  /// Invalida múltiplos caches de applicants (útil para operações em massa)
+  /// </summary>
+  public static async Task InvalidateDocumentCacheByApplicants(HybridCache cache, IEnumerable<Guid> applicantIds, CancellationToken ct = default)
   {
-    return await cache.GetOrCreateAsync<ResponseControllerDocumentsDTO>(
-      $"{CacheKeyPrefix}{documentId}",
-      factory,
-      options: new HybridCacheEntryOptions
-      {
-        Expiration = expiry ?? TimeSpan.FromMinutes(30),
-        LocalCacheExpiration = TimeSpan.FromMinutes(5)
-      },
-      cancellationToken: ct
-    );
+    var tasks = applicantIds.Select(applicantId => InvalidateDocumentsByApplicantCache(cache, applicantId, ct));
+    await Task.WhenAll(tasks);
   }
 
-  // Buscar lista de documentos por applicant no cache ou executar função de fallback
-  public static async Task<ResponseDocumentsDTO> GetOrSetDocumentsByApplicantCache(
-    this HybridCache cache,
-    Guid applicantId,
-    Func<CancellationToken, ValueTask<ResponseDocumentsDTO>> factory,
-    TimeSpan? expiry = null,
-    CancellationToken ct = default)
+  /// <summary>
+  /// Invalida múltiplos caches de dependents (útil para operações em massa)
+  /// </summary>
+  public static async Task InvalidateDocumentCacheByDependents(HybridCache cache, IEnumerable<Guid> dependentIds, CancellationToken ct = default)
   {
-    return await cache.GetOrCreateAsync<ResponseDocumentsDTO>(
-      $"{ListCacheKeyPrefix}{applicantId}",
-      factory,
-      options: new HybridCacheEntryOptions
-      {
-        Expiration = expiry ?? TimeSpan.FromMinutes(15),
-        LocalCacheExpiration = TimeSpan.FromMinutes(3)
-      },
-      cancellationToken: ct
-    );
-  }
-
-  // Buscar lista de documentos por dependent no cache ou executar função de fallback
-  public static async Task<ResponseDocumentsDTO> GetOrSetDocumentsByDependentCache(
-    this HybridCache cache,
-    Guid dependentId,
-    Func<CancellationToken, ValueTask<ResponseDocumentsDTO>> factory,
-    TimeSpan? expiry = null,
-    CancellationToken ct = default)
-  {
-    return await cache.GetOrCreateAsync<ResponseDocumentsDTO>(
-      $"{DependentListCacheKeyPrefix}{dependentId}",
-      factory,
-      options: new HybridCacheEntryOptions
-      {
-        Expiration = expiry ?? TimeSpan.FromMinutes(15),
-        LocalCacheExpiration = TimeSpan.FromMinutes(3)
-      },
-      cancellationToken: ct
-    );
+    var tasks = dependentIds.Select(dependentId => InvalidateDocumentsByDependentCache(cache, dependentId, ct));
+    await Task.WhenAll(tasks);
   }
 }

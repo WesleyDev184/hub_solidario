@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: waha
+  namespace: core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: waha
+  template:
+    metadata:
+      labels:
+        app: waha
+    spec:
+      containers:
+        - name: waha
+          image: devlikeapro/waha:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: WHATSAPP_HOOK_URL
+              value: "http://n8n:5678/webhook/webhook"
+            - name: WHATSAPP_HOOK_EVENTS
+              value: "message.any"
+            - name: WHATSAPP_DEFAULT_ENGINE
+              value: "GOWS"
+            - name: WHATSAPP_HOOK_EVENTS
+              value: "message"
+            - name: WHATSAPP_FILES_LIFETIME
+              value: "3600"
+            - name: WHATSAPP_API_HOSTNAME
+              value: "waha"
+          volumeMounts:
+            - name: waha-sessions
+              mountPath: /app/.sessions
+            - name: waha-media
+              mountPath: /app/.media
+      volumes:
+        - name: waha-sessions
+          persistentVolumeClaim:
+            claimName: waha-sessions-pvc
+        - name: waha-media
+          persistentVolumeClaim:
+            claimName: waha-media-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: waha
+  namespace: core
+spec:
+  selector:
+    app: waha
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: waha-sessions-pvc
+  namespace: core
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: waha-media-pvc
+  namespace: core
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
