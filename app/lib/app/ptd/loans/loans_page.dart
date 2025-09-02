@@ -90,7 +90,6 @@ class _LoansPageState extends State<LoansPage> {
                             loan.imageUrl ??
                             "assets/images/cr.jpg", // URL padrão
                         loan: loan,
-                        loadData: () => loansController.loadLoans(),
                       ),
                     );
                   },
