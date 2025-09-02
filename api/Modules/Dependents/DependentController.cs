@@ -127,11 +127,7 @@ namespace api.Modules.Dependents
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await DependentService.GetDependent(id, context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
+            options: DependentCacheService.CacheOptions.Default,
             cancellationToken: ct);
 
           if (cachedResponse.Status == HttpStatusCode.NotFound)
@@ -168,12 +164,9 @@ namespace api.Modules.Dependents
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await DependentService.GetDependents(context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
-            cancellationToken: ct);
+            options: DependentCacheService.CacheOptions.LongTerm,
+            cancellationToken: ct,
+            tags: new[] { DependentCacheService.Tags.Dependents });
 
           return Results.Ok(new ResponseControllerDependentListDTO(
             cachedResponse.Status == HttpStatusCode.OK,

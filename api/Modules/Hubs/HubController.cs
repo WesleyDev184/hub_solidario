@@ -58,7 +58,7 @@ public static class HubController
           // Invalidar cache após criação bem-sucedida
           if (res.Status == HttpStatusCode.Created)
           {
-            await HubCacheService.InvalidateHubCache(cache, res.Data!.Id, ct);
+            await HubCacheService.InvalidateHubCache(cache, res.Data!.Id, null, ct);
           }
 
           return res.Status switch
@@ -102,11 +102,7 @@ public static class HubController
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await HubService.GetHub(id, context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
+            options: HubCacheService.CacheOptions.VeryLongTerm,
             cancellationToken: ct);
 
           if (cachedResponse.Status == HttpStatusCode.NotFound || cachedResponse.Data == null)
@@ -145,12 +141,9 @@ public static class HubController
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await HubService.GetHubs(context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
-            cancellationToken: ct);
+            options: HubCacheService.CacheOptions.VeryLongTerm,
+            cancellationToken: ct,
+            tags: new[] { HubCacheService.Tags.Hubs });
 
           return Results.Ok(new ResponseControllerHubListDTO(
             cachedResponse.Status == HttpStatusCode.OK,
@@ -212,7 +205,7 @@ public static class HubController
           // Invalidar cache após atualização bem-sucedida
           if (res.Status == HttpStatusCode.OK)
           {
-            await HubCacheService.InvalidateHubCache(cache, id, ct: ct);
+            await HubCacheService.InvalidateHubCache(cache, id, null, ct);
           }
 
           return res.Status switch
@@ -266,7 +259,7 @@ public static class HubController
           // Invalidar cache após exclusão bem-sucedida
           if (res.Status == HttpStatusCode.OK)
           {
-            await HubCacheService.InvalidateHubCache(cache, id, ct);
+            await HubCacheService.InvalidateHubCache(cache, id, null, ct);
           }
 
           return res.Status switch

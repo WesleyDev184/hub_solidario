@@ -61,20 +61,20 @@ namespace api.Modules.Auth
             User? user = await signInManager.UserManager.FindByEmailAsync(login.Email);
             if (user == null)
             {
-                return TypedResults.Problem("User not found", statusCode: StatusCodes.Status404NotFound);
-              }
+              return TypedResults.Problem("User not found", statusCode: StatusCodes.Status404NotFound);
+            }
 
-              // Só atualiza se DeviceToken foi realmente enviado e é diferente do atual
-              if (!string.IsNullOrWhiteSpace(login.DeviceToken) && login.DeviceToken != user.DeviceToken)
+            // Só atualiza se DeviceToken foi realmente enviado e é diferente do atual
+            if (!string.IsNullOrWhiteSpace(login.DeviceToken) && login.DeviceToken != user.DeviceToken)
+            {
+              user.DeviceToken = login.DeviceToken;
+              IdentityResult updateResult = await signInManager.UserManager.UpdateAsync(user);
+              if (!updateResult.Succeeded)
               {
-                user.DeviceToken = login.DeviceToken;
-                IdentityResult updateResult = await signInManager.UserManager.UpdateAsync(user);
-                if (!updateResult.Succeeded)
-                {
                 return TypedResults.Problem("Error updating user device token",
                   statusCode: StatusCodes.Status500InternalServerError);
-                }
               }
+            }
 
             return TypedResults.Empty;
           })
@@ -234,13 +234,11 @@ namespace api.Modules.Auth
                 user.CreatedAt
               );
             },
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5)
-            },
+            options: AuthCacheService.CacheOptions.LongTerm,
             cancellationToken: ct,
-            tags: [$"user-{user.HubId}"]);
+            tags: user.HubId.HasValue
+              ? new[] { AuthCacheService.Tags.Users, AuthCacheService.Tags.UsersByHub(user.HubId.Value) }
+              : new[] { AuthCacheService.Tags.Users });
 
           return Results.Ok(new ResponseControllerUserDTO(
             true,
@@ -278,12 +276,9 @@ namespace api.Modules.Auth
                 u.CreatedAt
               )).ToList();
             },
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(10)
-            },
-            cancellationToken: ct);
+            options: AuthCacheService.CacheOptions.LongTerm,
+            cancellationToken: ct,
+            tags: new[] { AuthCacheService.Tags.Users });
 
           if (cachedUsers.Count == 0)
           {
@@ -353,11 +348,7 @@ namespace api.Modules.Auth
                 Found = true
               };
             },
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5)
-            },
+            options: AuthCacheService.CacheOptions.LongTerm,
             cancellationToken: ct);
 
           if (!cachedResponse.Found)
@@ -436,7 +427,7 @@ namespace api.Modules.Auth
           }
 
           // Invalidar cache após atualização bem-sucedida
-          await AuthCacheService.InvalidateUserCache(cache, user.Id, ct);
+          await AuthCacheService.InvalidateUserCache(cache, user.Id, null, ct);
 
           return Results.Ok(new ResponseControllerUserDTO(
             true,
@@ -482,7 +473,7 @@ namespace api.Modules.Auth
           }
 
           // Invalidar cache após exclusão bem-sucedida
-          await AuthCacheService.InvalidateUserCache(cache, id, ct);
+          await AuthCacheService.InvalidateUserCache(cache, id, userHubId, ct);
           if (userHubId.HasValue)
           {
             await AuthCacheService.InvalidateHubUserCaches(cache, userHubId.Value, ct);
@@ -526,12 +517,9 @@ namespace api.Modules.Auth
 
               return users;
             },
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5)
-            },
-            cancellationToken: ct);
+            options: AuthCacheService.CacheOptions.LongTerm,
+            cancellationToken: ct,
+            tags: new[] { AuthCacheService.Tags.Users, AuthCacheService.Tags.UsersByHub(hubId) });
 
           return Results.Ok(new ResponseControllerUserListDTO(
             true,

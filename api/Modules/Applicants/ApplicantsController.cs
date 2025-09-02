@@ -75,7 +75,7 @@ namespace api.Modules.Applicants
           // Invalidar cache global após criação bem-sucedida
           if (response.Status == HttpStatusCode.Created)
           {
-            await ApplicantCacheService.InvalidateApplicantCache(cache, response.Data!.Id, ct);
+            await ApplicantCacheService.InvalidateApplicantCache(cache, response.Data!.Id, null, ct);
           }
 
           return response.Status switch
@@ -117,11 +117,7 @@ namespace api.Modules.Applicants
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await ApplicantService.GetApplicant(id, context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromMinutes(30),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
+            options: ApplicantCacheService.CacheOptions.Default,
             cancellationToken: ct);
 
           if (cachedResponse.Status == HttpStatusCode.NotFound)
@@ -157,12 +153,9 @@ namespace api.Modules.Applicants
           var cachedResponse = await cache.GetOrCreateAsync(
             cacheKey,
             async cancel => await ApplicantService.GetApplicants(context, cancel),
-            options: new HybridCacheEntryOptions
-            {
-              Expiration = TimeSpan.FromDays(2),
-              LocalCacheExpiration = TimeSpan.FromMinutes(5) // padronizado
-            },
-            cancellationToken: ct);
+            options: ApplicantCacheService.CacheOptions.LongTerm,
+            cancellationToken: ct,
+            tags: new[] { ApplicantCacheService.Tags.Applicants });
 
           return Results.Ok(new ResponseControllerApplicantsListDTO(
             cachedResponse.Status == HttpStatusCode.OK,
@@ -235,7 +228,7 @@ namespace api.Modules.Applicants
           // Invalidar cache apenas do applicant alterado após atualização
           if (response.Status == HttpStatusCode.OK)
           {
-            await ApplicantCacheService.InvalidateApplicantCache(cache, id, ct);
+            await ApplicantCacheService.InvalidateApplicantCache(cache, id, null, ct);
           }
 
           return response.Status switch
@@ -282,7 +275,7 @@ namespace api.Modules.Applicants
           // Invalidar cache apenas do applicant excluído
           if (response.Status == HttpStatusCode.OK)
           {
-            await ApplicantCacheService.InvalidateApplicantCache(cache, id, ct);
+            await ApplicantCacheService.InvalidateApplicantCache(cache, id, null, ct);
           }
 
           return response.Status switch
