@@ -11,7 +11,7 @@ on:
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY: registry.core.hubsolidario.com
+  REGISTRY: registry.hubsolidario.com
   API_IMAGE_NAME: hubs/api
   LEV_JOB_IMAGE_NAME: hubs/lev-job
   REGISTRY_USERNAME: wesley
