@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: loan-expiration-validator
 spec:
-  schedule: "0 18 * * *"
+  schedule: "0 18 * * 0"
   timeZone: "America/Sao_Paulo"
   jobTemplate:
     spec:
