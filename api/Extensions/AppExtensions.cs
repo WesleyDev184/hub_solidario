@@ -92,7 +92,7 @@ namespace api.Extensions
         opt.ShowSidebar = true;
         opt.Theme = ScalarTheme.DeepSpace;
         opt.Favicon =
-          "https://s3.core.hubsolidario.com/hub/HUBS_blue.svg";
+          "https://s3.hubsolidario.com/hub/HUBS_blue.svg";
         opt.HideDarkModeToggle = true;
         opt.HideClientButton = true;
         opt.HideModels = true;
@@ -116,4 +116,5 @@ namespace api.Extensions
       app.DocumentRoutes();
     }
   }
+
 }
