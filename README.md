@@ -1,4 +1,4 @@
-# ROTARY
+# Hub Solidario
 
 Built with the tools and technologies:
 
@@ -18,9 +18,9 @@ Built with the tools and technologies:
 
 ## Overview
 
-Rotary is a solution that integrates a powerful backend API with a responsive Flutter mobile app designed to streamline orthopedic inventory and loan management. It offers a modular and scalable architecture that simplifies asset tracking, user roles, and transaction workflows.
+Hub Solidario is a solution that integrates a powerful backend API with a responsive Flutter mobile app designed to streamline orthopedic inventory and loan management. It offers a modular and scalable architecture that simplifies asset tracking, user roles, and transaction workflows.
 
-### Why Rotary?
+### Why Hub Solidario?
 
 This project aims to streamline healthcare resource management through a cohesive system. The core features include:
 
