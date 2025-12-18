@@ -11,14 +11,12 @@ class LoanCard extends StatelessWidget {
   final String id;
   final String imageUrl;
   final LoanListItem loan;
-  final Function()? loadData;
 
   const LoanCard({
     super.key,
     required this.id,
     required this.imageUrl,
     required this.loan,
-    required this.loadData,
   });
 
   Widget _buildImage() {

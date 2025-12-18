@@ -40,6 +40,39 @@ class LoansRepository {
     }
   }
 
+  AsyncResult<List<LoanListItem>> getLoansByHub(String hubId) async {
+    try {
+      final result = await _apiClient.get(
+        ApiEndpoints.loansByHub(hubId),
+        useAuth: true,
+      );
+
+      return result.fold((data) {
+        try {
+          if (data['success'] == true && data['data'] != null) {
+            final loansData = data['data'] as List;
+            final loans = loansData
+                .map(
+                  (json) => LoanListItem.fromJson(json as Map<String, dynamic>),
+                )
+                .toList();
+            return Success(loans);
+          } else {
+            return Failure(
+              Exception(data['message'] ?? 'Erro ao buscar empréstimos'),
+            );
+          }
+        } catch (e) {
+          return Failure(
+            Exception('Erro ao processar resposta dos empréstimos: $e'),
+          );
+        }
+      }, (error) => Failure(error));
+    } catch (e) {
+      return Failure(Exception('Erro na comunicação com a API: $e'));
+    }
+  }
+
   /// Busca um loan por ID
   AsyncResult<Loan> getLoanById(String loanId) async {
     try {

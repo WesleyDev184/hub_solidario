@@ -24,7 +24,7 @@ class LoansController extends GetxController {
     // Observa mudanças no estado de autenticação
     ever(authController.stateRx, (authState) async {
       if (authState.isAuthenticated) {
-        await loadLoans();
+        await loadLoans(authController.getHubId!);
       } else {
         await clearAllCaches();
       }
@@ -32,7 +32,7 @@ class LoansController extends GetxController {
 
     // Carrega loans se já estiver autenticado
     if (authController.isAuthenticated) {
-      await loadLoans();
+      await loadLoans(authController.getHubId!);
     }
   }
 
@@ -52,7 +52,8 @@ class LoansController extends GetxController {
   // === OPERAÇÕES DE LOANS ===
 
   /// Carrega todos os loans (listagem)
-  AsyncResult<List<LoanListItem>> loadLoans({
+  AsyncResult<List<LoanListItem>> loadLoans(
+    String hubId, {
     bool forceRefresh = false,
     LoanFilters? filters,
   }) async {
@@ -71,7 +72,7 @@ class LoansController extends GetxController {
       }
 
       // Busca dados via repository
-      final result = await _repository.getLoans();
+      final result = await _repository.getLoansByHub(hubId);
 
       return result.fold(
         (loans) async {
@@ -236,12 +237,6 @@ class LoansController extends GetxController {
     await _cacheService.clearPersistentCache();
     _statistics = null;
     _loans.clear();
-  }
-
-  /// Força refresh de todos os dados
-  AsyncResult<List<LoanListItem>> refreshAllData() async {
-    await clearAllCaches();
-    return loadLoans(forceRefresh: true);
   }
 
   /// Limpa dados locais

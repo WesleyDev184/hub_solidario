@@ -18,7 +18,7 @@ spec:
         - name: registry-auth-container
       containers:
         - name: api
-          image: registry.core.hubsolidario.com/hubs/api:latest
+          image: registry.hubsolidario.com/hubs/api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5001
@@ -52,7 +52,7 @@ spec:
             - -c
             - |
               until pg_isready -h db -p 5432 -U postgres; do
-                echo "Waiting for database..."
+                echo "Waiting for database...."
                 sleep 2
               done
               echo "Database is ready!"

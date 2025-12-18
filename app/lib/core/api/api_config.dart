@@ -57,6 +57,7 @@ class ApiEndpoints {
   // Loans endpoints
   static const String loans = '/loans';
   static String loanById(String id) => '/loans/$id';
+  static String loansByHub(String hubId) => '/loans/hub/$hubId';
 
   // Documents endpoints
   static const String documents = '/documents';
