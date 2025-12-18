@@ -27,5 +27,5 @@ This project aims to streamline healthcare resource management through a cohesiv
 - 🗄️ **Modular API**: RESTful endpoints for managing stocks, applicants, loans, and beneficiaries.
 - 🎨 **Custom UI Components**: Reusable Flutter widgets with themes, icons, and responsive design.
 - 🌐 **Cross-Platform Support**: Seamless deployment on Android, iOS, Linux, and web.
-- 🔑 **Secure Authentication**: Robust user login, registration, and role management.
+- 🔑 **Secure Authentication**: Robust login, registration, and role management.
 - 📈 **Visual System Diagrams**: Use case, flow, and state diagrams for clear architecture understanding.
